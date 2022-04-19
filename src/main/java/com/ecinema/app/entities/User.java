@@ -8,11 +8,9 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import javax.persistence.*;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Getter
 @Setter
@@ -26,22 +24,13 @@ public class User extends AbstractEntity implements UserDetails {
     private String password;
 
     @Column
-    private Boolean isAccountLocked;
+    private String firstName;
 
     @Column
-    private Boolean isAccountEnabled;
+    private String lastName;
 
     @Column
-    private Boolean isAccountExpired;
-
-    @Column
-    private Boolean isCredentialsExpired;
-
-    @Column
-    private LocalDateTime creationDateTime;
-
-    @Column
-    private LocalDateTime lastActivityDateTime;
+    private LocalDate birthDate;
 
     @Column
     private String securityQuestion1;
@@ -55,14 +44,32 @@ public class User extends AbstractEntity implements UserDetails {
     @Column
     private String securityAnswer2;
 
+    @Column
+    private LocalDateTime creationDateTime;
+
+    @Column
+    private LocalDateTime lastActivityDateTime;
+
+    @Column
+    private Boolean isAccountEnabled;
+
+    @Column
+    private Boolean isAccountLocked;
+
+    @Column
+    private Boolean isAccountExpired;
+
+    @Column
+    private Boolean isCredentialsExpired;
+
     @MapKeyEnumerated(EnumType.STRING)
     @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
-    private Map<UserRole, UserAuthority> userAuthorities;
+    private Map<UserRole, UserRoleDef> userRoleDefs = new EnumMap<>(UserRole.class);
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         List<SimpleGrantedAuthority> grantedAuthorities = new ArrayList<>();
-        for (Map.Entry<UserRole, UserAuthority> userExtensionEntry : userAuthorities.entrySet()) {
+        for (Map.Entry<UserRole, UserRoleDef> userExtensionEntry : userRoleDefs.entrySet()) {
             if (userExtensionEntry.getValue() != null) {
                 grantedAuthorities.add(new SimpleGrantedAuthority(userExtensionEntry.getKey().getAuthority()));
             }

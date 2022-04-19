@@ -1,12 +1,60 @@
 package com.ecinema.app.utils;
 
+import java.lang.reflect.InvocationTargetException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.Month;
+import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
 
 public class UtilMethods {
+
+    private static final Random random = new Random(System.currentTimeMillis());
+
+    public static Random getRandom() {
+        return random;
+    }
+
+    public static boolean isAlphabeticalOnly(String s) {
+        for (char c : s.toCharArray()) {
+            if (!Character.isAlphabetic(c)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    public static boolean isDigitsOnly(String s) {
+        for (char c : s.toCharArray()) {
+            if (!Character.isDigit(c)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    public static int numSpecialChars(String s) {
+        int num = 0;
+        for (char c : s.toCharArray()) {
+            if (!Character.isDigit(c) && !Character.isAlphabetic(c)) {
+                num++;
+            }
+        }
+        return num;
+    }
+
+    public static String removeSubstrings(String s, String... targets) {
+        String str = "";
+        for (String target : targets) {
+            str = s.replace(target, "");
+        }
+        return str;
+    }
+
+    public static String removeWhitespace(String s) {
+        return s.replace("\\s", "");
+    }
 
     public static LocalDateTime randomDateTime() {
         return LocalDateTime.of(randomDate(), randomTime());
@@ -14,7 +62,8 @@ public class UtilMethods {
 
     public static LocalDate randomDate() {
         long minDay = LocalDate.of(2022, Month.JANUARY, 1).toEpochDay();
-        long maxDay = LocalDate.of(2022, Month.APRIL, 18).toEpochDay();
+        LocalDate localDate = LocalDate.now();
+        long maxDay = LocalDate.of(localDate.getYear(), localDate.getMonth(), localDate.getDayOfMonth()).toEpochDay();
         long randomDay = ThreadLocalRandom.current().nextLong(minDay, maxDay);
         return LocalDate.ofEpochDay(randomDay);
     }

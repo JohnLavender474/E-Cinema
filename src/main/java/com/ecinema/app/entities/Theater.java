@@ -4,6 +4,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import javax.persistence.*;
+import java.util.HashSet;
 import java.util.Set;
 
 @Getter
@@ -18,13 +19,13 @@ public class Theater extends AbstractEntity {
     private String theaterName;
 
     @ManyToMany(mappedBy = "theaters")
-    private Set<AdminAuthority> admins;
+    private Set<AdminRoleDef> admins = new HashSet<>();
 
     @OneToMany(cascade = CascadeType.ALL)
-    private Set<Showroom> showrooms;
+    private Set<Showroom> showrooms = new HashSet<>();
 
     @OneToMany(cascade = CascadeType.ALL)
-    private Set<Screening> screenings;
+    private Set<Screening> screenings = new HashSet<>();
 
     @OneToOne(cascade = CascadeType.ALL)
     private Address address;

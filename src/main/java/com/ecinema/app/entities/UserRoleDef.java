@@ -1,6 +1,7 @@
 package com.ecinema.app.entities;
 
 import com.ecinema.app.utils.constants.UserRole;
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -10,20 +11,21 @@ import javax.persistence.*;
 @Setter
 @Entity
 @Inheritance(strategy = InheritanceType.JOINED)
-public abstract class UserAuthority extends AbstractEntity {
+public abstract class UserRoleDef extends AbstractEntity {
 
-    @ManyToOne
     @JoinColumn
+    @ManyToOne(fetch = FetchType.EAGER)
     private User user;
 
     @Column
     @Enumerated(EnumType.STRING)
+    @Setter(AccessLevel.PRIVATE)
     private UserRole userRole;
 
     @Column
-    private Boolean isExtensionLocked;
+    private Boolean isAuthorityValid;
 
-    public UserAuthority() {
+    public UserRoleDef() {
         setUserRole(defineUserRole());
     }
 

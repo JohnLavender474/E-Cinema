@@ -5,6 +5,7 @@ import lombok.Setter;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
+import java.util.HashSet;
 import java.util.Set;
 
 @Getter
@@ -28,6 +29,6 @@ public class Screening extends AbstractEntity {
     private Showroom showroom;
 
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private Set<Ticket> tickets;
+    private Set<Ticket> tickets = new HashSet<>();
 
 }

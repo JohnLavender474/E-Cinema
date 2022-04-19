@@ -3,10 +3,7 @@ package com.ecinema.app.entities;
 import lombok.Getter;
 import lombok.Setter;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.OneToOne;
+import javax.persistence.*;
 import java.time.LocalDateTime;
 
 @Getter
@@ -26,7 +23,8 @@ public class Review extends AbstractEntity {
     @Column
     private LocalDateTime creationDateTime;
 
-    @OneToOne(fetch = FetchType.LAZY)
-    private User user;
+    @JoinColumn
+    @ManyToOne(fetch = FetchType.EAGER)
+    private CustomerRoleDef customerRoleDef;
 
 }

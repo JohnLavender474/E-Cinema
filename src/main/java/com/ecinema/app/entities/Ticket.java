@@ -26,7 +26,7 @@ public class Ticket extends AbstractEntity {
 
     @ManyToOne
     @JoinColumn
-    private CustomerAuthority customer;
+    private CustomerRoleDef customerRoleDef;
 
     @ManyToOne
     @JoinColumn

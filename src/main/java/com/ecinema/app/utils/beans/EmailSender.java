@@ -1,11 +1,11 @@
-package com.ecinema.app.utils;
+package com.ecinema.app.utils.beans;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
 
 import java.util.Properties;
 
-public class EmailSenderBean {
+public class EmailSender {
     @Bean
     public JavaMailSenderImpl emailSender() {
         JavaMailSenderImpl mailSender = new JavaMailSenderImpl();

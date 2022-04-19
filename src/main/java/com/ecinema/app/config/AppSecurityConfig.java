@@ -1,9 +1,9 @@
 package com.ecinema.app.config;
 
 import com.ecinema.app.services.UserService;
+import com.ecinema.app.utils.beans.PasswordEncryptor;
 import com.ecinema.app.utils.constants.UrlPermissions;
 import com.ecinema.app.utils.constants.UserRole;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
@@ -19,22 +19,18 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 public class AppSecurityConfig extends WebSecurityConfigurerAdapter {
 
     private final UserService userService;
+    private final BCryptPasswordEncoder passwordEncoder;
 
-    @Autowired
-    public AppSecurityConfig(UserService userService) {
+    public AppSecurityConfig(UserService userService, BCryptPasswordEncoder passwordEncoder) {
         this.userService = userService;
-    }
-
-    @Bean
-    public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
+        this.passwordEncoder = passwordEncoder;
     }
 
     @Bean
     public DaoAuthenticationProvider authenticationProvider() {
         DaoAuthenticationProvider authenticationProvider = new DaoAuthenticationProvider();
         authenticationProvider.setUserDetailsService(userService);
-        authenticationProvider.setPasswordEncoder(passwordEncoder());
+        authenticationProvider.setPasswordEncoder(passwordEncoder);
         return authenticationProvider;
     }
 

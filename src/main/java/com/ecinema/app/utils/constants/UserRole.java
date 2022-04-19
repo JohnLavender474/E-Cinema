@@ -22,6 +22,10 @@ public enum UserRole implements GrantedAuthority {
         this.privileges = privileges;
     }
 
+    public Set<String> getPrivileges() {
+        return privileges;
+    }
+
     @Override
     public String getAuthority() {
         return name();

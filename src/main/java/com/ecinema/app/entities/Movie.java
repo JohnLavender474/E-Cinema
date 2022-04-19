@@ -6,6 +6,8 @@ import lombok.Getter;
 import lombok.Setter;
 
 import javax.persistence.*;
+import java.util.EnumSet;
+import java.util.HashSet;
 import java.util.Set;
 
 @Getter
@@ -17,10 +19,10 @@ public class Movie extends AbstractEntity {
     private String title;
 
     @ElementCollection
-    private Set<String> directors;
+    private Set<String> directors = new HashSet<>();
 
     @ElementCollection
-    private Set<String> producers;
+    private Set<String> producers = new HashSet<>();
 
     @Column
     private String synopsis;
@@ -39,15 +41,15 @@ public class Movie extends AbstractEntity {
     private MsrbRating msrbRating;
 
     @ElementCollection
-    private Set<String> cast;
+    private Set<String> cast = new HashSet<>();
 
     @ElementCollection
-    private Set<MovieCategory> movieCategories;
+    private Set<MovieCategory> movieCategories = EnumSet.noneOf(MovieCategory.class);
 
     @OneToMany(cascade = CascadeType.ALL)
-    private Set<Review> reviews;
+    private Set<Review> reviews = new HashSet<>();
 
     @OneToMany(cascade = CascadeType.ALL)
-    private Set<Screening> screenings;
+    private Set<Screening> screenings = new HashSet<>();
 
 }
