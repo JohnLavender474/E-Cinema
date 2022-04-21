@@ -18,16 +18,16 @@ public class Theater extends AbstractEntity {
     @Column
     private String theaterName;
 
-    @ManyToMany(mappedBy = "theaters")
+    @ManyToMany(mappedBy = "theatersBeingManaged")
     private Set<AdminRoleDef> admins = new HashSet<>();
 
-    @OneToMany(cascade = CascadeType.ALL)
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private Set<Showroom> showrooms = new HashSet<>();
 
-    @OneToMany(cascade = CascadeType.ALL)
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private Set<Screening> screenings = new HashSet<>();
 
-    @OneToOne(cascade = CascadeType.ALL)
+    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private Address address;
 
 }

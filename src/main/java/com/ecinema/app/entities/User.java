@@ -12,6 +12,11 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
 
+/**
+ * {@inheritDoc}
+ * The User class contains the fields relevant for Spring Security and also acts as the "bucket"
+ * for instances of {@link UserRoleDef} with one-to-one relationships with User.
+ */
 @Getter
 @Setter
 @Entity
@@ -63,7 +68,7 @@ public class User extends AbstractEntity implements UserDetails {
     private Boolean isCredentialsExpired;
 
     @MapKeyEnumerated(EnumType.STRING)
-    @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private Map<UserRole, UserRoleDef> userRoleDefs = new EnumMap<>(UserRole.class);
 
     @Override

@@ -2,7 +2,6 @@ package com.ecinema.app.services;
 
 import com.ecinema.app.entities.CustomerRoleDef;
 import com.ecinema.app.entities.User;
-import com.ecinema.app.entities.UserRoleDef;
 import com.ecinema.app.repositories.CustomerRoleDefRepository;
 import com.ecinema.app.repositories.UserRepository;
 import com.ecinema.app.services.implementations.CustomerRoleDefServiceImpl;

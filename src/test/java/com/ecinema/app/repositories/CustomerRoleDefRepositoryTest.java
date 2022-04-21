@@ -1,9 +1,7 @@
 package com.ecinema.app.repositories;
 
-import com.ecinema.app.entities.CustomerRoleDef;
-import com.ecinema.app.entities.PaymentCard;
-import com.ecinema.app.entities.Review;
-import com.ecinema.app.entities.Ticket;
+import com.ecinema.app.entities.*;
+import com.ecinema.app.utils.constants.UserRole;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,6 +14,9 @@ import static org.mockito.Mockito.verify;
 
 @DataJpaTest
 class CustomerRoleDefRepositoryTest {
+
+    @Autowired
+    private UserRepository userRepository;
 
     @Autowired
     private CustomerRoleDefRepository customerRoleDefRepository;
@@ -37,10 +38,14 @@ class CustomerRoleDefRepositoryTest {
     @Test
     void testFindByReviewsContains() {
         // given
+        User user = new User();
+        userRepository.save(user);
         CustomerRoleDef customerRoleDef = new CustomerRoleDef();
+        customerRoleDef.setUser(user);
+        user.getUserRoleDefs().put(UserRole.CUSTOMER, customerRoleDef);
         customerRoleDefRepository.save(customerRoleDef);
         Review review = new Review();
-        review.setCustomerRoleDef(customerRoleDef);
+        review.setWriter(customerRoleDef);
         customerRoleDef.getReviews().add(review);
         reviewRepository.save(review);
         // when
@@ -55,7 +60,11 @@ class CustomerRoleDefRepositoryTest {
     @Test
     void testFindByTicketsContains() {
         // given
+        User user = new User();
+        userRepository.save(user);
         CustomerRoleDef customerRoleDef = new CustomerRoleDef();
+        customerRoleDef.setUser(user);
+        user.getUserRoleDefs().put(UserRole.CUSTOMER, customerRoleDef);
         customerRoleDefRepository.save(customerRoleDef);
         Ticket ticket = new Ticket();
         ticket.setCustomerRoleDef(customerRoleDef);
@@ -73,7 +82,11 @@ class CustomerRoleDefRepositoryTest {
     @Test
     void testFindByPaymentCardsContains() {
         // given
+        User user = new User();
+        userRepository.save(user);
         CustomerRoleDef customerRoleDef = new CustomerRoleDef();
+        customerRoleDef.setUser(user);
+        user.getUserRoleDefs().put(UserRole.CUSTOMER, customerRoleDef);
         customerRoleDefRepository.save(customerRoleDef);
         PaymentCard paymentCard = new PaymentCard();
         paymentCard.setCustomerRoleDef(customerRoleDef);

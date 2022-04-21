@@ -6,6 +6,14 @@ import lombok.Setter;
 import javax.persistence.*;
 import java.time.LocalDateTime;
 
+/**
+ * {@inheritDoc}
+ * This class represents a review that a user has written and posted for a particular {@link Movie}.
+ * This class is mapped to {@link #writer} which owns this instance. {@link User} instances
+ * with a customer role def are allowed to write and post reviews and post a single like or dislike
+ * for any other review instance. A review can optionally be censored by a {@link ModeratorRoleDef}
+ * which means that the review has been removed from public viewing until the moderator unlocks it.
+ */
 @Getter
 @Setter
 @Entity
@@ -24,7 +32,11 @@ public class Review extends AbstractEntity {
     private LocalDateTime creationDateTime;
 
     @JoinColumn
-    @ManyToOne(fetch = FetchType.EAGER)
-    private CustomerRoleDef customerRoleDef;
+    @ManyToOne(fetch = FetchType.LAZY)
+    private CustomerRoleDef writer;
+
+    @JoinColumn
+    @ManyToOne(fetch = FetchType.LAZY)
+    private ModeratorRoleDef censor;
 
 }

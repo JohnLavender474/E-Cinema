@@ -4,11 +4,14 @@ import com.ecinema.app.utils.constants.UserRole;
 import lombok.Getter;
 import lombok.Setter;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
+import javax.persistence.*;
 
+/**
+ * {@inheritDoc}
+ * The admin trainee role def grants a {@link User} the role of {@link UserRole#ADMIN_TRAINEE} along with its privileges.
+ * {@link #percentageTrainingModulesCompleted} defines the completion of training the admin trainee has completed.
+ * {@link #mentor} is required and defines the {@link AdminRoleDef} that is the mentor of the trainee.
+ */
 @Getter
 @Setter
 @Entity
@@ -17,8 +20,8 @@ public class AdminTraineeRoleDef extends UserRoleDef {
     @Column
     private Integer percentageTrainingModulesCompleted;
 
-    @ManyToOne
     @JoinColumn
+    @ManyToOne(fetch = FetchType.LAZY)
     private AdminRoleDef mentor;
 
     @Override

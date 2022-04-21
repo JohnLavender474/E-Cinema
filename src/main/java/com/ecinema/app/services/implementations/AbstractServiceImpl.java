@@ -2,10 +2,12 @@ package com.ecinema.app.services.implementations;
 
 import com.ecinema.app.services.AbstractService;
 import com.ecinema.app.entities.AbstractEntity;
+import com.ecinema.app.utils.exceptions.NoEntityFoundException;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Supplier;
 
 public abstract class AbstractServiceImpl<E extends AbstractEntity, R extends JpaRepository<E, Long>> implements AbstractService<E> {
 
@@ -24,18 +26,10 @@ public abstract class AbstractServiceImpl<E extends AbstractEntity, R extends Jp
     }
 
     @Override
-    public boolean deleteById(Long id) {
-        Optional<E> optionalEntity = findById(id);
-        if (optionalEntity.isEmpty()) {
-            return false;
-        }
-        E entity = optionalEntity.get();
-        delete(entity);
-        return true;
-    }
-
-    @Override
-    public void delete(E entity) {
+    public void deleteById(Long id)
+            throws NoEntityFoundException {
+        E entity = findById(id).orElseThrow(
+                () -> new NoEntityFoundException("entity", "id", id));
         onDelete(entity);
         repository.delete(entity);
     }

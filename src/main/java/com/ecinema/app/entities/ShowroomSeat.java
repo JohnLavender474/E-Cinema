@@ -11,8 +11,8 @@ import javax.persistence.*;
 @Entity
 public class ShowroomSeat extends AbstractEntity {
 
-    @ManyToOne
     @JoinColumn
+    @ManyToOne(fetch = FetchType.LAZY)
     private Showroom showroom;
 
     @Column

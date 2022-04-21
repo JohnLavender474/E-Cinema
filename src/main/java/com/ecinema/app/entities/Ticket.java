@@ -24,20 +24,20 @@ public class Ticket extends AbstractEntity {
     @Enumerated(EnumType.STRING)
     private TicketStatus ticketStatus;
 
-    @ManyToOne
     @JoinColumn
+    @ManyToOne(fetch = FetchType.EAGER)
     private CustomerRoleDef customerRoleDef;
 
-    @ManyToOne
     @JoinColumn
+    @ManyToOne(fetch = FetchType.LAZY)
     private PaymentCard paymentCard;
 
-    @ManyToOne
     @JoinColumn
+    @ManyToOne(fetch = FetchType.LAZY)
     private Screening screening;
 
-    @ManyToOne
     @JoinColumn
+    @ManyToOne(fetch = FetchType.LAZY)
     private ScreeningSeat screeningSeat;
 
 }

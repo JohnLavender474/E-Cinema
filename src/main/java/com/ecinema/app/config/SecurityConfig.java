@@ -16,12 +16,12 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 
 @Configuration
 @EnableWebSecurity
-public class AppSecurityConfig extends WebSecurityConfigurerAdapter {
+public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     private final UserService userService;
     private final BCryptPasswordEncoder passwordEncoder;
 
-    public AppSecurityConfig(UserService userService, BCryptPasswordEncoder passwordEncoder) {
+    public SecurityConfig(UserService userService, BCryptPasswordEncoder passwordEncoder) {
         this.userService = userService;
         this.passwordEncoder = passwordEncoder;
     }
@@ -45,11 +45,24 @@ public class AppSecurityConfig extends WebSecurityConfigurerAdapter {
         httpSecurity
                 .csrf().disable()
                 .authorizeRequests()
-                .antMatchers(UrlPermissions.ANY).permitAll()
                 .antMatchers(UrlPermissions.CUSTOMER).hasRole(UserRole.CUSTOMER.getAuthority())
+
+                // TODO: Add admin, admin trainee, and moderator permissions
+
+                .antMatchers(UrlPermissions.ANY).permitAll()
                 .anyRequest().authenticated()
                 .and()
-                .httpBasic();
+                .formLogin()
+                .loginPage("/login.jsp")
+                .loginProcessingUrl("/perform_login")
+                .defaultSuccessUrl("/homepage.jsp", true)
+                .failureUrl("/login.html?error=true")
+                .failureHandler(null) // TODO: add authentication failure handler
+                .and()
+                .logout()
+                .logoutUrl("/perform_logout")
+                .deleteCookies("JSESSIONID")
+                .logoutSuccessHandler(null); // TODO: add logout success handler
     }
 
 }

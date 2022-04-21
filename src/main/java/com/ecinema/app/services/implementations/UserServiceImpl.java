@@ -44,6 +44,11 @@ public class UserServiceImpl extends AbstractServiceImpl<User, UserRepository> i
     }
 
     @Override
+    public boolean existsByEmail(String email) {
+        return repository.existsByEmail(email);
+    }
+
+    @Override
     public UserDetails loadUserByUsername(String email)
             throws UsernameNotFoundException {
         return findByEmail(email).orElseThrow(
@@ -53,6 +58,20 @@ public class UserServiceImpl extends AbstractServiceImpl<User, UserRepository> i
     @Override
     public Optional<User> findByEmail(String email) {
         return repository.findByEmail(email);
+    }
+
+    @Override
+    public <T extends UserRoleDef> Optional<T> getUserRoleDefOf(Long userId, Class<T> userRoleDefClass)
+            throws InvalidArgException, NoEntityFoundException {
+        UserRole userRole = UserRole.defClassToUserRole(userRoleDefClass);
+        if (userRole == null) {
+            throw new InvalidArgException("The provided class " + userRoleDefClass.getName() +
+                    " is not mapped to a user role value");
+        }
+        User user = findById(userId).orElseThrow(
+                () -> new NoEntityFoundException("User", "id", userId));
+        UserRoleDef userRoleDef = user.getUserRoleDefs().get(userRole);
+        return Optional.ofNullable(userRoleDefClass.cast(userRoleDef));
     }
 
     @Override
@@ -99,13 +118,7 @@ public class UserServiceImpl extends AbstractServiceImpl<User, UserRepository> i
     public void addUserRoleDefToUser(Long userId, UserRole userRole)
             throws NoEntityFoundException, ClashesWithExistentObjectException {
         User user = findById(userId).orElseThrow(
-                () -> new NoEntityFoundException("user", "id", "userId"));
-        addUserRoleDefToUser(user, userRole);
-    }
-
-    @Override
-    public void addUserRoleDefToUser(User user, UserRole userRole)
-            throws InvalidArgException, ClashesWithExistentObjectException {
+                () -> new NoEntityFoundException("user", "id", userId));
         switch (userRole) {
             case CUSTOMER -> {
                 if (user.getUserRoleDefs().get(UserRole.CUSTOMER) != null) {
@@ -143,18 +156,34 @@ public class UserServiceImpl extends AbstractServiceImpl<User, UserRepository> i
                 user.getUserRoleDefs().put(UserRole.ADMIN_TRAINEE, adminRoleDef);
                 adminRoleDefService.save(adminRoleDef);
             }
+            default -> throw new InvalidArgException("Provided value of user role is invalid");
         }
     }
 
     @Override
     public void removeUserRoleDefFromUser(Long userId, UserRole userRole)
-            throws NoEntityFoundException, ClashesWithExistentObjectException {
-        
-    }
-
-    @Override
-    public boolean existsByEmail(String email) {
-        return repository.existsByEmail(email);
+            throws NoEntityFoundException, InvalidArgException {
+        User user = findById(userId).orElseThrow(
+                () -> new NoEntityFoundException("User", "id", userId));
+        switch (userRole) {
+            case ADMIN -> {
+                AdminRoleDef adminRoleDef = userRole.castToDefClass(user.getUserRoleDefs().get(userRole));
+                adminRoleDefService.deleteById(adminRoleDef.getId());
+            }
+            case CUSTOMER -> {
+                CustomerRoleDef customerRoleDef = userRole.castToDefClass(user.getUserRoleDefs().get(userRole));
+                customerRoleDefService.deleteById(customerRoleDef.getId());
+            }
+            case MODERATOR -> {
+                ModeratorRoleDef moderatorRoleDef = userRole.castToDefClass(user.getUserRoleDefs().get(userRole));
+                moderatorRoleDefService.deleteById(moderatorRoleDef.getId());
+            }
+            case ADMIN_TRAINEE -> {
+                AdminTraineeRoleDef adminTraineeRoleDef = userRole.castToDefClass(user.getUserRoleDefs().get(userRole));
+                adminTraineeRoleDefService.deleteById(adminTraineeRoleDef.getId());
+            }
+            default -> throw new InvalidArgException("The the provided value of user role " + userRole + " is invalid");
+        }
     }
 
 }

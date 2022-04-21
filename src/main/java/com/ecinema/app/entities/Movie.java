@@ -46,10 +46,10 @@ public class Movie extends AbstractEntity {
     @ElementCollection
     private Set<MovieCategory> movieCategories = EnumSet.noneOf(MovieCategory.class);
 
-    @OneToMany(cascade = CascadeType.ALL)
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private Set<Review> reviews = new HashSet<>();
 
-    @OneToMany(cascade = CascadeType.ALL)
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private Set<Screening> screenings = new HashSet<>();
 
 }
