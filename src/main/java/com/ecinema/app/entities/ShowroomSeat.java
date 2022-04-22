@@ -5,6 +5,8 @@ import lombok.Getter;
 import lombok.Setter;
 
 import javax.persistence.*;
+import java.util.HashSet;
+import java.util.Set;
 
 @Getter
 @Setter
@@ -21,5 +23,8 @@ public class ShowroomSeat extends AbstractEntity {
 
     @Column
     private Integer seatNumber;
+
+    @OneToMany(mappedBy = "showroomSeat", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private Set<ScreeningSeat> screeningSeats = new HashSet<>();
 
 }

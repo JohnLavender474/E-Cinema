@@ -21,10 +21,10 @@ public class Showroom extends AbstractEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     private Theater theater;
 
-    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "showroom", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private Set<ShowroomSeat> showroomSeats = new HashSet<>();
 
-    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "showroom", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private Set<Screening> screenings = new HashSet<>();
 
 }

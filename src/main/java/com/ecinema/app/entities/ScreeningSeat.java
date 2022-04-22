@@ -18,7 +18,7 @@ public class ScreeningSeat extends AbstractEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     private ShowroomSeat showroomSeat;
 
-    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @OneToOne(mappedBy = "screeningSeat")
     private Ticket ticket;
 
 }

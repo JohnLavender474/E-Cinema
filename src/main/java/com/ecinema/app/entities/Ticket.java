@@ -14,7 +14,7 @@ import java.time.LocalDateTime;
 public class Ticket extends AbstractEntity {
 
     @Column
-    private LocalDateTime createDateTime;
+    private LocalDateTime creationDateTime;
 
     @Column
     @Enumerated(EnumType.STRING)
@@ -37,7 +37,7 @@ public class Ticket extends AbstractEntity {
     private Screening screening;
 
     @JoinColumn
-    @ManyToOne(fetch = FetchType.LAZY)
+    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private ScreeningSeat screeningSeat;
 
 }

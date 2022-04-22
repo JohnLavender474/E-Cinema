@@ -7,5 +7,5 @@ import java.util.List;
 
 public interface PaymentCardService extends AbstractService<PaymentCard> {
     List<PaymentCard> findAllByCustomerRoleDef(CustomerRoleDef customerRoleDef);
-    List<PaymentCard> findAllByCustomerRoleDefWithId(Long customerAuthId);
+    List<PaymentCard> findAllByCustomerRoleDefId(Long customerAuthId);
 }

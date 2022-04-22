@@ -50,7 +50,7 @@ class CustomerRoleDefRepositoryTest {
         reviewRepository.save(review);
         // when
         Optional<CustomerRoleDef> customerAuthorityOptional = customerRoleDefRepository
-                .findByReviewsContains(review);
+                .findAllByReviewsContains(review);
         // then
         assertTrue(customerAuthorityOptional.isPresent() &&
                 customerAuthorityOptional.get().equals(customerRoleDef) &&
@@ -72,7 +72,7 @@ class CustomerRoleDefRepositoryTest {
         ticketRepository.save(ticket);
         // when
         Optional<CustomerRoleDef> customerAuthorityOptional = customerRoleDefRepository
-                .findByTicketsContains(ticket);
+                .findAllByTicketsContains(ticket);
         // then
         assertTrue(customerAuthorityOptional.isPresent() &&
                            customerAuthorityOptional.get().equals(customerRoleDef) &&
@@ -94,7 +94,7 @@ class CustomerRoleDefRepositoryTest {
         paymentCardRepository.save(paymentCard);
         // when
         Optional<CustomerRoleDef> customerAuthorityOptional = customerRoleDefRepository
-                .findByPaymentCardsContains(paymentCard);
+                .findAllByPaymentCardsContains(paymentCard);
         // then
         assertTrue(customerAuthorityOptional.isPresent() &&
                 customerAuthorityOptional.get().equals(customerRoleDef) &&

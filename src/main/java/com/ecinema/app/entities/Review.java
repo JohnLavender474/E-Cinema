@@ -33,6 +33,10 @@ public class Review extends AbstractEntity {
 
     @JoinColumn
     @ManyToOne(fetch = FetchType.LAZY)
+    private Movie movie;
+
+    @JoinColumn
+    @ManyToOne(fetch = FetchType.LAZY)
     private CustomerRoleDef writer;
 
     @JoinColumn

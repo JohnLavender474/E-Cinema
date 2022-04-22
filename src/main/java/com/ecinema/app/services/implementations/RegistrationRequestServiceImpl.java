@@ -22,6 +22,9 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+/**
+ * The type Registration request service.
+ */
 @Service
 @Transactional
 public class RegistrationRequestServiceImpl extends AbstractServiceImpl<RegistrationRequest,
@@ -32,6 +35,15 @@ public class RegistrationRequestServiceImpl extends AbstractServiceImpl<Registra
     private final BCryptPasswordEncoder passwordEncoder;
     private final RegistrationFormValidator registrationFormValidator;
 
+    /**
+     * Instantiates a new Registration request service.
+     *
+     * @param repository                the repository
+     * @param userService               the user service
+     * @param emailSenderService        the email sender service
+     * @param passwordEncoder           the password encoder
+     * @param registrationFormValidator the registration form validator
+     */
     public RegistrationRequestServiceImpl(RegistrationRequestRepository repository, UserService userService,
                                           EmailSenderServiceImpl emailSenderService, BCryptPasswordEncoder passwordEncoder,
                                           RegistrationFormValidator registrationFormValidator) {

@@ -25,7 +25,7 @@ public class AdminRoleDef extends UserRoleDef {
     @ManyToMany
     private Set<Theater> theatersBeingManaged = new HashSet<>();
 
-    @OneToMany
+    @OneToMany(mappedBy = "mentor")
     private Set<AdminTraineeRoleDef> trainees = new HashSet<>();
 
     @Override

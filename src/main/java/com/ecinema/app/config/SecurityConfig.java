@@ -1,19 +1,33 @@
 package com.ecinema.app.config;
 
 import com.ecinema.app.services.UserService;
-import com.ecinema.app.utils.beans.PasswordEncryptor;
 import com.ecinema.app.utils.constants.UrlPermissions;
 import com.ecinema.app.utils.constants.UserRole;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.util.Calendar;
+import java.util.HashMap;
+import java.util.Map;
+
+/**
+ * https://www.baeldung.com/spring-security-login
+ * https://www.baeldung.com/spring-security-custom-authentication-failure-handler
+ */
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
@@ -21,11 +35,22 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     private final UserService userService;
     private final BCryptPasswordEncoder passwordEncoder;
 
+    /**
+     * Instantiates a new Security config.
+     *
+     * @param userService     the user service
+     * @param passwordEncoder the password encoder
+     */
     public SecurityConfig(UserService userService, BCryptPasswordEncoder passwordEncoder) {
         this.userService = userService;
         this.passwordEncoder = passwordEncoder;
     }
 
+    /**
+     * Authentication provider dao authentication provider.
+     *
+     * @return the dao authentication provider
+     */
     @Bean
     public DaoAuthenticationProvider authenticationProvider() {
         DaoAuthenticationProvider authenticationProvider = new DaoAuthenticationProvider();
@@ -53,16 +78,26 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .anyRequest().authenticated()
                 .and()
                 .formLogin()
-                .loginPage("/login.jsp")
+                .loginPage("/login.html")
                 .loginProcessingUrl("/perform_login")
-                .defaultSuccessUrl("/homepage.jsp", true)
+                .defaultSuccessUrl("/index.html", true)
                 .failureUrl("/login.html?error=true")
-                .failureHandler(null) // TODO: add authentication failure handler
+                .failureHandler(authenticationFailureHandler())
                 .and()
                 .logout()
-                .logoutUrl("/perform_logout")
-                .deleteCookies("JSESSIONID")
-                .logoutSuccessHandler(null); // TODO: add logout success handler
+                .logoutUrl("/logout.html")
+                .deleteCookies("JSESSIONID");
+                // .logoutSuccessHandler(null); // TODO: add logout success handler
+    }
+
+    /**
+     * Authentication failure handler authentication failure handler.
+     *
+     * @return the authentication failure handler
+     */
+    @Bean
+    public AuthenticationFailureHandler authenticationFailureHandler() {
+        return new CustomAuthenticationFailureHandler();
     }
 
 }

@@ -2,14 +2,20 @@ package com.ecinema.app.entities;
 
 import com.ecinema.app.utils.constants.MovieCategory;
 import com.ecinema.app.utils.constants.MsrbRating;
+import com.ecinema.app.utils.converters.DurationConverter;
+import com.ecinema.app.utils.objects.Duration;
 import lombok.Getter;
 import lombok.Setter;
 
 import javax.persistence.*;
+import java.time.LocalDate;
 import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.Set;
 
+/**
+ * The type Movie.
+ */
 @Getter
 @Setter
 @Entity
@@ -28,7 +34,11 @@ public class Movie extends AbstractEntity {
     private String synopsis;
 
     @Column
-    private Integer durationInMinutes;
+    @Convert(converter = DurationConverter.class)
+    private Duration duration;
+
+    @Column
+    private LocalDate releaseDate;
 
     @Column
     private String image;
@@ -46,10 +56,10 @@ public class Movie extends AbstractEntity {
     @ElementCollection
     private Set<MovieCategory> movieCategories = EnumSet.noneOf(MovieCategory.class);
 
-    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "movie", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private Set<Review> reviews = new HashSet<>();
 
-    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "movie", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private Set<Screening> screenings = new HashSet<>();
 
 }

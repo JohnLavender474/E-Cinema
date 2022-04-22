@@ -32,10 +32,11 @@ public class PaymentCard extends AbstractEntity {
     @Column
     private Integer expirationYear;
 
-    @ManyToOne
     @JoinColumn
+    @ManyToOne(fetch = FetchType.LAZY)
     private CustomerRoleDef customerRoleDef;
 
+    @JoinColumn
     @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private Address billingAddress;
 

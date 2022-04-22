@@ -8,6 +8,9 @@ import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
 
+/**
+ * The type Screening.
+ */
 @Getter
 @Setter
 @Entity
@@ -28,7 +31,10 @@ public class Screening extends AbstractEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     private Showroom showroom;
 
-    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "screening", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private Set<Ticket> tickets = new HashSet<>();
+
+    @OneToMany(mappedBy = "screening", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private Set<ScreeningSeat> screeningSeats = new HashSet<>();
 
 }

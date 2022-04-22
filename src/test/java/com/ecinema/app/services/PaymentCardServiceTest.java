@@ -59,12 +59,12 @@ class PaymentCardServiceTest {
         List<PaymentCard> paymentCardsControl1 = paymentCards
                 .stream().filter(paymentCard -> paymentCard.getCustomerRoleDef().equals(customerRoleDef1))
                 .collect(Collectors.toList());
-        given(paymentCardRepository.findAllByCustomerRoleDef(customerRoleDef1))
+        given(paymentCardRepository.findDistinctByCustomerRoleDef(customerRoleDef1))
                 .willReturn(paymentCardsControl1);
         List<PaymentCard> paymentCardsControl2 = paymentCards
                 .stream().filter(paymentCard -> paymentCard.getCustomerRoleDef().equals(customerRoleDef2))
                 .collect(Collectors.toList());
-        given(paymentCardRepository.findAllByCustomerRoleDef(customerRoleDef2))
+        given(paymentCardRepository.findDistinctByCustomerRoleDef(customerRoleDef2))
                 .willReturn(paymentCardsControl2);
         // when
         List<PaymentCard> paymentCardsTest1 = paymentCardService.findAllByCustomerRoleDef(customerRoleDef1);
@@ -72,8 +72,8 @@ class PaymentCardServiceTest {
         // then
         assertEquals(paymentCardsControl1, paymentCardsTest1);
         assertEquals(paymentCardsControl2, paymentCardsTest2);
-        verify(paymentCardRepository, times(1)).findAllByCustomerRoleDef(customerRoleDef1);
-        verify(paymentCardRepository, times(1)).findAllByCustomerRoleDef(customerRoleDef2);
+        verify(paymentCardRepository, times(1)).findDistinctByCustomerRoleDef(customerRoleDef1);
+        verify(paymentCardRepository, times(1)).findDistinctByCustomerRoleDef(customerRoleDef2);
         verify(customerRoleDefRepository, times(1)).save(customerRoleDef1);
         verify(customerRoleDefRepository, times(1)).save(customerRoleDef1);
     }
@@ -102,22 +102,22 @@ class PaymentCardServiceTest {
                 .stream().filter(paymentCard -> paymentCard.getCustomerRoleDef().getId()
                                                            .equals(customerRoleDef1.getId()))
                 .collect(Collectors.toList());
-        given(paymentCardRepository.findAllByCustomerRoleDefWithId(customerRoleDef1.getId()))
+        given(paymentCardRepository.findDistinctByCustomerRoleDefWithId(customerRoleDef1.getId()))
                 .willReturn(paymentCardsControl1);
         List<PaymentCard> paymentCardsControl2 = paymentCards
                 .stream().filter(paymentCard -> paymentCard.getCustomerRoleDef().getId()
                                                            .equals(customerRoleDef2.getId()))
                 .collect(Collectors.toList());
-        given(paymentCardRepository.findAllByCustomerRoleDefWithId(customerRoleDef2.getId()))
+        given(paymentCardRepository.findDistinctByCustomerRoleDefWithId(customerRoleDef2.getId()))
                 .willReturn(paymentCardsControl2);
         // when
-        List<PaymentCard> paymentCardsTest1 = paymentCardService.findAllByCustomerRoleDefWithId(customerRoleDef1.getId());
-        List<PaymentCard> paymentCardsTest2 = paymentCardService.findAllByCustomerRoleDefWithId(customerRoleDef2.getId());
+        List<PaymentCard> paymentCardsTest1 = paymentCardService.findAllByCustomerRoleDefId(customerRoleDef1.getId());
+        List<PaymentCard> paymentCardsTest2 = paymentCardService.findAllByCustomerRoleDefId(customerRoleDef2.getId());
         // then
         assertEquals(paymentCardsControl1, paymentCardsTest1);
         assertEquals(paymentCardsControl2,  paymentCardsTest2);
-        verify(paymentCardRepository, times(1)).findAllByCustomerRoleDefWithId(customerRoleDef1.getId());
-        verify(paymentCardRepository, times(1)).findAllByCustomerRoleDefWithId(customerRoleDef2.getId());
+        verify(paymentCardRepository, times(1)).findDistinctByCustomerRoleDefWithId(customerRoleDef1.getId());
+        verify(paymentCardRepository, times(1)).findDistinctByCustomerRoleDefWithId(customerRoleDef2.getId());
         verify(customerRoleDefRepository, times(1)).save(customerRoleDef1);
         verify(customerRoleDefRepository, times(1)).save(customerRoleDef2);
     }

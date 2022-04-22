@@ -23,10 +23,10 @@ import java.util.Set;
 @Entity
 public class ModeratorRoleDef extends UserRoleDef {
 
-    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "censor", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private Set<Review> censoredReviews = new HashSet<>();
 
-    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "censoredBy", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private Set<CustomerRoleDef> censoredCustomers = new HashSet<>();
 
     @Override

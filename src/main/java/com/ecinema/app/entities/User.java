@@ -68,7 +68,7 @@ public class User extends AbstractEntity implements UserDetails {
     private Boolean isCredentialsExpired;
 
     @MapKeyEnumerated(EnumType.STRING)
-    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private Map<UserRole, UserRoleDef> userRoleDefs = new EnumMap<>(UserRole.class);
 
     @Override

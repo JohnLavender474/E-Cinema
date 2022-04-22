@@ -8,12 +8,28 @@ import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
+/**
+ * The interface Payment card repository.
+ */
 @Repository
 public interface PaymentCardRepository extends JpaRepository<PaymentCard, Long> {
 
-    List<PaymentCard> findAllByCustomerRoleDef(CustomerRoleDef customerRoleDef);
+    /**
+     * Find distinct by customer role def list.
+     *
+     * @param customerRoleDef the customer role def
+     * @return the list
+     */
+    @Query("SELECT p FROM PaymentCard p JOIN p.customerRoleDef c WHERE c = ?1")
+    List<PaymentCard> findDistinctByCustomerRoleDef(CustomerRoleDef customerRoleDef);
 
-    @Query("SELECT p FROM PaymentCard p WHERE p.customerRoleDef.id = ?1 ORDER BY p.cardNumber")
-    List<PaymentCard> findAllByCustomerRoleDefWithId(Long customerAuthId);
+    /**
+     * Find distinct by customer role def id list.
+     *
+     * @param customerRoleDefId the customer role def id
+     * @return the list
+     */
+    @Query("SELECT p FROM PaymentCard p JOIN p.customerRoleDef c WHERE c.id = ?1")
+    List<PaymentCard> findDistinctByCustomerRoleDefWithId(Long customerRoleDefId);
 
 }

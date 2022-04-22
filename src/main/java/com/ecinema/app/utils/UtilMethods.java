@@ -16,6 +16,10 @@ public class UtilMethods {
         return random;
     }
 
+    public static int randomIntBetween(int min, int max) {
+        return ThreadLocalRandom.current().nextInt(min, max + 1);
+    }
+
     public static boolean isAlphabeticalOnly(String s) {
         for (char c : s.toCharArray()) {
             if (!Character.isAlphabetic(c)) {

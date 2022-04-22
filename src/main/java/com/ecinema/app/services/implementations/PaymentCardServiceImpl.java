@@ -25,12 +25,12 @@ public class PaymentCardServiceImpl extends AbstractServiceImpl<PaymentCard,
 
     @Override
     public List<PaymentCard> findAllByCustomerRoleDef(CustomerRoleDef customerRoleDef) {
-        return repository.findAllByCustomerRoleDef(customerRoleDef);
+        return repository.findDistinctByCustomerRoleDef(customerRoleDef);
     }
 
     @Override
-    public List<PaymentCard> findAllByCustomerRoleDefWithId(Long customerAuthId) {
-        return repository.findAllByCustomerRoleDefWithId(customerAuthId);
+    public List<PaymentCard> findAllByCustomerRoleDefId(Long customerAuthId) {
+        return repository.findDistinctByCustomerRoleDefWithId(customerAuthId);
     }
 
 }

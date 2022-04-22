@@ -11,7 +11,7 @@ public enum UserRole implements GrantedAuthority {
 
         @Override
         public String getAuthority() {
-            return "ROLE_ADMIN";
+            return "ADMIN";
         }
 
         @Override
@@ -41,7 +41,7 @@ public enum UserRole implements GrantedAuthority {
     CUSTOMER {
         @Override
         public String getAuthority() {
-            return "ROLE_CUSTOMER";
+            return "CUSTOMER";
         }
 
         @Override
@@ -68,7 +68,7 @@ public enum UserRole implements GrantedAuthority {
 
         @Override
         public String getAuthority() {
-            return "ROLE_MODERATOR";
+            return "MODERATOR";
         }
 
         @Override
@@ -96,7 +96,7 @@ public enum UserRole implements GrantedAuthority {
 
         @Override
         public String getAuthority() {
-            return "ROLE_ADMIN_TRAINEE";
+            return "ADMIN_TRAINEE";
         }
 
         @Override
