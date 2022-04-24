@@ -2,6 +2,7 @@ package com.ecinema.app.repositories;
 
 import com.ecinema.app.entities.User;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDateTime;
@@ -15,6 +16,14 @@ import java.util.Optional;
 public interface UserRepository extends JpaRepository<User, Long> {
 
     /**
+     * Exists by username boolean.
+     *
+     * @param username the username
+     * @return the boolean
+     */
+    boolean existsByUsername(String username);
+
+    /**
      * Exists by email boolean.
      *
      * @param email the email
@@ -23,12 +32,29 @@ public interface UserRepository extends JpaRepository<User, Long> {
     boolean existsByEmail(String email);
 
     /**
+     * Find by username optional.
+     *
+     * @param username the username
+     * @return the optional
+     */
+    Optional<User> findByUsername(String username);
+
+    /**
      * Find by email optional.
      *
      * @param email the email
      * @return the optional
      */
     Optional<User> findByEmail(String email);
+
+    /**
+     * Find by username or email optional.
+     *
+     * @param s the s
+     * @return the optional
+     */
+    @Query("SELECT u FROM User u WHERE u.username = ?1 OR u.email = ?1")
+    Optional<User> findByUsernameOrEmail(String s);
 
     /**
      * Find all by is account locked list.

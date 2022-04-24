@@ -15,6 +15,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -31,6 +32,8 @@ import static org.mockito.Mockito.*;
  */
 @ExtendWith(MockitoExtension.class)
 class UserServiceTest {
+
+    private final DaoAuthenticationProvider daoAuthenticationProvider;
 
     private UserService userService;
     private CustomerRoleDefService customerRoleDefService;
@@ -51,6 +54,9 @@ class UserServiceTest {
     @Mock
     private TheaterRepository theaterRepository;
 
+    public UserServiceTest(DaoAuthenticationProvider daoAuthenticationProvider) {
+        this.daoAuthenticationProvider = daoAuthenticationProvider;
+    }
 
     /**
      * Sets up.
@@ -63,8 +69,9 @@ class UserServiceTest {
                 adminRoleDefRepository, theaterService, adminTraineeRoleDefService);
         moderatorRoleDefService = new ModeratorRoleDefServiceImpl(moderatorRoleDefRepository);
         customerRoleDefService = new CustomerRoleDefServiceImpl(customerRoleDefRepository);
-        userService = new UserServiceImpl(userRepository, customerRoleDefService, moderatorRoleDefService,
-                                          adminTraineeRoleDefService, adminRoleDefService);
+        userService = new UserServiceImpl(userRepository, customerRoleDefService,
+                                          moderatorRoleDefService, adminTraineeRoleDefService,
+                                          adminRoleDefService, daoAuthenticationProvider);
     }
 
     /**

@@ -12,6 +12,7 @@ import com.ecinema.app.utils.exceptions.InvalidArgException;
 import com.ecinema.app.utils.exceptions.NoEntityFoundException;
 import com.ecinema.app.utils.forms.RegistrationForm;
 import com.ecinema.app.utils.validators.RegistrationFormValidator;
+import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -33,6 +34,7 @@ public class RegistrationRequestServiceImpl extends AbstractServiceImpl<Registra
     private final UserService userService;
     private final EmailSenderService emailSenderService;
     private final BCryptPasswordEncoder passwordEncoder;
+    private final DaoAuthenticationProvider daoAuthenticationProvider;
     private final RegistrationFormValidator registrationFormValidator;
 
     /**
@@ -46,11 +48,13 @@ public class RegistrationRequestServiceImpl extends AbstractServiceImpl<Registra
      */
     public RegistrationRequestServiceImpl(RegistrationRequestRepository repository, UserService userService,
                                           EmailSenderServiceImpl emailSenderService, BCryptPasswordEncoder passwordEncoder,
+                                          DaoAuthenticationProvider daoAuthenticationProvider,
                                           RegistrationFormValidator registrationFormValidator) {
         super(repository);
         this.userService = userService;
         this.emailSenderService = emailSenderService;
         this.passwordEncoder = passwordEncoder;
+        this.daoAuthenticationProvider = daoAuthenticationProvider;
         this.registrationFormValidator = registrationFormValidator;
     }
 
@@ -89,18 +93,25 @@ public class RegistrationRequestServiceImpl extends AbstractServiceImpl<Registra
             throw new ClashException(
                     "User with email " + registrationForm.getEmail() + " already exists");
         }
+        if (userService.existsByUsername(registrationForm.getUsername())) {
+            throw new ClashException(
+                    "User with username " + registrationForm.getUsername() + " already exists");
+        }
         List<String> errors = new ArrayList<>();
         registrationFormValidator.validate(registrationForm, errors);
         if (!errors.isEmpty()) {
             throw new InvalidArgException(errors);
         }
         String token = UUID.randomUUID().toString();
-        emailSenderService.sendFromBusinessEmail(registrationForm.getEmail(), buildEmail(token), "Confirm Account");
+        emailSenderService.sendFromBusinessEmail(registrationForm.getEmail(),
+                                                 buildEmail(token), "Confirm Account");
         RegistrationRequest registrationRequest = new RegistrationRequest();
         registrationRequest.setToken(token);
+        registrationRequest.setUserRoles(registrationForm.getUserRoles());
         String encodedPassword = passwordEncoder.encode(registrationForm.getPassword());
         registrationRequest.setPassword(encodedPassword);
         registrationRequest.setEmail(registrationForm.getEmail());
+        registrationRequest.setUsername(registrationForm.getEmail());
         registrationRequest.setFirstName(registrationForm.getFirstName());
         registrationRequest.setLastName(registrationForm.getLastName());
         registrationRequest.setSecurityQuestion1(registrationForm.getSecurityQuestion1());
@@ -116,7 +127,16 @@ public class RegistrationRequestServiceImpl extends AbstractServiceImpl<Registra
             throws NoEntityFoundException {
         RegistrationRequest registrationRequest = findByToken(token).orElseThrow(
                 () -> new NoEntityFoundException("registration request", "token", token));
+        if (userService.existsByEmail(registrationRequest.getEmail())) {
+            throw new ClashException("Someone else has already claimed the email you provided in the time " +
+                                             "between now and when you requested registration.");
+        }
+        if (userService.existsByUsername(registrationRequest.getUsername())) {
+            throw new ClashException("Someone else has already claimed the username you provided in the time " +
+                                             "between now and when you requested registration.");
+        }
         User user = new User();
+        user.setUsername(registrationRequest.getUsername());
         user.setEmail(registrationRequest.getEmail());
         user.setPassword(registrationRequest.getPassword());
         user.setFirstName(registrationRequest.getFirstName());
@@ -132,6 +152,7 @@ public class RegistrationRequestServiceImpl extends AbstractServiceImpl<Registra
         user.setIsAccountExpired(false);
         user.setIsCredentialsExpired(false);
         userService.save(user);
+        userService.addUserRoleDefToUser(user, registrationRequest.getUserRoles());
         deleteAllByEmail(registrationRequest.getEmail());
     }
 

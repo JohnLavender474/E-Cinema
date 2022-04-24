@@ -3,6 +3,8 @@ package com.ecinema.app.services.implementations;
 import com.ecinema.app.services.AbstractService;
 import com.ecinema.app.entities.AbstractEntity;
 import com.ecinema.app.utils.exceptions.NoEntityFoundException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
@@ -16,6 +18,8 @@ import java.util.function.Supplier;
  * @param <R> the type parameter
  */
 public abstract class AbstractServiceImpl<E extends AbstractEntity, R extends JpaRepository<E, Long>> implements AbstractService<E> {
+
+    protected final Logger logger = LoggerFactory.getLogger(getClass());
 
     /**
      * The Repository.

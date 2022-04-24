@@ -8,6 +8,9 @@ import com.ecinema.app.utils.constants.UserRole;
 import com.ecinema.app.utils.exceptions.ClashException;
 import com.ecinema.app.utils.exceptions.InvalidArgException;
 import com.ecinema.app.utils.exceptions.NoEntityFoundException;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
@@ -21,6 +24,7 @@ import java.util.*;
 @Transactional
 public class UserServiceImpl extends AbstractServiceImpl<User, UserRepository> implements UserService {
 
+    private final DaoAuthenticationProvider daoAuthenticationProvider;
     private final Map<UserRole, UserRoleDefService<? extends UserRoleDef>> userRoleDefServices =
             new EnumMap<>(UserRole.class);
 
@@ -37,8 +41,10 @@ public class UserServiceImpl extends AbstractServiceImpl<User, UserRepository> i
                            CustomerRoleDefService customerRoleDefService,
                            ModeratorRoleDefService moderatorRoleDefService,
                            AdminTraineeRoleDefService adminTraineeRoleDefService,
-                           AdminRoleDefService adminRoleDefService) {
+                           AdminRoleDefService adminRoleDefService,
+                           DaoAuthenticationProvider daoAuthenticationProvider) {
         super(repository);
+        this.daoAuthenticationProvider = daoAuthenticationProvider;
         userRoleDefServices.put(UserRole.CUSTOMER, customerRoleDefService);
         userRoleDefServices.put(UserRole.MODERATOR, moderatorRoleDefService);
         userRoleDefServices.put(UserRole.ADMIN_TRAINEE, adminTraineeRoleDefService);
@@ -51,8 +57,38 @@ public class UserServiceImpl extends AbstractServiceImpl<User, UserRepository> i
     }
 
     @Override
+    public void login(String s, String password)
+            throws NoEntityFoundException {
+        User user = findByUsernameOrEmail(s).orElseThrow(
+                () -> new NoEntityFoundException("user", "credential", s));
+        UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken =
+                new UsernamePasswordAuthenticationToken(user, password, user.getAuthorities());
+        daoAuthenticationProvider.authenticate(usernamePasswordAuthenticationToken);
+        if (usernamePasswordAuthenticationToken.isAuthenticated()) {
+            SecurityContextHolder.getContext().setAuthentication(usernamePasswordAuthenticationToken);
+            logger.debug(String.format("Auto login %s success!", user.getUsername()));
+        }
+    }
+
+    @Override
+    public String findLoggedInUserEmail() {
+        Object userDetails = SecurityContextHolder.getContext().getAuthentication().getDetails();
+        return userDetails instanceof UserDetails ? ((UserDetails) userDetails).getUsername() : null;
+    }
+
+    @Override
     public boolean existsByEmail(String email) {
         return repository.existsByEmail(email);
+    }
+
+    @Override
+    public Optional<User> findByUsername(String username) {
+        return repository.findByUsername(username);
+    }
+
+    @Override
+    public Optional<User> findByUsernameOrEmail(String s) {
+        return repository.findByUsernameOrEmail(s);
     }
 
     @Override
@@ -119,6 +155,11 @@ public class UserServiceImpl extends AbstractServiceImpl<User, UserRepository> i
     @Override
     public List<User> findAllByLastActivityDateTimeAfter(LocalDateTime localDateTime) {
         return repository.findAllByLastActivityDateTimeAfter(localDateTime);
+    }
+
+    @Override
+    public boolean existsByUsername(String username) {
+        return repository.existsByUsername(username);
     }
 
     @Override

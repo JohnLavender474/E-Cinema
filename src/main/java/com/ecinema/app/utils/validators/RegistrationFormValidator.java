@@ -10,16 +10,20 @@ import java.util.List;
 public class RegistrationFormValidator implements AbstractValidator<RegistrationForm> {
 
     private final EmailValidator emailValidator;
+    private final UsernameValidator usernameValidator;
     private final PasswordValidator passwordValidator;
 
-    public RegistrationFormValidator(EmailValidator emailValidator, PasswordValidator passwordValidator) {
+    public RegistrationFormValidator(EmailValidator emailValidator, UsernameValidator usernameValidator,
+                                     PasswordValidator passwordValidator) {
         this.emailValidator = emailValidator;
+        this.usernameValidator = usernameValidator;
         this.passwordValidator = passwordValidator;
     }
 
     @Override
     public void validate(RegistrationForm registrationForm, List<String> errors) {
         emailValidator.validate(registrationForm.getEmail(), errors);
+        usernameValidator.validate(registrationForm.getUsername(), errors);
         passwordValidator.validate(registrationForm.getPassword(), errors);
         if (!registrationForm.getPassword().equals(registrationForm.getConfirmPassword())) {
             errors.add("Password does not match password confirmation");

@@ -4,7 +4,6 @@ import com.ecinema.app.utils.constants.UserRole;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import javax.persistence.*;
@@ -26,7 +25,13 @@ public class User extends AbstractEntity implements UserDetails {
     private String email;
 
     @Column
+    private String username;
+
+    @Column
     private String password;
+
+    @Column
+    private String confirmPassword;
 
     @Column
     private String firstName;
@@ -74,16 +79,6 @@ public class User extends AbstractEntity implements UserDetails {
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return EnumSet.copyOf(userRoleDefs.keySet());
-    }
-
-    @Override
-    public String getPassword() {
-        return password;
-    }
-
-    @Override
-    public String getUsername() {
-        return email;
     }
 
     @Override

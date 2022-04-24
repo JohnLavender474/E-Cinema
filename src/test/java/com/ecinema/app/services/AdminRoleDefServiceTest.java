@@ -12,6 +12,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 
 import java.util.List;
 import java.util.Optional;
@@ -27,60 +28,30 @@ import static org.mockito.Mockito.verify;
 @ExtendWith(MockitoExtension.class)
 class AdminRoleDefServiceTest {
 
-    /**
-     * The Admin trainee role def service.
-     */
-    AdminTraineeRoleDefService adminTraineeRoleDefService;
-    /**
-     * The Moderator role def service.
-     */
-    ModeratorRoleDefService moderatorRoleDefService;
-    /**
-     * The Customer role def service.
-     */
-    CustomerRoleDefService customerRoleDefService;
-    /**
-     * The Admin role def service.
-     */
-    AdminRoleDefService adminRoleDefService;
-    /**
-     * The Theater service.
-     */
-    TheaterService theaterService;
-    /**
-     * The User service.
-     */
-    UserService userService;
-    /**
-     * The Admin trainee role def repository.
-     */
+    private final DaoAuthenticationProvider daoAuthenticationProvider;
+
+    private AdminTraineeRoleDefService adminTraineeRoleDefService;
+    private ModeratorRoleDefService moderatorRoleDefService;
+    private CustomerRoleDefService customerRoleDefService;
+    private AdminRoleDefService adminRoleDefService;
+    private TheaterService theaterService;
+    private UserService userService;
     @Mock
     AdminTraineeRoleDefRepository adminTraineeRoleDefRepository;
-    /**
-     * The Admin role def repository.
-     */
     @Mock
     AdminRoleDefRepository adminRoleDefRepository;
-    /**
-     * The Moderator role def repository.
-     */
     @Mock
     ModeratorRoleDefRepository moderatorRoleDefRepository;
-    /**
-     * The Customer role def repository.
-     */
     @Mock
     CustomerRoleDefRepository customerRoleDefRepository;
-    /**
-     * The User repository.
-     */
     @Mock
     UserRepository userRepository;
-    /**
-     * The Theater repository.
-     */
     @Mock
     TheaterRepository theaterRepository;
+
+    public AdminRoleDefServiceTest(DaoAuthenticationProvider daoAuthenticationProvider) {
+        this.daoAuthenticationProvider = daoAuthenticationProvider;
+    }
 
     /**
      * Sets up.
@@ -96,7 +67,7 @@ class AdminRoleDefServiceTest {
         userService = new UserServiceImpl(
                 userRepository, customerRoleDefService,
                 moderatorRoleDefService, adminTraineeRoleDefService,
-                adminRoleDefService);
+                adminRoleDefService, daoAuthenticationProvider);
     }
 
     /**

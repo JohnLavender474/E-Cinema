@@ -52,6 +52,15 @@ public class UtilMethods {
         return true;
     }
 
+    public static boolean isAlphaAndDigitsOnly(String s) {
+        for (char c : s.toCharArray()) {
+            if (!Character.isAlphabetic(c) && !Character.isDigit(c)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
     public static int numSpecialChars(String s) {
         int num = 0;
         for (char c : s.toCharArray()) {

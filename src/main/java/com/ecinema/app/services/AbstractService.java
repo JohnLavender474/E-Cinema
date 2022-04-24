@@ -2,6 +2,8 @@ package com.ecinema.app.services;
 
 import com.ecinema.app.entities.AbstractEntity;
 import com.ecinema.app.utils.exceptions.NoEntityFoundException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.List;
 import java.util.Optional;

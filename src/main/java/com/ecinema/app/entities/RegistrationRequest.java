@@ -1,11 +1,13 @@
 package com.ecinema.app.entities;
 
+import com.ecinema.app.utils.constants.UserRole;
 import lombok.Getter;
 import lombok.Setter;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
+import javax.persistence.*;
 import java.time.LocalDateTime;
+import java.util.EnumSet;
+import java.util.Set;
 
 @Getter
 @Setter
@@ -15,8 +17,15 @@ public class RegistrationRequest extends AbstractEntity {
     @Column
     private LocalDateTime creationDateTime;
 
+    @ElementCollection
+    @Enumerated(EnumType.STRING)
+    private Set<UserRole> userRoles = EnumSet.noneOf(UserRole.class);
+
     @Column
     private String token;
+
+    @Column
+    private String username;
 
     @Column
     private String email;

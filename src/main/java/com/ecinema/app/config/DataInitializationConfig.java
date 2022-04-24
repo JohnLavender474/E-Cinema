@@ -2,10 +2,8 @@ package com.ecinema.app.config;
 
 import com.ecinema.app.entities.AdminRoleDef;
 import com.ecinema.app.entities.User;
-import com.ecinema.app.services.AdminRoleDefService;
-import com.ecinema.app.services.CustomerRoleDefService;
-import com.ecinema.app.services.ModeratorRoleDefService;
-import com.ecinema.app.services.UserService;
+import com.ecinema.app.entities.UserRoleDef;
+import com.ecinema.app.services.*;
 import com.ecinema.app.utils.constants.SecurityQuestions;
 import com.ecinema.app.utils.constants.UserRole;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
@@ -16,53 +14,57 @@ import org.springframework.stereotype.Component;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.Month;
+import java.util.EnumMap;
+import java.util.Map;
 
 /**
  * The type Startup config.
  */
 @Component
-public class DateInitializationConfig {
+public class DataInitializationConfig {
 
     private final UserService userService;
-    private final AdminRoleDefService adminRoleDefService;
-    private final CustomerRoleDefService customerRoleDefService;
-    private final ModeratorRoleDefService moderatorRoleDefService;
     private final BCryptPasswordEncoder passwordEncoder;
+    private final Map<UserRole, UserRoleDefService<? extends UserRoleDef>> userRoleDefServices =
+            new EnumMap<>(UserRole.class);
 
     /**
      * Instantiates a new Startup config.
      *
-     * @param userService             the user service
-     * @param adminRoleDefService     the admin role def service
-     * @param customerRoleDefService  the customer role def service
-     * @param moderatorRoleDefService the moderator role def service
-     * @param passwordEncoder         the password encoder
+     * @param userService                the user service
+     * @param adminRoleDefService        the admin role def service
+     * @param adminTraineeRoleDefService the admin trainee role def service
+     * @param customerRoleDefService     the customer role def service
+     * @param moderatorRoleDefService    the moderator role def service
+     * @param passwordEncoder            the password encoder
      */
-    public DateInitializationConfig(UserService userService,
+    public DataInitializationConfig(UserService userService,
                                     AdminRoleDefService adminRoleDefService,
+                                    AdminTraineeRoleDefService adminTraineeRoleDefService,
                                     CustomerRoleDefService customerRoleDefService,
                                     ModeratorRoleDefService moderatorRoleDefService,
                                     BCryptPasswordEncoder passwordEncoder) {
         this.userService = userService;
-        this.adminRoleDefService = adminRoleDefService;
-        this.customerRoleDefService = customerRoleDefService;
-        this.moderatorRoleDefService = moderatorRoleDefService;
         this.passwordEncoder = passwordEncoder;
+        userRoleDefServices.put(UserRole.ADMIN, adminRoleDefService);
+        userRoleDefServices.put(UserRole.ADMIN_TRAINEE, adminTraineeRoleDefService);
+        userRoleDefServices.put(UserRole.CUSTOMER, customerRoleDefService);
+        userRoleDefServices.put(UserRole.MODERATOR, moderatorRoleDefService);
     }
 
     /**
      * App ready.
-     *
      */
     @EventListener(ApplicationReadyEvent.class)
     public void appReady() {
-        /*
         userService.deleteAll();
+        defineRootAdmin();
+    }
+
+    private void defineRootAdmin() {
         User root = new User();
         initRoot(root);
         initRootAdminRoleDef(root);
-        initRootModeratorRoleDef(root);
-         */
     }
 
     private void initRoot(User root) {
@@ -88,11 +90,8 @@ public class DateInitializationConfig {
         AdminRoleDef adminRoleDef = new AdminRoleDef();
         adminRoleDef.setUser(root);
         root.getUserRoleDefs().put(UserRole.ADMIN, adminRoleDef);
+        AdminRoleDefService adminRoleDefService = (AdminRoleDefService) userRoleDefServices.get(UserRole.ADMIN);
         adminRoleDefService.save(adminRoleDef);
-    }
-
-    private void initRootModeratorRoleDef(User root) {
-
     }
 
 }

@@ -13,10 +13,13 @@ public class EmailValidator implements AbstractValidator<String> {
 
     @Override
     public void validate(String email, List<String> errors) {
-        boolean valid = Pattern.compile(regexPattern).matcher(email).matches();
-        if (!valid) {
+        if (!isValidEmail(email)) {
             errors.add("Email fails regex pattern test");
         }
+    }
+
+    public boolean isValidEmail(String email) {
+        return Pattern.compile(regexPattern).matcher(email).matches();
     }
 
 }
