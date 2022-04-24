@@ -2,15 +2,27 @@ package com.ecinema.app.repositories;
 
 import com.ecinema.app.entities.AdminRoleDef;
 import com.ecinema.app.entities.AdminTraineeRoleDef;
+import com.ecinema.app.entities.User;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 /**
  * The interface Admin trainee role def repository.
  */
 @Repository
 public interface AdminTraineeRoleDefRepository extends UserRoleDefRepository<AdminTraineeRoleDef> {
+
+    /**
+     * Find by user with id optional.
+     *
+     * @param userId the user id
+     * @return the optional
+     */
+    @Query("SELECT a FROM AdminTraineeRoleDef a WHERE a.user.id = ?1")
+    Optional<AdminTraineeRoleDef> findByUserWithId(Long userId);
 
     /**
      * Find all by mentor list.

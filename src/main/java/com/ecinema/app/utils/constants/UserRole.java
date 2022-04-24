@@ -5,125 +5,102 @@ import org.springframework.security.core.GrantedAuthority;
 
 import java.util.*;
 
+/**
+ * Enumeration of each of the roles assignable to {@link User}. There is a one-to-one association between
+ * each UserRole enum value and a child class of {@link UserRoleDef}.
+ */
 public enum UserRole implements GrantedAuthority {
 
+    /** The Admin. */
     ADMIN {
 
         @Override
-        public String getAuthority() {
-            return "ADMIN";
-        }
-
-        @Override
-        public Set<String> getPrivileges() {
-            return new HashSet<>() {{
-                    add(UserPermission.CUSTOMER_READ.getPermission());
-                    add(UserPermission.CUSTOMER_WRITE.getPermission());
-                    add(UserPermission.CUSTOMER_DELETE.getPermission());
-            }};
+        @SuppressWarnings("unchecked")
+        public AdminRoleDef instantiateNew() {
+            return new AdminRoleDef();
         }
 
         @Override
         @SuppressWarnings("unchecked")
-        public AdminRoleDef castToDefClass(Object o)
-                throws ClassCastException {
-            return getDefClass().cast(o);
-        }
-
-        @Override
-        @SuppressWarnings("unchecked")
-        public Class<AdminRoleDef> getDefClass() {
-            return AdminRoleDef.class;
+        public AdminRoleDef castToDefType(Object o) {
+            return (AdminRoleDef) o;
         }
 
     },
 
+    /** The Customer. */
     CUSTOMER {
-        @Override
-        public String getAuthority() {
-            return "CUSTOMER";
-        }
 
         @Override
-        public Set<String> getPrivileges() {
-            return new HashSet<>() {{
-
-            }};
+        @SuppressWarnings("unchecked")
+        public CustomerRoleDef instantiateNew() {
+            return new CustomerRoleDef();
         }
 
         @Override
         @SuppressWarnings("unchecked")
-        public Class<CustomerRoleDef> getDefClass() {
-            return CustomerRoleDef.class;
-        }
-
-        @Override
-        @SuppressWarnings("unchecked")
-        public CustomerRoleDef castToDefClass(Object o) {
-            return getDefClass().cast(o);
+        public CustomerRoleDef castToDefType(Object o) {
+            return (CustomerRoleDef) o;
         }
     },
 
+    /** The Moderator. */
     MODERATOR {
 
         @Override
-        public String getAuthority() {
-            return "MODERATOR";
-        }
-
-        @Override
-        public Set<String> getPrivileges() {
-            return new HashSet<>() {{
-
-            }};
+        @SuppressWarnings("unchecked")
+        public ModeratorRoleDef instantiateNew() {
+            return new ModeratorRoleDef();
         }
 
         @Override
         @SuppressWarnings("unchecked")
-        public Class<ModeratorRoleDef> getDefClass() {
-            return ModeratorRoleDef.class;
-        }
-
-        @Override
-        @SuppressWarnings("unchecked")
-        public ModeratorRoleDef castToDefClass(Object o) {
-            return getDefClass().cast(o);
+        public ModeratorRoleDef castToDefType(Object o) {
+            return (ModeratorRoleDef) o;
         }
 
     },
 
+    /** The Admin trainee. */
     ADMIN_TRAINEE {
 
         @Override
-        public String getAuthority() {
-            return "ADMIN_TRAINEE";
-        }
-
-        @Override
-        public Set<String> getPrivileges() {
-            return new HashSet<>() {{
-
-            }};
+        @SuppressWarnings("unchecked")
+        public AdminTraineeRoleDef instantiateNew() {
+            return new AdminTraineeRoleDef();
         }
 
         @Override
         @SuppressWarnings("unchecked")
-        public Class<AdminTraineeRoleDef> getDefClass() {
-            return AdminTraineeRoleDef.class;
-        }
-
-        @Override
-        @SuppressWarnings("unchecked")
-        public AdminTraineeRoleDef castToDefClass(Object o) {
-            return getDefClass().cast(o);
+        public AdminTraineeRoleDef castToDefType(Object o) {
+            return (AdminTraineeRoleDef) o;
         }
 
     };
 
-    public abstract String getAuthority();
-    public abstract Set<String> getPrivileges();
-    public abstract <T extends UserRoleDef> Class<T> getDefClass();
-    public abstract <T extends UserRoleDef> T castToDefClass(Object o);
+    /**
+     * Instantiates a new {@link UserRoleDef} child instance associated with the enum value.
+     *
+     * @param <T> the UserRoleDef child type to be instantiated
+     * @return the UserRoleDef child type to be instantiated
+     */
+    public abstract <T extends UserRoleDef> T instantiateNew();
+
+    /**
+     * Casts the provided object to the {@link UserRoleDef} child class associated with the UserRole enum value.
+     * The cast is unchecked, and it is assumed the caller knows for sure the provided object is an instance of
+     * the class it is being cast to.
+     *
+     * @param <T> the UserRoleDef child type to cast the object to
+     * @param o   the object to be cast
+     * @return the UserRoleDef child type
+     */
+    public abstract <T extends UserRoleDef> T castToDefType(Object o);
+
+    @Override
+    public String getAuthority() {
+        return name();
+    }
 
     private static final Map<Class<? extends UserRoleDef>, UserRole> DEF_CLASS_TO_USER_ROLE_MAP = new HashMap<>() {{
         put(AdminRoleDef.class, ADMIN);
@@ -132,6 +109,12 @@ public enum UserRole implements GrantedAuthority {
         put(AdminTraineeRoleDef.class, ADMIN_TRAINEE);
     }};
 
+    /**
+     * Fetches the UserRole enum value associated with the provided {@link UserRoleDef} child class.
+     *
+     * @param userRoleDefClass the user role def class associated with the UserRole enum value to be fetched.
+     * @return the user role associated with the provided UserRoleDef child class.
+     */
     public static UserRole defClassToUserRole(Class<? extends UserRoleDef> userRoleDefClass) {
         return DEF_CLASS_TO_USER_ROLE_MAP.get(userRoleDefClass);
     }

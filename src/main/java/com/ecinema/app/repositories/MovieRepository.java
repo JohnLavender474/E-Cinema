@@ -41,7 +41,7 @@ public interface MovieRepository extends JpaRepository<Movie, Long> {
      * @return the list
      */
     @Query("SELECT DISTINCT m FROM Movie m JOIN m.movieCategories mc WHERE mc IN ?1")
-    List<Movie> findAllByMovieCategoriesContains(Set<MovieCategory> movieCategories);
+    List<Movie> findAllByMovieCategoriesContainsSet(Set<MovieCategory> movieCategories);
 
     /**
      * Find all order by release date ascending list.

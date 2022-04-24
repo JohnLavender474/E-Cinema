@@ -6,7 +6,7 @@ import com.ecinema.app.repositories.RegistrationRequestRepository;
 import com.ecinema.app.services.EmailSenderService;
 import com.ecinema.app.services.RegistrationRequestService;
 import com.ecinema.app.services.UserService;
-import com.ecinema.app.utils.exceptions.ClashesWithExistentObjectException;
+import com.ecinema.app.utils.exceptions.ClashException;
 import com.ecinema.app.utils.exceptions.EmailException;
 import com.ecinema.app.utils.exceptions.InvalidArgException;
 import com.ecinema.app.utils.exceptions.NoEntityFoundException;
@@ -84,9 +84,9 @@ public class RegistrationRequestServiceImpl extends AbstractServiceImpl<Registra
 
     @Override
     public String submitRegistrationRequestAndGetToken(RegistrationForm registrationForm)
-            throws ClashesWithExistentObjectException, InvalidArgException, EmailException {
+            throws ClashException, InvalidArgException, EmailException {
         if (userService.existsByEmail(registrationForm.getEmail())) {
-            throw new ClashesWithExistentObjectException(
+            throw new ClashException(
                     "User with email " + registrationForm.getEmail() + " already exists");
         }
         List<String> errors = new ArrayList<>();

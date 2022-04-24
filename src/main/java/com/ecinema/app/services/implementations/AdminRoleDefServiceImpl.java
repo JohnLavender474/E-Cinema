@@ -12,6 +12,9 @@ import org.aspectj.lang.NoAspectBoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+/**
+ * The type Admin role def service.
+ */
 @Service
 @Transactional
 public class AdminRoleDefServiceImpl extends UserRoleDefServiceImpl<AdminRoleDef,
@@ -20,6 +23,13 @@ public class AdminRoleDefServiceImpl extends UserRoleDefServiceImpl<AdminRoleDef
     private final TheaterService theaterService;
     private final AdminTraineeRoleDefService adminTraineeRoleDefService;
 
+    /**
+     * Instantiates a new Admin role def service.
+     *
+     * @param repository                 the repository
+     * @param theaterService             the theater service
+     * @param adminTraineeRoleDefService the admin trainee role def service
+     */
     public AdminRoleDefServiceImpl(AdminRoleDefRepository repository, TheaterService theaterService,
                                    AdminTraineeRoleDefService adminTraineeRoleDefService) {
         super(repository);

@@ -1,11 +1,10 @@
 package com.ecinema.app.utils;
 
-import java.lang.reflect.InvocationTargetException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.Month;
-import java.util.Random;
+import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
 
 public class UtilMethods {
@@ -18,6 +17,21 @@ public class UtilMethods {
 
     public static int randomIntBetween(int min, int max) {
         return ThreadLocalRandom.current().nextInt(min, max + 1);
+    }
+
+    public static <T> List<T> findAllThatCollectionContainsIfAny(
+            Collection<T> checkIfThisContains, Collection<T> checkIfOtherContainsOfThis) {
+        List<T> list = new ArrayList<>();
+        for (T t : checkIfOtherContainsOfThis) {
+            if (checkIfThisContains.contains(t)) {
+                list.add(t);
+            }
+        }
+        return list;
+    }
+
+    public static <T> List<T> findFirstKeyThatMapContainsIfAny(Map<T, ?> map, Collection<T> collection) {
+        return findAllThatCollectionContainsIfAny(map.keySet(), collection);
     }
 
     public static boolean isAlphabeticalOnly(String s) {

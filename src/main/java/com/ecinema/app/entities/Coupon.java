@@ -23,4 +23,8 @@ public class Coupon extends AbstractEntity {
     @Column
     private Integer discount;
 
+    @ManyToOne
+    @JoinColumn
+    private CustomerRoleDef customerRoleDef;
+
 }

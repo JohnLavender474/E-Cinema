@@ -12,6 +12,7 @@ import com.ecinema.app.services.implementations.CustomerRoleDefServiceImpl;
 import com.ecinema.app.services.implementations.PaymentCardServiceImpl;
 import com.ecinema.app.services.implementations.ReviewServiceImpl;
 import com.ecinema.app.services.implementations.TicketServiceImpl;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -24,22 +25,52 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.BDDMockito.given;
 
+/**
+ * The type Customer role def service test.
+ */
 @ExtendWith(MockitoExtension.class)
 class CustomerRoleDefServiceTest {
 
+    /**
+     * The Customer role def service.
+     */
     CustomerRoleDefService customerRoleDefService;
+    /**
+     * The Payment card service.
+     */
     PaymentCardService paymentCardService;
+    /**
+     * The Ticket service.
+     */
     TicketService ticketService;
+    /**
+     * The Review service.
+     */
     ReviewService reviewService;
+    /**
+     * The Customer role def repository.
+     */
     @Mock
     CustomerRoleDefRepository customerRoleDefRepository;
+    /**
+     * The Payment card repository.
+     */
     @Mock
     PaymentCardRepository paymentCardRepository;
+    /**
+     * The Ticket repository.
+     */
     @Mock
     TicketRepository ticketRepository;
+    /**
+     * The Review repository.
+     */
     @Mock
     ReviewRepository reviewRepository;
 
+    /**
+     * Sets up.
+     */
     @BeforeEach
     void setUp() {
         customerRoleDefService = new CustomerRoleDefServiceImpl(customerRoleDefRepository);
@@ -48,6 +79,20 @@ class CustomerRoleDefServiceTest {
         reviewService = new ReviewServiceImpl(reviewRepository);
     }
 
+    /**
+     * Tear down.
+     */
+    @AfterEach
+    void tearDown() {
+        customerRoleDefService.deleteAll();
+        paymentCardService.deleteAll();
+        ticketService.deleteAll();
+        reviewService.deleteAll();
+    }
+
+    /**
+     * Test find by payment cards contains.
+     */
     @Test
     void testFindByPaymentCardsContains() {
         // given
@@ -57,7 +102,7 @@ class CustomerRoleDefServiceTest {
         paymentCard.setCustomerRoleDef(customerRoleDef);
         customerRoleDef.getPaymentCards().add(paymentCard);
         paymentCardService.save(paymentCard);
-        given(customerRoleDefRepository.findAllByPaymentCardsContains(paymentCard))
+        given(customerRoleDefRepository.findByPaymentCardsContains(paymentCard))
                 .willReturn(Optional.of(customerRoleDef));
         // when
         Optional<CustomerRoleDef> customerRoleDefOptional =
@@ -67,6 +112,9 @@ class CustomerRoleDefServiceTest {
         assertEquals(customerRoleDef, customerRoleDefOptional.get());
     }
 
+    /**
+     * Test find by tickets contains with id.
+     */
     @Test
     void testFindByTicketsContainsWithId() {
         // given
@@ -77,7 +125,7 @@ class CustomerRoleDefServiceTest {
         ticket.setCustomerRoleDef(customerRoleDef);
         customerRoleDef.getTickets().add(ticket);
         ticketService.save(ticket);
-        given(customerRoleDefRepository.findAllByTicketsContainsWithId(ticket.getId()))
+        given(customerRoleDefRepository.findByTicketsContainsWithId(ticket.getId()))
                 .willReturn(Optional.of(customerRoleDef));
         // when
         Optional<CustomerRoleDef> customerRoleDefOptional =
@@ -87,6 +135,9 @@ class CustomerRoleDefServiceTest {
         assertEquals(customerRoleDef, customerRoleDefOptional.get());
     }
 
+    /**
+     * Test find by reviews contains.
+     */
     @Test
     void testFindByReviewsContains() {
         // given
@@ -97,7 +148,7 @@ class CustomerRoleDefServiceTest {
         review.setWriter(customerRoleDef);
         customerRoleDef.getReviews().add(review);
         reviewService.save(review);
-        given(customerRoleDefRepository.findAllByReviewsContainsWithId(review.getId()))
+        given(customerRoleDefRepository.findByReviewsContainsWithId(review.getId()))
                 .willReturn(Optional.of(customerRoleDef));
         // when
         Optional<CustomerRoleDef> customerRoleDefOptional =

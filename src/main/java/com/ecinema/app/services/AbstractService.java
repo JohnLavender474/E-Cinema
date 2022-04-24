@@ -29,6 +29,14 @@ public interface AbstractService<E extends AbstractEntity> {
     List<E> findAll();
 
     /**
+     * Deletes the provided entity. This method should fetch the id of the entity and call {@link #deleteById(Long)}
+     * to ensure no persistence exceptions occur due the provided entity originating from outside of transaction bounds.
+     *
+     * @param entity the entity
+     */
+    void delete(E entity);
+
+    /**
      * Delete by id.
      *
      * @param id the id

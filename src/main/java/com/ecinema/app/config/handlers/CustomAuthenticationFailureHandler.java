@@ -1,4 +1,4 @@
-package com.ecinema.app.config;
+package com.ecinema.app.config.handlers;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.http.HttpStatus;

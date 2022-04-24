@@ -1,9 +1,6 @@
 package com.ecinema.app.repositories;
 
-import com.ecinema.app.entities.CustomerRoleDef;
-import com.ecinema.app.entities.PaymentCard;
-import com.ecinema.app.entities.Review;
-import com.ecinema.app.entities.Ticket;
+import com.ecinema.app.entities.*;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
@@ -22,7 +19,7 @@ public interface CustomerRoleDefRepository extends UserRoleDefRepository<Custome
      * @return the optional
      */
     @Query("SELECT c FROM CustomerRoleDef c JOIN c.paymentCards p WHERE p = ?1")
-    Optional<CustomerRoleDef> findAllByPaymentCardsContains(PaymentCard paymentCard);
+    Optional<CustomerRoleDef> findByPaymentCardsContains(PaymentCard paymentCard);
 
     /**
      * Find all by payment cards contains with id optional.
@@ -31,7 +28,7 @@ public interface CustomerRoleDefRepository extends UserRoleDefRepository<Custome
      * @return the optional
      */
     @Query("SELECT c FROM CustomerRoleDef c JOIN c.paymentCards p WHERE p.id = ?1")
-    Optional<CustomerRoleDef> findAllByPaymentCardsContainsWithId(Long paymentCardId);
+    Optional<CustomerRoleDef> findByPaymentCardsContainsWithId(Long paymentCardId);
 
     /**
      * Find all by tickets contains optional.
@@ -40,7 +37,7 @@ public interface CustomerRoleDefRepository extends UserRoleDefRepository<Custome
      * @return the optional
      */
     @Query("SELECT c FROM CustomerRoleDef c JOIN c.tickets t WHERE t = ?1")
-    Optional<CustomerRoleDef> findAllByTicketsContains(Ticket ticket);
+    Optional<CustomerRoleDef> findByTicketsContains(Ticket ticket);
 
     /**
      * Find all by tickets contains with id optional.
@@ -49,7 +46,7 @@ public interface CustomerRoleDefRepository extends UserRoleDefRepository<Custome
      * @return the optional
      */
     @Query("SELECT c FROM CustomerRoleDef c JOIN c.tickets t WHERE t.id = ?1")
-    Optional<CustomerRoleDef> findAllByTicketsContainsWithId(Long ticketId);
+    Optional<CustomerRoleDef> findByTicketsContainsWithId(Long ticketId);
 
     /**
      * Find all by reviews contains optional.
@@ -58,7 +55,7 @@ public interface CustomerRoleDefRepository extends UserRoleDefRepository<Custome
      * @return the optional
      */
     @Query("SELECT c FROM CustomerRoleDef c JOIN c.reviews r WHERE r = ?1")
-    Optional<CustomerRoleDef> findAllByReviewsContains(Review review);
+    Optional<CustomerRoleDef> findByReviewsContains(Review review);
 
     /**
      * Find all by reviews contains with id optional.
@@ -67,6 +64,24 @@ public interface CustomerRoleDefRepository extends UserRoleDefRepository<Custome
      * @return the optional
      */
     @Query("SELECT c FROM CustomerRoleDef c JOIN c.reviews r WHERE r.id = ?1")
-    Optional<CustomerRoleDef> findAllByReviewsContainsWithId(Long reviewId);
+    Optional<CustomerRoleDef> findByReviewsContainsWithId(Long reviewId);
+
+    /**
+     * Find by coupons contains optional.
+     *
+     * @param coupon the coupon
+     * @return the optional
+     */
+    @Query("SELECT c FROM CustomerRoleDef c JOIN c.coupons co WHERE co = ?1")
+    Optional<CustomerRoleDef> findByCouponsContains(Coupon coupon);
+
+    /**
+     * Find by coupons contains with id optional.
+     *
+     * @param couponId the coupon id
+     * @return the optional
+     */
+    @Query("SELECT c FROM CustomerRoleDef c JOIN c.coupons co WHERE co.id = ?1")
+    Optional<CustomerRoleDef> findByCouponsContainsWithId(Long couponId);
 
 }

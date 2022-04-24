@@ -1,6 +1,5 @@
 package com.ecinema.app.repositories;
 
-import com.ecinema.app.entities.Screening;
 import com.ecinema.app.entities.ScreeningSeat;
 import com.ecinema.app.entities.Showroom;
 import com.ecinema.app.entities.ShowroomSeat;

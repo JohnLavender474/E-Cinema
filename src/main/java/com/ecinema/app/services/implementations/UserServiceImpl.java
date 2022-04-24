@@ -3,8 +3,9 @@ package com.ecinema.app.services.implementations;
 import com.ecinema.app.entities.*;
 import com.ecinema.app.repositories.UserRepository;
 import com.ecinema.app.services.*;
+import com.ecinema.app.utils.UtilMethods;
 import com.ecinema.app.utils.constants.UserRole;
-import com.ecinema.app.utils.exceptions.ClashesWithExistentObjectException;
+import com.ecinema.app.utils.exceptions.ClashException;
 import com.ecinema.app.utils.exceptions.InvalidArgException;
 import com.ecinema.app.utils.exceptions.NoEntityFoundException;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -13,29 +14,35 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
+/** The implementated User service. */
 @Service
 @Transactional
 public class UserServiceImpl extends AbstractServiceImpl<User, UserRepository> implements UserService {
 
-    private final AdminRoleDefService adminRoleDefService;
-    private final CustomerRoleDefService customerRoleDefService;
-    private final ModeratorRoleDefService moderatorRoleDefService;
-    private final AdminTraineeRoleDefService adminTraineeRoleDefService;
+    private final Map<UserRole, UserRoleDefService<? extends UserRoleDef>> userRoleDefServices =
+            new EnumMap<>(UserRole.class);
 
+    /**
+     * Instantiates a new User service.
+     *
+     * @param repository                 the repository
+     * @param customerRoleDefService     the customer role def service
+     * @param moderatorRoleDefService    the moderator role def service
+     * @param adminTraineeRoleDefService the admin trainee role def service
+     * @param adminRoleDefService        the admin role def service
+     */
     public UserServiceImpl(UserRepository repository,
                            CustomerRoleDefService customerRoleDefService,
                            ModeratorRoleDefService moderatorRoleDefService,
                            AdminTraineeRoleDefService adminTraineeRoleDefService,
                            AdminRoleDefService adminRoleDefService) {
         super(repository);
-        this.customerRoleDefService = customerRoleDefService;
-        this.moderatorRoleDefService = moderatorRoleDefService;
-        this.adminTraineeRoleDefService = adminTraineeRoleDefService;
-        this.adminRoleDefService = adminRoleDefService;
-
+        userRoleDefServices.put(UserRole.CUSTOMER, customerRoleDefService);
+        userRoleDefServices.put(UserRole.MODERATOR, moderatorRoleDefService);
+        userRoleDefServices.put(UserRole.ADMIN_TRAINEE, adminTraineeRoleDefService);
+        userRoleDefServices.put(UserRole.ADMIN, adminRoleDefService);
     }
 
     @Override
@@ -66,7 +73,7 @@ public class UserServiceImpl extends AbstractServiceImpl<User, UserRepository> i
         UserRole userRole = UserRole.defClassToUserRole(userRoleDefClass);
         if (userRole == null) {
             throw new InvalidArgException("The provided class " + userRoleDefClass.getName() +
-                    " is not mapped to a user role value");
+                                                  " is not mapped to a user role value");
         }
         User user = findById(userId).orElseThrow(
                 () -> new NoEntityFoundException("User", "id", userId));
@@ -115,74 +122,72 @@ public class UserServiceImpl extends AbstractServiceImpl<User, UserRepository> i
     }
 
     @Override
-    public void addUserRoleDefToUser(Long userId, UserRole userRole)
-            throws NoEntityFoundException, ClashesWithExistentObjectException {
+    public void addUserRoleDefToUser(User user, UserRole... userRoles)
+            throws NoEntityFoundException, InvalidArgException, ClashException {
+        addUserRoleDefToUser(user.getId(), userRoles);
+    }
+
+    @Override
+    public void addUserRoleDefToUser(User user, Set<UserRole> userRoles)
+            throws NoEntityFoundException, InvalidArgException, ClashException {
+        addUserRoleDefToUser(user.getId(), userRoles);
+    }
+
+    @Override
+    public void addUserRoleDefToUser(Long userId, UserRole... userRoles)
+            throws NoEntityFoundException, InvalidArgException, ClashException {
+        addUserRoleDefToUser(userId, Set.of(userRoles));
+    }
+
+    @Override
+    public void addUserRoleDefToUser(Long userId, Set<UserRole> userRoles)
+            throws NoEntityFoundException, InvalidArgException, ClashException {
         User user = findById(userId).orElseThrow(
                 () -> new NoEntityFoundException("user", "id", userId));
-        switch (userRole) {
-            case CUSTOMER -> {
-                if (user.getUserRoleDefs().get(UserRole.CUSTOMER) != null) {
-                    throw new ClashesWithExistentObjectException("User already has customer authority");
-                }
-                CustomerRoleDef customerRoleDef = new CustomerRoleDef();
-                customerRoleDef.setUser(user);
-                user.getUserRoleDefs().put(UserRole.CUSTOMER, customerRoleDef);
-                customerRoleDefService.save(customerRoleDef);
+        List<UserRole> userRolesAlreadyInstantiated = UtilMethods.findFirstKeyThatMapContainsIfAny(
+                user.getUserRoleDefs(), userRoles);
+        if (!userRolesAlreadyInstantiated.isEmpty()) {
+            List<String> errors = new ArrayList<>();
+            for (UserRole userRole : userRolesAlreadyInstantiated) {
+                errors.add("FAILURE: User already has " + userRole + " role definition");
             }
-            case MODERATOR -> {
-                if (user.getUserRoleDefs().get(UserRole.MODERATOR) != null) {
-                    throw new ClashesWithExistentObjectException("User already has moderator authority");
-                }
-                ModeratorRoleDef moderatorRoleDef = new ModeratorRoleDef();
-                moderatorRoleDef.setUser(user);
-                user.getUserRoleDefs().put(UserRole.MODERATOR, moderatorRoleDef);
-                moderatorRoleDefService.save(moderatorRoleDef);
-            }
-            case ADMIN_TRAINEE -> {
-                if (user.getUserRoleDefs().get(UserRole.ADMIN_TRAINEE) != null) {
-                    throw new ClashesWithExistentObjectException("User already has admin trainee authority");
-                }
-                AdminTraineeRoleDef adminTraineeRoleDef = new AdminTraineeRoleDef();
-                adminTraineeRoleDef.setUser(user);
-                user.getUserRoleDefs().put(UserRole.ADMIN_TRAINEE, adminTraineeRoleDef);
-                adminTraineeRoleDefService.save(adminTraineeRoleDef);
-            }
-            case ADMIN -> {
-                if (user.getUserRoleDefs().get(UserRole.ADMIN) != null) {
-                    throw new ClashesWithExistentObjectException("User already has admin authority");
-                }
-                AdminRoleDef adminRoleDef = new AdminRoleDef();
-                adminRoleDef.setUser(user);
-                user.getUserRoleDefs().put(UserRole.ADMIN_TRAINEE, adminRoleDef);
-                adminRoleDefService.save(adminRoleDef);
-            }
-            default -> throw new InvalidArgException("Provided value of user role is invalid");
+            throw new ClashException(errors);
+        }
+        for (UserRole userRole : userRoles) {
+            UserRoleDef userRoleDef = userRole.instantiateNew();
+            userRoleDef.setUser(user);
+            user.getUserRoleDefs().put(userRole, userRoleDef);
+            userRoleDefServices.get(userRole).save(userRole.castToDefType(userRoleDef));
         }
     }
 
     @Override
-    public void removeUserRoleDefFromUser(Long userId, UserRole userRole)
+    public void removeUserRoleDefFromUser(User user, UserRole... userRoles)
+            throws NoEntityFoundException, InvalidArgException {
+        removeUserRoleDefFromUser(user.getId(), userRoles);
+    }
+
+    @Override
+    public void removeUserRoleDefFromUser(User user, Set<UserRole> userRoles)
+            throws NoEntityFoundException, InvalidArgException {
+        removeUserRoleDefFromUser(user.getId(), userRoles);
+    }
+
+    @Override
+    public void removeUserRoleDefFromUser(Long userId, UserRole... userRoles)
+            throws NoEntityFoundException, InvalidArgException {
+        removeUserRoleDefFromUser(userId, Set.of(userRoles));
+    }
+
+    @Override
+    public void removeUserRoleDefFromUser(Long userId, Set<UserRole> userRoles)
             throws NoEntityFoundException, InvalidArgException {
         User user = findById(userId).orElseThrow(
                 () -> new NoEntityFoundException("User", "id", userId));
-        switch (userRole) {
-            case ADMIN -> {
-                AdminRoleDef adminRoleDef = userRole.castToDefClass(user.getUserRoleDefs().get(userRole));
-                adminRoleDefService.deleteById(adminRoleDef.getId());
-            }
-            case CUSTOMER -> {
-                CustomerRoleDef customerRoleDef = userRole.castToDefClass(user.getUserRoleDefs().get(userRole));
-                customerRoleDefService.deleteById(customerRoleDef.getId());
-            }
-            case MODERATOR -> {
-                ModeratorRoleDef moderatorRoleDef = userRole.castToDefClass(user.getUserRoleDefs().get(userRole));
-                moderatorRoleDefService.deleteById(moderatorRoleDef.getId());
-            }
-            case ADMIN_TRAINEE -> {
-                AdminTraineeRoleDef adminTraineeRoleDef = userRole.castToDefClass(user.getUserRoleDefs().get(userRole));
-                adminTraineeRoleDefService.deleteById(adminTraineeRoleDef.getId());
-            }
-            default -> throw new InvalidArgException("The the provided value of user role " + userRole + " is invalid");
+        for (UserRole userRole : userRoles) {
+            UserRoleDef userRoleDef = user.getUserRoleDefs().get(userRole);
+            UserRoleDefService<? extends UserRoleDef> userRoleDefService = userRoleDefServices.get(userRole);
+            userRoleDefService.deleteById(userRoleDef.getId());
         }
     }
 

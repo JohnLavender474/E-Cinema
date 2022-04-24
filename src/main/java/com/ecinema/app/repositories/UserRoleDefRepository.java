@@ -22,6 +22,16 @@ public interface UserRoleDefRepository<T extends UserRoleDef> extends JpaReposit
      * @param user the user
      * @return the optional
      */
+    @Query("SELECT u FROM UserRoleDef u WHERE u.user = ?1")
     Optional<T> findByUser(User user);
+
+    /**
+     * Find by user with id optional.
+     *
+     * @param userId the user id
+     * @return the optional
+     */
+    @Query("SELECT u FROM UserRoleDef u WHERE u.user.id = ?1")
+    Optional<T> findByUserWithId(Long userId);
 
 }

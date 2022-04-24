@@ -28,6 +28,9 @@ class CustomerRoleDefRepositoryTest {
     private TicketRepository ticketRepository;
 
     @Autowired
+    private CouponRepository couponRepository;
+
+    @Autowired
     private PaymentCardRepository paymentCardRepository;
 
     @AfterEach
@@ -36,7 +39,7 @@ class CustomerRoleDefRepositoryTest {
     }
 
     @Test
-    void testFindByReviewsContains() {
+    void findByReviewsContains() {
         // given
         User user = new User();
         userRepository.save(user);
@@ -50,7 +53,7 @@ class CustomerRoleDefRepositoryTest {
         reviewRepository.save(review);
         // when
         Optional<CustomerRoleDef> customerAuthorityOptional = customerRoleDefRepository
-                .findAllByReviewsContains(review);
+                .findByReviewsContains(review);
         // then
         assertTrue(customerAuthorityOptional.isPresent() &&
                 customerAuthorityOptional.get().equals(customerRoleDef) &&
@@ -58,7 +61,7 @@ class CustomerRoleDefRepositoryTest {
     }
 
     @Test
-    void testFindByTicketsContains() {
+    void findByTicketsContains() {
         // given
         User user = new User();
         userRepository.save(user);
@@ -72,7 +75,7 @@ class CustomerRoleDefRepositoryTest {
         ticketRepository.save(ticket);
         // when
         Optional<CustomerRoleDef> customerAuthorityOptional = customerRoleDefRepository
-                .findAllByTicketsContains(ticket);
+                .findByTicketsContains(ticket);
         // then
         assertTrue(customerAuthorityOptional.isPresent() &&
                            customerAuthorityOptional.get().equals(customerRoleDef) &&
@@ -80,7 +83,7 @@ class CustomerRoleDefRepositoryTest {
     }
 
     @Test
-    void testFindByPaymentCardsContains() {
+    void findByPaymentCardsContains() {
         // given
         User user = new User();
         userRepository.save(user);
@@ -94,11 +97,36 @@ class CustomerRoleDefRepositoryTest {
         paymentCardRepository.save(paymentCard);
         // when
         Optional<CustomerRoleDef> customerAuthorityOptional = customerRoleDefRepository
-                .findAllByPaymentCardsContains(paymentCard);
+                .findByPaymentCardsContains(paymentCard);
         // then
         assertTrue(customerAuthorityOptional.isPresent() &&
                 customerAuthorityOptional.get().equals(customerRoleDef) &&
                 customerAuthorityOptional.get().getPaymentCards().contains(paymentCard));
+    }
+
+    @Test
+    void findByCouponsContains() {
+        // given
+        User user = new User();
+        userRepository.save(user);
+        CustomerRoleDef customerRoleDef = new CustomerRoleDef();
+        customerRoleDef.setUser(user);
+        user.getUserRoleDefs().put(UserRole.CUSTOMER, customerRoleDef);
+        customerRoleDefRepository.save(customerRoleDef);
+        Coupon coupon = new Coupon();
+        coupon.setCustomerRoleDef(customerRoleDef);
+        customerRoleDef.getCoupons().add(coupon);
+        couponRepository.save(coupon);
+        // when
+        Optional<CustomerRoleDef> customerRoleDefOptional1 = customerRoleDefRepository
+                .findByCouponsContains(coupon);
+        Optional<CustomerRoleDef> customerRoleDefOptional2 = customerRoleDefRepository
+                .findByCouponsContainsWithId(coupon.getId());
+        // then
+        assertTrue(customerRoleDefOptional1.isPresent());
+        assertTrue(customerRoleDefOptional2.isPresent());
+        assertEquals(customerRoleDef, customerRoleDefOptional1.get());
+        assertEquals(customerRoleDef, customerRoleDefOptional2.get());
     }
 
 }

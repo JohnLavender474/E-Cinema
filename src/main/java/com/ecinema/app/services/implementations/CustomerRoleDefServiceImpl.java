@@ -27,32 +27,32 @@ public class CustomerRoleDefServiceImpl extends UserRoleDefServiceImpl<CustomerR
 
     @Override
     public Optional<CustomerRoleDef> findByPaymentCardsContains(PaymentCard paymentCard) {
-        return repository.findAllByPaymentCardsContains(paymentCard);
+        return repository.findByPaymentCardsContains(paymentCard);
     }
 
     @Override
     public Optional<CustomerRoleDef> findByPaymentCardsContainsWithId(Long paymentCardId) {
-        return repository.findAllByPaymentCardsContainsWithId(paymentCardId);
+        return repository.findByPaymentCardsContainsWithId(paymentCardId);
     }
 
     @Override
     public Optional<CustomerRoleDef> findByTicketsContains(Ticket ticket) {
-        return repository.findAllByTicketsContains(ticket);
+        return repository.findByTicketsContains(ticket);
     }
 
     @Override
     public Optional<CustomerRoleDef> findByTicketsContainsWithId(Long ticketId) {
-        return repository.findAllByTicketsContainsWithId(ticketId);
+        return repository.findByTicketsContainsWithId(ticketId);
     }
 
     @Override
     public Optional<CustomerRoleDef> findByReviewsContains(Review review) {
-        return repository.findAllByReviewsContains(review);
+        return repository.findByReviewsContains(review);
     }
 
     @Override
     public Optional<CustomerRoleDef> findByReviewsContainsWithId(Long reviewId) {
-        return repository.findAllByReviewsContainsWithId(reviewId);
+        return repository.findByReviewsContainsWithId(reviewId);
     }
 
 }

@@ -73,13 +73,7 @@ public class User extends AbstractEntity implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        List<SimpleGrantedAuthority> grantedAuthorities = new ArrayList<>();
-        for (Map.Entry<UserRole, UserRoleDef> userExtensionEntry : userRoleDefs.entrySet()) {
-            if (userExtensionEntry.getValue() != null) {
-                grantedAuthorities.add(new SimpleGrantedAuthority(userExtensionEntry.getKey().getAuthority()));
-            }
-        }
-        return grantedAuthorities;
+        return EnumSet.copyOf(userRoleDefs.keySet());
     }
 
     @Override

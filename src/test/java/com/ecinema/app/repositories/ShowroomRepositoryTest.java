@@ -15,6 +15,9 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+/**
+ * The type Showroom repository test.
+ */
 @DataJpaTest
 class ShowroomRepositoryTest {
 
@@ -30,6 +33,9 @@ class ShowroomRepositoryTest {
     @Autowired
     private TheaterRepository theaterRepository;
 
+    /**
+     * Tear down.
+     */
     @AfterEach
     void tearDown() {
         showroomRepository.deleteAll();
@@ -38,6 +44,9 @@ class ShowroomRepositoryTest {
         theaterRepository.deleteAll();
     }
 
+    /**
+     * Find by showroom letter.
+     */
     @Test
     void findByShowroomLetter() {
         // given
@@ -52,6 +61,9 @@ class ShowroomRepositoryTest {
         assertEquals(showroom, showroomOptional.get());
     }
 
+    /**
+     * Find by showroom seats contains.
+     */
     @Test
     void findByShowroomSeatsContains() {
         // given
@@ -73,6 +85,9 @@ class ShowroomRepositoryTest {
         assertEquals(showroom, showroomOptional2.get());
     }
 
+    /**
+     * Find by screenings contains.
+     */
     @Test
     void findByScreeningsContains() {
         // given
@@ -94,6 +109,9 @@ class ShowroomRepositoryTest {
         assertEquals(showroom, showroomOptional2.get());
     }
 
+    /**
+     * Find all by theater.
+     */
     @Test
     void findAllByTheater() {
         // given
@@ -101,7 +119,8 @@ class ShowroomRepositoryTest {
         theaterRepository.save(theater);
         Showroom showroom = new Showroom();
         showroom.setTheater(theater);
-        theater.getShowrooms().add(showroom);
+        showroom.setShowroomLetter(Letter.A);
+        theater.getShowrooms().put(Letter.A, showroom);
         showroomRepository.save(showroom);
         // when
         List<Showroom> showrooms1 = showroomRepository

@@ -2,16 +2,21 @@ package com.ecinema.app.services;
 
 import com.ecinema.app.entities.AdminRoleDef;
 import com.ecinema.app.entities.AdminTraineeRoleDef;
+import com.ecinema.app.entities.User;
 
 import java.util.List;
+import java.util.Optional;
 
+/**
+ * The interface Admin trainee role def service.
+ */
 public interface AdminTraineeRoleDefService extends UserRoleDefService<AdminTraineeRoleDef> {
 
     /**
      * Find all {@link AdminTraineeRoleDef} associated with the provided {@link AdminRoleDef}.
      *
-     * @param adminRoleDef the adminRoleDef associated with the AdminTraineeRoleDef in
-     *                     the returned list.
+     * @param adminRoleDef the adminRoleDef associated with the AdminTraineeRoleDef in the
+     *                     returned list.
      * @return the list of AdminTraineeRoleDef associated with adminRoleDef.
      */
     List<AdminTraineeRoleDef> findAllByMentor(AdminRoleDef adminRoleDef);

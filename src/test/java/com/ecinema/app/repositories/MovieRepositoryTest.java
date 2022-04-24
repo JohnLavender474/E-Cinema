@@ -70,7 +70,7 @@ class MovieRepositoryTest {
     }
 
     @Test
-    void findAllByMoviesCategoriesContainsMultiple() {
+    void findAllByMoviesCategoriesContainsSet() {
         // given
         List<Movie> movies = new ArrayList<>();
         for (int i = 0; i < 200; i++) {
@@ -96,7 +96,7 @@ class MovieRepositoryTest {
         Comparator<Movie> movieComparator = Comparator.comparing(Movie::getTitle);
         control.sort(movieComparator);
         // when
-        List<Movie> test = movieRepository.findAllByMovieCategoriesContains(
+        List<Movie> test = movieRepository.findAllByMovieCategoriesContainsSet(
                 new HashSet<>() {{
                     add(HORROR);
                     add(DARK);

@@ -1,28 +1,20 @@
 package com.ecinema.app.config;
 
+import com.ecinema.app.config.handlers.CustomAuthenticationFailureHandler;
 import com.ecinema.app.services.UserService;
 import com.ecinema.app.utils.constants.UrlPermissions;
-import com.ecinema.app.utils.constants.UserRole;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
-import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
-import java.util.Calendar;
-import java.util.HashMap;
-import java.util.Map;
+import static com.ecinema.app.utils.constants.UrlPermissions.*;
+import static com.ecinema.app.utils.constants.UserRole.*;
 
 /**
  * https://www.baeldung.com/spring-security-login
@@ -66,25 +58,27 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Override
     protected void configure(HttpSecurity httpSecurity)
-    throws Exception {
+            throws Exception {
         httpSecurity
                 .csrf().disable()
                 .authorizeRequests()
-                .antMatchers(UrlPermissions.CUSTOMER).hasRole(UserRole.CUSTOMER.getAuthority())
-
-                // TODO: Add admin, admin trainee, and moderator permissions
-
-                .antMatchers(UrlPermissions.ANY).permitAll()
+                .antMatchers(CUSTOMERS_PERMITTED).hasRole(CUSTOMER.getAuthority())
+                .antMatchers(MODERATORS_PERMITTED).hasRole(MODERATOR.getAuthority())
+                .antMatchers(ADMIN_TRAINEES_PERMITTED).hasRole(ADMIN_TRAINEE.getAuthority())
+                .antMatchers(ADMINS_PERMITTED).hasRole(ADMIN.getAuthority())
+                .antMatchers(AUTHENTICATED_PERMITTED).hasAnyRole(
+                        CUSTOMER.getAuthority(), MODERATOR.getAuthority(), ADMIN_TRAINEE.getAuthority(), ADMIN.getAuthority())
+                .antMatchers(UrlPermissions.ANY_PERMITTED).permitAll()
                 .anyRequest().authenticated()
                 .and()
-                .formLogin()
+                .formLogin().permitAll()
                 .loginPage("/login.html")
-                .loginProcessingUrl("/perform_login")
+                // .loginProcessingUrl("/perform_login")
                 .defaultSuccessUrl("/index.html", true)
                 .failureUrl("/login.html?error=true")
                 .failureHandler(authenticationFailureHandler())
                 .and()
-                .logout()
+                .logout().permitAll()
                 .logoutUrl("/logout.html")
                 .deleteCookies("JSESSIONID");
                 // .logoutSuccessHandler(null); // TODO: add logout success handler

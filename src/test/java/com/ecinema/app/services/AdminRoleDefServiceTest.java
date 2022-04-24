@@ -13,6 +13,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -20,28 +21,70 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
+/**
+ * The type Admin role def service test.
+ */
 @ExtendWith(MockitoExtension.class)
 class AdminRoleDefServiceTest {
 
+    /**
+     * The Admin trainee role def service.
+     */
     AdminTraineeRoleDefService adminTraineeRoleDefService;
+    /**
+     * The Moderator role def service.
+     */
     ModeratorRoleDefService moderatorRoleDefService;
+    /**
+     * The Customer role def service.
+     */
     CustomerRoleDefService customerRoleDefService;
+    /**
+     * The Admin role def service.
+     */
     AdminRoleDefService adminRoleDefService;
+    /**
+     * The Theater service.
+     */
     TheaterService theaterService;
+    /**
+     * The User service.
+     */
     UserService userService;
+    /**
+     * The Admin trainee role def repository.
+     */
     @Mock
     AdminTraineeRoleDefRepository adminTraineeRoleDefRepository;
+    /**
+     * The Admin role def repository.
+     */
     @Mock
     AdminRoleDefRepository adminRoleDefRepository;
+    /**
+     * The Moderator role def repository.
+     */
     @Mock
     ModeratorRoleDefRepository moderatorRoleDefRepository;
+    /**
+     * The Customer role def repository.
+     */
     @Mock
     CustomerRoleDefRepository customerRoleDefRepository;
+    /**
+     * The User repository.
+     */
     @Mock
     UserRepository userRepository;
+    /**
+     * The Theater repository.
+     */
     @Mock
     TheaterRepository theaterRepository;
 
+    /**
+     * Sets up.
+     */
     @BeforeEach
     void setUp() {
         adminTraineeRoleDefService = new AdminTraineeRoleDefServiceImpl(adminTraineeRoleDefRepository);
@@ -56,8 +99,11 @@ class AdminRoleDefServiceTest {
                 adminRoleDefService);
     }
 
+    /**
+     * Find by user.
+     */
     @Test
-    void testFindByUser() {
+    void findByUser() {
         // given
         User user = new User();
         userService.save(user);
@@ -77,8 +123,11 @@ class AdminRoleDefServiceTest {
         verify(userRepository, times(1)).save(user);
     }
 
+    /**
+     * Add theater to admin role def.
+     */
     @Test
-    void testAddTheaterToAdminRoleDef() {
+    void addTheaterToAdminRoleDef() {
         // given
         Theater theater = new Theater();
         theater.setId(1L);
@@ -98,8 +147,11 @@ class AdminRoleDefServiceTest {
         assertTrue(adminRoleDef.getTheatersBeingManaged().contains(theater));
     }
 
+    /**
+     * Remove theater from admin role def.
+     */
     @Test
-    void testRemoveTheaterFromAdminRoleDef() {
+    void removeTheaterFromAdminRoleDef() {
         // given
         Theater theater = new Theater();
         theater.setId(1L);
@@ -121,8 +173,11 @@ class AdminRoleDefServiceTest {
         assertFalse(adminRoleDef.getTheatersBeingManaged().contains(theater));
     }
 
+    /**
+     * Delete admin role def.
+     */
     @Test
-    void testDeleteAdminRoleDef() {
+    void deleteAdminRoleDef() {
         // given
         Theater theater = new Theater();
         theater.setId(1L);
@@ -149,6 +204,21 @@ class AdminRoleDefServiceTest {
         assertTrue(adminRoleDef.getTheatersBeingManaged().contains(theater));
         assertEquals(adminTraineeRoleDef.getMentor(), adminRoleDef);
         assertTrue(adminRoleDef.getTrainees().contains(adminTraineeRoleDef));
+        // given
+        given(adminTraineeRoleDefRepository.findAllByMentor(adminRoleDef))
+                .willReturn(List.of(adminTraineeRoleDef));
+        // when
+        List<AdminTraineeRoleDef> shouldContain = adminTraineeRoleDefService.findAllByMentor(adminRoleDef);
+        // then
+        assertTrue(shouldContain.contains(adminTraineeRoleDef));
+        // when
+        adminRoleDefService.removeTraineeFromAdminRoleDef(
+                adminTraineeRoleDef.getId(), adminRoleDef.getId());
+        given(adminTraineeRoleDefRepository.findAllByMentor(adminRoleDef))
+                .willReturn(List.of());
+        List<AdminTraineeRoleDef> shouldNotContain = adminTraineeRoleDefService.findAllByMentor(adminRoleDef);
+        // then
+        assertFalse(shouldNotContain.contains(adminTraineeRoleDef));
         // when
         adminRoleDefService.deleteById(adminRoleDef.getId());
         // then
@@ -156,6 +226,7 @@ class AdminRoleDefServiceTest {
         assertFalse(adminRoleDef.getTheatersBeingManaged().contains(theater));
         assertNotEquals(adminTraineeRoleDef.getMentor(), adminRoleDef);
         assertFalse(adminRoleDef.getTrainees().contains(adminTraineeRoleDef));
+        // when
     }
 
 }

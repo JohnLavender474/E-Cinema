@@ -9,20 +9,38 @@ import java.util.List;
 import java.util.Optional;
 import java.util.function.Supplier;
 
+/**
+ * The type Abstract service.
+ *
+ * @param <E> the type parameter
+ * @param <R> the type parameter
+ */
 public abstract class AbstractServiceImpl<E extends AbstractEntity, R extends JpaRepository<E, Long>> implements AbstractService<E> {
 
+    /**
+     * The Repository.
+     */
     protected final R repository;
 
+    /**
+     * Instantiates a new Abstract service.
+     *
+     * @param repository the repository
+     */
     public AbstractServiceImpl(R repository) {
         this.repository = repository;
     }
 
+    /**
+     * On delete.
+     *
+     * @param e the e
+     */
     protected abstract void onDelete(E e);
 
     @Override
-    public void deleteAll() {
-        findAll().forEach(this::onDelete);
-        repository.deleteAll();
+    public void delete(E entity) {
+        deleteById(entity.getId());
     }
 
     @Override
@@ -32,6 +50,12 @@ public abstract class AbstractServiceImpl<E extends AbstractEntity, R extends Jp
                 () -> new NoEntityFoundException("entity", "id", id));
         onDelete(entity);
         repository.delete(entity);
+    }
+
+    @Override
+    public void deleteAll() {
+        findAll().forEach(this::onDelete);
+        repository.deleteAll();
     }
 
     @Override

@@ -32,6 +32,9 @@ public class CustomerRoleDef extends UserRoleDef {
     @OneToMany(mappedBy = "customerRoleDef", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private Set<PaymentCard> paymentCards = new HashSet<>();
 
+    @OneToMany(mappedBy = "customerRoleDef", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private Set<Coupon> coupons = new HashSet<>();
+
     @JoinColumn
     @ManyToOne(fetch = FetchType.LAZY)
     private ModeratorRoleDef censoredBy;
