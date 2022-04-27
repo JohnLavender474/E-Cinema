@@ -1,19 +1,21 @@
 package com.ecinema.app.services;
 
+import com.ecinema.app.entities.Address;
 import com.ecinema.app.entities.CustomerRoleDef;
 import com.ecinema.app.entities.PaymentCard;
-import com.ecinema.app.repositories.CustomerRoleDefRepository;
-import com.ecinema.app.repositories.PaymentCardRepository;
-import com.ecinema.app.services.implementations.CustomerRoleDefServiceImpl;
-import com.ecinema.app.services.implementations.PaymentCardServiceImpl;
+import com.ecinema.app.repositories.*;
+import com.ecinema.app.services.implementations.*;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.jmx.export.annotation.ManagedOperation;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -24,17 +26,36 @@ import static org.mockito.Mockito.verify;
 @ExtendWith(MockitoExtension.class)
 class PaymentCardServiceTest {
 
-    @InjectMocks
-    PaymentCardServiceImpl paymentCardService;
-
+    private AddressService addressService;
+    private PaymentCardService paymentCardService;
+    private ReviewService reviewService;
+    private TicketService ticketService;
+    private CouponService couponService;
+    private CustomerRoleDefService customerRoleDefService;
     @Mock
-    PaymentCardRepository paymentCardRepository;
-
-    @InjectMocks
-    CustomerRoleDefServiceImpl customerAuthorityService;
-
+    private AddressRepository addressRepository;
     @Mock
-    CustomerRoleDefRepository customerRoleDefRepository;
+    private PaymentCardRepository paymentCardRepository;
+    @Mock
+    private ReviewRepository reviewRepository;
+    @Mock
+    private TicketRepository ticketRepository;
+    @Mock
+    private CouponRepository couponRepository;
+    @Mock
+    private CustomerRoleDefRepository customerRoleDefRepository;
+
+    @BeforeEach
+    void setUp() {
+        addressService = new AddressServiceImpl(addressRepository);
+        paymentCardService = new PaymentCardServiceImpl(paymentCardRepository, addressService);
+        reviewService = new ReviewServiceImpl(reviewRepository);
+        ticketService = new TicketServiceImpl(ticketRepository);
+        couponService = new CouponServiceImpl(couponRepository);
+        customerRoleDefService = new CustomerRoleDefServiceImpl(
+                customerRoleDefRepository, reviewService,
+                ticketService, paymentCardService, couponService);
+    }
 
     @Test
     void findAllByCustomerAuthority() {
@@ -43,8 +64,8 @@ class PaymentCardServiceTest {
         customerRoleDef1.setId(1L);
         CustomerRoleDef customerRoleDef2 = new CustomerRoleDef();
         customerRoleDef2.setId(2L);
-        customerAuthorityService.save(customerRoleDef1);
-        customerAuthorityService.save(customerRoleDef2);
+        customerRoleDefService.save(customerRoleDef1);
+        customerRoleDefService.save(customerRoleDef2);
         List<PaymentCard> paymentCards = new ArrayList<>();
         for (int i = 0; i < 10; i++) {
             PaymentCard paymentCard = new PaymentCard();
@@ -85,8 +106,8 @@ class PaymentCardServiceTest {
         customerRoleDef1.setId(1L);
         CustomerRoleDef customerRoleDef2 = new CustomerRoleDef();
         customerRoleDef2.setId(2L);
-        customerAuthorityService.save(customerRoleDef1);
-        customerAuthorityService.save(customerRoleDef2);
+        customerRoleDefService.save(customerRoleDef1);
+        customerRoleDefService.save(customerRoleDef2);
         List<PaymentCard> paymentCards = new ArrayList<>();
         for (int i = 0; i < 10; i++) {
             PaymentCard paymentCard = new PaymentCard();
@@ -120,6 +141,35 @@ class PaymentCardServiceTest {
         verify(paymentCardRepository, times(1)).findDistinctByCustomerRoleDefWithId(customerRoleDef2.getId());
         verify(customerRoleDefRepository, times(1)).save(customerRoleDef1);
         verify(customerRoleDefRepository, times(1)).save(customerRoleDef2);
+    }
+
+    @Test
+    void deletePaymentCascade() {
+        // given
+        CustomerRoleDef customerRoleDef = new CustomerRoleDef();
+        customerRoleDefService.save(customerRoleDef);
+        Address address = new Address();
+        address.setId(1L);
+        given(addressRepository.findById(1L))
+                .willReturn(Optional.of(address));
+        addressService.save(address);
+        PaymentCard paymentCard = new PaymentCard();
+        paymentCard.setId(2L);
+        paymentCard.setBillingAddress(address);
+        paymentCard.setCustomerRoleDef(customerRoleDef);
+        customerRoleDef.getPaymentCards().add(paymentCard);
+        given(paymentCardRepository.findById(2L))
+                .willReturn(Optional.of(paymentCard));
+        paymentCardService.save(paymentCard);
+        assertTrue(customerRoleDef.getPaymentCards().contains(paymentCard));
+        assertEquals(customerRoleDef, paymentCard.getCustomerRoleDef());
+        assertEquals(address, paymentCard.getBillingAddress());
+        // when
+        paymentCardService.delete(paymentCard);
+        // then
+        assertFalse(customerRoleDef.getPaymentCards().contains(paymentCard));
+        assertNotEquals(customerRoleDef, paymentCard.getCustomerRoleDef());
+        assertNotEquals(address, paymentCard.getBillingAddress());
     }
 
 }

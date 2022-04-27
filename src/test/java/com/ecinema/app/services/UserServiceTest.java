@@ -1,9 +1,6 @@
 package com.ecinema.app.services;
 
-import com.ecinema.app.entities.AdminRoleDef;
-import com.ecinema.app.entities.CustomerRoleDef;
-import com.ecinema.app.entities.ModeratorRoleDef;
-import com.ecinema.app.entities.User;
+import com.ecinema.app.entities.*;
 import com.ecinema.app.repositories.*;
 import com.ecinema.app.services.implementations.*;
 import com.ecinema.app.utils.UtilMethods;
@@ -15,7 +12,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -33,14 +29,39 @@ import static org.mockito.Mockito.*;
 @ExtendWith(MockitoExtension.class)
 class UserServiceTest {
 
-    private final DaoAuthenticationProvider daoAuthenticationProvider;
-
+    private AddressService addressService;
+    private ReviewService reviewService;
+    private TicketService ticketService;
+    private PaymentCardService paymentCardService;
+    private ShowroomService showroomService;
+    private ShowroomSeatService showroomSeatService;
+    private ScreeningService screeningService;
+    private ScreeningSeatService screeningSeatService;
+    private CouponService couponService;
     private UserService userService;
     private CustomerRoleDefService customerRoleDefService;
     private ModeratorRoleDefService moderatorRoleDefService;
     private AdminTraineeRoleDefService adminTraineeRoleDefService;
     private AdminRoleDefService adminRoleDefService;
     private TheaterService theaterService;
+    @Mock
+    private AddressRepository addressRepository;
+    @Mock
+    private ReviewRepository reviewRepository;
+    @Mock
+    private ShowroomRepository showroomRepository;
+    @Mock
+    private ShowroomSeatRepository showroomSeatRepository;
+    @Mock
+    private ScreeningRepository screeningRepository;
+    @Mock
+    private ScreeningSeatRepository screeningSeatRepository;
+    @Mock
+    private TicketRepository ticketRepository;
+    @Mock
+    private PaymentCardRepository paymentCardRepository;
+    @Mock
+    private CouponRepository couponRepository;
     @Mock
     private UserRepository userRepository;
     @Mock
@@ -54,24 +75,30 @@ class UserServiceTest {
     @Mock
     private TheaterRepository theaterRepository;
 
-    public UserServiceTest(DaoAuthenticationProvider daoAuthenticationProvider) {
-        this.daoAuthenticationProvider = daoAuthenticationProvider;
-    }
-
     /**
      * Sets up.
      */
     @BeforeEach
     void setUp() {
-        theaterService = new TheaterServiceImpl(theaterRepository);
+        addressService = new AddressServiceImpl(addressRepository);
+        reviewService = new ReviewServiceImpl(reviewRepository);
+        ticketService = new TicketServiceImpl(ticketRepository);
+        couponService = new CouponServiceImpl(couponRepository);
+        paymentCardService = new PaymentCardServiceImpl(paymentCardRepository, addressService);
+        screeningSeatService = new ScreeningSeatServiceImpl(screeningSeatRepository, ticketService);
+        screeningService = new ScreeningServiceImpl(screeningRepository, screeningSeatService);
+        showroomSeatService = new ShowroomSeatServiceImpl(showroomSeatRepository, screeningSeatService);
+        showroomService = new ShowroomServiceImpl(showroomRepository, showroomSeatService, screeningService);
+        theaterService = new TheaterServiceImpl(theaterRepository, addressService,
+                                                showroomService, screeningService);
         adminTraineeRoleDefService = new AdminTraineeRoleDefServiceImpl(adminTraineeRoleDefRepository);
-        adminRoleDefService = new AdminRoleDefServiceImpl(
-                adminRoleDefRepository, theaterService, adminTraineeRoleDefService);
+        adminRoleDefService = new AdminRoleDefServiceImpl(adminRoleDefRepository, theaterService,
+                                                          adminTraineeRoleDefService);
         moderatorRoleDefService = new ModeratorRoleDefServiceImpl(moderatorRoleDefRepository);
-        customerRoleDefService = new CustomerRoleDefServiceImpl(customerRoleDefRepository);
-        userService = new UserServiceImpl(userRepository, customerRoleDefService,
-                                          moderatorRoleDefService, adminTraineeRoleDefService,
-                                          adminRoleDefService, daoAuthenticationProvider);
+        customerRoleDefService = new CustomerRoleDefServiceImpl(customerRoleDefRepository, reviewService, ticketService,
+                                                                paymentCardService, couponService);
+        userService = new UserServiceImpl(userRepository, customerRoleDefService, moderatorRoleDefService,
+                                          adminTraineeRoleDefService, adminRoleDefService);
     }
 
     /**
@@ -107,7 +134,7 @@ class UserServiceTest {
      * Test find by email.
      */
     @Test
-    void testFindByEmail() {
+    void findByEmail() {
         // given
         String email = "test@gmail.com";
         User user = new User();
@@ -125,7 +152,7 @@ class UserServiceTest {
      * Test find all by is account locked.
      */
     @Test
-    void testFindAllByIsAccountLocked() {
+    void findAllByIsAccountLocked() {
         // given
         List<User> users = generateUsersList(user -> user.setIsAccountLocked(UtilMethods.getRandom().nextBoolean()));
         List<User> lockedUsers = users.stream()
@@ -144,7 +171,7 @@ class UserServiceTest {
      * Test find all by is account enabled.
      */
     @Test
-    void testFindAllByIsAccountEnabled() {
+    void findAllByIsAccountEnabled() {
         // given
         List<User> users = generateUsersList(user -> user.setIsAccountEnabled(UtilMethods.getRandom().nextBoolean()));
         List<User> enabledUsers = users.stream()
@@ -163,7 +190,7 @@ class UserServiceTest {
      * Test add user role def to user.
      */
     @Test
-    void testAddUserRoleDefToUser() {
+    void addUserRoleDefToUser() {
         // given
         User user = new User();
         userService.save(user);
@@ -186,7 +213,7 @@ class UserServiceTest {
      * Test remove user role def from user.
      */
     @Test
-    void testRemoveUserRoleDefFromUser() {
+    void removeUserRoleDefFromUser() {
         // given
         User user = new User();
         userService.save(user);
@@ -206,7 +233,7 @@ class UserServiceTest {
     }
 
     @Test
-    void testAddUserRoleDefsToUser() {
+    void addUserRoleDefsToUser() {
         // given
         User user = new User();
         user.setId(1L);
@@ -226,7 +253,7 @@ class UserServiceTest {
     }
 
     @Test
-    void testFailToAddUserRoleDefToUser() {
+    void failToAddUserRoleDefToUser() {
         // given
         User user = new User();
         user.setId(1L);
@@ -237,6 +264,58 @@ class UserServiceTest {
         // then
         assertThrows(ClashException.class,
                      () -> userService.addUserRoleDefToUser(user, UserRole.CUSTOMER));
+    }
+
+
+    @Test
+    void deleteUserAndCascade() {
+        // given
+        User user = new User();
+        user.setId(1L);
+        given(userRepository.findById(1L))
+                .willReturn(Optional.of(user));
+        userService.save(user);
+        AdminRoleDef adminRoleDef = new AdminRoleDef();
+        adminRoleDef.setId(2L);
+        adminRoleDef.setUser(user);
+        user.getUserRoleDefs().put(UserRole.ADMIN, adminRoleDef);
+        given(adminRoleDefRepository.findById(2L))
+                .willReturn(Optional.of(adminRoleDef));
+        adminRoleDefService.save(adminRoleDef);
+        AdminTraineeRoleDef adminTraineeRoleDef = new AdminTraineeRoleDef();
+        adminTraineeRoleDef.setMentor(adminRoleDef);
+        adminRoleDef.getTrainees().add(adminTraineeRoleDef);
+        adminTraineeRoleDefService.save(adminTraineeRoleDef);
+        CustomerRoleDef customerRoleDef = new CustomerRoleDef();
+        customerRoleDef.setId(3L);
+        customerRoleDef.setUser(user);
+        user.getUserRoleDefs().put(UserRole.CUSTOMER, customerRoleDef);
+        given(customerRoleDefRepository.findById(3L))
+                .willReturn(Optional.of(customerRoleDef));
+        customerRoleDefService.save(customerRoleDef);
+        PaymentCard paymentCard = new PaymentCard();
+        paymentCard.setId(4L);
+        paymentCard.setCustomerRoleDef(customerRoleDef);
+        customerRoleDef.getPaymentCards().add(paymentCard);
+        given(paymentCardRepository.findById(4L))
+                .willReturn(Optional.of(paymentCard));
+        paymentCardService.save(paymentCard);
+        // then
+        assertNotNull(user.getUserRoleDefs().get(UserRole.ADMIN));
+        assertNotNull(user.getUserRoleDefs().get(UserRole.CUSTOMER));
+        assertNotNull(adminRoleDef.getUser());
+        assertNotNull(customerRoleDef.getUser());
+        assertNotNull(adminTraineeRoleDef.getMentor());
+        assertNotNull(paymentCard.getCustomerRoleDef());
+        // when
+        userService.delete(user);
+        // then
+        assertNull(user.getUserRoleDefs().get(UserRole.ADMIN));
+        assertNull(user.getUserRoleDefs().get(UserRole.CUSTOMER));
+        assertNull(adminRoleDef.getUser());
+        assertNull(customerRoleDef.getUser());
+        assertNull(adminTraineeRoleDef.getMentor());
+        assertNull(paymentCard.getCustomerRoleDef());
     }
 
 }

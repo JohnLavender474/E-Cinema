@@ -7,7 +7,6 @@ import org.springframework.stereotype.Repository;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
 
 /**
  * The interface Screening repository.
@@ -61,23 +60,6 @@ public interface ScreeningRepository extends JpaRepository<Screening, Long> {
     List<Screening> findAllByMovieWithId(Long movieId);
 
     /**
-     * Find all by theater list.
-     *
-     * @param theater the theater
-     * @return the list
-     */
-    List<Screening> findAllByTheater(Theater theater);
-
-    /**
-     * Find all by theater with id list.
-     *
-     * @param theaterId the theater id
-     * @return the list
-     */
-    @Query("SELECT s FROM Screening s JOIN s.theater t WHERE t.id = ?1")
-    List<Screening> findAllByTheaterWithId(Long theaterId);
-
-    /**
      * Find all by showroom list.
      *
      * @param showroom the showroom
@@ -93,23 +75,5 @@ public interface ScreeningRepository extends JpaRepository<Screening, Long> {
      */
     @Query("SELECT s FROM Screening s JOIN s.showroom sh WHERE sh.id = ?1")
     List<Screening> findAllByShowroomWithId(Long showroomId);
-
-    /**
-     * Find by tickets contains optional.
-     *
-     * @param ticket the ticket
-     * @return the optional
-     */
-    @Query("SELECT s FROM Screening s JOIN s.tickets t WHERE t = ?1")
-    Optional<Screening> findByTicketsContains(Ticket ticket);
-
-    /**
-     * Find by tickets contains with id optional.
-     *
-     * @param ticketId the ticket id
-     * @return the optional
-     */
-    @Query("SELECT s FROM Screening s JOIN s.tickets t WHERE t.id = ?1")
-    Optional<Screening> findByTicketsContainsWithId(Long ticketId);
 
 }

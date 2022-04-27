@@ -5,7 +5,7 @@ import com.ecinema.app.entities.PaymentCard;
 import com.ecinema.app.entities.Review;
 import com.ecinema.app.entities.Ticket;
 import com.ecinema.app.repositories.CustomerRoleDefRepository;
-import com.ecinema.app.services.CustomerRoleDefService;
+import com.ecinema.app.services.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -16,13 +16,33 @@ import java.util.Optional;
 public class CustomerRoleDefServiceImpl extends UserRoleDefServiceImpl<CustomerRoleDef,
         CustomerRoleDefRepository> implements CustomerRoleDefService {
 
-    public CustomerRoleDefServiceImpl(CustomerRoleDefRepository repository) {
+    private final ReviewService reviewService;
+    private final TicketService ticketService;
+    private final CouponService couponService;
+    private final PaymentCardService paymentCardService;
+
+    public CustomerRoleDefServiceImpl(CustomerRoleDefRepository repository, ReviewService reviewService,
+                                      TicketService ticketService, PaymentCardService paymentCardService,
+                                      CouponService couponService) {
         super(repository);
+        this.reviewService = reviewService;
+        this.ticketService = ticketService;
+        this.couponService = couponService;
+        this.paymentCardService = paymentCardService;
     }
 
     @Override
     protected void onDelete(CustomerRoleDef customerRoleDef) {
-
+        // detach User
+        super.onDelete(customerRoleDef);
+        // cascade delete Reviews
+        reviewService.deleteAll(customerRoleDef.getReviews());
+        // cascade delete Tickets
+        ticketService.deleteAll(customerRoleDef.getTickets());
+        // cascade delete PaymentCards
+        paymentCardService.deleteAll(customerRoleDef.getPaymentCards());
+        // cascade delete Coupons
+        couponService.deleteAll(customerRoleDef.getCoupons());
     }
 
     @Override

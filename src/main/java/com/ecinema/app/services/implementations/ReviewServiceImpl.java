@@ -1,5 +1,6 @@
 package com.ecinema.app.services.implementations;
 
+import com.ecinema.app.entities.CustomerRoleDef;
 import com.ecinema.app.entities.Movie;
 import com.ecinema.app.entities.Review;
 import com.ecinema.app.repositories.ReviewRepository;
@@ -20,7 +21,18 @@ public class ReviewServiceImpl extends AbstractServiceImpl<Review, ReviewReposit
 
     @Override
     protected void onDelete(Review review) {
-        
+        // detach Customer
+        CustomerRoleDef customerRoleDef = review.getWriter();
+        if (customerRoleDef != null) {
+            customerRoleDef.getReviews().remove(review);
+            review.setWriter(null);
+        }
+        // detatch Movie
+        Movie movie = review.getMovie();
+        if (movie != null) {
+            movie.getReviews().remove(review);
+            review.setMovie(null);
+        }
     }
 
     @Override

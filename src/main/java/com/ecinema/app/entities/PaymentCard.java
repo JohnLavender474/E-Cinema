@@ -37,7 +37,7 @@ public class PaymentCard extends AbstractEntity {
     private CustomerRoleDef customerRoleDef;
 
     @JoinColumn
-    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToOne(cascade = CascadeType.PERSIST, fetch = FetchType.LAZY)
     private Address billingAddress;
 
 }

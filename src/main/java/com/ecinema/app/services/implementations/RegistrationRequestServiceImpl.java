@@ -12,7 +12,6 @@ import com.ecinema.app.utils.exceptions.InvalidArgException;
 import com.ecinema.app.utils.exceptions.NoEntityFoundException;
 import com.ecinema.app.utils.forms.RegistrationForm;
 import com.ecinema.app.utils.validators.RegistrationFormValidator;
-import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -34,7 +33,6 @@ public class RegistrationRequestServiceImpl extends AbstractServiceImpl<Registra
     private final UserService userService;
     private final EmailSenderService emailSenderService;
     private final BCryptPasswordEncoder passwordEncoder;
-    private final DaoAuthenticationProvider daoAuthenticationProvider;
     private final RegistrationFormValidator registrationFormValidator;
 
     /**
@@ -47,14 +45,12 @@ public class RegistrationRequestServiceImpl extends AbstractServiceImpl<Registra
      * @param registrationFormValidator the registration form validator
      */
     public RegistrationRequestServiceImpl(RegistrationRequestRepository repository, UserService userService,
-                                          EmailSenderServiceImpl emailSenderService, BCryptPasswordEncoder passwordEncoder,
-                                          DaoAuthenticationProvider daoAuthenticationProvider,
+                                          EmailSenderService emailSenderService, BCryptPasswordEncoder passwordEncoder,
                                           RegistrationFormValidator registrationFormValidator) {
         super(repository);
         this.userService = userService;
         this.emailSenderService = emailSenderService;
         this.passwordEncoder = passwordEncoder;
-        this.daoAuthenticationProvider = daoAuthenticationProvider;
         this.registrationFormValidator = registrationFormValidator;
     }
 

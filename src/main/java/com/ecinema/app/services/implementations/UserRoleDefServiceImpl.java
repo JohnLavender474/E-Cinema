@@ -29,6 +29,15 @@ public abstract class UserRoleDefServiceImpl<T extends UserRoleDef, R extends Us
     }
 
     @Override
+    protected void onDelete(T userRoleDef) {
+        User user = userRoleDef.getUser();
+        if (user != null) {
+            user.getUserRoleDefs().remove(userRoleDef.getUserRole());
+            userRoleDef.setUser(null);
+        }
+    }
+
+    @Override
     public Optional<T> findByUser(User user) {
         return repository.findByUser(user);
     }

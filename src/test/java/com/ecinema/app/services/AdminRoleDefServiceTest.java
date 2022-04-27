@@ -1,9 +1,6 @@
 package com.ecinema.app.services;
 
-import com.ecinema.app.entities.AdminRoleDef;
-import com.ecinema.app.entities.AdminTraineeRoleDef;
-import com.ecinema.app.entities.Theater;
-import com.ecinema.app.entities.User;
+import com.ecinema.app.entities.*;
 import com.ecinema.app.repositories.*;
 import com.ecinema.app.services.implementations.*;
 import com.ecinema.app.utils.constants.UserRole;
@@ -12,12 +9,14 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
+import org.springframework.security.authentication.CachingUserDetailsService;
+import org.springframework.security.core.parameters.P;
 
 import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -28,46 +27,76 @@ import static org.mockito.Mockito.verify;
 @ExtendWith(MockitoExtension.class)
 class AdminRoleDefServiceTest {
 
-    private final DaoAuthenticationProvider daoAuthenticationProvider;
-
+    private AddressService addressService;
     private AdminTraineeRoleDefService adminTraineeRoleDefService;
     private ModeratorRoleDefService moderatorRoleDefService;
     private CustomerRoleDefService customerRoleDefService;
     private AdminRoleDefService adminRoleDefService;
     private TheaterService theaterService;
+    private ReviewService reviewService;
+    private TicketService ticketService;
+    private ShowroomService showroomService;
+    private ShowroomSeatService showroomSeatService;
+    private ScreeningService screeningService;
+    private ScreeningSeatService screeningSeatService;
+    private PaymentCardService paymentCardService;
+    private CouponService couponService;
     private UserService userService;
     @Mock
-    AdminTraineeRoleDefRepository adminTraineeRoleDefRepository;
+    private AddressRepository addressRepository;
     @Mock
-    AdminRoleDefRepository adminRoleDefRepository;
+    private AdminTraineeRoleDefRepository adminTraineeRoleDefRepository;
     @Mock
-    ModeratorRoleDefRepository moderatorRoleDefRepository;
+    private AdminRoleDefRepository adminRoleDefRepository;
     @Mock
-    CustomerRoleDefRepository customerRoleDefRepository;
+    private ModeratorRoleDefRepository moderatorRoleDefRepository;
     @Mock
-    UserRepository userRepository;
+    private CustomerRoleDefRepository customerRoleDefRepository;
     @Mock
-    TheaterRepository theaterRepository;
-
-    public AdminRoleDefServiceTest(DaoAuthenticationProvider daoAuthenticationProvider) {
-        this.daoAuthenticationProvider = daoAuthenticationProvider;
-    }
+    private UserRepository userRepository;
+    @Mock
+    private TheaterRepository theaterRepository;
+    @Mock
+    private ReviewRepository reviewRepository;
+    @Mock
+    private ShowroomRepository showroomRepository;
+    @Mock
+    private ShowroomSeatRepository showroomSeatRepository;
+    @Mock
+    private ScreeningRepository screeningRepository;
+    @Mock
+    private ScreeningSeatRepository screeningSeatRepository;
+    @Mock
+    private TicketRepository ticketRepository;
+    @Mock
+    private PaymentCardRepository paymentCardRepository;
+    @Mock
+    private CouponRepository couponRepository;
 
     /**
      * Sets up.
      */
     @BeforeEach
     void setUp() {
+        addressService = new AddressServiceImpl(addressRepository);
+        reviewService = new ReviewServiceImpl(reviewRepository);
+        ticketService = new TicketServiceImpl(ticketRepository);
+        paymentCardService = new PaymentCardServiceImpl(paymentCardRepository, addressService);
+        couponService = new CouponServiceImpl(couponRepository);
         adminTraineeRoleDefService = new AdminTraineeRoleDefServiceImpl(adminTraineeRoleDefRepository);
         moderatorRoleDefService = new ModeratorRoleDefServiceImpl(moderatorRoleDefRepository);
-        customerRoleDefService = new CustomerRoleDefServiceImpl(customerRoleDefRepository);
-        theaterService = new TheaterServiceImpl(theaterRepository);
-        adminRoleDefService = new AdminRoleDefServiceImpl(
-                adminRoleDefRepository, theaterService, adminTraineeRoleDefService);
-        userService = new UserServiceImpl(
-                userRepository, customerRoleDefService,
-                moderatorRoleDefService, adminTraineeRoleDefService,
-                adminRoleDefService, daoAuthenticationProvider);
+        customerRoleDefService = new CustomerRoleDefServiceImpl(customerRoleDefRepository, reviewService,
+                                                                ticketService, paymentCardService, couponService);
+        screeningSeatService = new ScreeningSeatServiceImpl(screeningSeatRepository, ticketService);
+        screeningService = new ScreeningServiceImpl(screeningRepository, screeningSeatService);
+        showroomSeatService = new ShowroomSeatServiceImpl(showroomSeatRepository, screeningSeatService);
+        showroomService = new ShowroomServiceImpl(showroomRepository, showroomSeatService, screeningService);
+        theaterService = new TheaterServiceImpl(theaterRepository, addressService,
+                                                showroomService, screeningService);
+        adminRoleDefService = new AdminRoleDefServiceImpl(adminRoleDefRepository, theaterService,
+                                                          adminTraineeRoleDefService);
+        userService = new UserServiceImpl(userRepository, customerRoleDefService,
+                                          moderatorRoleDefService, adminTraineeRoleDefService, adminRoleDefService);
     }
 
     /**
@@ -88,8 +117,8 @@ class AdminRoleDefServiceTest {
         Optional<AdminRoleDef> adminAuthorityOptional = adminRoleDefService.findByUser(user);
         // then
         assertTrue(adminAuthorityOptional.isPresent() &&
-                adminRoleDef.equals(adminAuthorityOptional.get()) &&
-                adminAuthorityOptional.get().getUser().equals(user));
+                           adminRoleDef.equals(adminAuthorityOptional.get()) &&
+                           adminAuthorityOptional.get().getUser().equals(user));
         verify(adminRoleDefRepository, times(1)).findByUser(user);
         verify(userRepository, times(1)).save(user);
     }
@@ -148,7 +177,7 @@ class AdminRoleDefServiceTest {
      * Delete admin role def.
      */
     @Test
-    void deleteAdminRoleDef() {
+    void deleteAdminRoleDef1() {
         // given
         Theater theater = new Theater();
         theater.setId(1L);
@@ -198,6 +227,37 @@ class AdminRoleDefServiceTest {
         assertNotEquals(adminTraineeRoleDef.getMentor(), adminRoleDef);
         assertFalse(adminRoleDef.getTrainees().contains(adminTraineeRoleDef));
         // when
+    }
+
+    @Test
+    void deleteAdminAndCascade() {
+        // given
+        User user = new User();
+        user.setId(1L);
+        userService.save(user);
+        AdminRoleDef adminRoleDef = new AdminRoleDef();
+        adminRoleDef.setId(2L);
+        adminRoleDef.setUser(user);
+        user.getUserRoleDefs().put(UserRole.ADMIN, adminRoleDef);
+        given(adminRoleDefRepository.findById(2L))
+                .willReturn(Optional.of(adminRoleDef));
+        adminRoleDefService.save(adminRoleDef);
+        AdminTraineeRoleDef adminTraineeRoleDef = new AdminTraineeRoleDef();
+        adminTraineeRoleDef.setId(3L);
+        adminTraineeRoleDef.setMentor(adminRoleDef);
+        adminRoleDef.getTrainees().add(adminTraineeRoleDef);
+        adminTraineeRoleDefService.save(adminTraineeRoleDef);
+        assertNotNull(adminRoleDef.getUser());
+        assertNotNull(user.getUserRoleDefs().get(UserRole.ADMIN));
+        assertNotNull(adminTraineeRoleDef.getMentor());
+        assertFalse(adminRoleDef.getTrainees().isEmpty());
+        // when
+        adminRoleDefService.delete(adminRoleDef);
+        // then
+        assertNull(adminRoleDef.getUser());
+        assertNull(user.getUserRoleDefs().get(UserRole.ADMIN));
+        assertNull(adminTraineeRoleDef.getMentor());
+        assertTrue(adminRoleDef.getTrainees().isEmpty());
     }
 
 }

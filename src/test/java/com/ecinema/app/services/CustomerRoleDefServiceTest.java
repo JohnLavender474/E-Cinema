@@ -1,28 +1,19 @@
 package com.ecinema.app.services;
 
-import com.ecinema.app.entities.CustomerRoleDef;
-import com.ecinema.app.entities.PaymentCard;
-import com.ecinema.app.entities.Review;
-import com.ecinema.app.entities.Ticket;
-import com.ecinema.app.repositories.CustomerRoleDefRepository;
-import com.ecinema.app.repositories.PaymentCardRepository;
-import com.ecinema.app.repositories.ReviewRepository;
-import com.ecinema.app.repositories.TicketRepository;
-import com.ecinema.app.services.implementations.CustomerRoleDefServiceImpl;
-import com.ecinema.app.services.implementations.PaymentCardServiceImpl;
-import com.ecinema.app.services.implementations.ReviewServiceImpl;
-import com.ecinema.app.services.implementations.TicketServiceImpl;
+import com.ecinema.app.entities.*;
+import com.ecinema.app.repositories.*;
+import com.ecinema.app.services.implementations.*;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.security.core.parameters.P;
 
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.BDDMockito.given;
 
 /**
@@ -31,50 +22,38 @@ import static org.mockito.BDDMockito.given;
 @ExtendWith(MockitoExtension.class)
 class CustomerRoleDefServiceTest {
 
-    /**
-     * The Customer role def service.
-     */
-    CustomerRoleDefService customerRoleDefService;
-    /**
-     * The Payment card service.
-     */
-    PaymentCardService paymentCardService;
-    /**
-     * The Ticket service.
-     */
-    TicketService ticketService;
-    /**
-     * The Review service.
-     */
-    ReviewService reviewService;
-    /**
-     * The Customer role def repository.
-     */
+    private AddressService addressService;
+    private CustomerRoleDefService customerRoleDefService;
+    private PaymentCardService paymentCardService;
+    private TicketService ticketService;
+    private ReviewService reviewService;
+    private CouponService couponService;
     @Mock
-    CustomerRoleDefRepository customerRoleDefRepository;
-    /**
-     * The Payment card repository.
-     */
+    private AddressRepository addressRepository;
     @Mock
-    PaymentCardRepository paymentCardRepository;
-    /**
-     * The Ticket repository.
-     */
+    private CustomerRoleDefRepository customerRoleDefRepository;
     @Mock
-    TicketRepository ticketRepository;
-    /**
-     * The Review repository.
-     */
+    private PaymentCardRepository paymentCardRepository;
     @Mock
-    ReviewRepository reviewRepository;
+    private TicketRepository ticketRepository;
+    @Mock
+    private ReviewRepository reviewRepository;
+    @Mock
+    private CouponRepository couponRepository;
 
-    /**
+    /*
      * Sets up.
      */
     @BeforeEach
     void setUp() {
-        customerRoleDefService = new CustomerRoleDefServiceImpl(customerRoleDefRepository);
-        paymentCardService = new PaymentCardServiceImpl(paymentCardRepository);
+        addressService = new AddressServiceImpl(addressRepository);
+        ticketService = new TicketServiceImpl(ticketRepository);
+        couponService = new CouponServiceImpl(couponRepository);
+        reviewService = new ReviewServiceImpl(reviewRepository);
+        paymentCardService = new PaymentCardServiceImpl(paymentCardRepository, addressService);
+        customerRoleDefService = new CustomerRoleDefServiceImpl(customerRoleDefRepository, reviewService,
+                                                                ticketService, paymentCardService,
+                                                                couponService);
         ticketService = new TicketServiceImpl(ticketRepository);
         reviewService = new ReviewServiceImpl(reviewRepository);
     }
@@ -94,7 +73,7 @@ class CustomerRoleDefServiceTest {
      * Test find by payment cards contains.
      */
     @Test
-    void testFindByPaymentCardsContains() {
+    void findByPaymentCardsContains() {
         // given
         CustomerRoleDef customerRoleDef = new CustomerRoleDef();
         customerRoleDefService.save(customerRoleDef);
@@ -116,7 +95,7 @@ class CustomerRoleDefServiceTest {
      * Test find by tickets contains with id.
      */
     @Test
-    void testFindByTicketsContainsWithId() {
+    void findByTicketsContainsWithId() {
         // given
         CustomerRoleDef customerRoleDef = new CustomerRoleDef();
         customerRoleDefService.save(customerRoleDef);
@@ -139,7 +118,7 @@ class CustomerRoleDefServiceTest {
      * Test find by reviews contains.
      */
     @Test
-    void testFindByReviewsContains() {
+    void findByReviewsContains() {
         // given
         CustomerRoleDef customerRoleDef = new CustomerRoleDef();
         customerRoleDefService.save(customerRoleDef);
@@ -156,6 +135,63 @@ class CustomerRoleDefServiceTest {
         // then
         assertTrue(customerRoleDefOptional.isPresent());
         assertEquals(customerRoleDef, customerRoleDefOptional.get());
+    }
+
+    @Test
+    void deleteCustomerRoleDefCascade() {
+        // given
+       CustomerRoleDef customerRoleDef = new CustomerRoleDef();
+       customerRoleDef.setId(1L);
+       given(customerRoleDefRepository.findById(1L))
+               .willReturn(Optional.of(customerRoleDef));
+       customerRoleDefService.save(customerRoleDef);
+       Review review = new Review();
+       review.setId(2L);
+       review.setWriter(customerRoleDef);
+       customerRoleDef.getReviews().add(review);
+       given(reviewRepository.findById(2L))
+               .willReturn(Optional.of(review));
+       reviewService.save(review);
+       Ticket ticket = new Ticket();
+       ticket.setId(3L);
+       ticket.setCustomerRoleDef(customerRoleDef);
+       customerRoleDef.getTickets().add(ticket);
+       given(ticketRepository.findById(3L))
+               .willReturn(Optional.of(ticket));
+       ticketService.save(ticket);
+       PaymentCard paymentCard = new PaymentCard();
+       paymentCard.setId(4L);
+       paymentCard.setCustomerRoleDef(customerRoleDef);
+       customerRoleDef.getPaymentCards().add(paymentCard);
+       given(paymentCardRepository.findById(4L))
+               .willReturn(Optional.of(paymentCard));
+       paymentCardService.save(paymentCard);
+       Coupon coupon = new Coupon();
+       coupon.setId(5L);
+       coupon.setCustomerRoleDef(customerRoleDef);
+       customerRoleDef.getCoupons().add(coupon);
+       given(couponRepository.findById(5L))
+               .willReturn(Optional.of(coupon));
+       couponService.save(coupon);
+       assertEquals(customerRoleDef, review.getWriter());
+       assertTrue(customerRoleDef.getReviews().contains(review));
+       assertEquals(customerRoleDef, ticket.getCustomerRoleDef());
+       assertTrue(customerRoleDef.getTickets().contains(ticket));
+       assertEquals(customerRoleDef, paymentCard.getCustomerRoleDef());
+       assertTrue(customerRoleDef.getPaymentCards().contains(paymentCard));
+       assertEquals(customerRoleDef, coupon.getCustomerRoleDef());
+       assertTrue(customerRoleDef.getCoupons().contains(coupon));
+       // when
+        customerRoleDefService.delete(customerRoleDef);
+        // then
+        assertNotEquals(customerRoleDef, review.getWriter());
+        assertFalse(customerRoleDef.getReviews().contains(review));
+        assertNotEquals(customerRoleDef, ticket.getCustomerRoleDef());
+        assertFalse(customerRoleDef.getTickets().contains(ticket));
+        assertNotEquals(customerRoleDef, paymentCard.getCustomerRoleDef());
+        assertFalse(customerRoleDef.getPaymentCards().contains(paymentCard));
+        assertNotEquals(customerRoleDef, coupon.getCustomerRoleDef());
+        assertFalse(customerRoleDef.getCoupons().contains(coupon));
     }
 
 }

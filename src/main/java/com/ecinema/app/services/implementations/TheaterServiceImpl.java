@@ -1,12 +1,18 @@
 package com.ecinema.app.services.implementations;
 
+import com.ecinema.app.entities.Address;
+import com.ecinema.app.entities.AdminRoleDef;
 import com.ecinema.app.entities.Theater;
 import com.ecinema.app.repositories.TheaterRepository;
+import com.ecinema.app.services.AddressService;
+import com.ecinema.app.services.ScreeningService;
+import com.ecinema.app.services.ShowroomService;
 import com.ecinema.app.services.TheaterService;
 import com.ecinema.app.utils.exceptions.NoEntityFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Iterator;
 import java.util.Optional;
 
 /**
@@ -17,18 +23,39 @@ import java.util.Optional;
 public class TheaterServiceImpl extends AbstractServiceImpl<Theater, TheaterRepository>
         implements TheaterService {
 
+    private final AddressService addressService;
+    private final ShowroomService showroomService;
+    private final ScreeningService screeningService;
+
     /**
      * Instantiates a new Theater service.
      *
      * @param repository the repository
      */
-    public TheaterServiceImpl(TheaterRepository repository) {
+    public TheaterServiceImpl(TheaterRepository repository, AddressService addressService,
+                              ShowroomService showroomService, ScreeningService screeningService) {
         super(repository);
+        this.addressService = addressService;
+        this.showroomService = showroomService;
+        this.screeningService = screeningService;
     }
 
     @Override
     protected void onDelete(Theater theater) {
-
+        // detach AdminRoleDefs
+        // iterator to avoid concurrent modification exception
+        Iterator<AdminRoleDef> adminRoleDefIterator = theater.getAdmins().iterator();
+        while (adminRoleDefIterator.hasNext()) {
+            AdminRoleDef adminRoleDef = adminRoleDefIterator.next();
+            adminRoleDef.getTheatersBeingManaged().remove(theater);
+            adminRoleDefIterator.remove();
+        }
+        // cascade delete Address
+        Address address = theater.getAddress();
+        theater.setAddress(null);
+        addressService.delete(address);
+        // cascade delete Showrooms
+        showroomService.deleteAll(theater.getShowrooms().values());
     }
 
     @Override

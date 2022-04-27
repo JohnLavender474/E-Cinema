@@ -68,8 +68,11 @@ public class DataInitializationConfig {
     }
 
     private void initRoot(User root) {
+        root.setUsername("ROOT");
         root.setEmail("ecinema.app.474@gmail.com");
-        root.setPassword(passwordEncoder.encode("password123!"));
+        String encodedPassword = passwordEncoder.encode("password123!");
+        root.setPassword(encodedPassword);
+        root.setConfirmPassword(encodedPassword);
         root.setFirstName("Jim");
         root.setLastName("Montgomery");
         root.setBirthDate(LocalDate.of(1998, Month.JULY, 9));
@@ -89,9 +92,11 @@ public class DataInitializationConfig {
     private void initRootAdminRoleDef(User root) {
         AdminRoleDef adminRoleDef = new AdminRoleDef();
         adminRoleDef.setUser(root);
+        adminRoleDef.setIsRoleValid(true);
         root.getUserRoleDefs().put(UserRole.ADMIN, adminRoleDef);
         AdminRoleDefService adminRoleDefService = (AdminRoleDefService) userRoleDefServices.get(UserRole.ADMIN);
         adminRoleDefService.save(adminRoleDef);
+        userService.save(root);
     }
 
 }

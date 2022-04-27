@@ -25,16 +25,9 @@ public class Screening extends AbstractEntity {
 
     @JoinColumn
     @ManyToOne(fetch = FetchType.LAZY)
-    private Theater theater;
-
-    @JoinColumn
-    @ManyToOne(fetch = FetchType.LAZY)
     private Showroom showroom;
 
-    @OneToMany(mappedBy = "screening", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private Set<Ticket> tickets = new HashSet<>();
-
-    @OneToMany(mappedBy = "screening", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "screening", cascade = CascadeType.PERSIST, fetch = FetchType.LAZY)
     private Set<ScreeningSeat> screeningSeats = new HashSet<>();
 
 }

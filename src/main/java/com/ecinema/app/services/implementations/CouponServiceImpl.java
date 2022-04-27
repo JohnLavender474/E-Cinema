@@ -1,6 +1,7 @@
 package com.ecinema.app.services.implementations;
 
 import com.ecinema.app.entities.Coupon;
+import com.ecinema.app.entities.CustomerRoleDef;
 import com.ecinema.app.repositories.CouponRepository;
 import com.ecinema.app.services.CouponService;
 import com.ecinema.app.utils.constants.CouponType;
@@ -21,7 +22,12 @@ public class CouponServiceImpl extends AbstractServiceImpl<Coupon, CouponReposit
 
     @Override
     protected void onDelete(Coupon coupon) {
-
+        // detach Customer
+        CustomerRoleDef customerRoleDef = coupon.getCustomerRoleDef();
+        if (customerRoleDef != null) {
+            customerRoleDef.getCoupons().remove(coupon);
+            coupon.setCustomerRoleDef(null);
+        }
     }
 
     @Override

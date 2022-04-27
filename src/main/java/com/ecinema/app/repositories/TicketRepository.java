@@ -18,6 +18,32 @@ import java.util.Optional;
 public interface TicketRepository extends JpaRepository<Ticket, Long> {
 
     /**
+     * Exists by screening seat boolean.
+     *
+     * @param screeningSeat the screening seat
+     * @return the boolean
+     */
+    boolean existsByScreeningSeat(ScreeningSeat screeningSeat);
+
+    /**
+     * Find all by screening list.
+     *
+     * @param screening the screening
+     * @return the list
+     */
+    @Query("SELECT t FROM Ticket t WHERE t.screeningSeat.screening = ?1")
+    List<Ticket> findAllByScreening(Screening screening);
+
+    /**
+     * Find all by screening with id list.
+     *
+     * @param screeningId the screening id
+     * @return the list
+     */
+    @Query("SELECT t FROM Ticket t WHERE t.screeningSeat.screening.id = ?1")
+    List<Ticket> findAllByScreeningWithId(Long screeningId);
+
+    /**
      * Find by screening seat optional.
      *
      * @param screeningSeat the screening seat
@@ -82,39 +108,5 @@ public interface TicketRepository extends JpaRepository<Ticket, Long> {
      */
     @Query("SELECT t FROM Ticket t WHERE t.customerRoleDef.id = ?1")
     List<Ticket> findAllByCustomerRoleDefWithId(Long customerRoleDefId);
-
-    /**
-     * Find all by payment card list.
-     *
-     * @param paymentCard the payment card
-     * @return the list
-     */
-    List<Ticket> findAllByPaymentCard(PaymentCard paymentCard);
-
-    /**
-     * Find all by payment card with id list.
-     *
-     * @param paymentCardId the payment card id
-     * @return the list
-     */
-    @Query("SELECT t FROM Ticket t WHERE t.paymentCard.id = ?1")
-    List<Ticket> findAllByPaymentCardWithId(Long paymentCardId);
-
-    /**
-     * Find all by screening list.
-     *
-     * @param screening the screening
-     * @return the list
-     */
-    List<Ticket> findAllByScreening(Screening screening);
-
-    /**
-     * Find all by screening with id list.
-     *
-     * @param screeningId the screening id
-     * @return the list
-     */
-    @Query("SELECT t FROM Ticket t WHERE t.screening.id = ?1")
-    List<Ticket> findAllByScreeningWithId(Long screeningId);
 
 }

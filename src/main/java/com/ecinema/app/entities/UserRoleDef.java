@@ -29,7 +29,7 @@ public abstract class UserRoleDef extends AbstractEntity {
     private UserRole userRole;
 
     @Column
-    private Boolean isAuthorityValid;
+    private Boolean isRoleValid;
 
     public UserRoleDef() {
         userRole = defineUserRole();

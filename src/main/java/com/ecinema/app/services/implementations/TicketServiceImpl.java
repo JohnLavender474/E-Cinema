@@ -1,7 +1,8 @@
 package com.ecinema.app.services.implementations;
 
-import com.ecinema.app.entities.Ticket;
+import com.ecinema.app.entities.*;
 import com.ecinema.app.repositories.TicketRepository;
+import com.ecinema.app.services.ScreeningSeatService;
 import com.ecinema.app.services.TicketService;
 import com.ecinema.app.utils.constants.TicketStatus;
 import org.springframework.stereotype.Service;
@@ -21,7 +22,18 @@ public class TicketServiceImpl extends AbstractServiceImpl<Ticket, TicketReposit
 
     @Override
     protected void onDelete(Ticket ticket) {
-
+        // detach ScreeningSeat
+        ScreeningSeat screeningSeat = ticket.getScreeningSeat();
+        if (screeningSeat != null) {
+            screeningSeat.setTicket(null);
+            ticket.setScreeningSeat(null);
+        }
+        // detach CustomerRoleDef
+        CustomerRoleDef customerRoleDef = ticket.getCustomerRoleDef();
+        if (customerRoleDef != null) {
+            customerRoleDef.getTickets().remove(ticket);
+            ticket.setCustomerRoleDef(null);
+        }
     }
 
     @Override

@@ -19,23 +19,6 @@ import java.util.Set;
 public interface UserService extends AbstractService<User>, UserDetailsService {
 
     /**
-     * Login.
-     *
-     * @param email    the email
-     * @param password the password
-     * @throws NoEntityFoundException the no entity found exception
-     */
-    void login(String email, String password)
-            throws NoEntityFoundException;
-
-    /**
-     * Find logged in user email string.
-     *
-     * @return the string
-     */
-    String findLoggedInUserEmail();
-
-    /**
      * Find all by {@link User#getIsAccountLocked()} equal to isAccountLocked and return as list.
      *
      * @param isAccountLocked the value of getIsAccountLocked() for all User instances in returned list.

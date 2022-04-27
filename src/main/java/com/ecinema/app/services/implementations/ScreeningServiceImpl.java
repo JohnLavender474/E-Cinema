@@ -2,7 +2,9 @@ package com.ecinema.app.services.implementations;
 
 import com.ecinema.app.entities.*;
 import com.ecinema.app.repositories.ScreeningRepository;
+import com.ecinema.app.services.ScreeningSeatService;
 import com.ecinema.app.services.ScreeningService;
+import com.ecinema.app.services.TicketService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -18,18 +20,35 @@ import java.util.Optional;
 public class ScreeningServiceImpl extends AbstractServiceImpl<Screening, ScreeningRepository>
         implements ScreeningService {
 
+    private final ScreeningSeatService screeningSeatService;
+
     /**
      * Instantiates a new Screening service.
      *
      * @param repository the repository
      */
-    public ScreeningServiceImpl(ScreeningRepository repository) {
+    public ScreeningServiceImpl(ScreeningRepository repository,
+                                ScreeningSeatService screeningSeatService) {
         super(repository);
+        this.screeningSeatService = screeningSeatService;
     }
 
     @Override
     protected void onDelete(Screening screening) {
-
+        // detach Movie
+        Movie movie = screening.getMovie();
+        if (movie != null) {
+            movie.getScreenings().remove(screening);
+            screening.setMovie(null);
+        }
+        // detach Showroom
+        Showroom showroom = screening.getShowroom();
+        if (showroom != null) {
+            showroom.getScreenings().remove(screening);
+            screening.setShowroom(null);
+        }
+        // cascade delete ScreeningSeats
+        screeningSeatService.deleteAll(screening.getScreeningSeats());
     }
 
     @Override
@@ -58,16 +77,6 @@ public class ScreeningServiceImpl extends AbstractServiceImpl<Screening, Screeni
     }
 
     @Override
-    public List<Screening> findAllByTheater(Theater theater) {
-        return repository.findAllByTheater(theater);
-    }
-
-    @Override
-    public List<Screening> findAllByTheaterWithId(Long theaterId) {
-        return repository.findAllByTheaterWithId(theaterId);
-    }
-
-    @Override
     public List<Screening> findAllByShowroom(Showroom showroom) {
         return repository.findAllByShowroom(showroom);
     }
@@ -75,16 +84,6 @@ public class ScreeningServiceImpl extends AbstractServiceImpl<Screening, Screeni
     @Override
     public List<Screening> findAllByShowroomWithId(Long showroomId) {
         return repository.findAllByShowroomWithId(showroomId);
-    }
-
-    @Override
-    public Optional<Screening> findByTicketsContains(Ticket ticket) {
-        return repository.findByTicketsContains(ticket);
-    }
-
-    @Override
-    public Optional<Screening> findByTicketsContainsWithId(Long ticketId) {
-        return repository.findByTicketsContainsWithId(ticketId);
     }
 
 }

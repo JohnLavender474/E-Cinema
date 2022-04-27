@@ -30,7 +30,7 @@ public class UtilMethods {
         return list;
     }
 
-    public static <T> List<T> findFirstKeyThatMapContainsIfAny(Map<T, ?> map, Collection<T> collection) {
+    public static <T> List<T> findAllKeysThatMapContainsIfAny(Map<T, ?> map, Collection<T> collection) {
         return findAllThatCollectionContainsIfAny(map.keySet(), collection);
     }
 

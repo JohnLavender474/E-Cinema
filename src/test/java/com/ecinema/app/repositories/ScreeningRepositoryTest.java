@@ -23,25 +23,10 @@ class ScreeningRepositoryTest {
     private MovieRepository movieRepository;
 
     @Autowired
-    private TheaterRepository theaterRepository;
-
-    @Autowired
     private ScreeningRepository screeningRepository;
 
     @Autowired
     private ShowroomRepository showroomRepository;
-
-    @Autowired
-    private TicketRepository ticketRepository;
-
-    @AfterEach
-    void tearDown() {
-        movieRepository.deleteAll();
-        theaterRepository.deleteAll();
-        screeningRepository.deleteAll();
-        showroomRepository.deleteAll();
-        ticketRepository.deleteAll();
-    }
 
     @Test
     void findAllByShowDateTimeLessThanEqual() {
@@ -145,28 +130,6 @@ class ScreeningRepositoryTest {
     }
 
     @Test
-    void findAllByTheater() {
-        // given
-        Theater theater = new Theater();
-        theaterRepository.save(theater);
-        Screening screening = new Screening();
-        screening.setTheater(theater);
-        theater.getScreenings().add(screening);
-        screeningRepository.save(screening);
-        // when
-        List<Screening> test1 = screeningRepository.findAllByTheater(theater);
-        List<Screening> test2 = screeningRepository
-                .findAllByTheaterWithId(theater.getId());
-        // then
-        assertEquals(1, test1.size());
-        assertEquals(screening, test1.get(0));
-        assertEquals(theater, test1.get(0).getTheater());
-        assertEquals(1, test2.size());
-        assertEquals(screening, test2.get(0));
-        assertEquals(theater, test2.get(0).getTheater());
-    }
-
-    @Test
     void findAllByShowroom() {
         // given
         Showroom showroom = new Showroom();
@@ -187,27 +150,6 @@ class ScreeningRepositoryTest {
         assertEquals(1, test2.size());
         assertEquals(screening, test2.get(0));
         assertEquals(showroom, test2.get(0).getShowroom());
-    }
-
-    @Test
-    void findByTicketsContains() {
-        // given
-        Screening screening = new Screening();
-        screeningRepository.save(screening);
-        Ticket ticket = new Ticket();
-        ticket.setScreening(screening);
-        screening.getTickets().add(ticket);
-        ticketRepository.save(ticket);
-        // when
-        Optional<Screening> test1 = screeningRepository
-                .findByTicketsContains(ticket);
-        Optional<Screening> test2 = screeningRepository
-                .findByTicketsContainsWithId(ticket.getId());
-        // then
-        assertTrue(test1.isPresent());
-        assertTrue(test2.isPresent());
-        assertEquals(screening, test1.get());
-        assertEquals(test1.get(), test2.get());
     }
 
 }

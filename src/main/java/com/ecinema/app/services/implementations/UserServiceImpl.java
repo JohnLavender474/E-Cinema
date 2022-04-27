@@ -8,9 +8,6 @@ import com.ecinema.app.utils.constants.UserRole;
 import com.ecinema.app.utils.exceptions.ClashException;
 import com.ecinema.app.utils.exceptions.InvalidArgException;
 import com.ecinema.app.utils.exceptions.NoEntityFoundException;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
@@ -24,7 +21,6 @@ import java.util.*;
 @Transactional
 public class UserServiceImpl extends AbstractServiceImpl<User, UserRepository> implements UserService {
 
-    private final DaoAuthenticationProvider daoAuthenticationProvider;
     private final Map<UserRole, UserRoleDefService<? extends UserRoleDef>> userRoleDefServices =
             new EnumMap<>(UserRole.class);
 
@@ -41,10 +37,8 @@ public class UserServiceImpl extends AbstractServiceImpl<User, UserRepository> i
                            CustomerRoleDefService customerRoleDefService,
                            ModeratorRoleDefService moderatorRoleDefService,
                            AdminTraineeRoleDefService adminTraineeRoleDefService,
-                           AdminRoleDefService adminRoleDefService,
-                           DaoAuthenticationProvider daoAuthenticationProvider) {
+                           AdminRoleDefService adminRoleDefService) {
         super(repository);
-        this.daoAuthenticationProvider = daoAuthenticationProvider;
         userRoleDefServices.put(UserRole.CUSTOMER, customerRoleDefService);
         userRoleDefServices.put(UserRole.MODERATOR, moderatorRoleDefService);
         userRoleDefServices.put(UserRole.ADMIN_TRAINEE, adminTraineeRoleDefService);
@@ -53,27 +47,22 @@ public class UserServiceImpl extends AbstractServiceImpl<User, UserRepository> i
 
     @Override
     protected void onDelete(User user) {
-
-    }
-
-    @Override
-    public void login(String s, String password)
-            throws NoEntityFoundException {
-        User user = findByUsernameOrEmail(s).orElseThrow(
-                () -> new NoEntityFoundException("user", "credential", s));
-        UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken =
-                new UsernamePasswordAuthenticationToken(user, password, user.getAuthorities());
-        daoAuthenticationProvider.authenticate(usernamePasswordAuthenticationToken);
-        if (usernamePasswordAuthenticationToken.isAuthenticated()) {
-            SecurityContextHolder.getContext().setAuthentication(usernamePasswordAuthenticationToken);
-            logger.debug(String.format("Auto login %s success!", user.getUsername()));
+        logger.info("User Service on delete");
+        // cascade delete UserRoleDefs, iterate over copy of UserRoleDefs keySet to avoid concurrent modification exception
+        Set<UserRole> userRoles = new HashSet<>(user.getUserRoleDefs().keySet());
+        logger.info("User Roles size: " + userRoles.size());
+        for (UserRole userRole : userRoles) {
+            logger.info("Has user role: " + userRole);
+            UserRoleDefService<? extends UserRoleDef> userRoleDefService = userRoleDefServices.get(userRole);
+            userRoleDefService.delete(userRole.castToDefType(user.getUserRoleDefs().get(userRole)));
         }
     }
 
     @Override
-    public String findLoggedInUserEmail() {
-        Object userDetails = SecurityContextHolder.getContext().getAuthentication().getDetails();
-        return userDetails instanceof UserDetails ? ((UserDetails) userDetails).getUsername() : null;
+    public UserDetails loadUserByUsername(String email)
+            throws UsernameNotFoundException {
+        return findByUsernameOrEmail(email).orElseThrow(
+                () -> new UsernameNotFoundException("No user found with email " + email));
     }
 
     @Override
@@ -89,13 +78,6 @@ public class UserServiceImpl extends AbstractServiceImpl<User, UserRepository> i
     @Override
     public Optional<User> findByUsernameOrEmail(String s) {
         return repository.findByUsernameOrEmail(s);
-    }
-
-    @Override
-    public UserDetails loadUserByUsername(String email)
-            throws UsernameNotFoundException {
-        return findByEmail(email).orElseThrow(
-                () -> new UsernameNotFoundException("No user found with email " + email));
     }
 
     @Override
@@ -185,7 +167,7 @@ public class UserServiceImpl extends AbstractServiceImpl<User, UserRepository> i
             throws NoEntityFoundException, InvalidArgException, ClashException {
         User user = findById(userId).orElseThrow(
                 () -> new NoEntityFoundException("user", "id", userId));
-        List<UserRole> userRolesAlreadyInstantiated = UtilMethods.findFirstKeyThatMapContainsIfAny(
+        List<UserRole> userRolesAlreadyInstantiated = UtilMethods.findAllKeysThatMapContainsIfAny(
                 user.getUserRoleDefs(), userRoles);
         if (!userRolesAlreadyInstantiated.isEmpty()) {
             List<String> errors = new ArrayList<>();

@@ -53,22 +53,6 @@ public interface ScreeningService extends AbstractService<Screening> {
     List<Screening> findAllByMovieWithId(Long movieId);
 
     /**
-     * Find all by theater list.
-     *
-     * @param theater the theater
-     * @return the list
-     */
-    List<Screening> findAllByTheater(Theater theater);
-
-    /**
-     * Find all by theater with id list.
-     *
-     * @param theaterId the theater id
-     * @return the list
-     */
-    List<Screening> findAllByTheaterWithId(Long theaterId);
-
-    /**
      * Find all by showroom list.
      *
      * @param showroom the showroom
@@ -83,21 +67,5 @@ public interface ScreeningService extends AbstractService<Screening> {
      * @return the list
      */
     List<Screening> findAllByShowroomWithId(Long showroomId);
-
-    /**
-     * Find by tickets contains optional.
-     *
-     * @param ticket the ticket
-     * @return the optional
-     */
-    Optional<Screening> findByTicketsContains(Ticket ticket);
-
-    /**
-     * Find by tickets contains with id optional.
-     *
-     * @param ticketId the ticket id
-     * @return the optional
-     */
-    Optional<Screening> findByTicketsContainsWithId(Long ticketId);
 
 }

@@ -3,10 +3,12 @@ package com.ecinema.app.services.implementations;
 import com.ecinema.app.entities.AdminRoleDef;
 import com.ecinema.app.entities.AdminTraineeRoleDef;
 import com.ecinema.app.entities.Theater;
+import com.ecinema.app.entities.User;
 import com.ecinema.app.repositories.AdminRoleDefRepository;
 import com.ecinema.app.services.AdminRoleDefService;
 import com.ecinema.app.services.AdminTraineeRoleDefService;
 import com.ecinema.app.services.TheaterService;
+import com.ecinema.app.utils.constants.UserRole;
 import com.ecinema.app.utils.exceptions.NoEntityFoundException;
 import org.aspectj.lang.NoAspectBoundException;
 import org.springframework.stereotype.Service;
@@ -39,10 +41,14 @@ public class AdminRoleDefServiceImpl extends UserRoleDefServiceImpl<AdminRoleDef
 
     @Override
     protected void onDelete(AdminRoleDef adminRoleDef) {
+        // detach User
+        super.onDelete(adminRoleDef);
+        // detach Theaters
         for (Theater theater : adminRoleDef.getTheatersBeingManaged()) {
             theater.getAdmins().remove(adminRoleDef);
             adminRoleDef.getTheatersBeingManaged().remove(theater);
         }
+        // detach Trainees
         for (AdminTraineeRoleDef adminTraineeRoleDef : adminRoleDef.getTrainees()) {
             adminTraineeRoleDef.setMentor(null);
             adminRoleDef.getTrainees().remove(adminTraineeRoleDef);

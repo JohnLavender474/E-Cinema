@@ -29,14 +29,6 @@ public class Ticket extends AbstractEntity {
     private CustomerRoleDef customerRoleDef;
 
     @JoinColumn
-    @ManyToOne(fetch = FetchType.LAZY)
-    private PaymentCard paymentCard;
-
-    @JoinColumn
-    @ManyToOne(fetch = FetchType.LAZY)
-    private Screening screening;
-
-    @JoinColumn
     @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private ScreeningSeat screeningSeat;
 

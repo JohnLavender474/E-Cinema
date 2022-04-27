@@ -6,9 +6,9 @@ import com.ecinema.app.utils.exceptions.NoEntityFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.function.Supplier;
 
 /**
@@ -17,6 +17,7 @@ import java.util.function.Supplier;
  * @param <E> the type parameter
  * @param <R> the type parameter
  */
+@Transactional
 public abstract class AbstractServiceImpl<E extends AbstractEntity, R extends JpaRepository<E, Long>> implements AbstractService<E> {
 
     protected final Logger logger = LoggerFactory.getLogger(getClass());
@@ -57,6 +58,14 @@ public abstract class AbstractServiceImpl<E extends AbstractEntity, R extends Jp
     }
 
     @Override
+    public void deleteAll(Collection<E> entities) {
+        // iterate over copy of entities collection to avoid concurrent modification exception
+        for (E entity : List.copyOf(entities)) {
+            delete(entity);
+        }
+    }
+
+    @Override
     public void deleteAll() {
         findAll().forEach(this::onDelete);
         repository.deleteAll();
@@ -70,6 +79,16 @@ public abstract class AbstractServiceImpl<E extends AbstractEntity, R extends Jp
     @Override
     public void saveAll(Iterable<E> entities) {
         repository.saveAll(entities);
+    }
+
+    @Override
+    public void saveAndFlushAll(Iterable<E> entities) {
+        repository.saveAllAndFlush(entities);
+    }
+
+    @Override
+    public void saveAndFlush(E entity) {
+        repository.saveAndFlush(entity);
     }
 
     @Override

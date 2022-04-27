@@ -5,6 +5,7 @@ import com.ecinema.app.utils.exceptions.NoEntityFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
@@ -49,6 +50,13 @@ public interface AbstractService<E extends AbstractEntity> {
 
     /**
      * Delete all.
+     *
+     * @param entities the entities
+     */
+    void deleteAll(Collection<E> entities);
+
+    /**
+     * Delete all.
      */
     void deleteAll();
 
@@ -65,5 +73,19 @@ public interface AbstractService<E extends AbstractEntity> {
      * @param entities the entities
      */
     void saveAll(Iterable<E> entities);
+
+    /**
+     * Save and flush.
+     *
+     * @param entity the entity
+     */
+    void saveAndFlush(E entity);
+
+    /**
+     * Save and flush all.
+     *
+     * @param entities the entities
+     */
+    void saveAndFlushAll(Iterable<E> entities);
 
 }

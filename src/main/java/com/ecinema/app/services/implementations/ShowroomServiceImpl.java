@@ -5,6 +5,8 @@ import com.ecinema.app.entities.Showroom;
 import com.ecinema.app.entities.ShowroomSeat;
 import com.ecinema.app.entities.Theater;
 import com.ecinema.app.repositories.ShowroomRepository;
+import com.ecinema.app.services.ScreeningService;
+import com.ecinema.app.services.ShowroomSeatService;
 import com.ecinema.app.services.ShowroomService;
 import com.ecinema.app.utils.constants.Letter;
 import org.springframework.stereotype.Service;
@@ -21,18 +23,31 @@ import java.util.Optional;
 public class ShowroomServiceImpl extends AbstractServiceImpl<Showroom, ShowroomRepository>
         implements ShowroomService {
 
+    private final ShowroomSeatService showroomSeatService;
+    private final ScreeningService screeningService;
+
     /**
      * Instantiates a new Showroom service.
      *
      * @param repository the repository
      */
-    public ShowroomServiceImpl(ShowroomRepository repository) {
+    public ShowroomServiceImpl(ShowroomRepository repository, ShowroomSeatService showroomSeatService,
+                               ScreeningService screeningService) {
         super(repository);
+        this.showroomSeatService = showroomSeatService;
+        this.screeningService = screeningService;
     }
 
     @Override
     protected void onDelete(Showroom showroom) {
-
+        // detach Theater
+        Theater theater = showroom.getTheater();
+        theater.getShowrooms().remove(showroom.getShowroomLetter());
+        showroom.setTheater(null);
+        // cascade delete ShowroomSeats
+        showroomSeatService.deleteAll(showroom.getShowroomSeats());
+        // cascade delete Screenings
+        screeningService.deleteAll(showroom.getScreenings());
     }
 
     @Override

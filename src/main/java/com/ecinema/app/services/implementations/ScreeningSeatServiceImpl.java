@@ -6,6 +6,7 @@ import com.ecinema.app.entities.ShowroomSeat;
 import com.ecinema.app.entities.Ticket;
 import com.ecinema.app.repositories.ScreeningSeatRepository;
 import com.ecinema.app.services.ScreeningSeatService;
+import com.ecinema.app.services.TicketService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -20,17 +21,35 @@ import java.util.Optional;
 public class ScreeningSeatServiceImpl extends AbstractServiceImpl<ScreeningSeat, ScreeningSeatRepository>
         implements ScreeningSeatService {
 
+    private final TicketService ticketService;
+
     /**
      * Instantiates a new Screening seat service.
      *
      * @param repository the repository
      */
-    public ScreeningSeatServiceImpl(ScreeningSeatRepository repository) {
+    public ScreeningSeatServiceImpl(ScreeningSeatRepository repository, TicketService ticketService) {
         super(repository);
+        this.ticketService = ticketService;
     }
 
     @Override
-    protected void onDelete(ScreeningSeat screeningSeat) {}
+    protected void onDelete(ScreeningSeat screeningSeat) {
+        // cascade delete Ticket
+        ticketService.delete(screeningSeat.getTicket());
+        // detach Screening
+        Screening screening = screeningSeat.getScreening();
+        if (screening != null) {
+            screening.getScreeningSeats().remove(screeningSeat);
+            screeningSeat.setScreening(null);
+        }
+        // detach ShowroomSeat
+        ShowroomSeat showroomSeat = screeningSeat.getShowroomSeat();
+        if (showroomSeat != null) {
+            showroomSeat.getScreeningSeats().remove(screeningSeat);
+            screeningSeat.setShowroomSeat(null);
+        }
+    }
 
     @Override
     public List<ScreeningSeat> findAllByScreening(Screening screening) {

@@ -28,11 +28,8 @@ public class Theater extends AbstractEntity {
     private Set<AdminRoleDef> admins = new HashSet<>();
 
     @MapKeyEnumerated(EnumType.STRING)
-    @OneToMany(mappedBy = "theater", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "theater", cascade = CascadeType.PERSIST, fetch = FetchType.LAZY)
     private Map<Letter, Showroom> showrooms = new EnumMap<>(Letter.class);
-
-    @OneToMany(mappedBy = "theater", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private Set<Screening> screenings = new HashSet<>();
 
     @JoinColumn
     @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)

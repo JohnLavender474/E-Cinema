@@ -30,13 +30,6 @@ class ScreeningSeatRepositoryTest {
     @Autowired
     private TicketRepository ticketRepository;
 
-    @AfterEach
-    void tearDown() {
-        screeningRepository.deleteAll();
-        screeningSeatRepository.deleteAll();
-        showroomSeatRepository.deleteAll();
-    }
-
     @Test
     void findAllByScreening() {
         // given

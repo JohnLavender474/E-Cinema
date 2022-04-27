@@ -3,7 +3,9 @@ package com.ecinema.app.services.implementations;
 import com.ecinema.app.entities.ScreeningSeat;
 import com.ecinema.app.entities.Showroom;
 import com.ecinema.app.entities.ShowroomSeat;
+import com.ecinema.app.entities.Theater;
 import com.ecinema.app.repositories.ShowroomSeatRepository;
+import com.ecinema.app.services.ScreeningSeatService;
 import com.ecinema.app.services.ShowroomSeatService;
 import com.ecinema.app.utils.constants.Letter;
 import com.ecinema.app.utils.exceptions.NoEntityFoundException;
@@ -18,13 +20,23 @@ import java.util.Optional;
 public class ShowroomSeatServiceImpl extends AbstractServiceImpl<ShowroomSeat, ShowroomSeatRepository>
         implements ShowroomSeatService {
 
-    public ShowroomSeatServiceImpl(ShowroomSeatRepository repository) {
+    private final ScreeningSeatService screeningSeatService;
+
+    public ShowroomSeatServiceImpl(ShowroomSeatRepository repository, ScreeningSeatService screeningSeatService) {
         super(repository);
+        this.screeningSeatService = screeningSeatService;
     }
 
     @Override
     protected void onDelete(ShowroomSeat showroomSeat) {
-
+        // detach Showroom
+        Showroom showroom = showroomSeat.getShowroom();
+        if (showroom != null) {
+            showroom.getShowroomSeats().remove(showroomSeat);
+            showroomSeat.setShowroom(null);
+        }
+        // cascade delete ScreeningSeats
+        screeningSeatService.deleteAll(showroomSeat.getScreeningSeats());
     }
 
     @Override

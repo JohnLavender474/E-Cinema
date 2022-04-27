@@ -29,6 +29,9 @@ public class Review extends AbstractEntity {
     private Integer dislikes;
 
     @Column
+    private Boolean isCensored;
+
+    @Column
     private LocalDateTime creationDateTime;
 
     @JoinColumn
@@ -38,9 +41,5 @@ public class Review extends AbstractEntity {
     @JoinColumn
     @ManyToOne(fetch = FetchType.LAZY)
     private CustomerRoleDef writer;
-
-    @JoinColumn
-    @ManyToOne(fetch = FetchType.LAZY)
-    private ModeratorRoleDef censor;
 
 }
