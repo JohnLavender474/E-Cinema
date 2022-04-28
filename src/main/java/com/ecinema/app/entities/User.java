@@ -78,7 +78,7 @@ public class User extends AbstractEntity implements UserDetails {
     private Map<UserRole, UserRoleDef> userRoleDefs = new EnumMap<>(UserRole.class);
 
     @Override
-    public Collection<? extends GrantedAuthority> getAuthorities() {
+    public Set<UserRole> getAuthorities() {
         return new HashSet<>(userRoleDefs.keySet());
     }
 

@@ -36,7 +36,7 @@ public class EmailSenderServiceImpl implements EmailSenderService {
             helper.setTo(to);
             helper.setSubject(subject);
             helper.setFrom(from);
-            helper.setFrom("csci4050.b7.ecinema@gmail.com");
+            helper.setFrom(BUSINESS_EMAIL);
             javaMailSender.send(mimeMessage);
         } catch (MessagingException e) {
             throw new EmailException(e.getMessage());

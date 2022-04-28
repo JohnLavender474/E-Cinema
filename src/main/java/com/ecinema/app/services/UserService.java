@@ -3,8 +3,10 @@ package com.ecinema.app.services;
 import com.ecinema.app.entities.User;
 import com.ecinema.app.entities.UserRoleDef;
 import com.ecinema.app.utils.constants.UserRole;
+import com.ecinema.app.utils.contracts.IRegistration;
+import com.ecinema.app.utils.dtos.UserDTO;
 import com.ecinema.app.utils.exceptions.ClashException;
-import com.ecinema.app.utils.exceptions.InvalidArgException;
+import com.ecinema.app.utils.exceptions.InvalidArgsException;
 import com.ecinema.app.utils.exceptions.NoEntityFoundException;
 import org.springframework.security.core.userdetails.UserDetailsService;
 
@@ -14,9 +16,20 @@ import java.util.Optional;
 import java.util.Set;
 
 /**
+ * {@inheritDoc}
  * The interface User service.
  */
 public interface UserService extends AbstractService<User>, UserDetailsService {
+
+    /**
+     * Registers a new {@link User}. The {@link IRegistration} being passed into this method must
+     * already have {@link IRegistration#getPassword()}, {@link IRegistration#getConfirmPassword()},
+     * {@link IRegistration#getSecurityAnswer1()}, and {@link IRegistration#getSecurityAnswer2()}
+     * encoded using {@link org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder}.
+     *
+     * @param registration the registration details used to instantiate a new User.
+     */
+    UserDTO register(IRegistration registration);
 
     /**
      * Find all by {@link User#getIsAccountLocked()} equal to isAccountLocked and return as list.
@@ -104,24 +117,24 @@ public interface UserService extends AbstractService<User>, UserDetailsService {
      * {@code
      * Class<? extends UserRoleDef> clazz = UserRole.defClassToUserRole(UserRole.CUSTOMERS_PERMITTED);
      * CustomerRoleDef customerRoleDef = userService.getUserRoleDefOf(user, clazz);
-     * }********
+     * }*********
      * <p>
      * or
      * <p>
      * {@code
      * CustomerRoleDef customerRoleDef = userService.getUserRoleDefOf(user, UserRole.defClassToUserRole(UserRole
      * .CUSTOMERS_PERMITTED));
-     * }********
+     * }*********
      *
      * @param <T>    the type parameter, class must extend {@link UserRoleDef}.
      * @param userId the id of the User to fetch the UserRoleDef instance from.
      * @param clazz  the clazz of the UserRoleDef
      * @return the UserRoleDef to be fetched
-     * @throws InvalidArgException    thrown if the UserRoleDef class is invalid.
+     * @throws InvalidArgsException    thrown if the UserRoleDef class is invalid.
      * @throws NoEntityFoundException thrown if no User exists associated with userId.
      */
     <T extends UserRoleDef> Optional<T> getUserRoleDefOf(Long userId, Class<T> clazz)
-            throws InvalidArgException, NoEntityFoundException;
+            throws InvalidArgsException, NoEntityFoundException;
 
     /**
      * Returns true if there is a User that already has the provided email.
@@ -153,11 +166,11 @@ public interface UserService extends AbstractService<User>, UserDetailsService {
      * @param user      the user
      * @param userRoles the user roles
      * @throws NoEntityFoundException the no entity found exception
-     * @throws InvalidArgException    the invalid arg exception
+     * @throws InvalidArgsException    the invalid arg exception
      * @throws ClashException         the clash exception
      */
     void addUserRoleDefToUser(User user, UserRole... userRoles)
-            throws NoEntityFoundException, InvalidArgException, ClashException;
+            throws NoEntityFoundException, InvalidArgsException, ClashException;
 
     /**
      * See {@link #addUserRoleDefToUser(Long, Set)} @param user the user
@@ -165,11 +178,11 @@ public interface UserService extends AbstractService<User>, UserDetailsService {
      * @param user      the user
      * @param userRoles the user roles
      * @throws NoEntityFoundException the no entity found exception
-     * @throws InvalidArgException    the invalid arg exception
+     * @throws InvalidArgsException    the invalid arg exception
      * @throws ClashException         the clash exception
      */
     void addUserRoleDefToUser(User user, Set<UserRole> userRoles)
-            throws NoEntityFoundException, InvalidArgException, ClashException;
+            throws NoEntityFoundException, InvalidArgsException, ClashException;
 
     /**
      * See {@link #addUserRoleDefToUser(Long, Set)} @param userId the user id
@@ -177,28 +190,28 @@ public interface UserService extends AbstractService<User>, UserDetailsService {
      * @param userId    the user id
      * @param userRoles the user roles
      * @throws NoEntityFoundException the no entity found exception
-     * @throws InvalidArgException    the invalid arg exception
+     * @throws InvalidArgsException    the invalid arg exception
      * @throws ClashException         the clash exception
      */
     void addUserRoleDefToUser(Long userId, UserRole... userRoles)
-            throws NoEntityFoundException, InvalidArgException, ClashException;
+            throws NoEntityFoundException, InvalidArgsException, ClashException;
 
     /**
      * Instantiates a new {@link UserRoleDef} instance and maps it to the {@link User} with id equal to userId.
      * The User instance internally contains an enum map for UserRoleDef instances with {@link UserRole} as the key.
      * Each class extending UserRoleDef has a one-to-one mapping with a UserRole value. See {@link
-     * UserRoleDef#getUserRole()}***.
+     * UserRoleDef#getUserRole()}****.
      * User instances can only be mapped to one instance of each child class of UserRoleDef.
      *
      * @param userId    the user id of the User
      * @param userRoles the user roles corresponding to the UserRoleDef entities to map to the User
      * @throws NoEntityFoundException thrown if no User instance is found with id equal to userId.
-     * @throws InvalidArgException    thrown if the provided value for userRole is invalid.
+     * @throws InvalidArgsException    thrown if the provided value for userRole is invalid.
      * @throws ClashException         thrown if the User instance is already mapped to a UserRoleDef
      *                                instance corresponding to userRole.
      */
     void addUserRoleDefToUser(Long userId, Set<UserRole> userRoles)
-            throws NoEntityFoundException, InvalidArgException, ClashException;
+            throws NoEntityFoundException, InvalidArgsException, ClashException;
 
     /**
      * See {@link #removeUserRoleDefFromUser(Long, Set)} @param user the user
@@ -206,10 +219,10 @@ public interface UserService extends AbstractService<User>, UserDetailsService {
      * @param user      the user
      * @param userRoles the user roles
      * @throws NoEntityFoundException the no entity found exception
-     * @throws InvalidArgException    the invalid arg exception
+     * @throws InvalidArgsException    the invalid arg exception
      */
     void removeUserRoleDefFromUser(User user, UserRole... userRoles)
-            throws NoEntityFoundException, InvalidArgException;
+            throws NoEntityFoundException, InvalidArgsException;
 
     /**
      * See {@link #removeUserRoleDefFromUser(Long, Set)} @param user the user
@@ -217,10 +230,10 @@ public interface UserService extends AbstractService<User>, UserDetailsService {
      * @param user      the user
      * @param userRoles the user roles
      * @throws NoEntityFoundException the no entity found exception
-     * @throws InvalidArgException    the invalid arg exception
+     * @throws InvalidArgsException    the invalid arg exception
      */
     void removeUserRoleDefFromUser(User user, Set<UserRole> userRoles)
-            throws NoEntityFoundException, InvalidArgException;
+            throws NoEntityFoundException, InvalidArgsException;
 
     /**
      * See {@link #removeUserRoleDefFromUser(Long, Set)} @param userId the user id
@@ -228,10 +241,10 @@ public interface UserService extends AbstractService<User>, UserDetailsService {
      * @param userId    the user id
      * @param userRoles the user roles
      * @throws NoEntityFoundException the no entity found exception
-     * @throws InvalidArgException    the invalid arg exception
+     * @throws InvalidArgsException    the invalid arg exception
      */
     void removeUserRoleDefFromUser(Long userId, UserRole... userRoles)
-            throws NoEntityFoundException, InvalidArgException;
+            throws NoEntityFoundException, InvalidArgsException;
 
     /**
      * Removes the {@link UserRoleDef} instance that is mapped with the provided {@link UserRole} (see
@@ -240,9 +253,9 @@ public interface UserService extends AbstractService<User>, UserDetailsService {
      * @param userId    the id of the User
      * @param userRoles the UserRole values that the UserRoleDef instance is mapped to.
      * @throws NoEntityFoundException thrown if no User instance is found with id equal to userId.
-     * @throws InvalidArgException    thrown if the provided value of userRole is invalid.
+     * @throws InvalidArgsException    thrown if the provided value of userRole is invalid.
      */
     void removeUserRoleDefFromUser(Long userId, Set<UserRole> userRoles)
-            throws NoEntityFoundException, InvalidArgException;
+            throws NoEntityFoundException, InvalidArgsException;
 
 }

@@ -1,32 +1,53 @@
-<!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <meta name="description" content="">
-    <meta name="author" content="">
-    <title>Login</title>
-    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta/css/bootstrap.min.css" rel="stylesheet"
-          integrity="sha384-/Y6pD6FV/Vv2HJnA6t+vslU6fwYXjCFtcEpHbNJ0lyAFsXTsjBbfaDjzALeQsN6M" crossorigin="anonymous">
-    <link href="https://getbootstrap.com/docs/4.0/examples/signin/signin.css" rel="stylesheet" crossorigin="anonymous">
-    <style>
-        body {
-            background-color: #3e3e3e;
-            color: white;
-        }
-    </style>
+    <meta charset="UTF-8">
+    <meta content="IE=edge" http-equiv="X-UA-Compatible">
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <title>ECinema Theaters</title>
+    <link href="../static/css/style.css" th:href="@{/css/style.css}" rel="stylesheet">
+    <link href="../static/img/logo.png" th:href="@{/img/logo.png}" rel="shortcut"/>
+    <link href="https://fonts.googleapis.com" rel="preconnect">
+    <link crossorigin href="https://fonts.gstatic.com" rel="preconnect">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;
+    0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap"
+          rel="stylesheet">
+    <link href="https://fonts.googleapis.com" rel="preconnect">
+    <link crossorigin href="https://fonts.gstatic.com" rel="preconnect">
+    <link href="https://fonts.googleapis.com/css2?family=Limelight&display=swap" rel="stylesheet">
 </head>
 <body>
-<h1>Login Page</h1>
-<div class="container">
-    <form class="form-signin" method="post" th:action="@{/login}">
-        <h2 class="form-signin-heading">Login to account</h2>
-        <label for="username">Username</label>:
-        <input type="text" id="username" name="username" autofocus="autofocus" required/><br/>
-        <label for="password">Password</label>:
-        <input type="password" id="password" name="password" required/><br/>
-        <input type="submit" th:value="Login"/>
+<div class="navbar">
+    <a class="logo" th:href="@{/index}">
+        <span>ECinema</span>
+    </a>
+    <a th:href="@{/index}">Home</a>
+    <a th:href="@{/movies}">Movies</a>
+    <a th:href="@{/account}">Account</a>
+</div>
+<div class="login">
+    <h1>Login</h1>
+    <form method="post" th:action="@{/perform-login}">
+        <table>
+            <tbody>
+            <tr>
+                <td><label for="username">Username:</label></td>
+                <td><input type="text" id="username" name="username" autofocus="autofocus" required/></td>
+            </tr>
+            <tr>
+                <td><label for="password">Password:</label></td>
+                <td><input type="password" id="password" name="password" autofocus="autofocus" required/></td>
+            </tr>
+            </tbody>
+        </table>
+        <label><input type="submit" th:value="login"/></label>
     </form>
+    <label>
+        <button class="btn btn-primary"><a th:href="@{/register}">Register</a></button>
+    </label>
+    <br/>
+    <label>
+        <button class="btn btn-primary"><a th:href="@{/forgotPassword}">Forgot Password</a></button>
+    </label>
 </div>
 </body>
 </html>

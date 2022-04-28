@@ -2,7 +2,7 @@ package com.ecinema.app.utils.exceptions;
 
 import java.util.Collection;
 
-public class NoAssociationException extends BusinessRuntimeException {
+public class NoAssociationException extends AbstractRuntimeException {
 
     public NoAssociationException(String... errors) {
         super(errors);

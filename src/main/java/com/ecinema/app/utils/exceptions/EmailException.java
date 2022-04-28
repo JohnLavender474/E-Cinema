@@ -2,7 +2,7 @@ package com.ecinema.app.utils.exceptions;
 
 import java.util.Collection;
 
-public class EmailException extends BusinessRuntimeException {
+public class EmailException extends AbstractRuntimeException {
 
     public EmailException(Collection<String> errors) {
         super(errors);

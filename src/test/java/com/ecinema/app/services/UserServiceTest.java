@@ -5,17 +5,22 @@ import com.ecinema.app.repositories.*;
 import com.ecinema.app.services.implementations.*;
 import com.ecinema.app.utils.UtilMethods;
 import com.ecinema.app.utils.constants.UserRole;
+import com.ecinema.app.utils.dtos.UserDTO;
 import com.ecinema.app.utils.exceptions.ClashException;
+import com.ecinema.app.utils.exceptions.EmailException;
+import com.ecinema.app.utils.exceptions.InvalidArgsException;
+import com.ecinema.app.utils.exceptions.NoEntityFoundException;
+import com.ecinema.app.utils.forms.RegistrationForm;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.modelmapper.ModelMapper;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.time.LocalDateTime;
+import java.util.*;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
@@ -29,6 +34,7 @@ import static org.mockito.Mockito.*;
 @ExtendWith(MockitoExtension.class)
 class UserServiceTest {
 
+    private ModelMapper modelMapper;
     private AddressService addressService;
     private ReviewService reviewService;
     private TicketService ticketService;
@@ -80,6 +86,7 @@ class UserServiceTest {
      */
     @BeforeEach
     void setUp() {
+        modelMapper = new ModelMapper();
         addressService = new AddressServiceImpl(addressRepository);
         reviewService = new ReviewServiceImpl(reviewRepository);
         ticketService = new TicketServiceImpl(ticketRepository);
@@ -98,7 +105,7 @@ class UserServiceTest {
         customerRoleDefService = new CustomerRoleDefServiceImpl(customerRoleDefRepository, reviewService, ticketService,
                                                                 paymentCardService, couponService);
         userService = new UserServiceImpl(userRepository, customerRoleDefService, moderatorRoleDefService,
-                                          adminTraineeRoleDefService, adminRoleDefService);
+                                          adminTraineeRoleDefService, adminRoleDefService, modelMapper);
     }
 
     /**
@@ -232,6 +239,9 @@ class UserServiceTest {
         assertTrue(customerRoleDefService.findByUser(user).isEmpty());
     }
 
+    /**
+     * Add user role defs to user.
+     */
     @Test
     void addUserRoleDefsToUser() {
         // given
@@ -252,6 +262,9 @@ class UserServiceTest {
         assertTrue(user.getUserRoleDefs().get(UserRole.MODERATOR) instanceof ModeratorRoleDef);
     }
 
+    /**
+     * Fail to add user role def to user.
+     */
     @Test
     void failToAddUserRoleDefToUser() {
         // given
@@ -267,6 +280,9 @@ class UserServiceTest {
     }
 
 
+    /**
+     * Delete user and cascade.
+     */
     @Test
     void deleteUserAndCascade() {
         // given
@@ -316,6 +332,25 @@ class UserServiceTest {
         assertNull(customerRoleDef.getUser());
         assertNull(adminTraineeRoleDef.getMentor());
         assertNull(paymentCard.getCustomerRoleDef());
+    }
+
+    /**
+     * User dto.
+     */
+    @Test
+    void userDTO() {
+        // given
+        User user = new User();
+        user.setId(1L);
+        user.setEmail("test@gmail.com");
+        user.setUsername("test");
+        user.setFirstName("John");
+        user.setLastName("Lavender");
+        // when
+        UserDTO userDTO = modelMapper.map(user, UserDTO.class);
+        // then
+        assertEquals(user.getId(), userDTO.getId());
+        assertEquals(user.getUsername(), userDTO.getUsername());
     }
 
 }

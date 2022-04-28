@@ -1,6 +1,7 @@
 package com.ecinema.app.entities;
 
 import com.ecinema.app.utils.constants.UserRole;
+import com.ecinema.app.utils.contracts.IRegistration;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -12,7 +13,7 @@ import java.util.Set;
 @Getter
 @Setter
 @Entity
-public class RegistrationRequest extends AbstractEntity {
+public class Registration extends AbstractEntity implements IRegistration {
 
     @Column
     private LocalDateTime creationDateTime;
@@ -32,6 +33,9 @@ public class RegistrationRequest extends AbstractEntity {
 
     @Column
     private String password;
+
+    @Column
+    private String confirmPassword;
 
     @Column
     private String firstName;

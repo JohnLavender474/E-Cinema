@@ -28,20 +28,20 @@ public enum UserRole implements GrantedAuthority {
 
     },
 
-    /** The Customer. */
-    CUSTOMER {
-
+    /** The Admin trainee. */
+    ADMIN_TRAINEE {
         @Override
         @SuppressWarnings("unchecked")
-        public CustomerRoleDef instantiateNew() {
-            return new CustomerRoleDef();
+        public AdminTraineeRoleDef instantiateNew() {
+            return new AdminTraineeRoleDef();
         }
 
         @Override
         @SuppressWarnings("unchecked")
-        public CustomerRoleDef castToDefType(Object o) {
-            return (CustomerRoleDef) o;
+        public AdminTraineeRoleDef castToDefType(Object o) {
+            return (AdminTraineeRoleDef) o;
         }
+
     },
 
     /** The Moderator. */
@@ -61,19 +61,19 @@ public enum UserRole implements GrantedAuthority {
 
     },
 
-    /** The Admin trainee. */
-    ADMIN_TRAINEE {
+    /** The Customer. */
+    CUSTOMER {
 
         @Override
         @SuppressWarnings("unchecked")
-        public AdminTraineeRoleDef instantiateNew() {
-            return new AdminTraineeRoleDef();
+        public CustomerRoleDef instantiateNew() {
+            return new CustomerRoleDef();
         }
 
         @Override
         @SuppressWarnings("unchecked")
-        public AdminTraineeRoleDef castToDefType(Object o) {
-            return (AdminTraineeRoleDef) o;
+        public CustomerRoleDef castToDefType(Object o) {
+            return (CustomerRoleDef) o;
         }
 
     };

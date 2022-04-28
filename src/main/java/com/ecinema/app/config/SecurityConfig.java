@@ -7,7 +7,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
@@ -19,7 +19,6 @@ import static com.ecinema.app.utils.constants.UserRole.*;
  * https://www.baeldung.com/spring-security-custom-authentication-failure-handler
  */
 @Configuration
-@EnableWebSecurity
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     private final UserService userService;
@@ -55,6 +54,11 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     }
 
     @Override
+    public void configure(WebSecurity web) {
+        web.ignoring().antMatchers("/css/**", "/img/**", "/js/**");
+    }
+
+    @Override
     protected void configure(HttpSecurity httpSecurity)
             throws Exception {
         httpSecurity
@@ -70,12 +74,13 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .anyRequest().authenticated()
                 .and()
                 .formLogin()
+                .permitAll()
                 .loginPage("/login")
-                .loginProcessingUrl("/login")
+                .loginProcessingUrl("/perform-login")
                 .usernameParameter("username")
                 .passwordParameter("password")
                 .defaultSuccessUrl("/index", true)
-                .failureUrl("/login")
+                .failureUrl("/login-error")
                 .and()
                 .logout()
                 .logoutUrl("/logout")

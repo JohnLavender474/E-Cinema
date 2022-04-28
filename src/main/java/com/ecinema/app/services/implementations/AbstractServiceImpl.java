@@ -3,8 +3,10 @@ package com.ecinema.app.services.implementations;
 import com.ecinema.app.services.AbstractService;
 import com.ecinema.app.entities.AbstractEntity;
 import com.ecinema.app.utils.exceptions.NoEntityFoundException;
+import org.modelmapper.ModelMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -12,19 +14,17 @@ import java.util.*;
 import java.util.function.Supplier;
 
 /**
- * The type Abstract service.
+ * The parent class of service classes handling persistence.
  *
- * @param <E> the type parameter
- * @param <R> the type parameter
+ * @param <E> the persistence type
+ * @param <R> the repository type
  */
 @Transactional
 public abstract class AbstractServiceImpl<E extends AbstractEntity, R extends JpaRepository<E, Long>> implements AbstractService<E> {
 
     protected final Logger logger = LoggerFactory.getLogger(getClass());
 
-    /**
-     * The Repository.
-     */
+    /** The Repository. */
     protected final R repository;
 
     /**
@@ -37,11 +37,11 @@ public abstract class AbstractServiceImpl<E extends AbstractEntity, R extends Jp
     }
 
     /**
-     * On delete.
+     * Called before the entity is deleted.
      *
-     * @param e the e
+     * @param entity the entity to handle before deletion.
      */
-    protected abstract void onDelete(E e);
+    protected abstract void onDelete(E entity);
 
     @Override
     public void delete(E entity) {
@@ -59,7 +59,7 @@ public abstract class AbstractServiceImpl<E extends AbstractEntity, R extends Jp
 
     @Override
     public void deleteAll(Collection<E> entities) {
-        // iterate over copy of entities collection to avoid concurrent modification exception
+        // iterate over copy of entities collection to avoid concurrent modification exception.
         for (E entity : List.copyOf(entities)) {
             delete(entity);
         }

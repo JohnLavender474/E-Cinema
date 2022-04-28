@@ -1,6 +1,6 @@
 package com.ecinema.app.repositories;
 
-import com.ecinema.app.entities.RegistrationRequest;
+import com.ecinema.app.entities.Registration;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -12,7 +12,7 @@ import java.util.Optional;
  * The interface Registration request repository.
  */
 @Repository
-public interface RegistrationRequestRepository extends JpaRepository<RegistrationRequest, Long> {
+public interface RegistrationRepository extends JpaRepository<Registration, Long> {
 
     /**
      * Find by token optional.
@@ -20,7 +20,7 @@ public interface RegistrationRequestRepository extends JpaRepository<Registratio
      * @param token the token
      * @return the optional
      */
-    Optional<RegistrationRequest> findByToken(String token);
+    Optional<Registration> findByToken(String token);
 
     /**
      * Find all by email list.
@@ -28,7 +28,7 @@ public interface RegistrationRequestRepository extends JpaRepository<Registratio
      * @param email the email
      * @return the list
      */
-    List<RegistrationRequest> findAllByEmail(String email);
+    List<Registration> findAllByEmail(String email);
 
     /**
      * Delete all by email.

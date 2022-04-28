@@ -1,9 +1,10 @@
 package com.ecinema.app.services;
 
-import com.ecinema.app.entities.RegistrationRequest;
+import com.ecinema.app.entities.Registration;
+import com.ecinema.app.utils.dtos.UserDTO;
 import com.ecinema.app.utils.exceptions.ClashException;
 import com.ecinema.app.utils.exceptions.EmailException;
-import com.ecinema.app.utils.exceptions.InvalidArgException;
+import com.ecinema.app.utils.exceptions.InvalidArgsException;
 import com.ecinema.app.utils.exceptions.NoEntityFoundException;
 import com.ecinema.app.utils.forms.RegistrationForm;
 
@@ -12,9 +13,10 @@ import java.util.List;
 import java.util.Optional;
 
 /**
+ * {@inheritDoc}
  * The interface Registration request service.
  */
-public interface RegistrationRequestService extends AbstractService<RegistrationRequest> {
+public interface RegistrationService extends AbstractService<Registration> {
 
     /**
      * Find by token optional.
@@ -22,7 +24,7 @@ public interface RegistrationRequestService extends AbstractService<Registration
      * @param token the token
      * @return the optional
      */
-    Optional<RegistrationRequest> findByToken(String token);
+    Optional<Registration> findByToken(String token);
 
     /**
      * Submit registration request and get token string.
@@ -30,11 +32,11 @@ public interface RegistrationRequestService extends AbstractService<Registration
      * @param registrationForm the registration form
      * @return the string
      * @throws ClashException the clashes with existent object exception
-     * @throws InvalidArgException                the invalid arg exception
+     * @throws InvalidArgsException                the invalid arg exception
      * @throws EmailException                     the email exception
      */
     String submitRegistrationRequestAndGetToken(RegistrationForm registrationForm)
-            throws ClashException, InvalidArgException, EmailException;
+            throws ClashException, InvalidArgsException, EmailException;
 
     /**
      * Find all by email list.
@@ -42,7 +44,7 @@ public interface RegistrationRequestService extends AbstractService<Registration
      * @param email the email
      * @return the list
      */
-    List<RegistrationRequest> findAllByEmail(String email);
+    List<Registration> findAllByEmail(String email);
 
     /**
      * Delete all by email.
@@ -57,7 +59,7 @@ public interface RegistrationRequestService extends AbstractService<Registration
      * @param token the token
      * @throws NoEntityFoundException the no entity found exception
      */
-    void confirmRegistrationRequest(String token)
+    UserDTO confirmRegistrationRequest(String token)
             throws NoEntityFoundException;
 
     /**

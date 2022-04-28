@@ -5,9 +5,12 @@ import com.ecinema.app.repositories.UserRepository;
 import com.ecinema.app.services.*;
 import com.ecinema.app.utils.UtilMethods;
 import com.ecinema.app.utils.constants.UserRole;
+import com.ecinema.app.utils.contracts.IRegistration;
+import com.ecinema.app.utils.dtos.UserDTO;
 import com.ecinema.app.utils.exceptions.ClashException;
-import com.ecinema.app.utils.exceptions.InvalidArgException;
+import com.ecinema.app.utils.exceptions.InvalidArgsException;
 import com.ecinema.app.utils.exceptions.NoEntityFoundException;
+import org.modelmapper.ModelMapper;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
@@ -16,11 +19,15 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.util.*;
 
-/** The implementated User service. */
+/**
+ * {@inheritDoc}
+ * The implementation User service.
+ */
 @Service
 @Transactional
 public class UserServiceImpl extends AbstractServiceImpl<User, UserRepository> implements UserService {
 
+    private final ModelMapper modelMapper;
     private final Map<UserRole, UserRoleDefService<? extends UserRoleDef>> userRoleDefServices =
             new EnumMap<>(UserRole.class);
 
@@ -37,8 +44,10 @@ public class UserServiceImpl extends AbstractServiceImpl<User, UserRepository> i
                            CustomerRoleDefService customerRoleDefService,
                            ModeratorRoleDefService moderatorRoleDefService,
                            AdminTraineeRoleDefService adminTraineeRoleDefService,
-                           AdminRoleDefService adminRoleDefService) {
+                           AdminRoleDefService adminRoleDefService,
+                           ModelMapper modelMapper) {
         super(repository);
+        this.modelMapper = modelMapper;
         userRoleDefServices.put(UserRole.CUSTOMER, customerRoleDefService);
         userRoleDefServices.put(UserRole.MODERATOR, moderatorRoleDefService);
         userRoleDefServices.put(UserRole.ADMIN_TRAINEE, adminTraineeRoleDefService);
@@ -59,10 +68,33 @@ public class UserServiceImpl extends AbstractServiceImpl<User, UserRepository> i
     }
 
     @Override
-    public UserDetails loadUserByUsername(String email)
+    public UserDetails loadUserByUsername(String s)
             throws UsernameNotFoundException {
-        return findByUsernameOrEmail(email).orElseThrow(
-                () -> new UsernameNotFoundException("No user found with email " + email));
+        return findByUsernameOrEmail(s).orElseThrow(
+                () -> new UsernameNotFoundException("No user found with username or email " + s));
+    }
+
+    @Override
+    public UserDTO register(IRegistration registration) {
+        User user = new User();
+        user.setUsername(registration.getUsername());
+        user.setEmail(registration.getEmail());
+        user.setPassword(registration.getPassword());
+        user.setFirstName(registration.getFirstName());
+        user.setLastName(registration.getLastName());
+        user.setSecurityQuestion1(registration.getSecurityQuestion1());
+        user.setSecurityAnswer1(registration.getSecurityAnswer1());
+        user.setSecurityQuestion2(registration.getSecurityQuestion2());
+        user.setSecurityAnswer2(registration.getSecurityAnswer2());
+        user.setCreationDateTime(LocalDateTime.now());
+        user.setLastActivityDateTime(LocalDateTime.now());
+        user.setIsAccountEnabled(true);
+        user.setIsAccountLocked(false);
+        user.setIsAccountExpired(false);
+        user.setIsCredentialsExpired(false);
+        save(user);
+        addUserRoleDefToUser(user, registration.getUserRoles());
+        return modelMapper.map(user, UserDTO.class);
     }
 
     @Override
@@ -87,10 +119,10 @@ public class UserServiceImpl extends AbstractServiceImpl<User, UserRepository> i
 
     @Override
     public <T extends UserRoleDef> Optional<T> getUserRoleDefOf(Long userId, Class<T> userRoleDefClass)
-            throws InvalidArgException, NoEntityFoundException {
+            throws InvalidArgsException, NoEntityFoundException {
         UserRole userRole = UserRole.defClassToUserRole(userRoleDefClass);
         if (userRole == null) {
-            throw new InvalidArgException("The provided class " + userRoleDefClass.getName() +
+            throw new InvalidArgsException("The provided class " + userRoleDefClass.getName() +
                                                   " is not mapped to a user role value");
         }
         User user = findById(userId).orElseThrow(
@@ -146,25 +178,25 @@ public class UserServiceImpl extends AbstractServiceImpl<User, UserRepository> i
 
     @Override
     public void addUserRoleDefToUser(User user, UserRole... userRoles)
-            throws NoEntityFoundException, InvalidArgException, ClashException {
+            throws NoEntityFoundException, InvalidArgsException, ClashException {
         addUserRoleDefToUser(user.getId(), userRoles);
     }
 
     @Override
     public void addUserRoleDefToUser(User user, Set<UserRole> userRoles)
-            throws NoEntityFoundException, InvalidArgException, ClashException {
+            throws NoEntityFoundException, InvalidArgsException, ClashException {
         addUserRoleDefToUser(user.getId(), userRoles);
     }
 
     @Override
     public void addUserRoleDefToUser(Long userId, UserRole... userRoles)
-            throws NoEntityFoundException, InvalidArgException, ClashException {
+            throws NoEntityFoundException, InvalidArgsException, ClashException {
         addUserRoleDefToUser(userId, Set.of(userRoles));
     }
 
     @Override
     public void addUserRoleDefToUser(Long userId, Set<UserRole> userRoles)
-            throws NoEntityFoundException, InvalidArgException, ClashException {
+            throws NoEntityFoundException, InvalidArgsException, ClashException {
         User user = findById(userId).orElseThrow(
                 () -> new NoEntityFoundException("user", "id", userId));
         List<UserRole> userRolesAlreadyInstantiated = UtilMethods.findAllKeysThatMapContainsIfAny(
@@ -186,25 +218,25 @@ public class UserServiceImpl extends AbstractServiceImpl<User, UserRepository> i
 
     @Override
     public void removeUserRoleDefFromUser(User user, UserRole... userRoles)
-            throws NoEntityFoundException, InvalidArgException {
+            throws NoEntityFoundException, InvalidArgsException {
         removeUserRoleDefFromUser(user.getId(), userRoles);
     }
 
     @Override
     public void removeUserRoleDefFromUser(User user, Set<UserRole> userRoles)
-            throws NoEntityFoundException, InvalidArgException {
+            throws NoEntityFoundException, InvalidArgsException {
         removeUserRoleDefFromUser(user.getId(), userRoles);
     }
 
     @Override
     public void removeUserRoleDefFromUser(Long userId, UserRole... userRoles)
-            throws NoEntityFoundException, InvalidArgException {
+            throws NoEntityFoundException, InvalidArgsException {
         removeUserRoleDefFromUser(userId, Set.of(userRoles));
     }
 
     @Override
     public void removeUserRoleDefFromUser(Long userId, Set<UserRole> userRoles)
-            throws NoEntityFoundException, InvalidArgException {
+            throws NoEntityFoundException, InvalidArgsException {
         User user = findById(userId).orElseThrow(
                 () -> new NoEntityFoundException("User", "id", userId));
         for (UserRole userRole : userRoles) {

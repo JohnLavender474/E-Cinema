@@ -1,6 +1,7 @@
 package com.ecinema.app.utils.forms;
 
 import com.ecinema.app.utils.constants.UserRole;
+import com.ecinema.app.utils.contracts.IRegistration;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -10,7 +11,7 @@ import java.util.Set;
 
 @Getter
 @Setter
-public class RegistrationForm implements Serializable {
+public class RegistrationForm implements IRegistration, Serializable {
     private Set<UserRole> userRoles =
             EnumSet.noneOf(UserRole.class);
     private String username = "";

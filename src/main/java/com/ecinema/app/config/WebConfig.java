@@ -1,52 +1,31 @@
 package com.ecinema.app.config;
 
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.web.servlet.ViewResolver;
-import org.springframework.web.servlet.config.annotation.EnableWebMvc;
-import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
-import org.springframework.web.servlet.config.annotation.ViewControllerRegistry;
-import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
-import org.springframework.web.servlet.view.InternalResourceViewResolver;
-import org.springframework.web.servlet.view.JstlView;
+import org.springframework.web.servlet.config.annotation.*;
 
 /**
  * https://github.com/eugenp/tutorials/blob/master/spring-security-modules/
  * spring-security-web-mvc-custom/src/main/java/com/baeldung/spring/MvcConfig.java
  */
-@EnableWebMvc
 @Configuration
-@ComponentScan("com.ecinema.app.controllers")
 public class WebConfig implements WebMvcConfigurer {
 
     @Override
     public void addViewControllers(ViewControllerRegistry registry) {
-        registry.addViewController("/about.html");
-        registry.addViewController("/admin.html");
-        registry.addViewController("/admin_trainee.html");
-        registry.addViewController("/authenticated.html");
-        registry.addViewController("/customer.html");
-        registry.addViewController("/index");
-        registry.addViewController("/login");
-        registry.addViewController("/logout.html");
-        registry.addViewController("/moderator.html");
-        registry.addViewController("/profile.html");
-        registry.addViewController("/welcome.html");
+        // registry.addViewController("/admin").setViewName("admin");
+        // registry.addViewController("/trainee").setViewName("trainee");
+        // registry.addViewController("/authenticated").setViewName("authenticated");
+        // registry.addViewController("/customer").setViewName("customer");
+        registry.addViewController("/index").setViewName("index");
+        registry.addViewController("/").setViewName("index");
+        // registry.addViewController("/logout").setViewName("logout");
+        // registry.addViewController("/moderator").setViewName("moderator");
+        // registry.addViewController("/profile").setViewName("profile");
     }
 
-    /**
-     * View resolver view resolver.
-     *
-     * @return the view resolver
-     */
-    @Bean
-    public ViewResolver viewResolver() {
-        InternalResourceViewResolver resolver = new InternalResourceViewResolver();
-        resolver.setViewClass(JstlView.class);
-        resolver.setPrefix("/templates");
-        resolver.setSuffix(".html");
-        return resolver;
+    @Override
+    public void addResourceHandlers(ResourceHandlerRegistry registry) {
+        registry.addResourceHandler("/static/**").addResourceLocations("classpath:/static/");
     }
 
     @Override

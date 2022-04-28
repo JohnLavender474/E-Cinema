@@ -11,6 +11,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.modelmapper.ModelMapper;
 import org.springframework.jmx.export.annotation.ManagedOperation;
 
 import java.util.ArrayList;
@@ -19,13 +20,13 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.same;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class AdminTraineeRoleDefServiceTest {
 
+    private ModelMapper modelMapper;
     private AdminTraineeRoleDefService adminTraineeRoleDefService;
     private AdminRoleDefService adminRoleDefService;
     private CustomerRoleDefService customerRoleDefService;
@@ -74,6 +75,7 @@ class AdminTraineeRoleDefServiceTest {
 
     @BeforeEach
     void setUp() {
+        modelMapper = new ModelMapper();
         adminTraineeRoleDefService = new AdminTraineeRoleDefServiceImpl(adminTraineeRoleDefRepository);
         addressService = new AddressServiceImpl(addressRepository);
         ticketService = new TicketServiceImpl(ticketRepository);
@@ -93,7 +95,7 @@ class AdminTraineeRoleDefServiceTest {
                 paymentCardService, couponService);
         moderatorRoleDefService = new ModeratorRoleDefServiceImpl(moderatorRoleDefRepository);
         userService = new UserServiceImpl(userRepository, customerRoleDefService, moderatorRoleDefService,
-                                          adminTraineeRoleDefService, adminRoleDefService);
+                                          adminTraineeRoleDefService, adminRoleDefService, modelMapper);
     }
 
     @Test

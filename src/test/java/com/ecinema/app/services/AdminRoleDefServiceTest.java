@@ -9,14 +9,12 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.security.authentication.CachingUserDetailsService;
-import org.springframework.security.core.parameters.P;
+import org.modelmapper.ModelMapper;
 
 import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -27,6 +25,7 @@ import static org.mockito.Mockito.verify;
 @ExtendWith(MockitoExtension.class)
 class AdminRoleDefServiceTest {
 
+    private ModelMapper modelMapper;
     private AddressService addressService;
     private AdminTraineeRoleDefService adminTraineeRoleDefService;
     private ModeratorRoleDefService moderatorRoleDefService;
@@ -78,6 +77,7 @@ class AdminRoleDefServiceTest {
      */
     @BeforeEach
     void setUp() {
+        modelMapper = new ModelMapper();
         addressService = new AddressServiceImpl(addressRepository);
         reviewService = new ReviewServiceImpl(reviewRepository);
         ticketService = new TicketServiceImpl(ticketRepository);
@@ -96,7 +96,8 @@ class AdminRoleDefServiceTest {
         adminRoleDefService = new AdminRoleDefServiceImpl(adminRoleDefRepository, theaterService,
                                                           adminTraineeRoleDefService);
         userService = new UserServiceImpl(userRepository, customerRoleDefService,
-                                          moderatorRoleDefService, adminTraineeRoleDefService, adminRoleDefService);
+                                          moderatorRoleDefService, adminTraineeRoleDefService, adminRoleDefService,
+                                          modelMapper);
     }
 
     /**
