@@ -1,9 +1,11 @@
 package com.ecinema.app.services;
 
+import com.ecinema.app.dtos.ScreeningSeatDto;
 import com.ecinema.app.entities.Screening;
 import com.ecinema.app.entities.ScreeningSeat;
 import com.ecinema.app.entities.ShowroomSeat;
 import com.ecinema.app.entities.Ticket;
+import com.ecinema.app.utils.Converter;
 
 import java.util.List;
 import java.util.Optional;
@@ -11,7 +13,7 @@ import java.util.Optional;
 /**
  * The interface Screening seat service.
  */
-public interface ScreeningSeatService extends AbstractService<ScreeningSeat> {
+public interface ScreeningSeatService extends AbstractService<ScreeningSeat>, Converter<ScreeningSeatDto, Long> {
 
     /**
      * Find all by screening list.

@@ -1,8 +1,13 @@
 package com.ecinema.app.services;
 
+import com.ecinema.app.dtos.MovieDto;
 import com.ecinema.app.entities.Movie;
-import com.ecinema.app.utils.constants.MovieCategory;
-import com.ecinema.app.utils.constants.MsrbRating;
+import com.ecinema.app.exceptions.NoEntityFoundException;
+import com.ecinema.app.utils.Converter;
+import com.ecinema.app.utils.MovieCategory;
+import com.ecinema.app.utils.MsrbRating;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 import java.util.Set;
@@ -10,7 +15,33 @@ import java.util.Set;
 /**
  * The interface Movie service.
  */
-public interface MovieService extends AbstractService<Movie> {
+public interface MovieService extends AbstractService<Movie>, Converter<MovieDto, Long> {
+
+    /**
+     * Find all page.
+     *
+     * @param pageable the pageable
+     * @return the page
+     */
+    Page<Movie> findAll(Pageable pageable);
+
+    /**
+     * Find all by like title list.
+     *
+     * @param title the title
+     * @return the list
+     */
+    List<Movie> findAllByLikeTitle(String title);
+
+
+    /**
+     * Find all by like title page.
+     *
+     * @param title    the title
+     * @param pageable the pageable
+     * @return the page
+     */
+    Page<Movie> findAllByLikeTitle(String title, Pageable pageable);
 
     /**
      * Find all by msrb rating list.

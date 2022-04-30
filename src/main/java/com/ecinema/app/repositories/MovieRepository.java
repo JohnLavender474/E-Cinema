@@ -1,9 +1,10 @@
 package com.ecinema.app.repositories;
 
 import com.ecinema.app.entities.Movie;
-import com.ecinema.app.utils.constants.MovieCategory;
-import com.ecinema.app.utils.constants.MsrbRating;
-import org.atteo.evo.inflector.English.MODE;
+import com.ecinema.app.utils.MovieCategory;
+import com.ecinema.app.utils.MsrbRating;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
@@ -16,6 +17,23 @@ import java.util.Set;
  */
 @Repository
 public interface MovieRepository extends JpaRepository<Movie, Long> {
+
+    /**
+     * Find all by like title list.
+     *
+     * @param title the title
+     * @return the list
+     */
+    List<Movie> findByTitleContaining(String title);
+
+    /**
+     * Find all by like title page.
+     *
+     * @param title    the title
+     * @param pageable the pageable
+     * @return the page
+     */
+    Page<Movie> findByTitleContaining(String title, Pageable pageable);
 
     /**
      * Find all by msrb rating list.

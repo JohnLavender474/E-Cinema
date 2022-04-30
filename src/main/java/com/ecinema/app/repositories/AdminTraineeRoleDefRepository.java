@@ -2,7 +2,6 @@ package com.ecinema.app.repositories;
 
 import com.ecinema.app.entities.AdminRoleDef;
 import com.ecinema.app.entities.AdminTraineeRoleDef;
-import com.ecinema.app.entities.User;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 

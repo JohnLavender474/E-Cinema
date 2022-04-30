@@ -1,6 +1,6 @@
 package com.ecinema.app.services;
 
-import com.ecinema.app.utils.exceptions.EmailException;
+import com.ecinema.app.exceptions.EmailException;
 
 public interface EmailSenderService {
     void sendFromBusinessEmail(String to, String email, String subject)

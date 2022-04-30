@@ -1,14 +1,14 @@
 package com.ecinema.app.services.implementations;
 
+import com.ecinema.app.dtos.ShowroomSeatDto;
 import com.ecinema.app.entities.ScreeningSeat;
 import com.ecinema.app.entities.Showroom;
 import com.ecinema.app.entities.ShowroomSeat;
-import com.ecinema.app.entities.Theater;
 import com.ecinema.app.repositories.ShowroomSeatRepository;
 import com.ecinema.app.services.ScreeningSeatService;
 import com.ecinema.app.services.ShowroomSeatService;
-import com.ecinema.app.utils.constants.Letter;
-import com.ecinema.app.utils.exceptions.NoEntityFoundException;
+import com.ecinema.app.utils.Letter;
+import com.ecinema.app.exceptions.NoEntityFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -83,6 +83,20 @@ public class ShowroomSeatServiceImpl extends AbstractServiceImpl<ShowroomSeat, S
                                                                                 Integer seatNumber)
             throws NoEntityFoundException {
         return repository.findByShowroomWithIdAndRowLetterAndSeatNumber(showroomId, rowLetter, seatNumber);
+    }
+
+    @Override
+    public ShowroomSeatDto convert(Long entityId)
+            throws NoEntityFoundException {
+        ShowroomSeat showroomSeat = findById(entityId).orElseThrow(
+                () -> new NoEntityFoundException("showroom seat", "id", entityId));
+        ShowroomSeatDto showroomSeatDTO = new ShowroomSeatDto();
+        showroomSeatDTO.setId(showroomSeat.getId());
+        showroomSeatDTO.setRowLetter(showroomSeat.getRowLetter());
+        showroomSeatDTO.setSeatNumber(showroomSeat.getSeatNumber());
+        showroomSeatDTO.setShowroomId(showroomSeat.getShowroom().getId());
+        showroomSeatDTO.setShowroomLetter(showroomSeat.getShowroom().getShowroomLetter());
+        return showroomSeatDTO;
     }
 
 }

@@ -1,12 +1,12 @@
 package com.ecinema.app.services;
 
 import com.ecinema.app.entities.Registration;
-import com.ecinema.app.utils.dtos.UserDTO;
-import com.ecinema.app.utils.exceptions.ClashException;
-import com.ecinema.app.utils.exceptions.EmailException;
-import com.ecinema.app.utils.exceptions.InvalidArgsException;
-import com.ecinema.app.utils.exceptions.NoEntityFoundException;
-import com.ecinema.app.utils.forms.RegistrationForm;
+import com.ecinema.app.dtos.UserDto;
+import com.ecinema.app.exceptions.ClashException;
+import com.ecinema.app.exceptions.EmailException;
+import com.ecinema.app.exceptions.InvalidArgsException;
+import com.ecinema.app.exceptions.NoEntityFoundException;
+import com.ecinema.app.forms.RegistrationForm;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -59,7 +59,7 @@ public interface RegistrationService extends AbstractService<Registration> {
      * @param token the token
      * @throws NoEntityFoundException the no entity found exception
      */
-    UserDTO confirmRegistrationRequest(String token)
+    UserDto confirmRegistrationRequest(String token)
             throws NoEntityFoundException;
 
     /**

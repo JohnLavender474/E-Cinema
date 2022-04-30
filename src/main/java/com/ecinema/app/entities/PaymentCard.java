@@ -1,6 +1,6 @@
 package com.ecinema.app.entities;
 
-import com.ecinema.app.utils.constants.PaymentCardType;
+import com.ecinema.app.utils.PaymentCardType;
 import lombok.Getter;
 import lombok.Setter;
 

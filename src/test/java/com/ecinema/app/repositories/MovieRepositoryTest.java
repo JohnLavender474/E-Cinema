@@ -2,19 +2,22 @@ package com.ecinema.app.repositories;
 
 import com.ecinema.app.entities.Movie;
 import com.ecinema.app.utils.UtilMethods;
-import com.ecinema.app.utils.constants.MovieCategory;
-import com.ecinema.app.utils.constants.MsrbRating;
-import com.ecinema.app.utils.objects.Duration;
+import com.ecinema.app.utils.MovieCategory;
+import com.ecinema.app.utils.MsrbRating;
+import com.ecinema.app.utils.Duration;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 
 import java.util.*;
 import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static com.ecinema.app.utils.constants.MovieCategory.*;
+import static com.ecinema.app.utils.MovieCategory.*;
 
 @DataJpaTest
 class MovieRepositoryTest {
@@ -25,6 +28,68 @@ class MovieRepositoryTest {
     @AfterEach
     void tearDown() {
         movieRepository.deleteAll();
+    }
+
+    @Test
+    void findAllPagination() {
+        // given
+        List<Movie> movies = new ArrayList<>();
+        for (int i = 0; i < 30; i++) {
+            Movie movie = new Movie();
+            movie.setTitle("title" + i);
+            movies.add(movie);
+            movieRepository.save(movie);
+        }
+        List<Movie> control = movies.subList(0, 5);
+        // when
+        Pageable pageable = PageRequest.of(0, 5);
+        Page<Movie> page = movieRepository.findAll(pageable);
+        List<Movie> test = page.getContent();
+        // then
+        for (int i = 0; i < 5; i++) {
+            Movie movie1 = control.get(i);
+            Movie movie2 = test.get(i);
+            assertEquals(movie1.getId(), movie2.getId());
+            assertEquals(movie1.getTitle(), movie2.getTitle());
+        }
+    }
+
+    @Test
+    void findAllLikeTitlePagination() {
+        // given
+        for (int i = 0; i < 30; i++) {
+            Movie movie = new Movie();
+            movie.setId((long) i + 1);
+            movie.setTitle(i < 15 ? "title" : "dummy");
+            movieRepository.save(movie);
+        }
+        // when
+        Pageable pageable =  PageRequest.of(0, 15);
+        Page<Movie> page = movieRepository.findByTitleContaining("t", pageable);
+        List<Movie> test = page.getContent();
+        // then
+        assertEquals(15, test.size());
+        for (Movie movie : test) {
+            assertTrue(movie.getTitle().contains("t"));
+        }
+    }
+
+    @Test
+    void findAllLikeTitle() {
+        // given
+        for (int i = 0; i < 30; i++) {
+            Movie movie = new Movie();
+            movie.setId((long) i + 1);
+            movie.setTitle(i < 15 ? "title" + i : "dummy");
+            movieRepository.save(movie);
+        }
+        // when
+        List<Movie> test = movieRepository.findByTitleContaining("t");
+        // then
+        assertEquals(15, test.size());
+        for (Movie movie : test) {
+            assertTrue(movie.getTitle().contains("t"));
+        }
     }
 
     @Test

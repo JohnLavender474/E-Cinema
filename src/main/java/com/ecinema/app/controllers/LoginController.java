@@ -1,8 +1,9 @@
 package com.ecinema.app.controllers;
 
 import com.ecinema.app.services.SecurityService;
-import com.ecinema.app.utils.exceptions.PasswordMismatchException;
-import com.ecinema.app.utils.exceptions.NoEntityFoundException;
+import com.ecinema.app.exceptions.PasswordMismatchException;
+import com.ecinema.app.exceptions.NoEntityFoundException;
+import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;

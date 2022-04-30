@@ -4,12 +4,12 @@ import com.ecinema.app.entities.*;
 import com.ecinema.app.repositories.UserRepository;
 import com.ecinema.app.services.*;
 import com.ecinema.app.utils.UtilMethods;
-import com.ecinema.app.utils.constants.UserRole;
-import com.ecinema.app.utils.contracts.IRegistration;
-import com.ecinema.app.utils.dtos.UserDTO;
-import com.ecinema.app.utils.exceptions.ClashException;
-import com.ecinema.app.utils.exceptions.InvalidArgsException;
-import com.ecinema.app.utils.exceptions.NoEntityFoundException;
+import com.ecinema.app.utils.UserRole;
+import com.ecinema.app.utils.IRegistration;
+import com.ecinema.app.dtos.UserDto;
+import com.ecinema.app.exceptions.ClashException;
+import com.ecinema.app.exceptions.InvalidArgsException;
+import com.ecinema.app.exceptions.NoEntityFoundException;
 import org.modelmapper.ModelMapper;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -27,7 +27,6 @@ import java.util.*;
 @Transactional
 public class UserServiceImpl extends AbstractServiceImpl<User, UserRepository> implements UserService {
 
-    private final ModelMapper modelMapper;
     private final Map<UserRole, UserRoleDefService<? extends UserRoleDef>> userRoleDefServices =
             new EnumMap<>(UserRole.class);
 
@@ -44,10 +43,8 @@ public class UserServiceImpl extends AbstractServiceImpl<User, UserRepository> i
                            CustomerRoleDefService customerRoleDefService,
                            ModeratorRoleDefService moderatorRoleDefService,
                            AdminTraineeRoleDefService adminTraineeRoleDefService,
-                           AdminRoleDefService adminRoleDefService,
-                           ModelMapper modelMapper) {
+                           AdminRoleDefService adminRoleDefService) {
         super(repository);
-        this.modelMapper = modelMapper;
         userRoleDefServices.put(UserRole.CUSTOMER, customerRoleDefService);
         userRoleDefServices.put(UserRole.MODERATOR, moderatorRoleDefService);
         userRoleDefServices.put(UserRole.ADMIN_TRAINEE, adminTraineeRoleDefService);
@@ -75,7 +72,7 @@ public class UserServiceImpl extends AbstractServiceImpl<User, UserRepository> i
     }
 
     @Override
-    public UserDTO register(IRegistration registration) {
+    public UserDto register(IRegistration registration) {
         User user = new User();
         user.setUsername(registration.getUsername());
         user.setEmail(registration.getEmail());
@@ -92,9 +89,9 @@ public class UserServiceImpl extends AbstractServiceImpl<User, UserRepository> i
         user.setIsAccountLocked(false);
         user.setIsAccountExpired(false);
         user.setIsCredentialsExpired(false);
-        save(user);
+        saveAndFlush(user);
         addUserRoleDefToUser(user, registration.getUserRoles());
-        return modelMapper.map(user, UserDTO.class);
+        return convert(user.getId());
     }
 
     @Override
@@ -244,6 +241,21 @@ public class UserServiceImpl extends AbstractServiceImpl<User, UserRepository> i
             UserRoleDefService<? extends UserRoleDef> userRoleDefService = userRoleDefServices.get(userRole);
             userRoleDefService.deleteById(userRoleDef.getId());
         }
+    }
+
+    @Override
+    public UserDto convert(Long entityId)
+            throws NoEntityFoundException {
+        User user = findById(entityId).orElseThrow(
+                () -> new NoEntityFoundException("user", "id", entityId));
+        UserDto userDto = new UserDto();
+        userDto.setId(user.getId());
+        userDto.setEmail(user.getEmail());
+        userDto.setUsername(user.getUsername());
+        userDto.setFirstName(user.getFirstName());
+        userDto.setLastName(user.getLastName());
+        userDto.getUserRoles().addAll(user.getUserRoleDefs().keySet());
+        return userDto;
     }
 
 }

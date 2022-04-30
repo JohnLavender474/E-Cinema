@@ -1,8 +1,8 @@
 package com.ecinema.app.repositories;
 
 import com.ecinema.app.entities.*;
-import com.ecinema.app.utils.constants.TicketStatus;
-import com.ecinema.app.utils.constants.TicketType;
+import com.ecinema.app.utils.TicketStatus;
+import com.ecinema.app.utils.TicketType;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;

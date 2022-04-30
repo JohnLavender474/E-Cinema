@@ -19,7 +19,7 @@ import java.time.LocalDateTime;
 @Entity
 public class Review extends AbstractEntity {
 
-    @Column
+    @Column(length = 10000)
     private String review;
 
     @Column

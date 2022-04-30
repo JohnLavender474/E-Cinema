@@ -1,7 +1,7 @@
 package com.ecinema.app.entities;
 
-import com.ecinema.app.utils.constants.TicketStatus;
-import com.ecinema.app.utils.constants.TicketType;
+import com.ecinema.app.utils.TicketStatus;
+import com.ecinema.app.utils.TicketType;
 import lombok.Getter;
 import lombok.Setter;
 

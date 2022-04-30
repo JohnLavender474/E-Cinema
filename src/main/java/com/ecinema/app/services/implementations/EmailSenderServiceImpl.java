@@ -1,7 +1,7 @@
 package com.ecinema.app.services.implementations;
 
 import com.ecinema.app.services.EmailSenderService;
-import com.ecinema.app.utils.exceptions.EmailException;
+import com.ecinema.app.exceptions.EmailException;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;

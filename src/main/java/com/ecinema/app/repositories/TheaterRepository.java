@@ -1,11 +1,9 @@
 package com.ecinema.app.repositories;
 
-import com.ecinema.app.entities.Screening;
 import com.ecinema.app.entities.Theater;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-import java.util.List;
 import java.util.Optional;
 
 /**

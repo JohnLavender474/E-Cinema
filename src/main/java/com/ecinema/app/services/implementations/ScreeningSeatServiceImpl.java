@@ -1,9 +1,11 @@
 package com.ecinema.app.services.implementations;
 
+import com.ecinema.app.dtos.ScreeningSeatDto;
 import com.ecinema.app.entities.Screening;
 import com.ecinema.app.entities.ScreeningSeat;
 import com.ecinema.app.entities.ShowroomSeat;
 import com.ecinema.app.entities.Ticket;
+import com.ecinema.app.exceptions.NoEntityFoundException;
 import com.ecinema.app.repositories.ScreeningSeatRepository;
 import com.ecinema.app.services.ScreeningSeatService;
 import com.ecinema.app.services.TicketService;
@@ -79,6 +81,20 @@ public class ScreeningSeatServiceImpl extends AbstractServiceImpl<ScreeningSeat,
     @Override
     public Optional<ScreeningSeat> findByTicketWithId(Long ticketId) {
         return repository.findByTicketWithId(ticketId);
+    }
+
+    @Override
+    public ScreeningSeatDto convert(Long entityId)
+            throws NoEntityFoundException {
+        ScreeningSeat screeningSeat = findById(entityId).orElseThrow(
+                () -> new NoEntityFoundException("screening seat", "id", entityId));
+        ScreeningSeatDto screeningSeatDTO = new ScreeningSeatDto();
+        screeningSeatDTO.setId(screeningSeat.getId());
+        screeningSeatDTO.setRowLetter(screeningSeat.getShowroomSeat().getRowLetter());
+        screeningSeatDTO.setSeatNumber(screeningSeat.getShowroomSeat().getSeatNumber());
+        screeningSeatDTO.setIsBooked(screeningSeat.getTicket() != null);
+        screeningSeatDTO.setScreeningId(screeningSeat.getScreening().getId());
+        return screeningSeatDTO;
     }
 
 }

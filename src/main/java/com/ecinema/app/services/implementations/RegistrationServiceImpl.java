@@ -5,13 +5,13 @@ import com.ecinema.app.repositories.RegistrationRepository;
 import com.ecinema.app.services.EmailSenderService;
 import com.ecinema.app.services.RegistrationService;
 import com.ecinema.app.services.UserService;
-import com.ecinema.app.utils.dtos.UserDTO;
-import com.ecinema.app.utils.exceptions.ClashException;
-import com.ecinema.app.utils.exceptions.EmailException;
-import com.ecinema.app.utils.exceptions.InvalidArgsException;
-import com.ecinema.app.utils.exceptions.NoEntityFoundException;
-import com.ecinema.app.utils.forms.RegistrationForm;
-import com.ecinema.app.utils.validators.RegistrationValidator;
+import com.ecinema.app.dtos.UserDto;
+import com.ecinema.app.exceptions.ClashException;
+import com.ecinema.app.exceptions.EmailException;
+import com.ecinema.app.exceptions.InvalidArgsException;
+import com.ecinema.app.exceptions.NoEntityFoundException;
+import com.ecinema.app.forms.RegistrationForm;
+import com.ecinema.app.validators.RegistrationValidator;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -121,7 +121,7 @@ public class RegistrationServiceImpl extends AbstractServiceImpl<Registration,
     }
 
     @Override
-    public UserDTO confirmRegistrationRequest(String token)
+    public UserDto confirmRegistrationRequest(String token)
             throws NoEntityFoundException, ClashException {
         Registration registration = findByToken(token).orElseThrow(
                 () -> new NoEntityFoundException("registration request", "token", token));
@@ -133,7 +133,7 @@ public class RegistrationServiceImpl extends AbstractServiceImpl<Registration,
             throw new ClashException("Someone else has already claimed the username you provided in the time " +
                                              "between now and when you requested registration.");
         }
-        UserDTO userDTO = userService.register(registration);
+        UserDto userDTO = userService.register(registration);
         deleteAllByEmail(registration.getEmail());
         return userDTO;
     }

@@ -2,16 +2,15 @@ package com.ecinema.app.services.implementations;
 
 import com.ecinema.app.services.AbstractService;
 import com.ecinema.app.entities.AbstractEntity;
-import com.ecinema.app.utils.exceptions.NoEntityFoundException;
-import org.modelmapper.ModelMapper;
+import com.ecinema.app.exceptions.NoEntityFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
-import java.util.function.Supplier;
 
 /**
  * The parent class of service classes handling persistence.
@@ -99,6 +98,11 @@ public abstract class AbstractServiceImpl<E extends AbstractEntity, R extends Jp
     @Override
     public List<E> findAll() {
         return repository.findAll();
+    }
+
+    @Override
+    public Page<E> findAll(Pageable pageable) {
+        return repository.findAll(pageable);
     }
 
 }

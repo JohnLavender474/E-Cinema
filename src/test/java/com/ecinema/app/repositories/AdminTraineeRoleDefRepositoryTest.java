@@ -3,7 +3,7 @@ package com.ecinema.app.repositories;
 import com.ecinema.app.entities.AdminRoleDef;
 import com.ecinema.app.entities.AdminTraineeRoleDef;
 import com.ecinema.app.entities.User;
-import com.ecinema.app.utils.constants.UserRole;
+import com.ecinema.app.utils.UserRole;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

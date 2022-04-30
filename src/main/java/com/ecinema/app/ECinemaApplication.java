@@ -25,5 +25,4 @@ public class ECinemaApplication extends SpringBootServletInitializer {
         return builder.sources(ECinemaApplication.class);
     }
 
-
 }

@@ -1,5 +1,6 @@
 package com.ecinema.app.services;
 
+import com.ecinema.app.dtos.ReviewDto;
 import com.ecinema.app.entities.CustomerRoleDef;
 import com.ecinema.app.entities.Movie;
 import com.ecinema.app.entities.Review;
@@ -11,6 +12,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.time.LocalDateTime;
+import java.time.Month;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -89,6 +92,31 @@ class ReviewServiceTest {
         assertNotEquals(customerRoleDef, review.getWriter());
         assertFalse(movie.getReviews().contains(review));
         assertNotEquals(movie, review.getMovie());
+    }
+
+    @Test
+    void reviewDto() {
+        // given
+        Review review = new Review();
+        review.setId(1L);
+        review.setReview("test review");
+        review.setLikes(1);
+        review.setDislikes(0);
+        review.setIsCensored(false);
+        review.setCreationDateTime(LocalDateTime.of(2022, Month.APRIL, 28, 22, 55));
+        given(reviewRepository.findById(1L))
+                .willReturn(Optional.of(review));
+        reviewService.save(review);
+        // when
+        ReviewDto reviewDto = reviewService.convert(1L);
+        // then
+        assertEquals(review.getId(), reviewDto.getId());
+        assertEquals(review.getReview(), reviewDto.getReview());
+        assertEquals(review.getLikes(), reviewDto.getLikes());
+        assertEquals(review.getDislikes(), reviewDto.getDislikes());
+        assertEquals(review.getIsCensored(), reviewDto.getIsCensored());
+        assertEquals(LocalDateTime.of(2022, Month.APRIL, 28, 22, 55),
+                     reviewDto.getCreationDateTime());
     }
 
 }

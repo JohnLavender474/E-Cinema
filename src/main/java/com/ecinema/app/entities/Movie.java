@@ -1,17 +1,15 @@
 package com.ecinema.app.entities;
 
-import com.ecinema.app.utils.constants.MovieCategory;
-import com.ecinema.app.utils.constants.MsrbRating;
-import com.ecinema.app.utils.converters.DurationConverter;
-import com.ecinema.app.utils.objects.Duration;
+import com.ecinema.app.utils.MovieCategory;
+import com.ecinema.app.utils.MsrbRating;
+import com.ecinema.app.utils.DurationConverter;
+import com.ecinema.app.utils.Duration;
 import lombok.Getter;
 import lombok.Setter;
 
 import javax.persistence.*;
 import java.time.LocalDate;
-import java.util.EnumSet;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 /**
  * The type Movie.
@@ -24,13 +22,16 @@ public class Movie extends AbstractEntity {
     @Column
     private String title;
 
-    @ElementCollection
-    private Set<String> directors = new HashSet<>();
-
-    @ElementCollection
-    private Set<String> producers = new HashSet<>();
+    @Column
+    private String director;
 
     @Column
+    private String image;
+
+    @Column
+    private String trailer;
+
+    @Column(length = 2000)
     private String synopsis;
 
     @Column
@@ -41,17 +42,14 @@ public class Movie extends AbstractEntity {
     private LocalDate releaseDate;
 
     @Column
-    private String image;
-
-    @Column
-    private String trailer;
-
-    @Column
     @Enumerated(EnumType.STRING)
     private MsrbRating msrbRating;
 
     @ElementCollection
     private Set<String> cast = new HashSet<>();
+
+    @ElementCollection
+    private Set<String> writers = new HashSet<>();
 
     @ElementCollection
     @Enumerated(EnumType.STRING)

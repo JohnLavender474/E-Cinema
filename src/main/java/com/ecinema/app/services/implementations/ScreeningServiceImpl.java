@@ -1,16 +1,17 @@
 package com.ecinema.app.services.implementations;
 
+import com.ecinema.app.dtos.ScreeningDto;
+import com.ecinema.app.dtos.ScreeningSeatDto;
 import com.ecinema.app.entities.*;
+import com.ecinema.app.exceptions.NoEntityFoundException;
 import com.ecinema.app.repositories.ScreeningRepository;
 import com.ecinema.app.services.ScreeningSeatService;
 import com.ecinema.app.services.ScreeningService;
-import com.ecinema.app.services.TicketService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 /**
  * The type Screening service.
@@ -84,6 +85,25 @@ public class ScreeningServiceImpl extends AbstractServiceImpl<Screening, Screeni
     @Override
     public List<Screening> findAllByShowroomWithId(Long showroomId) {
         return repository.findAllByShowroomWithId(showroomId);
+    }
+
+    @Override
+    public ScreeningDto convert(Long entityId)
+            throws NoEntityFoundException {
+        Screening screening = findById(entityId).orElseThrow(
+                () -> new NoEntityFoundException("screening", "id", entityId));
+        ScreeningDto screeningDTO = new ScreeningDto();
+        screeningDTO.setId(screening.getId());
+        screeningDTO.setMovieTitle(screening.getMovie().getTitle());
+        screeningDTO.setShowroomLetter(screening.getShowroom().getShowroomLetter());
+        screeningDTO.setShowDateTime(screening.getShowDateTime());
+        Set<ScreeningSeatDto> screeningSeatDTOS = new TreeSet<>();
+        for (ScreeningSeat screeningSeat : screening.getScreeningSeats()) {
+            ScreeningSeatDto screeningSeatDTO = screeningSeatService.convert(screeningSeat.getId());
+            screeningSeatDTOS.add(screeningSeatDTO);
+        }
+        screeningDTO.setScreeningSeats(screeningSeatDTOS);
+        return screeningDTO;
     }
 
 }

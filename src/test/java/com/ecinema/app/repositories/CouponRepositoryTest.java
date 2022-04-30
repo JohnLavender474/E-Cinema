@@ -1,8 +1,8 @@
 package com.ecinema.app.repositories;
 
 import com.ecinema.app.entities.Coupon;
-import com.ecinema.app.utils.constants.CouponType;
-import com.ecinema.app.utils.constants.DiscountType;
+import com.ecinema.app.utils.CouponType;
+import com.ecinema.app.utils.DiscountType;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

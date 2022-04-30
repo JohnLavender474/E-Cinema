@@ -1,7 +1,7 @@
 package com.ecinema.app.services;
 
-import com.ecinema.app.utils.dtos.UserDTO;
-import com.ecinema.app.utils.exceptions.NoEntityFoundException;
+import com.ecinema.app.dtos.UserDto;
+import com.ecinema.app.exceptions.NoEntityFoundException;
 
 public interface SecurityService {
 
@@ -20,6 +20,6 @@ public interface SecurityService {
      *
      * @return the string
      */
-    UserDTO findLoggedInUserDTO();
+    UserDto findLoggedInUserDTO();
 
 }

@@ -1,15 +1,15 @@
 package com.ecinema.app.services;
 
+import com.ecinema.app.dtos.AdminRoleDefDto;
 import com.ecinema.app.entities.*;
 import com.ecinema.app.repositories.*;
 import com.ecinema.app.services.implementations.*;
-import com.ecinema.app.utils.constants.UserRole;
+import com.ecinema.app.utils.UserRole;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.modelmapper.ModelMapper;
 
 import java.util.List;
 import java.util.Optional;
@@ -25,7 +25,6 @@ import static org.mockito.Mockito.verify;
 @ExtendWith(MockitoExtension.class)
 class AdminRoleDefServiceTest {
 
-    private ModelMapper modelMapper;
     private AddressService addressService;
     private AdminTraineeRoleDefService adminTraineeRoleDefService;
     private ModeratorRoleDefService moderatorRoleDefService;
@@ -77,7 +76,6 @@ class AdminRoleDefServiceTest {
      */
     @BeforeEach
     void setUp() {
-        modelMapper = new ModelMapper();
         addressService = new AddressServiceImpl(addressRepository);
         reviewService = new ReviewServiceImpl(reviewRepository);
         ticketService = new TicketServiceImpl(ticketRepository);
@@ -96,8 +94,7 @@ class AdminRoleDefServiceTest {
         adminRoleDefService = new AdminRoleDefServiceImpl(adminRoleDefRepository, theaterService,
                                                           adminTraineeRoleDefService);
         userService = new UserServiceImpl(userRepository, customerRoleDefService,
-                                          moderatorRoleDefService, adminTraineeRoleDefService, adminRoleDefService,
-                                          modelMapper);
+                                          moderatorRoleDefService, adminTraineeRoleDefService, adminRoleDefService);
     }
 
     /**
@@ -259,6 +256,20 @@ class AdminRoleDefServiceTest {
         assertNull(user.getUserRoleDefs().get(UserRole.ADMIN));
         assertNull(adminTraineeRoleDef.getMentor());
         assertTrue(adminRoleDef.getTrainees().isEmpty());
+    }
+
+    @Test
+    void adminRoleDefDto() {
+        // given
+        AdminRoleDef adminRoleDef = new AdminRoleDef();
+        adminRoleDef.setId(1L);
+        adminRoleDefService.save(adminRoleDef);
+        given(adminRoleDefRepository.findById(1L))
+                .willReturn(Optional.of(adminRoleDef));
+        // when
+        AdminRoleDefDto adminRoleDefDto = adminRoleDefService.convert(1L);
+        // then
+        assertEquals(adminRoleDef.getId(), adminRoleDefDto.getId());
     }
 
 }

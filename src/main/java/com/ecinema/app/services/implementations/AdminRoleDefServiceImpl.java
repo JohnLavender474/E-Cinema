@@ -1,16 +1,14 @@
 package com.ecinema.app.services.implementations;
 
+import com.ecinema.app.dtos.AdminRoleDefDto;
 import com.ecinema.app.entities.AdminRoleDef;
 import com.ecinema.app.entities.AdminTraineeRoleDef;
 import com.ecinema.app.entities.Theater;
-import com.ecinema.app.entities.User;
 import com.ecinema.app.repositories.AdminRoleDefRepository;
 import com.ecinema.app.services.AdminRoleDefService;
 import com.ecinema.app.services.AdminTraineeRoleDefService;
 import com.ecinema.app.services.TheaterService;
-import com.ecinema.app.utils.constants.UserRole;
-import com.ecinema.app.utils.exceptions.NoEntityFoundException;
-import org.aspectj.lang.NoAspectBoundException;
+import com.ecinema.app.exceptions.NoEntityFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -97,6 +95,16 @@ public class AdminRoleDefServiceImpl extends UserRoleDefServiceImpl<AdminRoleDef
                 () -> new NoEntityFoundException("Admin", "id", adminRoleDefId));
         adminTraineeRoleDef.setMentor(null);
         adminRoleDef.getTrainees().remove(adminTraineeRoleDef);
+    }
+
+    @Override
+    public AdminRoleDefDto convert(Long entityId)
+            throws NoEntityFoundException {
+        AdminRoleDef adminRoleDef = findById(entityId).orElseThrow(
+                () -> new NoEntityFoundException("admin role def", "id", entityId));
+        AdminRoleDefDto adminRoleDefDto = new AdminRoleDefDto();
+        adminRoleDefDto.setId(adminRoleDef.getId());
+        return adminRoleDefDto;
     }
 
 }

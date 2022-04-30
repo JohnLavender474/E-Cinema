@@ -1,6 +1,6 @@
 package com.ecinema.app.entities;
 
-import com.ecinema.app.utils.constants.UserRole;
+import com.ecinema.app.utils.UserRole;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;

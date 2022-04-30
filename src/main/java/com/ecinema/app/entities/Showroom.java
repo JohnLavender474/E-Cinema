@@ -1,11 +1,10 @@
 package com.ecinema.app.entities;
 
-import com.ecinema.app.utils.constants.Letter;
+import com.ecinema.app.utils.Letter;
 import lombok.Getter;
 import lombok.Setter;
 
 import javax.persistence.*;
-import javax.swing.text.html.ObjectView;
 import java.util.*;
 
 @Getter

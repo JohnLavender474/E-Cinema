@@ -1,10 +1,12 @@
 package com.ecinema.app.services;
 
+import com.ecinema.app.dtos.ShowroomDto;
 import com.ecinema.app.entities.Screening;
 import com.ecinema.app.entities.Showroom;
 import com.ecinema.app.entities.ShowroomSeat;
 import com.ecinema.app.entities.Theater;
-import com.ecinema.app.utils.constants.Letter;
+import com.ecinema.app.utils.Converter;
+import com.ecinema.app.utils.Letter;
 
 import java.util.List;
 import java.util.Optional;
@@ -12,7 +14,7 @@ import java.util.Optional;
 /**
  * The interface Showroom service.
  */
-public interface ShowroomService extends AbstractService<Showroom> {
+public interface ShowroomService extends AbstractService<Showroom>, Converter<ShowroomDto, Long> {
 
     /**
      * Find by showroom letter optional.

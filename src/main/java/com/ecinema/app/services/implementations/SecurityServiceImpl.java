@@ -3,9 +3,9 @@ package com.ecinema.app.services.implementations;
 import com.ecinema.app.entities.User;
 import com.ecinema.app.services.SecurityService;
 import com.ecinema.app.services.UserService;
-import com.ecinema.app.utils.dtos.UserDTO;
-import com.ecinema.app.utils.exceptions.PasswordMismatchException;
-import com.ecinema.app.utils.exceptions.NoEntityFoundException;
+import com.ecinema.app.dtos.UserDto;
+import com.ecinema.app.exceptions.PasswordMismatchException;
+import com.ecinema.app.exceptions.NoEntityFoundException;
 import org.modelmapper.ModelMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,16 +22,13 @@ import org.springframework.stereotype.Service;
 public class SecurityServiceImpl implements SecurityService {
 
     private final UserService userService;
-    private final ModelMapper modelMapper;
     private final BCryptPasswordEncoder passwordEncoder;
     private final DaoAuthenticationProvider daoAuthenticationProvider;
     private final Logger logger = LoggerFactory.getLogger(SecurityServiceImpl.class);
 
-    public SecurityServiceImpl(UserService userService, ModelMapper modelMapper,
-                               BCryptPasswordEncoder passwordEncoder,
+    public SecurityServiceImpl(UserService userService, BCryptPasswordEncoder passwordEncoder,
                                DaoAuthenticationProvider daoAuthenticationProvider) {
         this.userService = userService;
-        this.modelMapper = modelMapper;
         this.passwordEncoder = passwordEncoder;
         this.daoAuthenticationProvider = daoAuthenticationProvider;
     }
@@ -59,13 +56,13 @@ public class SecurityServiceImpl implements SecurityService {
     }
 
     @Override
-    public UserDTO findLoggedInUserDTO() {
+    public UserDto findLoggedInUserDTO() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication == null) {
             return null;
         }
         Object o = authentication.getPrincipal();
-        return o instanceof User user ? modelMapper.map(user, UserDTO.class) : null;
+        return o instanceof User user ? userService.convert(user.getId()) : null;
     }
 
 }

@@ -15,7 +15,7 @@ public class ScreeningSeat extends AbstractEntity {
     private Screening screening;
 
     @JoinColumn
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     private ShowroomSeat showroomSeat;
 
     @OneToOne(mappedBy = "screeningSeat")

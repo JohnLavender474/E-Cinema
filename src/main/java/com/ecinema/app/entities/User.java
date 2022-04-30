@@ -1,9 +1,8 @@
 package com.ecinema.app.entities;
 
-import com.ecinema.app.utils.constants.UserRole;
+import com.ecinema.app.utils.UserRole;
 import lombok.Getter;
 import lombok.Setter;
-import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import javax.persistence.*;
@@ -21,10 +20,10 @@ import java.util.*;
 @Entity
 public class User extends AbstractEntity implements UserDetails {
 
-    @Column
+    @Column(unique = true)
     private String email;
 
-    @Column
+    @Column(unique = true)
     private String username;
 
     @Column

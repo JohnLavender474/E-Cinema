@@ -2,9 +2,8 @@ package com.ecinema.app.services.implementations;
 
 import com.ecinema.app.entities.*;
 import com.ecinema.app.repositories.TicketRepository;
-import com.ecinema.app.services.ScreeningSeatService;
 import com.ecinema.app.services.TicketService;
-import com.ecinema.app.utils.constants.TicketStatus;
+import com.ecinema.app.utils.TicketStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 

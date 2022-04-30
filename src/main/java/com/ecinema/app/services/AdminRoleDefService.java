@@ -1,12 +1,14 @@
 package com.ecinema.app.services;
 
+import com.ecinema.app.dtos.AdminRoleDefDto;
 import com.ecinema.app.entities.AdminRoleDef;
-import com.ecinema.app.utils.exceptions.NoEntityFoundException;
+import com.ecinema.app.exceptions.NoEntityFoundException;
+import com.ecinema.app.utils.Converter;
 
 /**
  * The interface Admin role def service.
  */
-public interface AdminRoleDefService extends UserRoleDefService<AdminRoleDef> {
+public interface AdminRoleDefService extends UserRoleDefService<AdminRoleDef>, Converter<AdminRoleDefDto, Long> {
 
     /**
      * Add theater to admin role def.

@@ -1,15 +1,23 @@
 package com.ecinema.app.services;
 
+import com.ecinema.app.dtos.ScreeningDto;
+import com.ecinema.app.dtos.ScreeningSeatDto;
 import com.ecinema.app.entities.*;
 import com.ecinema.app.repositories.*;
 import com.ecinema.app.services.implementations.*;
+import com.ecinema.app.utils.Letter;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
 
+import java.time.LocalDateTime;
+import java.time.Month;
 import java.util.Optional;
+import java.util.TreeSet;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.BDDMockito.given;
@@ -110,6 +118,61 @@ class ScreeningServiceTest {
         assertNotEquals(screeningSeat, ticket.getScreeningSeat());
         assertNull(ticket.getScreeningSeat());
         assertNull(screeningSeat.getTicket());
+    }
+
+    @Test
+    @MockitoSettings(strictness = Strictness.LENIENT)
+    void screeningDto() {
+        // given
+        Movie movie = new Movie();
+        movie.setId(1L);
+        movie.setTitle("test");
+        movieService.save(movie);
+        Showroom showroom = new Showroom();
+        showroom.setId(2L);
+        showroom.setShowroomLetter(Letter.A);
+        showroomService.save(showroom);
+        ShowroomSeat showroomSeat = new ShowroomSeat();
+        showroomSeat.setId(3L);
+        showroomSeat.setShowroom(showroom);
+        showroom.getShowroomSeats().add(showroomSeat);
+        showroomSeat.setRowLetter(Letter.C);
+        showroomSeat.setSeatNumber(14);
+        given(showroomSeatRepository.findById(3L))
+                .willReturn(Optional.of(showroomSeat));
+        Screening screening = new Screening();
+        screening.setId(4L);
+        screening.setShowDateTime(LocalDateTime.of(2022, Month.MAY, 1, 12, 0));
+        screening.setShowroom(showroom);
+        showroom.getScreenings().add(screening);
+        screening.setMovie(movie);
+        movie.getScreenings().add(screening);
+        given(screeningRepository.findById(4L))
+                .willReturn(Optional.of(screening));
+        ScreeningSeat screeningSeat = new ScreeningSeat();
+        screeningSeat.setId(5L);
+        screeningSeat.setShowroomSeat(showroomSeat);
+        showroomSeat.getScreeningSeats().add(screeningSeat);
+        screeningSeat.setScreening(screening);
+        screening.getScreeningSeats().add(screeningSeat);
+        given(screeningSeatRepository.findById(5L))
+                .willReturn(Optional.of(screeningSeat));
+        screeningSeatService.save(screeningSeat);
+        // when
+        ScreeningDto screeningDto = screeningService.convert(screening.getId());
+        // then
+        assertEquals(screening.getId(), screeningDto.getId());
+        assertEquals("test", screeningDto.getMovieTitle());
+        assertEquals(Letter.A, screeningDto.getShowroomLetter());
+        assertEquals(LocalDateTime.of(2022, Month.MAY, 1, 12, 0),
+                     screeningDto.getShowDateTime());
+        assertEquals(1, screeningDto.getScreeningSeats().size());
+        ScreeningSeatDto screeningSeatDto = ((TreeSet<ScreeningSeatDto>) screeningDto.getScreeningSeats()).last();
+        assertEquals(screeningSeat.getId(), screeningSeatDto.getId());
+        assertEquals(screening.getId(), screeningSeatDto.getScreeningId());
+        assertEquals(showroomSeat.getRowLetter(), screeningSeatDto.getRowLetter());
+        assertEquals(showroomSeat.getSeatNumber(), screeningSeatDto.getSeatNumber());
+        assertFalse(screeningSeatDto.getIsBooked());
     }
 
 }

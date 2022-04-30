@@ -2,8 +2,7 @@ package com.ecinema.app.repositories;
 
 import com.ecinema.app.entities.Ticket;
 import com.ecinema.app.utils.UtilMethods;
-import com.ecinema.app.utils.constants.TicketStatus;
-import jdk.jshell.execution.Util;
+import com.ecinema.app.utils.TicketStatus;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

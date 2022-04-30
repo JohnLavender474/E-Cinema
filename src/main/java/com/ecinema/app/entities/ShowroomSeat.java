@@ -1,6 +1,6 @@
 package com.ecinema.app.entities;
 
-import com.ecinema.app.utils.constants.Letter;
+import com.ecinema.app.utils.Letter;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -14,7 +14,7 @@ import java.util.Set;
 public class ShowroomSeat extends AbstractEntity {
 
     @JoinColumn
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     private Showroom showroom;
 
     @Column

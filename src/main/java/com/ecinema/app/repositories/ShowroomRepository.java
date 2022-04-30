@@ -4,7 +4,7 @@ import com.ecinema.app.entities.Screening;
 import com.ecinema.app.entities.Showroom;
 import com.ecinema.app.entities.ShowroomSeat;
 import com.ecinema.app.entities.Theater;
-import com.ecinema.app.utils.constants.Letter;
+import com.ecinema.app.utils.Letter;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;

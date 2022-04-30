@@ -1,5 +1,7 @@
 package com.ecinema.app.utils;
 
+import org.modelmapper.ModelMapper;
+
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;

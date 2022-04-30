@@ -5,7 +5,6 @@
     <meta content="width=device-width, initial-scale=1.0" name="viewport">
     <title>ECinema Theaters</title>
     <link href="../static/css/style.css" th:href="@{/css/style.css}" rel="stylesheet">
-    <link href="../static/img/logo.png" th:href="@{/img/logo.png}" rel="shortcut"/>
     <link href="https://fonts.googleapis.com" rel="preconnect">
     <link crossorigin href="https://fonts.gstatic.com" rel="preconnect">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;
@@ -22,15 +21,36 @@
     </a>
     <a th:href="@{/index}">Home</a>
     <a th:href="@{/movies}">Movies</a>
+    <a th:href="@{/theaters}">Theaters</a>
+    <a th:href="@{/about}">About</a>
     <a th:href="@{/account}">Account</a>
 </div>
 <div class="container">
-    <h1>Welcome</h1>
-    <h1>1. Visit <a th:href="@{/login}">Login page (available to any user)</a> </h1>
-    <h1>2. Visit <a th:href="@{/customer}">Customer page (requires customer role)</a></h1>
-    <h1>3. Visit <a th:href="@{/moderator}">Moderator page (requires moderator role)</a></h1>
-    <h1>4. Visit <a th:href="@{/trainee}">Admin trainee page (requires admin trainee role)</a></h1>
-    <h1>5. Visit <a th:href="@{/admin}">Admin page (requires admin role)</a></h1>
+    <table class="table table-bordered table-dark">
+        <thead class="thead-dark">
+        <tr>
+            <th>
+                <span>WELCOME TO ECINEMA THEATERS!</span>
+            </th>
+        </tr>
+        </thead>
+        <tbody class="contentContainer">
+        <tr>
+            <td>
+                <a th:href="@{/theaters}">
+                    <img alt="failed to load image" src="" th:src="@{/img/theater.jpeg}" width="876" height="493">
+                </a>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <a th:href="@{/movies}">
+                    <img alt="failed to load image" src="" th:src="@{/img/movie.png}" width="460" height="320">
+                </a>
+            </td>
+        </tr>
+        </tbody>
+    </table>
 </div>
 </body>
 </html>

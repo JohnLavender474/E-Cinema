@@ -1,7 +1,7 @@
 package com.ecinema.app.services;
 
 import com.ecinema.app.entities.Ticket;
-import com.ecinema.app.utils.constants.TicketStatus;
+import com.ecinema.app.utils.TicketStatus;
 
 import java.time.LocalDateTime;
 import java.util.List;

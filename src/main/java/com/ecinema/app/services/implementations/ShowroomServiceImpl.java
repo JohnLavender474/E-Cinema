@@ -1,19 +1,24 @@
 package com.ecinema.app.services.implementations;
 
+import com.ecinema.app.dtos.ShowroomDto;
+import com.ecinema.app.dtos.ShowroomSeatDto;
 import com.ecinema.app.entities.Screening;
 import com.ecinema.app.entities.Showroom;
 import com.ecinema.app.entities.ShowroomSeat;
 import com.ecinema.app.entities.Theater;
+import com.ecinema.app.exceptions.NoEntityFoundException;
 import com.ecinema.app.repositories.ShowroomRepository;
 import com.ecinema.app.services.ScreeningService;
 import com.ecinema.app.services.ShowroomSeatService;
 import com.ecinema.app.services.ShowroomService;
-import com.ecinema.app.utils.constants.Letter;
+import com.ecinema.app.utils.Letter;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
+import java.util.TreeSet;
 
 /**
  * The type Showroom service.
@@ -83,6 +88,24 @@ public class ShowroomServiceImpl extends AbstractServiceImpl<Showroom, ShowroomR
     @Override
     public List<Showroom> findAllByTheaterWithId(Long theaterId) {
         return repository.findAllByTheaterWithId(theaterId);
+    }
+
+    @Override
+    public ShowroomDto convert(Long entityId)
+            throws NoEntityFoundException {
+        Showroom showroom = findById(entityId).orElseThrow(
+                () -> new NoEntityFoundException("showroom", "id", entityId));
+        ShowroomDto showroomDto = new ShowroomDto();
+        showroomDto.setId(showroom.getId());
+        showroomDto.setShowroomLetter(showroom.getShowroomLetter());
+        Set<ShowroomSeatDto> showroomSeatDtos = new TreeSet<>();
+        for (ShowroomSeat showroomSeat : showroom.getShowroomSeats()) {
+            ShowroomSeatDto showroomSeatDto = showroomSeatService
+                    .convert(showroomSeat.getId());
+            showroomSeatDtos.add(showroomSeatDto);
+        }
+        showroomDto.setShowroomSeatDTOs(showroomSeatDtos);
+        return showroomDto;
     }
 
 }

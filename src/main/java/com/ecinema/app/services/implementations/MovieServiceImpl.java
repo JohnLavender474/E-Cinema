@@ -1,15 +1,24 @@
 package com.ecinema.app.services.implementations;
 
+import com.ecinema.app.dtos.MovieDto;
+import com.ecinema.app.dtos.ReviewDto;
+import com.ecinema.app.dtos.ScreeningDto;
 import com.ecinema.app.entities.Movie;
+import com.ecinema.app.entities.Review;
+import com.ecinema.app.entities.Screening;
+import com.ecinema.app.exceptions.NoEntityFoundException;
 import com.ecinema.app.repositories.MovieRepository;
 import com.ecinema.app.services.MovieService;
 import com.ecinema.app.services.ReviewService;
 import com.ecinema.app.services.ScreeningService;
-import com.ecinema.app.utils.constants.MovieCategory;
-import com.ecinema.app.utils.constants.MsrbRating;
+import com.ecinema.app.utils.MovieCategory;
+import com.ecinema.app.utils.MsrbRating;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
@@ -18,10 +27,11 @@ import java.util.Set;
  */
 @Service
 @Transactional
-public class MovieServiceImpl extends AbstractServiceImpl<Movie, MovieRepository> implements MovieService {
+public class MovieServiceImpl extends AbstractServiceImpl<Movie, MovieRepository>
+        implements MovieService {
 
-    private final ReviewService reviewService;
     private final ScreeningService screeningService;
+    private final ReviewService reviewService;
 
     /**
      * Instantiates a new Movie service.
@@ -30,7 +40,8 @@ public class MovieServiceImpl extends AbstractServiceImpl<Movie, MovieRepository
      * @param reviewService    the review service
      * @param screeningService the screening service
      */
-    public MovieServiceImpl(MovieRepository repository, ReviewService reviewService, ScreeningService screeningService) {
+    public MovieServiceImpl(MovieRepository repository, ReviewService reviewService,
+                            ScreeningService screeningService) {
         super(repository);
         this.reviewService = reviewService;
         this.screeningService = screeningService;
@@ -42,6 +53,16 @@ public class MovieServiceImpl extends AbstractServiceImpl<Movie, MovieRepository
         reviewService.deleteAll(movie.getReviews());
         // cascade delete Screenings
         screeningService.deleteAll(movie.getScreenings());
+    }
+
+    @Override
+    public List<Movie> findAllByLikeTitle(String title) {
+        return repository.findByTitleContaining(title);
+    }
+
+    @Override
+    public Page<Movie> findAllByLikeTitle(String title, Pageable pageable) {
+        return repository.findByTitleContaining(title, pageable);
     }
 
     @Override
@@ -77,6 +98,39 @@ public class MovieServiceImpl extends AbstractServiceImpl<Movie, MovieRepository
     @Override
     public List<Movie> findAllOrderByDurationDescending() {
         return repository.findAllOrderByDurationDescending();
+    }
+
+    @Override
+    public MovieDto convert(Long entityId)
+            throws NoEntityFoundException {
+        Movie movie = findById(entityId).orElseThrow(
+                () -> new NoEntityFoundException("movie", "id", entityId));
+        MovieDto movieDTO = new MovieDto();
+        movieDTO.setId(movie.getId());
+        movieDTO.setTitle(movie.getTitle());
+        movieDTO.setDirector(movie.getDirector());
+        movieDTO.setImage(movie.getImage());
+        movieDTO.setTrailer(movie.getTrailer());
+        movieDTO.setSynopsis(movie.getSynopsis());
+        movieDTO.setDuration(movie.getDuration());
+        movieDTO.setReleaseDate(movie.getReleaseDate());
+        movieDTO.setMsrbRating(movie.getMsrbRating());
+        movieDTO.getCast().addAll(movie.getCast());
+        movieDTO.getWriters().addAll(movie.getWriters());
+        movieDTO.getMovieCategories().addAll(movie.getMovieCategories());
+        List<ScreeningDto> screeningDtos = new ArrayList<>();
+        for (Screening screening : movie.getScreenings()) {
+            ScreeningDto screeningDTO = screeningService.convert(screening.getId());
+            screeningDtos.add(screeningDTO);
+        }
+        movieDTO.getScreeningDtos().addAll(screeningDtos);
+        List<ReviewDto> reviewDtos = new ArrayList<>();
+        for (Review review : movie.getReviews()) {
+            ReviewDto reviewDTO = reviewService.convert(review.getId());
+            reviewDtos.add(reviewDTO);
+        }
+        movieDTO.getReviewDtos().addAll(reviewDtos);
+        return movieDTO;
     }
 
 }

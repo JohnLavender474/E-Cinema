@@ -1,7 +1,7 @@
 package com.ecinema.app.entities;
 
-import com.ecinema.app.utils.constants.UserRole;
-import com.ecinema.app.utils.contracts.IRegistration;
+import com.ecinema.app.utils.UserRole;
+import com.ecinema.app.utils.IRegistration;
 import lombok.Getter;
 import lombok.Setter;
 

@@ -1,12 +1,13 @@
 package com.ecinema.app.entities;
 
-import com.ecinema.app.utils.constants.UsState;
-import com.ecinema.app.utils.contracts.IAddress;
+import com.ecinema.app.utils.UsState;
+import com.ecinema.app.utils.IAddress;
 import lombok.Getter;
 import lombok.Setter;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.Lob;
 
 /**
  * {@inheritDoc}

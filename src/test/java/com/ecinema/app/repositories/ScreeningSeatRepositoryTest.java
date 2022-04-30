@@ -4,7 +4,6 @@ import com.ecinema.app.entities.Screening;
 import com.ecinema.app.entities.ScreeningSeat;
 import com.ecinema.app.entities.ShowroomSeat;
 import com.ecinema.app.entities.Ticket;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;

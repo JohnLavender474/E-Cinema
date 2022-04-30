@@ -4,8 +4,8 @@ import com.ecinema.app.entities.Coupon;
 import com.ecinema.app.entities.CustomerRoleDef;
 import com.ecinema.app.repositories.CouponRepository;
 import com.ecinema.app.services.CouponService;
-import com.ecinema.app.utils.constants.CouponType;
-import com.ecinema.app.utils.constants.DiscountType;
+import com.ecinema.app.utils.CouponType;
+import com.ecinema.app.utils.DiscountType;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 

@@ -6,7 +6,7 @@ import com.ecinema.app.entities.ShowroomSeat;
 import com.ecinema.app.entities.Theater;
 import com.ecinema.app.repositories.*;
 import com.ecinema.app.services.implementations.*;
-import com.ecinema.app.utils.constants.Letter;
+import com.ecinema.app.utils.Letter;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

@@ -2,10 +2,8 @@ package com.ecinema.app.services;
 
 import com.ecinema.app.entities.AdminRoleDef;
 import com.ecinema.app.entities.AdminTraineeRoleDef;
-import com.ecinema.app.entities.User;
 
 import java.util.List;
-import java.util.Optional;
 
 /**
  * The interface Admin trainee role def service.

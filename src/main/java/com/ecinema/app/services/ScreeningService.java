@@ -1,15 +1,16 @@
 package com.ecinema.app.services;
 
+import com.ecinema.app.dtos.ScreeningDto;
 import com.ecinema.app.entities.*;
+import com.ecinema.app.utils.Converter;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
 
 /**
  * The interface Screening service.
  */
-public interface ScreeningService extends AbstractService<Screening> {
+public interface ScreeningService extends AbstractService<Screening>, Converter<ScreeningDto, Long> {
 
     /**
      * Find all by show date time less than equal list.

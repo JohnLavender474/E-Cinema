@@ -3,7 +3,7 @@ package com.ecinema.app.services;
 import com.ecinema.app.entities.*;
 import com.ecinema.app.repositories.*;
 import com.ecinema.app.services.implementations.*;
-import com.ecinema.app.utils.constants.Letter;
+import com.ecinema.app.utils.Letter;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

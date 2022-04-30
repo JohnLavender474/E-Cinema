@@ -5,6 +5,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
@@ -61,6 +62,16 @@ class LoginControllerTest {
                                  .param("password", "dummy"))
                 .andDo(print())
                 .andExpect(redirectedUrl("/login-error"));
+    }
+
+    @Test
+    @WithMockUser
+    void loggedInUserCannotAccessLoginPage()
+            throws Exception {
+        mockMvc
+                .perform(get("/login"))
+                .andDo(print())
+                .andExpect(redirectedUrl("/index"));
     }
 
 }

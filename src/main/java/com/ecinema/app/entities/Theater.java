@@ -1,6 +1,6 @@
 package com.ecinema.app.entities;
 
-import com.ecinema.app.utils.constants.Letter;
+import com.ecinema.app.utils.Letter;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -24,15 +24,15 @@ public class Theater extends AbstractEntity {
     @Column
     private String theaterName;
 
+    @JoinColumn
+    @OneToOne(cascade = CascadeType.PERSIST, fetch = FetchType.LAZY)
+    private Address address;
+
     @ManyToMany(mappedBy = "theatersBeingManaged")
     private Set<AdminRoleDef> admins = new HashSet<>();
 
     @MapKeyEnumerated(EnumType.STRING)
     @OneToMany(mappedBy = "theater", cascade = CascadeType.PERSIST, fetch = FetchType.LAZY)
     private Map<Letter, Showroom> showrooms = new EnumMap<>(Letter.class);
-
-    @JoinColumn
-    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private Address address;
 
 }

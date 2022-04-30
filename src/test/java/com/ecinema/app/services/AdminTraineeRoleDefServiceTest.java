@@ -3,16 +3,13 @@ package com.ecinema.app.services;
 import com.ecinema.app.entities.*;
 import com.ecinema.app.repositories.*;
 import com.ecinema.app.services.implementations.*;
-import com.ecinema.app.utils.constants.UserRole;
-import org.junit.jupiter.api.AfterEach;
+import com.ecinema.app.utils.UserRole;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.modelmapper.ModelMapper;
-import org.springframework.jmx.export.annotation.ManagedOperation;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -95,7 +92,7 @@ class AdminTraineeRoleDefServiceTest {
                 paymentCardService, couponService);
         moderatorRoleDefService = new ModeratorRoleDefServiceImpl(moderatorRoleDefRepository);
         userService = new UserServiceImpl(userRepository, customerRoleDefService, moderatorRoleDefService,
-                                          adminTraineeRoleDefService, adminRoleDefService, modelMapper);
+                                          adminTraineeRoleDefService, adminRoleDefService);
     }
 
     @Test

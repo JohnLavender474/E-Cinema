@@ -1,7 +1,7 @@
 package com.ecinema.app.entities;
 
-import com.ecinema.app.utils.constants.CouponType;
-import com.ecinema.app.utils.constants.DiscountType;
+import com.ecinema.app.utils.CouponType;
+import com.ecinema.app.utils.DiscountType;
 import lombok.Getter;
 import lombok.Setter;
 
