@@ -1,7 +1,7 @@
 package com.ecinema.app.repositories;
 
-import com.ecinema.app.entities.CustomerRoleDef;
-import com.ecinema.app.entities.PaymentCard;
+import com.ecinema.app.domain.entities.CustomerRoleDef;
+import com.ecinema.app.domain.entities.PaymentCard;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

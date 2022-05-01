@@ -1,9 +1,9 @@
 package com.ecinema.app.services;
 
-import com.ecinema.app.entities.Screening;
-import com.ecinema.app.entities.Showroom;
-import com.ecinema.app.entities.ShowroomSeat;
-import com.ecinema.app.entities.Theater;
+import com.ecinema.app.domain.entities.Screening;
+import com.ecinema.app.domain.entities.Showroom;
+import com.ecinema.app.domain.entities.ShowroomSeat;
+import com.ecinema.app.domain.entities.Theater;
 import com.ecinema.app.repositories.*;
 import com.ecinema.app.services.implementations.*;
 import com.ecinema.app.utils.Letter;

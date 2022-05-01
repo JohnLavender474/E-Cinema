@@ -1,9 +1,9 @@
 package com.ecinema.app.repositories;
 
-import com.ecinema.app.entities.Screening;
-import com.ecinema.app.entities.Showroom;
-import com.ecinema.app.entities.ShowroomSeat;
-import com.ecinema.app.entities.Theater;
+import com.ecinema.app.domain.entities.Screening;
+import com.ecinema.app.domain.entities.Showroom;
+import com.ecinema.app.domain.entities.ShowroomSeat;
+import com.ecinema.app.domain.entities.Theater;
 import com.ecinema.app.utils.Letter;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -16,7 +16,7 @@ import java.util.Optional;
  * The interface Showroom repository.
  */
 @Repository
-public interface ShowroomRepository extends JpaRepository<Showroom, Long> {
+public interface ShowroomRepository extends JpaRepository<Showroom, Long>, AbstractRepository {
 
     /**
      * Find by showroom letter optional.

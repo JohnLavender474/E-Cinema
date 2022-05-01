@@ -1,15 +1,18 @@
 package com.ecinema.app.controllers;
 
-import com.ecinema.app.dtos.MovieDto;
-import com.ecinema.app.entities.Movie;
+import com.ecinema.app.VideoService;
+import com.ecinema.app.domain.dtos.MovieDto;
+import com.ecinema.app.exceptions.NoEntityFoundException;
 import com.ecinema.app.services.MovieService;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.core.io.Resource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -27,9 +30,10 @@ public class MoviesController {
                              @RequestParam(value = "page", required = false, defaultValue = "1") Integer page,
                              @RequestParam(value = "search", required = false, defaultValue = "") String search) {
         PageRequest pageRequest = PageRequest.of(page - 1, 6);
-        Page<MovieDto> movies = (search == null || search.isBlank() ? movieService.findAll(pageRequest) :
-                movieService.findAllByLikeTitle(search, pageRequest))
-                .map(movie -> movieService.convert(movie.getId()));
+
+        Page<MovieDto> movies = (search == null || search.isBlank() ?
+                movieService.pageOfDtos(pageRequest) :
+                movieService.pageOfDtosLikeTitle(search, pageRequest));
         List<MovieDto> movies1 = new ArrayList<>();
         List<MovieDto> movies2 = new ArrayList<>();
         int i = 0;
@@ -52,6 +56,19 @@ public class MoviesController {
         }
         model.addAttribute("search", search);
         return "movies";
+    }
+
+    @GetMapping("/movie-info/{id}")
+    public String movieInfoPage(final Model model, @PathVariable("id") Long id) {
+        MovieDto movieDto = movieService.convertToDto(id);
+        model.addAttribute("movie", movieDto);
+        return "movie-info";
+    }
+
+    @ExceptionHandler(NoEntityFoundException.class)
+    public String handleNoEntityFoundException(final Model model, final NoEntityFoundException e) {
+        model.addAttribute("errors", e.getErrors());
+        return "error";
     }
 
 }

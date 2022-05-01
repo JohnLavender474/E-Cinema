@@ -1,6 +1,6 @@
 package com.ecinema.app.repositories;
 
-import com.ecinema.app.entities.*;
+import com.ecinema.app.domain.entities.*;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
@@ -12,7 +12,7 @@ import java.util.List;
  * The interface Screening repository.
  */
 @Repository
-public interface ScreeningRepository extends JpaRepository<Screening, Long> {
+public interface ScreeningRepository extends JpaRepository<Screening, Long>, AbstractRepository {
 
     /**
      * Find all by show date time less than equal list.

@@ -1,9 +1,10 @@
 package com.ecinema.app.services;
 
-import com.ecinema.app.dtos.ShowroomSeatDto;
-import com.ecinema.app.entities.ScreeningSeat;
-import com.ecinema.app.entities.Showroom;
-import com.ecinema.app.entities.ShowroomSeat;
+import com.ecinema.app.domain.EntityToDtoConverter;
+import com.ecinema.app.domain.dtos.ShowroomSeatDto;
+import com.ecinema.app.domain.entities.ScreeningSeat;
+import com.ecinema.app.domain.entities.Showroom;
+import com.ecinema.app.domain.entities.ShowroomSeat;
 import com.ecinema.app.utils.Converter;
 import com.ecinema.app.utils.Letter;
 import com.ecinema.app.exceptions.NoEntityFoundException;
@@ -14,7 +15,8 @@ import java.util.Optional;
 /**
  * The interface Showroom seat service.
  */
-public interface ShowroomSeatService extends AbstractService<ShowroomSeat>, Converter<ShowroomSeatDto, Long> {
+public interface ShowroomSeatService extends AbstractService<ShowroomSeat>,
+                                             EntityToDtoConverter<ShowroomSeat, ShowroomSeatDto> {
 
     /**
      * Find all by showroom list.

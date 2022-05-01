@@ -1,6 +1,8 @@
 package com.ecinema.app.utils;
 
-import org.modelmapper.ModelMapper;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -19,6 +21,12 @@ public class UtilMethods {
 
     public static int randomIntBetween(int min, int max) {
         return ThreadLocalRandom.current().nextInt(min, max + 1);
+    }
+
+    public static <T> Page<T> convertListToPage(List<T> list, Pageable pageable) {
+        int start = (int) pageable.getOffset();
+        int end = Math.min((start + pageable.getPageSize()), list.size());
+        return new PageImpl<>(list.subList(start, end), pageable, list.size());
     }
 
     public static <T> List<T> findAllThatCollectionContainsIfAny(

@@ -1,7 +1,7 @@
 package com.ecinema.app.services.implementations;
 
-import com.ecinema.app.entities.Coupon;
-import com.ecinema.app.entities.CustomerRoleDef;
+import com.ecinema.app.domain.entities.Coupon;
+import com.ecinema.app.domain.entities.CustomerRoleDef;
 import com.ecinema.app.repositories.CouponRepository;
 import com.ecinema.app.services.CouponService;
 import com.ecinema.app.utils.CouponType;

@@ -1,11 +1,12 @@
 package com.ecinema.app.services;
 
-import com.ecinema.app.entities.User;
-import com.ecinema.app.entities.UserRoleDef;
+import com.ecinema.app.domain.EntityToDtoConverter;
+import com.ecinema.app.domain.entities.User;
+import com.ecinema.app.domain.entities.UserRoleDef;
 import com.ecinema.app.utils.Converter;
 import com.ecinema.app.utils.UserRole;
 import com.ecinema.app.utils.IRegistration;
-import com.ecinema.app.dtos.UserDto;
+import com.ecinema.app.domain.dtos.UserDto;
 import com.ecinema.app.exceptions.ClashException;
 import com.ecinema.app.exceptions.InvalidArgsException;
 import com.ecinema.app.exceptions.NoEntityFoundException;
@@ -19,9 +20,11 @@ import java.util.Set;
 /**
  * {@inheritDoc}
  * The interface User service. Acts as {@link UserDetailsService} for Spring Security.
- * Implements convert method to convert {@link User} using Long id to {@link UserDto}.
+ * Implements convertToDto method to convertToDto {@link User} using Long id to {@link UserDto}.
  */
-public interface UserService extends AbstractService<User>, UserDetailsService, Converter<UserDto, Long> {
+public interface UserService extends UserDetailsService,
+                                     AbstractService<User>,
+                                     EntityToDtoConverter<User, UserDto> {
 
     /**
      * Registers a new {@link User}. The {@link IRegistration} being passed into this method must

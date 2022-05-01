@@ -1,7 +1,7 @@
 package com.ecinema.app.repositories;
 
-import com.ecinema.app.entities.Movie;
-import com.ecinema.app.entities.Review;
+import com.ecinema.app.domain.entities.Movie;
+import com.ecinema.app.domain.entities.Review;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

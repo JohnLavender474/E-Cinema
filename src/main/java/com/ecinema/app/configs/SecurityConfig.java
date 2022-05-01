@@ -1,6 +1,7 @@
 package com.ecinema.app.configs;
 
 import com.ecinema.app.services.UserService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
@@ -17,6 +18,7 @@ import static com.ecinema.app.utils.UserRole.*;
  * https://www.baeldung.com/spring-security-custom-authentication-failure-handler
  */
 @Configuration
+@RequiredArgsConstructor
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     private static final String[] ANY_PERMITTED = new String[] {
@@ -25,41 +27,37 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
             "/about*",
             "/home*",
             "/movies*",
+            "/movie-info*",
+            "/movie-reviews*",
+            "/movie-screenings*",
             "/login*",
+            "/login-error*",
+            "/perform-login*",
+            "/logout*",
+            "/logout-success*",
             "/register*",
             "/theaters*",
             "/forgotPassword*"
     };
     private static final String[] AUTHENTICATED_PERMITTED = new String[] {
-            "/authenticated",
-            "/account"
+            "/authenticated*",
+            "/account*"
     };
     private static final String[] CUSTOMERS_PERMITTED = new String[] {
-            "/customer"
+            "/customer*"
     };
     private static final String[] MODERATORS_PERMITTED = new String[] {
-            "/moderator"
+            "/moderator*"
     };
     private static final String[] ADMIN_TRAINEES_PERMITTED = new String[] {
-            "/trainee"
+            "/trainee*"
     };
     private static final String[] ADMINS_PERMITTED = new String[] {
-            "/admin"
+            "/admin*"
     };
 
     private final UserService userService;
     private final BCryptPasswordEncoder passwordEncoder;
-
-    /**
-     * Instantiates a new Security config.
-     *
-     * @param userService     the user service
-     * @param passwordEncoder the password encoder
-     */
-    public SecurityConfig(UserService userService, BCryptPasswordEncoder passwordEncoder) {
-        this.userService = userService;
-        this.passwordEncoder = passwordEncoder;
-    }
 
     /**
      * Authentication provider dao authentication provider.
@@ -106,11 +104,13 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .loginProcessingUrl("/perform-login")
                 .usernameParameter("username")
                 .passwordParameter("password")
-                .defaultSuccessUrl("/index", true)
+                .defaultSuccessUrl("/login-success", true)
                 .failureUrl("/login-error")
                 .and()
                 .logout()
                 .logoutUrl("/logout")
+                .invalidateHttpSession(true)
+                .logoutSuccessUrl("/logout-success")
                 .deleteCookies("JSESSIONID")
                 .and()
                 .rememberMe()

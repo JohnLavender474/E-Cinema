@@ -1,9 +1,9 @@
 package com.ecinema.app.services.implementations;
 
-import com.ecinema.app.dtos.AdminRoleDefDto;
-import com.ecinema.app.entities.AdminRoleDef;
-import com.ecinema.app.entities.AdminTraineeRoleDef;
-import com.ecinema.app.entities.Theater;
+import com.ecinema.app.domain.dtos.AdminRoleDefDto;
+import com.ecinema.app.domain.entities.AdminRoleDef;
+import com.ecinema.app.domain.entities.AdminTraineeRoleDef;
+import com.ecinema.app.domain.entities.Theater;
 import com.ecinema.app.repositories.AdminRoleDefRepository;
 import com.ecinema.app.services.AdminRoleDefService;
 import com.ecinema.app.services.AdminTraineeRoleDefService;
@@ -12,13 +12,17 @@ import com.ecinema.app.exceptions.NoEntityFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
+
 /**
  * The type Admin role def service.
  */
 @Service
 @Transactional
-public class AdminRoleDefServiceImpl extends UserRoleDefServiceImpl<AdminRoleDef,
-        AdminRoleDefRepository> implements AdminRoleDefService {
+public class AdminRoleDefServiceImpl extends UserRoleDefServiceImpl<AdminRoleDef, AdminRoleDefRepository>
+        implements AdminRoleDefService {
 
     private final TheaterService theaterService;
     private final AdminTraineeRoleDefService adminTraineeRoleDefService;
@@ -98,10 +102,10 @@ public class AdminRoleDefServiceImpl extends UserRoleDefServiceImpl<AdminRoleDef
     }
 
     @Override
-    public AdminRoleDefDto convert(Long entityId)
+    public AdminRoleDefDto convertToDto(Long id)
             throws NoEntityFoundException {
-        AdminRoleDef adminRoleDef = findById(entityId).orElseThrow(
-                () -> new NoEntityFoundException("admin role def", "id", entityId));
+        AdminRoleDef adminRoleDef = findById(id).orElseThrow(
+                () -> new NoEntityFoundException("admin role def", "id", id));
         AdminRoleDefDto adminRoleDefDto = new AdminRoleDefDto();
         adminRoleDefDto.setId(adminRoleDef.getId());
         return adminRoleDefDto;

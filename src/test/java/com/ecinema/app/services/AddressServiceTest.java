@@ -1,9 +1,8 @@
 package com.ecinema.app.services;
 
-import com.ecinema.app.dtos.AddressDto;
-import com.ecinema.app.entities.Address;
+import com.ecinema.app.domain.dtos.AddressDto;
+import com.ecinema.app.domain.entities.Address;
 import com.ecinema.app.repositories.AddressRepository;
-import com.ecinema.app.services.AddressService;
 import com.ecinema.app.services.implementations.AddressServiceImpl;
 import com.ecinema.app.utils.UsState;
 import org.junit.jupiter.api.BeforeEach;
@@ -11,8 +10,13 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.BDDMockito.given;
@@ -42,7 +46,7 @@ class AddressServiceTest {
                 .willReturn(Optional.of(address));
         addressService.save(address);
         // when
-        AddressDto addressDto = addressService.convert(1L);
+        AddressDto addressDto = addressService.convertToDto(1L);
         // then
         assertEquals(address.getId(), addressDto.getId());
         assertEquals(address.getCity(), addressDto.getCity());

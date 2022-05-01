@@ -1,11 +1,13 @@
 package com.ecinema.app.services;
 
-import com.ecinema.app.dtos.ReviewDto;
-import com.ecinema.app.entities.CustomerRoleDef;
-import com.ecinema.app.entities.Movie;
-import com.ecinema.app.entities.Review;
+import com.ecinema.app.domain.dtos.ReviewDto;
+import com.ecinema.app.domain.entities.CustomerRoleDef;
+import com.ecinema.app.domain.entities.Movie;
+import com.ecinema.app.domain.entities.Review;
+import com.ecinema.app.domain.entities.User;
 import com.ecinema.app.repositories.*;
 import com.ecinema.app.services.implementations.*;
+import com.ecinema.app.utils.UserRole;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -31,6 +33,7 @@ class ReviewServiceTest {
     private ScreeningSeatService screeningSeatService;
     private ScreeningService screeningService;
     private CustomerRoleDefService customerRoleDefService;
+    private UserService userService;
     @Mock
     private AddressRepository addressRepository;
     @Mock
@@ -49,20 +52,29 @@ class ReviewServiceTest {
     private ScreeningRepository screeningRepository;
     @Mock
     private CustomerRoleDefRepository customerRoleDefRepository;
+    @Mock
+    private UserRepository userRepository;
 
     @BeforeEach
     void setUp() {
         addressService = new AddressServiceImpl(addressRepository);
-        paymentCardService = new PaymentCardServiceImpl(paymentCardRepository, addressService);
+        paymentCardService = new PaymentCardServiceImpl(
+                paymentCardRepository, addressService);
         reviewService = new ReviewServiceImpl(reviewRepository);
         ticketService = new TicketServiceImpl(ticketRepository);
         couponService = new CouponServiceImpl(couponRepository);
-        screeningSeatService = new ScreeningSeatServiceImpl(screeningSeatRepository, ticketService);
-        screeningService = new ScreeningServiceImpl(screeningRepository, screeningSeatService);
-        movieService = new MovieServiceImpl(movieRepository, reviewService, screeningService);
+        screeningSeatService = new ScreeningSeatServiceImpl(
+                screeningSeatRepository, ticketService);
+        screeningService = new ScreeningServiceImpl(
+                screeningRepository, screeningSeatService);
+        movieService = new MovieServiceImpl(
+                movieRepository, reviewService, screeningService);
         customerRoleDefService = new CustomerRoleDefServiceImpl(
                 customerRoleDefRepository, reviewService,
                 ticketService, paymentCardService, couponService);
+        userService = new UserServiceImpl(
+                userRepository, customerRoleDefService,
+                null, null, null);
     }
 
     @Test
@@ -97,23 +109,29 @@ class ReviewServiceTest {
     @Test
     void reviewDto() {
         // given
+        User user = new User();
+        user.setUsername("test username");
+        userService.save(user);
+        CustomerRoleDef customerRoleDef = new CustomerRoleDef();
+        customerRoleDef.setUser(user);
+        user.getUserRoleDefs().put(UserRole.CUSTOMER, customerRoleDef);
+        customerRoleDefService.save(customerRoleDef);
         Review review = new Review();
         review.setId(1L);
         review.setReview("test review");
-        review.setLikes(1);
-        review.setDislikes(0);
+        review.setWriter(customerRoleDef);
+        customerRoleDef.getReviews().add(review);
         review.setIsCensored(false);
-        review.setCreationDateTime(LocalDateTime.of(2022, Month.APRIL, 28, 22, 55));
+        review.setCreationDateTime(LocalDateTime.of(
+                2022, Month.APRIL, 28, 22, 55));
         given(reviewRepository.findById(1L))
                 .willReturn(Optional.of(review));
         reviewService.save(review);
         // when
-        ReviewDto reviewDto = reviewService.convert(1L);
+        ReviewDto reviewDto = reviewService.convertToDto(1L);
         // then
         assertEquals(review.getId(), reviewDto.getId());
         assertEquals(review.getReview(), reviewDto.getReview());
-        assertEquals(review.getLikes(), reviewDto.getLikes());
-        assertEquals(review.getDislikes(), reviewDto.getDislikes());
         assertEquals(review.getIsCensored(), reviewDto.getIsCensored());
         assertEquals(LocalDateTime.of(2022, Month.APRIL, 28, 22, 55),
                      reviewDto.getCreationDateTime());

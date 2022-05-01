@@ -1,7 +1,7 @@
 package com.ecinema.app.repositories;
 
-import com.ecinema.app.entities.CustomerRoleDef;
-import com.ecinema.app.entities.PaymentCard;
+import com.ecinema.app.domain.entities.CustomerRoleDef;
+import com.ecinema.app.domain.entities.PaymentCard;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
@@ -12,7 +12,7 @@ import java.util.List;
  * The interface Payment card repository.
  */
 @Repository
-public interface PaymentCardRepository extends JpaRepository<PaymentCard, Long> {
+public interface PaymentCardRepository extends JpaRepository<PaymentCard, Long>, AbstractRepository {
 
     /**
      * Find distinct by customer role def list.

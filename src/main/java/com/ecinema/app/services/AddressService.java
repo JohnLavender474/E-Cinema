@@ -1,10 +1,10 @@
 package com.ecinema.app.services;
 
-import com.ecinema.app.dtos.AddressDto;
-import com.ecinema.app.entities.Address;
-import com.ecinema.app.utils.Converter;
+import com.ecinema.app.domain.EntityToDtoConverter;
+import com.ecinema.app.domain.dtos.AddressDto;
+import com.ecinema.app.domain.entities.Address;
 
 /**
  * The interface Address service.
  */
-public interface AddressService extends AbstractService<Address>, Converter<AddressDto, Long> {}
+public interface AddressService extends AbstractService<Address>, EntityToDtoConverter<Address, AddressDto> {}

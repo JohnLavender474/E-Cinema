@@ -1,6 +1,6 @@
 package com.ecinema.app.services;
 
-import com.ecinema.app.entities.*;
+import com.ecinema.app.domain.entities.*;
 import com.ecinema.app.repositories.*;
 import com.ecinema.app.services.implementations.*;
 import org.junit.jupiter.api.AfterEach;

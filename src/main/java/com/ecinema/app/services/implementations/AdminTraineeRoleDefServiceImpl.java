@@ -1,7 +1,7 @@
 package com.ecinema.app.services.implementations;
 
-import com.ecinema.app.entities.AdminRoleDef;
-import com.ecinema.app.entities.AdminTraineeRoleDef;
+import com.ecinema.app.domain.entities.AdminRoleDef;
+import com.ecinema.app.domain.entities.AdminTraineeRoleDef;
 import com.ecinema.app.repositories.AdminTraineeRoleDefRepository;
 import com.ecinema.app.services.AdminTraineeRoleDefService;
 import org.springframework.stereotype.Service;

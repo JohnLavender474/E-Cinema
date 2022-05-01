@@ -1,8 +1,8 @@
 package com.ecinema.app.services.implementations;
 
-import com.ecinema.app.dtos.ScreeningDto;
-import com.ecinema.app.dtos.ScreeningSeatDto;
-import com.ecinema.app.entities.*;
+import com.ecinema.app.domain.dtos.ScreeningDto;
+import com.ecinema.app.domain.dtos.ScreeningSeatDto;
+import com.ecinema.app.domain.entities.*;
 import com.ecinema.app.exceptions.NoEntityFoundException;
 import com.ecinema.app.repositories.ScreeningRepository;
 import com.ecinema.app.services.ScreeningSeatService;
@@ -12,6 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.function.Predicate;
 
 /**
  * The type Screening service.
@@ -88,10 +89,10 @@ public class ScreeningServiceImpl extends AbstractServiceImpl<Screening, Screeni
     }
 
     @Override
-    public ScreeningDto convert(Long entityId)
+    public ScreeningDto convertToDto(Long id)
             throws NoEntityFoundException {
-        Screening screening = findById(entityId).orElseThrow(
-                () -> new NoEntityFoundException("screening", "id", entityId));
+        Screening screening = findById(id).orElseThrow(
+                () -> new NoEntityFoundException("screening", "id", id));
         ScreeningDto screeningDTO = new ScreeningDto();
         screeningDTO.setId(screening.getId());
         screeningDTO.setMovieTitle(screening.getMovie().getTitle());
@@ -99,10 +100,17 @@ public class ScreeningServiceImpl extends AbstractServiceImpl<Screening, Screeni
         screeningDTO.setShowDateTime(screening.getShowDateTime());
         Set<ScreeningSeatDto> screeningSeatDTOS = new TreeSet<>();
         for (ScreeningSeat screeningSeat : screening.getScreeningSeats()) {
-            ScreeningSeatDto screeningSeatDTO = screeningSeatService.convert(screeningSeat.getId());
+            ScreeningSeatDto screeningSeatDTO = screeningSeatService
+                    .convertToDto(screeningSeat.getId());
             screeningSeatDTOS.add(screeningSeatDTO);
         }
         screeningDTO.setScreeningSeats(screeningSeatDTOS);
+        screeningDTO.setTotalSeatsInRoom(screening.getShowroom().getShowroomSeats().size());
+        long numberOfSeatsBooked = screening
+                .getScreeningSeats().stream().filter(
+                        screeningSeat -> screeningSeat.getTicket() != null).count();
+        screeningDTO.setSeatsBooked((int) numberOfSeatsBooked);
+        screeningDTO.setSeatsAvailable(screeningDTO.getTotalSeatsInRoom() - (int) numberOfSeatsBooked);
         return screeningDTO;
     }
 

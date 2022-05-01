@@ -1,9 +1,9 @@
 package com.ecinema.app.services.implementations;
 
-import com.ecinema.app.dtos.ReviewDto;
-import com.ecinema.app.entities.CustomerRoleDef;
-import com.ecinema.app.entities.Movie;
-import com.ecinema.app.entities.Review;
+import com.ecinema.app.domain.dtos.ReviewDto;
+import com.ecinema.app.domain.entities.CustomerRoleDef;
+import com.ecinema.app.domain.entities.Movie;
+import com.ecinema.app.domain.entities.Review;
 import com.ecinema.app.exceptions.NoEntityFoundException;
 import com.ecinema.app.repositories.ReviewRepository;
 import com.ecinema.app.services.ReviewService;
@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional
@@ -38,27 +39,31 @@ public class ReviewServiceImpl extends AbstractServiceImpl<Review, ReviewReposit
     }
 
     @Override
-    public List<Review> findAllByMovie(Movie movie) {
-        return repository.findAllByMovie(movie);
+    public List<ReviewDto> findAllDtosByMovie(Movie movie) {
+        return repository.findAllByMovie(movie)
+                         .stream().map(this::convertToDto)
+                         .collect(Collectors.toList());
     }
 
     @Override
-    public List<Review> findAllByMovieWithId(Long movieId) {
-        return repository.findAllByMovieWithId(movieId);
+    public List<ReviewDto> findAllDtosByMovieWithId(Long movieId) {
+        return repository.findAllByMovieWithId(movieId)
+                         .stream().map(this::convertToDto)
+                         .collect(Collectors.toList());
     }
 
     @Override
-    public ReviewDto convert(Long entityId)
+    public ReviewDto convertToDto(Long id)
             throws NoEntityFoundException {
-        Review review = findById(entityId).orElseThrow(
-                () -> new NoEntityFoundException("review", "id", entityId));
+        Review review = findById(id).orElseThrow(
+                () -> new NoEntityFoundException("review", "id", id));
         ReviewDto reviewDTO = new ReviewDto();
         reviewDTO.setId(review.getId());
         reviewDTO.setReview(review.getReview());
-        reviewDTO.setLikes(review.getLikes());
-        reviewDTO.setDislikes(review.getDislikes());
+        reviewDTO.setRating(review.getRating());
         reviewDTO.setIsCensored(review.getIsCensored());
         reviewDTO.setCreationDateTime(review.getCreationDateTime());
+        reviewDTO.setWriter(review.getWriter().getUser().getUsername());
         return reviewDTO;
     }
 

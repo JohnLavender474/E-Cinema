@@ -1,7 +1,7 @@
 package com.ecinema.app.services;
 
-import com.ecinema.app.entities.AdminRoleDef;
-import com.ecinema.app.entities.AdminTraineeRoleDef;
+import com.ecinema.app.domain.entities.AdminRoleDef;
+import com.ecinema.app.domain.entities.AdminTraineeRoleDef;
 
 import java.util.List;
 

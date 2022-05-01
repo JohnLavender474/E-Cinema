@@ -1,9 +1,9 @@
 package com.ecinema.app.services.implementations;
 
-import com.ecinema.app.dtos.ShowroomSeatDto;
-import com.ecinema.app.entities.ScreeningSeat;
-import com.ecinema.app.entities.Showroom;
-import com.ecinema.app.entities.ShowroomSeat;
+import com.ecinema.app.domain.dtos.ShowroomSeatDto;
+import com.ecinema.app.domain.entities.ScreeningSeat;
+import com.ecinema.app.domain.entities.Showroom;
+import com.ecinema.app.domain.entities.ShowroomSeat;
 import com.ecinema.app.repositories.ShowroomSeatRepository;
 import com.ecinema.app.services.ScreeningSeatService;
 import com.ecinema.app.services.ShowroomSeatService;
@@ -73,23 +73,25 @@ public class ShowroomSeatServiceImpl extends AbstractServiceImpl<ShowroomSeat, S
     }
 
     @Override
-    public Optional<ShowroomSeat> findByShowroomAndRowLetterAndSeatNumber(Showroom showroom, Letter rowLetter,
-                                                                          Integer seatNumber) {
-        return repository.findByShowroomAndRowLetterAndSeatNumber(showroom, rowLetter, seatNumber);
+    public Optional<ShowroomSeat> findByShowroomAndRowLetterAndSeatNumber(
+            Showroom showroom, Letter rowLetter, Integer seatNumber) {
+        return repository.findByShowroomAndRowLetterAndSeatNumber(
+                showroom, rowLetter, seatNumber);
     }
 
     @Override
-    public Optional<ShowroomSeat> findByShowroomWithIdAndRowLetterAndSeatNumber(Long showroomId, Letter rowLetter,
-                                                                                Integer seatNumber)
+    public Optional<ShowroomSeat> findByShowroomWithIdAndRowLetterAndSeatNumber(
+            Long showroomId, Letter rowLetter, Integer seatNumber)
             throws NoEntityFoundException {
-        return repository.findByShowroomWithIdAndRowLetterAndSeatNumber(showroomId, rowLetter, seatNumber);
+        return repository.findByShowroomWithIdAndRowLetterAndSeatNumber(
+                showroomId, rowLetter, seatNumber);
     }
 
     @Override
-    public ShowroomSeatDto convert(Long entityId)
+    public ShowroomSeatDto convertToDto(Long id)
             throws NoEntityFoundException {
-        ShowroomSeat showroomSeat = findById(entityId).orElseThrow(
-                () -> new NoEntityFoundException("showroom seat", "id", entityId));
+        ShowroomSeat showroomSeat = findById(id).orElseThrow(
+                () -> new NoEntityFoundException("showroom seat", "id", id));
         ShowroomSeatDto showroomSeatDTO = new ShowroomSeatDto();
         showroomSeatDTO.setId(showroomSeat.getId());
         showroomSeatDTO.setRowLetter(showroomSeat.getRowLetter());

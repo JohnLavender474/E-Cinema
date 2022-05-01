@@ -1,7 +1,7 @@
 package com.ecinema.app.services;
 
-import com.ecinema.app.entities.Registration;
-import com.ecinema.app.dtos.UserDto;
+import com.ecinema.app.domain.entities.Registration;
+import com.ecinema.app.domain.dtos.UserDto;
 import com.ecinema.app.exceptions.ClashException;
 import com.ecinema.app.exceptions.EmailException;
 import com.ecinema.app.exceptions.InvalidArgsException;

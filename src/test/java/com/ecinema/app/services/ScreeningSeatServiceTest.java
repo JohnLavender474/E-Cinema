@@ -1,7 +1,7 @@
 package com.ecinema.app.services;
 
-import com.ecinema.app.entities.ScreeningSeat;
-import com.ecinema.app.entities.Ticket;
+import com.ecinema.app.domain.entities.ScreeningSeat;
+import com.ecinema.app.domain.entities.Ticket;
 import com.ecinema.app.repositories.ScreeningSeatRepository;
 import com.ecinema.app.repositories.TicketRepository;
 import com.ecinema.app.services.implementations.ScreeningSeatServiceImpl;

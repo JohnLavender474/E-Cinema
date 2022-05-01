@@ -1,11 +1,8 @@
 package com.ecinema.app.services.implementations;
 
-import com.ecinema.app.dtos.ShowroomDto;
-import com.ecinema.app.dtos.ShowroomSeatDto;
-import com.ecinema.app.entities.Screening;
-import com.ecinema.app.entities.Showroom;
-import com.ecinema.app.entities.ShowroomSeat;
-import com.ecinema.app.entities.Theater;
+import com.ecinema.app.domain.dtos.ShowroomDto;
+import com.ecinema.app.domain.dtos.ShowroomSeatDto;
+import com.ecinema.app.domain.entities.*;
 import com.ecinema.app.exceptions.NoEntityFoundException;
 import com.ecinema.app.repositories.ShowroomRepository;
 import com.ecinema.app.services.ScreeningService;
@@ -15,10 +12,7 @@ import com.ecinema.app.utils.Letter;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
-import java.util.TreeSet;
+import java.util.*;
 
 /**
  * The type Showroom service.
@@ -91,17 +85,16 @@ public class ShowroomServiceImpl extends AbstractServiceImpl<Showroom, ShowroomR
     }
 
     @Override
-    public ShowroomDto convert(Long entityId)
+    public ShowroomDto convertToDto(Long id)
             throws NoEntityFoundException {
-        Showroom showroom = findById(entityId).orElseThrow(
-                () -> new NoEntityFoundException("showroom", "id", entityId));
+        Showroom showroom = findById(id).orElseThrow(
+                () -> new NoEntityFoundException("showroom", "id", id));
         ShowroomDto showroomDto = new ShowroomDto();
         showroomDto.setId(showroom.getId());
         showroomDto.setShowroomLetter(showroom.getShowroomLetter());
         Set<ShowroomSeatDto> showroomSeatDtos = new TreeSet<>();
         for (ShowroomSeat showroomSeat : showroom.getShowroomSeats()) {
-            ShowroomSeatDto showroomSeatDto = showroomSeatService
-                    .convert(showroomSeat.getId());
+            ShowroomSeatDto showroomSeatDto = showroomSeatService.convertToDto(showroomSeat.getId());
             showroomSeatDtos.add(showroomSeatDto);
         }
         showroomDto.setShowroomSeatDTOs(showroomSeatDtos);

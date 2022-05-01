@@ -1,6 +1,6 @@
 package com.ecinema.app.services;
 
-import com.ecinema.app.entities.ModeratorRoleDef;
+import com.ecinema.app.domain.entities.ModeratorRoleDef;
 
 /**
  * The interface Moderator role def service.

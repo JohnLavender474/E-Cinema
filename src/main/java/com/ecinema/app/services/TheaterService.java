@@ -1,7 +1,8 @@
 package com.ecinema.app.services;
 
-import com.ecinema.app.dtos.TheaterDto;
-import com.ecinema.app.entities.Theater;
+import com.ecinema.app.domain.EntityToDtoConverter;
+import com.ecinema.app.domain.dtos.TheaterDto;
+import com.ecinema.app.domain.entities.Theater;
 import com.ecinema.app.exceptions.NoEntityFoundException;
 import com.ecinema.app.utils.Converter;
 
@@ -10,7 +11,7 @@ import java.util.Optional;
 /**
  * The interface Theater service.
  */
-public interface TheaterService extends AbstractService<Theater>, Converter<TheaterDto, Long> {
+public interface TheaterService extends AbstractService<Theater>, EntityToDtoConverter<Theater, TheaterDto> {
 
     /**
      * Find by theater name optional.

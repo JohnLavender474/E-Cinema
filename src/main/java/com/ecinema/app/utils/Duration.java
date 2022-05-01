@@ -103,7 +103,7 @@ public class Duration implements Comparable<Duration>, Serializable {
      * Convert string representation of Duration into new Duration instance. String representation
      * is hours:minutes. See {@link #toString()}.
      *
-     * @param str the String to convert to a new Duration instance.
+     * @param str the String to convertToDto to a new Duration instance.
      * @return the new Duration instance.
      * @throws InvalidDurationException see {@link #setHours(Integer)} and {@link #setMinutes(Integer)}.
      */

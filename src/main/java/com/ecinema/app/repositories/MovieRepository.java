@@ -1,6 +1,6 @@
 package com.ecinema.app.repositories;
 
-import com.ecinema.app.entities.Movie;
+import com.ecinema.app.domain.entities.Movie;
 import com.ecinema.app.utils.MovieCategory;
 import com.ecinema.app.utils.MsrbRating;
 import org.springframework.data.domain.Page;
@@ -16,7 +16,7 @@ import java.util.Set;
  * The interface Movie repository.
  */
 @Repository
-public interface MovieRepository extends JpaRepository<Movie, Long> {
+public interface MovieRepository extends JpaRepository<Movie, Long>, AbstractRepository {
 
     /**
      * Find all by like title list.

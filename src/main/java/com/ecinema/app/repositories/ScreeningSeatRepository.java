@@ -1,9 +1,9 @@
 package com.ecinema.app.repositories;
 
-import com.ecinema.app.entities.Screening;
-import com.ecinema.app.entities.ScreeningSeat;
-import com.ecinema.app.entities.ShowroomSeat;
-import com.ecinema.app.entities.Ticket;
+import com.ecinema.app.domain.entities.Screening;
+import com.ecinema.app.domain.entities.ScreeningSeat;
+import com.ecinema.app.domain.entities.ShowroomSeat;
+import com.ecinema.app.domain.entities.Ticket;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
@@ -15,7 +15,7 @@ import java.util.Optional;
  * The interface Screening seat repository.
  */
 @Repository
-public interface ScreeningSeatRepository extends JpaRepository<ScreeningSeat, Long> {
+public interface ScreeningSeatRepository extends JpaRepository<ScreeningSeat, Long>, AbstractRepository {
 
     /**
      * Find all by screening list.

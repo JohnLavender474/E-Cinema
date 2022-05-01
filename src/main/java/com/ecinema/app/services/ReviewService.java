@@ -1,31 +1,31 @@
 package com.ecinema.app.services;
 
-import com.ecinema.app.dtos.ReviewDto;
-import com.ecinema.app.entities.Movie;
-import com.ecinema.app.entities.Review;
-import com.ecinema.app.utils.Converter;
+import com.ecinema.app.domain.EntityToDtoConverter;
+import com.ecinema.app.domain.dtos.ReviewDto;
+import com.ecinema.app.domain.entities.Movie;
+import com.ecinema.app.domain.entities.Review;
 
 import java.util.List;
 
 /**
  * The interface Review service.
  */
-public interface ReviewService extends AbstractService<Review>, Converter<ReviewDto, Long> {
+public interface ReviewService extends AbstractService<Review>, EntityToDtoConverter<Review, ReviewDto> {
 
     /**
-     * Find all by movie list.
+     * Find all dtos by movie list.
      *
      * @param movie the movie
      * @return the list
      */
-    List<Review> findAllByMovie(Movie movie);
+    List<ReviewDto> findAllDtosByMovie(Movie movie);
 
     /**
-     * Find all by movie with id list.
+     * Find all dtos by movie with id list.
      *
      * @param movieId the movie id
      * @return the list
      */
-    List<Review> findAllByMovieWithId(Long movieId);
+    List<ReviewDto> findAllDtosByMovieWithId(Long movieId);
 
 }

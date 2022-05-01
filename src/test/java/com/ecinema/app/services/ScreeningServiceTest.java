@@ -1,8 +1,8 @@
 package com.ecinema.app.services;
 
-import com.ecinema.app.dtos.ScreeningDto;
-import com.ecinema.app.dtos.ScreeningSeatDto;
-import com.ecinema.app.entities.*;
+import com.ecinema.app.domain.dtos.ScreeningDto;
+import com.ecinema.app.domain.dtos.ScreeningSeatDto;
+import com.ecinema.app.domain.entities.*;
 import com.ecinema.app.repositories.*;
 import com.ecinema.app.services.implementations.*;
 import com.ecinema.app.utils.Letter;
@@ -159,7 +159,7 @@ class ScreeningServiceTest {
                 .willReturn(Optional.of(screeningSeat));
         screeningSeatService.save(screeningSeat);
         // when
-        ScreeningDto screeningDto = screeningService.convert(screening.getId());
+        ScreeningDto screeningDto = screeningService.convertToDto(screening.getId());
         // then
         assertEquals(screening.getId(), screeningDto.getId());
         assertEquals("test", screeningDto.getMovieTitle());

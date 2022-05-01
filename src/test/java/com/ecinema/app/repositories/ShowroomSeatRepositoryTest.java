@@ -1,8 +1,8 @@
 package com.ecinema.app.repositories;
 
-import com.ecinema.app.entities.ScreeningSeat;
-import com.ecinema.app.entities.Showroom;
-import com.ecinema.app.entities.ShowroomSeat;
+import com.ecinema.app.domain.entities.ScreeningSeat;
+import com.ecinema.app.domain.entities.Showroom;
+import com.ecinema.app.domain.entities.ShowroomSeat;
 import com.ecinema.app.utils.Letter;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;

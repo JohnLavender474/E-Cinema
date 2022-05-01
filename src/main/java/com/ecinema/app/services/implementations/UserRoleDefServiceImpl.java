@@ -1,7 +1,7 @@
 package com.ecinema.app.services.implementations;
 
-import com.ecinema.app.entities.User;
-import com.ecinema.app.entities.UserRoleDef;
+import com.ecinema.app.domain.entities.User;
+import com.ecinema.app.domain.entities.UserRoleDef;
 import com.ecinema.app.repositories.UserRoleDefRepository;
 import com.ecinema.app.services.UserRoleDefService;
 

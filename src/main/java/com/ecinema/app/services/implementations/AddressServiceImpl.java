@@ -1,12 +1,17 @@
 package com.ecinema.app.services.implementations;
 
-import com.ecinema.app.dtos.AddressDto;
-import com.ecinema.app.entities.Address;
+import com.ecinema.app.domain.dtos.AddressDto;
+import com.ecinema.app.domain.entities.Address;
 import com.ecinema.app.exceptions.NoEntityFoundException;
 import com.ecinema.app.repositories.AddressRepository;
 import com.ecinema.app.services.AddressService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
 /**
  * The type Address service.
@@ -29,10 +34,10 @@ public class AddressServiceImpl extends AbstractServiceImpl<Address, AddressRepo
     protected void onDelete(Address address) {}
 
     @Override
-    public AddressDto convert(Long entityId)
+    public AddressDto convertToDto(Long id)
             throws NoEntityFoundException {
-        Address address = findById(entityId).orElseThrow(
-                () -> new NoEntityFoundException("address", "id", entityId));
+        Address address = findById(id).orElseThrow(
+                () -> new NoEntityFoundException("address", "id", id));
         AddressDto addressDTO = new AddressDto();
         addressDTO.setId(address.getId());
         addressDTO.setStreet(address.getStreet());

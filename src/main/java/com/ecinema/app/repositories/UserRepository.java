@@ -1,6 +1,6 @@
 package com.ecinema.app.repositories;
 
-import com.ecinema.app.entities.User;
+import com.ecinema.app.domain.entities.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
@@ -13,7 +13,7 @@ import java.util.Optional;
  * The interface User repository.
  */
 @Repository
-public interface UserRepository extends JpaRepository<User, Long> {
+public interface UserRepository extends JpaRepository<User, Long>, AbstractRepository {
 
     /**
      * Exists by username boolean.

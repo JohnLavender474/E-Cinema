@@ -50,7 +50,7 @@ class LoginControllerTest {
                                  .param("username", "ROOT")
                                  .param("password", "password123!"))
                 .andDo(print())
-                .andExpect(redirectedUrl("/index"));
+                .andExpect(redirectedUrl("/login-success"));
     }
 
     @Test

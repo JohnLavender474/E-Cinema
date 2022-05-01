@@ -1,16 +1,15 @@
 package com.ecinema.app.services.implementations;
 
-import com.ecinema.app.entities.*;
+import com.ecinema.app.domain.entities.*;
 import com.ecinema.app.repositories.UserRepository;
 import com.ecinema.app.services.*;
 import com.ecinema.app.utils.UtilMethods;
 import com.ecinema.app.utils.UserRole;
 import com.ecinema.app.utils.IRegistration;
-import com.ecinema.app.dtos.UserDto;
+import com.ecinema.app.domain.dtos.UserDto;
 import com.ecinema.app.exceptions.ClashException;
 import com.ecinema.app.exceptions.InvalidArgsException;
 import com.ecinema.app.exceptions.NoEntityFoundException;
-import org.modelmapper.ModelMapper;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
@@ -54,7 +53,7 @@ public class UserServiceImpl extends AbstractServiceImpl<User, UserRepository> i
     @Override
     protected void onDelete(User user) {
         logger.info("User Service on delete");
-        // cascade delete UserRoleDefs, iterate over copy of UserRoleDefs keySet to avoid concurrent modification exception
+        // cascade delete UserRoleDefs, iterate over copy of keySet to avoid concurrent modification exception
         Set<UserRole> userRoles = new HashSet<>(user.getUserRoleDefs().keySet());
         logger.info("User Roles size: " + userRoles.size());
         for (UserRole userRole : userRoles) {
@@ -91,7 +90,7 @@ public class UserServiceImpl extends AbstractServiceImpl<User, UserRepository> i
         user.setIsCredentialsExpired(false);
         saveAndFlush(user);
         addUserRoleDefToUser(user, registration.getUserRoles());
-        return convert(user.getId());
+        return convertToDto(user.getId());
     }
 
     @Override
@@ -244,10 +243,10 @@ public class UserServiceImpl extends AbstractServiceImpl<User, UserRepository> i
     }
 
     @Override
-    public UserDto convert(Long entityId)
+    public UserDto convertToDto(Long id)
             throws NoEntityFoundException {
-        User user = findById(entityId).orElseThrow(
-                () -> new NoEntityFoundException("user", "id", entityId));
+        User user = findById(id).orElseThrow(
+                () -> new NoEntityFoundException("user", "id", id));
         UserDto userDto = new UserDto();
         userDto.setId(user.getId());
         userDto.setEmail(user.getEmail());

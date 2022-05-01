@@ -1,7 +1,7 @@
 package com.ecinema.app.services;
 
-import com.ecinema.app.entities.Coupon;
-import com.ecinema.app.entities.CustomerRoleDef;
+import com.ecinema.app.domain.entities.Coupon;
+import com.ecinema.app.domain.entities.CustomerRoleDef;
 import com.ecinema.app.repositories.*;
 import com.ecinema.app.services.implementations.*;
 import org.junit.jupiter.api.BeforeEach;

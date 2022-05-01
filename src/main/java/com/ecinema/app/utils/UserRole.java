@@ -1,6 +1,6 @@
 package com.ecinema.app.utils;
 
-import com.ecinema.app.entities.*;
+import com.ecinema.app.domain.entities.*;
 import org.springframework.security.core.GrantedAuthority;
 
 import java.util.*;

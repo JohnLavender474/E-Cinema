@@ -1,6 +1,6 @@
 package com.ecinema.app.configs;
 
-import com.ecinema.app.entities.*;
+import com.ecinema.app.domain.entities.*;
 import com.ecinema.app.services.*;
 import com.ecinema.app.utils.*;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
@@ -115,7 +115,7 @@ public class InitializationConfig {
         aliens.setTitle("Aliens");
         aliens.setDirector("James Cameron");
         aliens.setImage("/img/posters/aliensPoster.jpeg");
-        aliens.setTrailer("/videos/AliensTrailer.mp4");
+        aliens.setTrailer("https://www.youtube.com/embed/oSeQQlaCZgU");
         aliens.setSynopsis("57 years after Ellen Ripley had a close encounter with the reptilian alien creature " +
                                    "from the first movie, she is called back, this time, to help a group of highly " +
                                    "trained colonial marines fight off against the sinister extraterrestrials. " +
@@ -150,7 +150,7 @@ public class InitializationConfig {
         darkestHour.setTitle("Darkest Hour");
         darkestHour.setDirector("Joe Wright");
         darkestHour.setImage("/img/posters/darkestHourPoster.jpeg");
-        darkestHour.setTrailer("/videos/DarkestHourTrailer.mp4");
+        darkestHour.setTrailer("https://www.youtube.com/embed/LtJ60u7SUSw");
         darkestHour.setSynopsis("During World War II, as Adolf Hitler's powerful Wehrmacht rampages across Europe, " +
                                         "the Prime Minister of the United Kingdom, Neville Chamberlain, is forced to " +
                                         "resign, recommending Winston Churchill as his replacement. But even in his " +
@@ -179,7 +179,7 @@ public class InitializationConfig {
         dune.setTitle("Dune");
         dune.setDirector("Denis Villeneuve");
         dune.setImage("/img/posters/dunePoster.jpeg");
-        dune.setTrailer("/videos/DuneTrailer.mp4");
+        dune.setTrailer("https://www.youtube.com/embed/8g18jFHCLXk");
         dune.setSynopsis("A mythic and emotionally charged hero's journey, \"Dune\" tells the story of Paul " +
                                  "Atreides, a brilliant and gifted young man born into a great destiny beyond his " +
                                  "understanding, who must travel to the most dangerous planet in the universe to " +
@@ -209,7 +209,7 @@ public class InitializationConfig {
         Movie empireStrikesBack = new Movie();
         empireStrikesBack.setTitle("Star Wars: The Empire Strikes Back");
         empireStrikesBack.setImage("/img/posters/empireStrikesBackPoster.jpeg");
-        empireStrikesBack.setTrailer("/videos/EmpireStrikesBackTrailer.mp4");
+        empireStrikesBack.setTrailer("https://www.youtube.com/embed/JNwNXF9Y6kY");
         empireStrikesBack.setSynopsis("Luke Skywalker, Han Solo, Princess Leia and Chewbacca face attack by the " +
                                               "Imperial forces and its AT-AT walkers on the ice planet Hoth. While " +
                                               "Han and Leia escape in the Millennium Falcon, Luke travels to Dagobah " +
@@ -241,7 +241,7 @@ public class InitializationConfig {
         interstellar.setTitle("Interstellar");
         interstellar.setDirector("Christopher Nolan");
         interstellar.setImage("/img/posters/interstellarPoster.jpeg");
-        interstellar.setTrailer("/videos/InterstellarTrailer.mp4");
+        interstellar.setTrailer("https://www.youtube.com/embed/2LqzF5WauAw");
         interstellar.setSynopsis("Earth's future has been riddled by disasters, famines, and droughts. There is " +
                                          "only one way to ensure mankind's survival: Interstellar travel. A newly " +
                                          "discovered wormhole in the far reaches of our solar system allows a team " +
@@ -267,7 +267,7 @@ public class InitializationConfig {
         Movie noTimeToDie = new Movie();
         noTimeToDie.setTitle("007: No Time To Die");
         noTimeToDie.setImage("/img/posters/noTimeToDiePoster.jpeg");
-        noTimeToDie.setTrailer("/videos/NoTimeToDieTrailer.mp4");
+        noTimeToDie.setTrailer("https://www.youtube.com/embed/N_gD9-Oa0fg");
         noTimeToDie.setSynopsis("Bond has left active service and is enjoying a tranquil life in Jamaica. His peace " +
                                         "is short-lived when his old friend Felix Leiter from the CIA turns up " +
                                         "asking for help. The mission to rescue a kidnapped scientist turns out to " +
@@ -297,7 +297,7 @@ public class InitializationConfig {
         pig.setTitle("Pig");
         pig.setDirector("Michael Sarnoski");
         pig.setImage("/img/posters/pigPoster.jpeg");
-        pig.setTrailer("/videos/PigTrailer.mp4");
+        pig.setTrailer("https://www.youtube.com/embed/gH6vhlNTLUk");
         pig.setSynopsis("With his only connection to the outside world lying in Portland businessman Amir, " +
                                 "taciturn, meditative hermit Rob has found solace deep in the heart of the " +
                                 "dense Oregon forests and the unique bond with his only companion: his beloved " +
@@ -330,7 +330,7 @@ public class InitializationConfig {
         batman.setTitle("The Batman");
         batman.setDirector("Matt Reeves");
         batman.setImage("/img/posters/theBatmanPoster.jpeg");
-        batman.setTrailer("/videos/TheBatmanTrailer.mp4");
+        batman.setTrailer("https://www.youtube.com/embed/mqqft2x_Aa4");
         batman.setSynopsis("When the Riddler, a sadistic serial killer, begins murdering key political figures " +
                                    "in Gotham, Batman is forced to investigate the city's hidden corruption " +
                                    "and question his family's involvement.");
@@ -356,7 +356,7 @@ public class InitializationConfig {
         goodBadUgly.setTitle("The Good, The Bad, and The Ugly");
         goodBadUgly.setDirector("Sergio Leone");
         goodBadUgly.setImage("/img/posters/theGoodTheBadTheUglyPoster.jpeg");
-        goodBadUgly.setTrailer("/videos/TheGoodTheBadTheUglyTrailer.mp4");
+        goodBadUgly.setTrailer("https://www.youtube.com/embed/WCN5JJY_wiA");
         goodBadUgly.setSynopsis("Blondie, The Good (Clint Eastwood), is a professional gunslinger who is out trying " +
                                         "to earn a few dollars. Angel Eyes, The Bad (Lee Van Cleef), is a hitman " +
                                         "who always commits to a task and sees it through--as long as he's paid to " +
@@ -394,7 +394,7 @@ public class InitializationConfig {
         theNorthman.setTitle("The Northman");
         theNorthman.setDirector("Robert Eggers");
         theNorthman.setImage("/img/posters/theNorthManPoster.jpeg");
-        theNorthman.setTrailer("/videos/TheNorthmanTrailer.mp4");
+        theNorthman.setTrailer("https://www.youtube.com/embed/oMSdFM12hOw");
         theNorthman.setSynopsis("From visionary director Robert Eggers comes The Northman, an action-filled " +
                                         "epic that follows a young Viking prince on his quest to avenge his " +
                                         "father's murder.");

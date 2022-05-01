@@ -1,13 +1,10 @@
 package com.ecinema.app.services;
 
-import com.ecinema.app.dtos.*;
-import com.ecinema.app.entities.*;
+import com.ecinema.app.domain.dtos.*;
+import com.ecinema.app.domain.entities.*;
 import com.ecinema.app.repositories.*;
 import com.ecinema.app.services.implementations.*;
-import com.ecinema.app.utils.Duration;
-import com.ecinema.app.utils.Letter;
-import com.ecinema.app.utils.MovieCategory;
-import com.ecinema.app.utils.MsrbRating;
+import com.ecinema.app.utils.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -41,6 +38,7 @@ class MovieServiceTest {
     private ScreeningSeatService screeningSeatService;
     private ScreeningService screeningService;
     private CustomerRoleDefService customerRoleDefService;
+    private UserService userService;
     @Mock
     private AddressRepository addressRepository;
     @Mock
@@ -63,6 +61,8 @@ class MovieServiceTest {
     private ScreeningRepository screeningRepository;
     @Mock
     private CustomerRoleDefRepository customerRoleDefRepository;
+    @Mock
+    private UserRepository userRepository;
 
     /**
      * Sets up.
@@ -73,14 +73,24 @@ class MovieServiceTest {
         reviewService = new ReviewServiceImpl(reviewRepository);
         ticketService = new TicketServiceImpl(ticketRepository);
         couponService = new CouponServiceImpl(couponRepository);
-        paymentCardService = new PaymentCardServiceImpl(paymentCardRepository, addressService);
-        screeningSeatService = new ScreeningSeatServiceImpl(screeningSeatRepository, ticketService);
-        screeningService = new ScreeningServiceImpl(screeningRepository, screeningSeatService);
-        movieService = new MovieServiceImpl(movieRepository, reviewService, screeningService);
-        customerRoleDefService = new CustomerRoleDefServiceImpl(customerRoleDefRepository, reviewService,
-                                                                ticketService, paymentCardService, couponService);
-        showroomSeatService = new ShowroomSeatServiceImpl(showroomSeatRepository, screeningSeatService);
-        showroomService = new ShowroomServiceImpl(showroomRepository, showroomSeatService, screeningService);
+        paymentCardService = new PaymentCardServiceImpl(
+                paymentCardRepository, addressService);
+        screeningSeatService = new ScreeningSeatServiceImpl(
+                screeningSeatRepository, ticketService);
+        screeningService = new ScreeningServiceImpl(
+                screeningRepository, screeningSeatService);
+        movieService = new MovieServiceImpl(
+                movieRepository, reviewService, screeningService);
+        customerRoleDefService = new CustomerRoleDefServiceImpl(
+                customerRoleDefRepository, reviewService,
+                ticketService, paymentCardService, couponService);
+        showroomSeatService = new ShowroomSeatServiceImpl(
+                showroomSeatRepository, screeningSeatService);
+        showroomService = new ShowroomServiceImpl(
+                showroomRepository, showroomSeatService, screeningService);
+        userService = new UserServiceImpl(
+                userRepository, customerRoleDefService, null,
+                null, null);
     }
 
     /**
@@ -149,11 +159,19 @@ class MovieServiceTest {
         given(movieRepository.findById(1L))
                 .willReturn(Optional.of(movie));
         movieService.save(movie);
+        User user = new User();
+        user.setUsername("test username");
+        userService.save(user);
+        CustomerRoleDef customerRoleDef = new CustomerRoleDef();
+        customerRoleDef.setUser(user);
+        user.getUserRoleDefs().put(UserRole.CUSTOMER, customerRoleDef);
+        customerRoleDefService.save(customerRoleDef);
         Review review = new Review();
         review.setId(1L);
+        review.setRating(7);
+        review.setWriter(customerRoleDef);
+        customerRoleDef.getReviews().add(review);
         review.setReview("meh, it's okay");
-        review.setLikes(5);
-        review.setDislikes(1);
         review.setMovie(movie);
         movie.getReviews().add(review);
         given(reviewRepository.findById(1L))
@@ -177,7 +195,8 @@ class MovieServiceTest {
         screening.setId(1L);
         screening.setMovie(movie);
         screening.setShowroom(showroom);
-        screening.setShowDateTime(LocalDateTime.of(2022, Month.MARCH, 28, 12, 0));
+        screening.setShowDateTime(LocalDateTime.of(2022, Month.MARCH,
+                                                   28, 12, 0));
         screening.setMovie(movie);
         movie.getScreenings().add(screening);
         given(screeningRepository.findById(1L))
@@ -200,23 +219,24 @@ class MovieServiceTest {
                 .willReturn(Optional.of(ticket));
         ticketService.save(ticket);
         // when
-        MovieDto movieDto = movieService.convert(1L);
+        MovieDto movieDto = movieService.convertToDto(1L);
         // then
         assertEquals(movie.getId(), movieDto.getId());
         assertEquals(movie.getTitle(), movieDto.getTitle());
         assertEquals(movie.getSynopsis(), movieDto.getSynopsis());
         assertEquals(movie.getDuration(), movieDto.getDuration());
-        assertEquals(movie.getReleaseDate(), movieDto.getReleaseDate());
         assertEquals(movie.getMsrbRating(), movieDto.getMsrbRating());
         assertEquals(movie.getCast(), movieDto.getCast());
         assertEquals(movie.getDirector(), movieDto.getDirector());
         assertEquals(movie.getMovieCategories(), movieDto.getMovieCategories());
+        assertEquals(movie.getReleaseDate().getDayOfMonth(), movieDto.getReleaseDay());
+        assertEquals(movie.getReleaseDate().getMonth(), movieDto.getReleaseMonth());
+        assertEquals(movie.getReleaseDate().getYear(), movieDto.getReleaseYear());
         assertEquals(1, movieDto.getReviewDtos().size());
+        assertEquals(7, movieDto.getAverageRating());
         ReviewDto reviewDto = movieDto.getReviewDtos().get(0);
         assertEquals(review.getId(), reviewDto.getId());
         assertEquals(review.getReview(), reviewDto.getReview());
-        assertEquals(review.getLikes(), reviewDto.getLikes());
-        assertEquals(review.getDislikes(), reviewDto.getDislikes());
         assertEquals(review.getIsCensored(), reviewDto.getIsCensored());
         assertEquals(review.getCreationDateTime(), reviewDto.getCreationDateTime());
         assertEquals(1, movieDto.getScreeningDtos().size());

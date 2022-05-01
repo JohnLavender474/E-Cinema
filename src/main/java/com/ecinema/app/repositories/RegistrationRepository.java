@@ -1,7 +1,8 @@
 package com.ecinema.app.repositories;
 
-import com.ecinema.app.entities.Registration;
+import com.ecinema.app.domain.entities.Registration;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDateTime;
@@ -12,7 +13,7 @@ import java.util.Optional;
  * The interface Registration request repository.
  */
 @Repository
-public interface RegistrationRepository extends JpaRepository<Registration, Long> {
+public interface RegistrationRepository extends JpaRepository<Registration, Long>, AbstractRepository {
 
     /**
      * Find by token optional.

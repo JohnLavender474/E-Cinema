@@ -1,6 +1,6 @@
 package com.ecinema.app.repositories;
 
-import com.ecinema.app.entities.*;
+import com.ecinema.app.domain.entities.*;
 import com.ecinema.app.utils.TicketStatus;
 import com.ecinema.app.utils.TicketType;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -15,7 +15,7 @@ import java.util.Optional;
  * The interface Ticket repository.
  */
 @Repository
-public interface TicketRepository extends JpaRepository<Ticket, Long> {
+public interface TicketRepository extends JpaRepository<Ticket, Long>, AbstractRepository {
 
     /**
      * Exists by screening seat boolean.

@@ -1,6 +1,6 @@
 package com.ecinema.app.services;
 
-import com.ecinema.app.dtos.UserDto;
+import com.ecinema.app.domain.dtos.UserDto;
 import com.ecinema.app.exceptions.NoEntityFoundException;
 
 public interface SecurityService {
@@ -12,7 +12,7 @@ public interface SecurityService {
      * @param password the password
      * @throws NoEntityFoundException the no entity found exception
      */
-    void login(final String s, final String password)
+    UserDto login(final String s, final String password)
             throws NoEntityFoundException;
 
     /**

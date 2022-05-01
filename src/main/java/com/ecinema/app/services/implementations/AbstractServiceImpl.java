@@ -1,8 +1,10 @@
 package com.ecinema.app.services.implementations;
 
+import com.ecinema.app.repositories.AbstractRepository;
 import com.ecinema.app.services.AbstractService;
-import com.ecinema.app.entities.AbstractEntity;
+import com.ecinema.app.domain.entities.AbstractEntity;
 import com.ecinema.app.exceptions.NoEntityFoundException;
+import com.ecinema.app.utils.UtilMethods;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
@@ -19,7 +21,9 @@ import java.util.*;
  * @param <R> the repository type
  */
 @Transactional
-public abstract class AbstractServiceImpl<E extends AbstractEntity, R extends JpaRepository<E, Long>> implements AbstractService<E> {
+public abstract class AbstractServiceImpl<E extends AbstractEntity,
+        R extends JpaRepository<E, Long> & AbstractRepository>
+        implements AbstractService<E> {
 
     protected final Logger logger = LoggerFactory.getLogger(getClass());
 
@@ -103,6 +107,16 @@ public abstract class AbstractServiceImpl<E extends AbstractEntity, R extends Jp
     @Override
     public Page<E> findAll(Pageable pageable) {
         return repository.findAll(pageable);
+    }
+
+    @Override
+    public List<Long> findAllIds() {
+        return repository.findAllIds();
+    }
+
+    @Override
+    public Page<Long> findAllIds(Pageable pageable) {
+        return UtilMethods.convertListToPage(findAllIds(), pageable);
     }
 
 }

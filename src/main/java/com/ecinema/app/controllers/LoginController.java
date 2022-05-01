@@ -1,5 +1,6 @@
 package com.ecinema.app.controllers;
 
+import com.ecinema.app.domain.dtos.UserDto;
 import com.ecinema.app.services.SecurityService;
 import com.ecinema.app.exceptions.PasswordMismatchException;
 import com.ecinema.app.exceptions.NoEntityFoundException;
@@ -8,12 +9,15 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+
+import javax.servlet.http.HttpSession;
 
 /**
  * The type Login controller.
@@ -38,11 +42,13 @@ public class LoginController {
     }
 
     @PostMapping("/perform-login")
-    public String performLogin(@RequestParam("username") final String username,
+    public String performLogin(final HttpSession httpSession,
+                               @RequestParam("username") final String username,
                                @RequestParam("password") final String password) {
-        logger.info("Login post mapping method accessed");
+        logger.info("Perform login post mapping");
         try {
-            securityService.login(username, password);
+            UserDto userDto = securityService.login(username, password);
+            httpSession.setAttribute("user", userDto);
             return "redirect:/index";
         } catch (NoEntityFoundException | PasswordMismatchException e) {
             logger.info(e.toString());
@@ -52,6 +58,7 @@ public class LoginController {
 
     @GetMapping("/login-error")
     public String loginError(final Model model) {
+        logger.info("Login error get mapping");
         model.addAttribute("error", "Failed to login, bad credentials");
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         return authentication == null || authentication instanceof AnonymousAuthenticationToken ?

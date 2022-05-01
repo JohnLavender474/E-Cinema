@@ -1,10 +1,10 @@
 package com.ecinema.app.services.implementations;
 
-import com.ecinema.app.dtos.ScreeningSeatDto;
-import com.ecinema.app.entities.Screening;
-import com.ecinema.app.entities.ScreeningSeat;
-import com.ecinema.app.entities.ShowroomSeat;
-import com.ecinema.app.entities.Ticket;
+import com.ecinema.app.domain.dtos.ScreeningSeatDto;
+import com.ecinema.app.domain.entities.Screening;
+import com.ecinema.app.domain.entities.ScreeningSeat;
+import com.ecinema.app.domain.entities.ShowroomSeat;
+import com.ecinema.app.domain.entities.Ticket;
 import com.ecinema.app.exceptions.NoEntityFoundException;
 import com.ecinema.app.repositories.ScreeningSeatRepository;
 import com.ecinema.app.services.ScreeningSeatService;
@@ -84,10 +84,10 @@ public class ScreeningSeatServiceImpl extends AbstractServiceImpl<ScreeningSeat,
     }
 
     @Override
-    public ScreeningSeatDto convert(Long entityId)
+    public ScreeningSeatDto convertToDto(Long id)
             throws NoEntityFoundException {
-        ScreeningSeat screeningSeat = findById(entityId).orElseThrow(
-                () -> new NoEntityFoundException("screening seat", "id", entityId));
+        ScreeningSeat screeningSeat = findById(id).orElseThrow(
+                () -> new NoEntityFoundException("screening seat", "id", id));
         ScreeningSeatDto screeningSeatDTO = new ScreeningSeatDto();
         screeningSeatDTO.setId(screeningSeat.getId());
         screeningSeatDTO.setRowLetter(screeningSeat.getShowroomSeat().getRowLetter());

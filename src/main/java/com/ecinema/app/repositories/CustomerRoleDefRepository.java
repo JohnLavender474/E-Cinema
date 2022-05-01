@@ -1,9 +1,10 @@
 package com.ecinema.app.repositories;
 
-import com.ecinema.app.entities.*;
+import com.ecinema.app.domain.entities.*;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 
 /**

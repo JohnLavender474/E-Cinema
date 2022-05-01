@@ -1,6 +1,6 @@
 package com.ecinema.app.repositories;
 
-import com.ecinema.app.entities.Ticket;
+import com.ecinema.app.domain.entities.Ticket;
 import com.ecinema.app.utils.UtilMethods;
 import com.ecinema.app.utils.TicketStatus;
 import org.junit.jupiter.api.AfterEach;

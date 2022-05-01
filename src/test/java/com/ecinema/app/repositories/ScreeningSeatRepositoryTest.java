@@ -1,9 +1,9 @@
 package com.ecinema.app.repositories;
 
-import com.ecinema.app.entities.Screening;
-import com.ecinema.app.entities.ScreeningSeat;
-import com.ecinema.app.entities.ShowroomSeat;
-import com.ecinema.app.entities.Ticket;
+import com.ecinema.app.domain.entities.Screening;
+import com.ecinema.app.domain.entities.ScreeningSeat;
+import com.ecinema.app.domain.entities.ShowroomSeat;
+import com.ecinema.app.domain.entities.Ticket;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;

@@ -1,12 +1,11 @@
 package com.ecinema.app.services.implementations;
 
-import com.ecinema.app.entities.User;
+import com.ecinema.app.domain.entities.User;
 import com.ecinema.app.services.SecurityService;
 import com.ecinema.app.services.UserService;
-import com.ecinema.app.dtos.UserDto;
+import com.ecinema.app.domain.dtos.UserDto;
 import com.ecinema.app.exceptions.PasswordMismatchException;
 import com.ecinema.app.exceptions.NoEntityFoundException;
-import org.modelmapper.ModelMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -34,7 +33,7 @@ public class SecurityServiceImpl implements SecurityService {
     }
 
     @Override
-    public void login(final String s, final String password)
+    public UserDto login(final String s, final String password)
             throws NoEntityFoundException, PasswordMismatchException {
         logger.info("Security Service login method");
         User user = userService.findByUsernameOrEmail(s).orElseThrow(
@@ -53,6 +52,7 @@ public class SecurityServiceImpl implements SecurityService {
             logger.info(String.format("Auto login %s success!", user.getUsername()));
             securityContext.setAuthentication(usernamePasswordAuthenticationToken);
         }
+        return userService.convertToDto(user);
     }
 
     @Override
@@ -62,7 +62,7 @@ public class SecurityServiceImpl implements SecurityService {
             return null;
         }
         Object o = authentication.getPrincipal();
-        return o instanceof User user ? userService.convert(user.getId()) : null;
+        return o instanceof User user ? userService.convertToDto(user.getId()) : null;
     }
 
 }

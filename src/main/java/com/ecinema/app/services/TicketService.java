@@ -1,6 +1,6 @@
 package com.ecinema.app.services;
 
-import com.ecinema.app.entities.Ticket;
+import com.ecinema.app.domain.entities.Ticket;
 import com.ecinema.app.utils.TicketStatus;
 
 import java.time.LocalDateTime;

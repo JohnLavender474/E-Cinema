@@ -1,7 +1,7 @@
 package com.ecinema.app.services;
 
-import com.ecinema.app.dtos.AdminRoleDefDto;
-import com.ecinema.app.entities.*;
+import com.ecinema.app.domain.dtos.AdminRoleDefDto;
+import com.ecinema.app.domain.entities.*;
 import com.ecinema.app.repositories.*;
 import com.ecinema.app.services.implementations.*;
 import com.ecinema.app.utils.UserRole;
@@ -267,7 +267,7 @@ class AdminRoleDefServiceTest {
         given(adminRoleDefRepository.findById(1L))
                 .willReturn(Optional.of(adminRoleDef));
         // when
-        AdminRoleDefDto adminRoleDefDto = adminRoleDefService.convert(1L);
+        AdminRoleDefDto adminRoleDefDto = adminRoleDefService.convertToDto(1L);
         // then
         assertEquals(adminRoleDef.getId(), adminRoleDefDto.getId());
     }

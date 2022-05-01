@@ -1,11 +1,11 @@
 package com.ecinema.app.services;
 
-import com.ecinema.app.entities.*;
+import com.ecinema.app.domain.entities.*;
 import com.ecinema.app.repositories.*;
 import com.ecinema.app.services.implementations.*;
 import com.ecinema.app.utils.UtilMethods;
 import com.ecinema.app.utils.UserRole;
-import com.ecinema.app.dtos.UserDto;
+import com.ecinema.app.domain.dtos.UserDto;
 import com.ecinema.app.exceptions.ClashException;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -343,7 +343,7 @@ class UserServiceTest {
         given(userRepository.findById(1L))
                 .willReturn(Optional.of(user));
         // when
-        UserDto userDto = userService.convert(1L);
+        UserDto userDto = userService.convertToDto(1L);
         // then
         assertEquals(user.getId(), userDto.getId());
         assertEquals(user.getEmail(), userDto.getEmail());

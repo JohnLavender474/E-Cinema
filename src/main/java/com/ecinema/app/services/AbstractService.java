@@ -1,6 +1,6 @@
 package com.ecinema.app.services;
 
-import com.ecinema.app.entities.AbstractEntity;
+import com.ecinema.app.domain.entities.AbstractEntity;
 import com.ecinema.app.exceptions.NoEntityFoundException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -38,6 +38,21 @@ public interface AbstractService<E extends AbstractEntity> {
      * @return the page
      */
     Page<E> findAll(Pageable pageable);
+
+    /**
+     * Find all ids list.
+     *
+     * @return the list
+     */
+    List<Long> findAllIds();
+
+    /**
+     * Find all ids list.
+     *
+     * @param pageable the pageable
+     * @return the list
+     */
+    Page<Long> findAllIds(Pageable pageable);
 
     /**
      * Deletes the provided entity. This method should fetch the id of the entity and call {@link #deleteById(Long)}

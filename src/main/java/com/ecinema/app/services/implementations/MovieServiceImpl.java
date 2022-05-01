@@ -1,11 +1,11 @@
 package com.ecinema.app.services.implementations;
 
-import com.ecinema.app.dtos.MovieDto;
-import com.ecinema.app.dtos.ReviewDto;
-import com.ecinema.app.dtos.ScreeningDto;
-import com.ecinema.app.entities.Movie;
-import com.ecinema.app.entities.Review;
-import com.ecinema.app.entities.Screening;
+import com.ecinema.app.domain.dtos.MovieDto;
+import com.ecinema.app.domain.dtos.ReviewDto;
+import com.ecinema.app.domain.dtos.ScreeningDto;
+import com.ecinema.app.domain.entities.Movie;
+import com.ecinema.app.domain.entities.Review;
+import com.ecinema.app.domain.entities.Screening;
 import com.ecinema.app.exceptions.NoEntityFoundException;
 import com.ecinema.app.repositories.MovieRepository;
 import com.ecinema.app.services.MovieService;
@@ -56,8 +56,18 @@ public class MovieServiceImpl extends AbstractServiceImpl<Movie, MovieRepository
     }
 
     @Override
+    public Page<MovieDto> pageOfDtos(Pageable pageable) {
+        return findAll(pageable).map(this::convertToDto);
+    }
+
+    @Override
     public List<Movie> findAllByLikeTitle(String title) {
         return repository.findByTitleContaining(title);
+    }
+
+    @Override
+    public Page<MovieDto> pageOfDtosLikeTitle(String title, Pageable pageable) {
+        return findAllByLikeTitle(title, pageable).map(this::convertToDto);
     }
 
     @Override
@@ -101,10 +111,10 @@ public class MovieServiceImpl extends AbstractServiceImpl<Movie, MovieRepository
     }
 
     @Override
-    public MovieDto convert(Long entityId)
+    public MovieDto convertToDto(Long id)
             throws NoEntityFoundException {
-        Movie movie = findById(entityId).orElseThrow(
-                () -> new NoEntityFoundException("movie", "id", entityId));
+        Movie movie = findById(id).orElseThrow(
+                () -> new NoEntityFoundException("movie", "id", id));
         MovieDto movieDTO = new MovieDto();
         movieDTO.setId(movie.getId());
         movieDTO.setTitle(movie.getTitle());
@@ -113,22 +123,28 @@ public class MovieServiceImpl extends AbstractServiceImpl<Movie, MovieRepository
         movieDTO.setTrailer(movie.getTrailer());
         movieDTO.setSynopsis(movie.getSynopsis());
         movieDTO.setDuration(movie.getDuration());
-        movieDTO.setReleaseDate(movie.getReleaseDate());
+        movieDTO.setReleaseYear(movie.getReleaseDate().getYear());
+        movieDTO.setReleaseDay(movie.getReleaseDate().getDayOfMonth());
+        movieDTO.setReleaseMonth(movie.getReleaseDate().getMonth());
         movieDTO.setMsrbRating(movie.getMsrbRating());
         movieDTO.getCast().addAll(movie.getCast());
         movieDTO.getWriters().addAll(movie.getWriters());
         movieDTO.getMovieCategories().addAll(movie.getMovieCategories());
         List<ScreeningDto> screeningDtos = new ArrayList<>();
         for (Screening screening : movie.getScreenings()) {
-            ScreeningDto screeningDTO = screeningService.convert(screening.getId());
+            ScreeningDto screeningDTO = screeningService.convertToDto(screening.getId());
             screeningDtos.add(screeningDTO);
         }
         movieDTO.getScreeningDtos().addAll(screeningDtos);
         List<ReviewDto> reviewDtos = new ArrayList<>();
+        Integer ratingSum = 0;
         for (Review review : movie.getReviews()) {
-            ReviewDto reviewDTO = reviewService.convert(review.getId());
+            ReviewDto reviewDTO = reviewService.convertToDto(review.getId());
             reviewDtos.add(reviewDTO);
+            ratingSum += review.getRating();
         }
+        Integer averageRating = ratingSum / movie.getReviews().size();
+        movieDTO.setAverageRating(averageRating);
         movieDTO.getReviewDtos().addAll(reviewDtos);
         return movieDTO;
     }

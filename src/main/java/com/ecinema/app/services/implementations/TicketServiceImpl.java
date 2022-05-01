@@ -1,6 +1,6 @@
 package com.ecinema.app.services.implementations;
 
-import com.ecinema.app.entities.*;
+import com.ecinema.app.domain.entities.*;
 import com.ecinema.app.repositories.TicketRepository;
 import com.ecinema.app.services.TicketService;
 import com.ecinema.app.utils.TicketStatus;

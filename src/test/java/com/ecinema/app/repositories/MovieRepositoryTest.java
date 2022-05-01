@@ -1,6 +1,6 @@
 package com.ecinema.app.repositories;
 
-import com.ecinema.app.entities.Movie;
+import com.ecinema.app.domain.entities.Movie;
 import com.ecinema.app.utils.UtilMethods;
 import com.ecinema.app.utils.MovieCategory;
 import com.ecinema.app.utils.MsrbRating;

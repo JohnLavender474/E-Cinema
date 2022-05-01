@@ -1,10 +1,10 @@
 package com.ecinema.app.services.implementations;
 
-import com.ecinema.app.dtos.AddressDto;
-import com.ecinema.app.dtos.TheaterDto;
-import com.ecinema.app.entities.Address;
-import com.ecinema.app.entities.AdminRoleDef;
-import com.ecinema.app.entities.Theater;
+import com.ecinema.app.domain.dtos.AddressDto;
+import com.ecinema.app.domain.dtos.TheaterDto;
+import com.ecinema.app.domain.entities.Address;
+import com.ecinema.app.domain.entities.AdminRoleDef;
+import com.ecinema.app.domain.entities.Theater;
 import com.ecinema.app.repositories.TheaterRepository;
 import com.ecinema.app.services.AddressService;
 import com.ecinema.app.services.ScreeningService;
@@ -14,8 +14,8 @@ import com.ecinema.app.exceptions.NoEntityFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Iterator;
-import java.util.Optional;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * The type Theater service.
@@ -95,16 +95,16 @@ public class TheaterServiceImpl extends AbstractServiceImpl<Theater, TheaterRepo
     }
 
     @Override
-    public TheaterDto convert(Long entityId)
+    public TheaterDto convertToDto(Long id)
             throws NoEntityFoundException {
-        Theater theater = findById(entityId).orElseThrow(
-                () -> new NoEntityFoundException("theater", "id", entityId));
+        Theater theater = findById(id).orElseThrow(
+                () -> new NoEntityFoundException("theater", "id", id));
         TheaterDto theaterDTO = new TheaterDto();
         theaterDTO.setId(theater.getId());
         theaterDTO.setTheaterName(theater.getTheaterName());
         theaterDTO.setTheaterNumber(theater.getTheaterNumber());
         AddressDto addressDto = addressService
-                .convert(theater.getAddress().getId());
+                .convertToDto(theater.getAddress().getId());
         theaterDTO.setAddressDTO(addressDto);
         return theaterDTO;
     }

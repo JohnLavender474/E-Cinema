@@ -1,9 +1,8 @@
 package com.ecinema.app.services;
 
-import com.ecinema.app.dtos.MovieDto;
-import com.ecinema.app.entities.Movie;
-import com.ecinema.app.exceptions.NoEntityFoundException;
-import com.ecinema.app.utils.Converter;
+import com.ecinema.app.domain.EntityToDtoConverter;
+import com.ecinema.app.domain.dtos.MovieDto;
+import com.ecinema.app.domain.entities.Movie;
 import com.ecinema.app.utils.MovieCategory;
 import com.ecinema.app.utils.MsrbRating;
 import org.springframework.data.domain.Page;
@@ -15,7 +14,7 @@ import java.util.Set;
 /**
  * The interface Movie service.
  */
-public interface MovieService extends AbstractService<Movie>, Converter<MovieDto, Long> {
+public interface MovieService extends AbstractService<Movie>, EntityToDtoConverter<Movie, MovieDto> {
 
     /**
      * Find all page.
@@ -26,6 +25,14 @@ public interface MovieService extends AbstractService<Movie>, Converter<MovieDto
     Page<Movie> findAll(Pageable pageable);
 
     /**
+     * Find all dtos page.
+     *
+     * @param pageable the pageable
+     * @return the page
+     */
+    Page<MovieDto> pageOfDtos(Pageable pageable);
+
+    /**
      * Find all by like title list.
      *
      * @param title the title
@@ -33,6 +40,13 @@ public interface MovieService extends AbstractService<Movie>, Converter<MovieDto
      */
     List<Movie> findAllByLikeTitle(String title);
 
+    /**
+     * Page of dtos like title page.
+     *
+     * @param title the title
+     * @return the page
+     */
+    Page<MovieDto> pageOfDtosLikeTitle(String title, Pageable pageable);
 
     /**
      * Find all by like title page.

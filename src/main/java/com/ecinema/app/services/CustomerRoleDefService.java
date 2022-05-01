@@ -1,9 +1,9 @@
 package com.ecinema.app.services;
 
-import com.ecinema.app.entities.CustomerRoleDef;
-import com.ecinema.app.entities.PaymentCard;
-import com.ecinema.app.entities.Review;
-import com.ecinema.app.entities.Ticket;
+import com.ecinema.app.domain.entities.CustomerRoleDef;
+import com.ecinema.app.domain.entities.PaymentCard;
+import com.ecinema.app.domain.entities.Review;
+import com.ecinema.app.domain.entities.Ticket;
 
 import java.util.Optional;
 

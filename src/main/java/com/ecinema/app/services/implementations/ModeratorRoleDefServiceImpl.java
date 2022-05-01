@@ -1,6 +1,6 @@
 package com.ecinema.app.services.implementations;
 
-import com.ecinema.app.entities.ModeratorRoleDef;
+import com.ecinema.app.domain.entities.ModeratorRoleDef;
 import com.ecinema.app.repositories.ModeratorRoleDefRepository;
 import com.ecinema.app.services.ModeratorRoleDefService;
 import org.springframework.stereotype.Service;
