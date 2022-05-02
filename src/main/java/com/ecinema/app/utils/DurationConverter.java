@@ -1,11 +1,12 @@
 package com.ecinema.app.utils;
 
-import com.ecinema.app.utils.Duration;
 import org.springframework.stereotype.Component;
 
 import javax.persistence.AttributeConverter;
 
-/** Converts {@link Duration} to String representation and vice versa. */
+/**
+ * Converts {@link Duration} to String representation and vice versa.
+ */
 @Component
 public class DurationConverter implements AttributeConverter<Duration, String> {
 

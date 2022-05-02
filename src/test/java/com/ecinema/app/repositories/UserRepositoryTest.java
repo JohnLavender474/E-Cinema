@@ -58,6 +58,50 @@ class UserRepositoryTest {
     }
 
     @Test
+    void findIdByEmail() {
+        // given
+        User user = new User();
+        user.setEmail("test@gmail.com");
+        userRepository.save(user);
+        // when
+        Optional<Long> idOptional = userRepository.findIdByEmail("test@gmail.com");
+        Optional<User> userOptional = userRepository.findByEmail("test@gmail.com");
+        // then
+        assertTrue(idOptional.isPresent());
+        assertTrue(userOptional.isPresent());
+        assertEquals(userOptional.get().getId(), idOptional.get());
+    }
+
+    @Test
+    void findIdByUsername() {
+        // given
+        User user = new User();
+        user.setUsername("test");
+        userRepository.save(user);
+        // when
+        Optional<Long> idOptional = userRepository.findIdByUsername("test");
+        Optional<User> userOptional = userRepository.findByUsername("test");
+        // then
+        assertTrue(idOptional.isPresent());
+        assertTrue(userOptional.isPresent());
+        assertEquals(userOptional.get().getId(), idOptional.get());
+    }
+
+    @Test
+    void failFindIdByUsername() {
+        // given
+        User user = new User();
+        user.setUsername("test");
+        userRepository.save(user);
+        // when
+        Optional<Long> idOptional = userRepository.findIdByUsername("false");
+        Optional<User> userOptional = userRepository.findByUsername("false");
+        // then
+        assertTrue(idOptional.isEmpty());
+        assertTrue(userOptional.isEmpty());
+    }
+
+    @Test
     void findAllByIsAccountLocked() {
         // given
         List<User> users = new ArrayList<>();

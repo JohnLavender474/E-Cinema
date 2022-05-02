@@ -7,4 +7,5 @@ public interface EmailSenderService {
             throws EmailException;
     void send(String from, String to, String email, String subject)
             throws EmailException;
+    String getBusinessEmail();
 }

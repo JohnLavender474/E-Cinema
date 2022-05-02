@@ -1,9 +1,8 @@
 package com.ecinema.app.services.implementations;
 
-import com.ecinema.app.domain.entities.CustomerRoleDef;
-import com.ecinema.app.domain.entities.PaymentCard;
-import com.ecinema.app.domain.entities.Review;
-import com.ecinema.app.domain.entities.Ticket;
+import com.ecinema.app.domain.dtos.CustomerRoleDefDto;
+import com.ecinema.app.domain.entities.*;
+import com.ecinema.app.exceptions.NoEntityFoundException;
 import com.ecinema.app.repositories.CustomerRoleDefRepository;
 import com.ecinema.app.services.*;
 import org.springframework.stereotype.Service;
@@ -43,6 +42,12 @@ public class CustomerRoleDefServiceImpl extends UserRoleDefServiceImpl<CustomerR
         paymentCardService.deleteAll(customerRoleDef.getPaymentCards());
         // cascade delete Coupons
         couponService.deleteAll(customerRoleDef.getCoupons());
+        // detach Moderator censors
+        ModeratorRoleDef moderatorRoleDef = customerRoleDef.getCensoredBy();
+        if (moderatorRoleDef != null) {
+            customerRoleDef.setCensoredBy(null);
+            moderatorRoleDef.getCensoredCustomers().remove(customerRoleDef);
+        }
     }
 
     @Override
@@ -73,6 +78,17 @@ public class CustomerRoleDefServiceImpl extends UserRoleDefServiceImpl<CustomerR
     @Override
     public Optional<CustomerRoleDef> findByReviewsContainsWithId(Long reviewId) {
         return repository.findByReviewsContainsWithId(reviewId);
+    }
+
+    @Override
+    public CustomerRoleDefDto convertToDto(Long id)
+            throws NoEntityFoundException {
+        CustomerRoleDef customerRoleDef = findById(id).orElseThrow(
+                () -> new NoEntityFoundException("customer role def", "id", id));
+        CustomerRoleDefDto customerRoleDefDto = new CustomerRoleDefDto();
+        customerRoleDefDto.setUserId(customerRoleDef.getUser().getId());
+        customerRoleDefDto.setIsCensored(customerRoleDef.getCensoredBy() != null);
+        return customerRoleDefDto;
     }
 
 }

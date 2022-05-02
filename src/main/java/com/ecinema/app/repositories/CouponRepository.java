@@ -4,7 +4,6 @@ import com.ecinema.app.domain.entities.Coupon;
 import com.ecinema.app.utils.CouponType;
 import com.ecinema.app.utils.DiscountType;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;

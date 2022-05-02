@@ -5,7 +5,9 @@ import lombok.Setter;
 
 import javax.persistence.*;
 
-/** The id of this entity is an auto-generated Long value. */
+/**
+ * The id of this entity is an auto-generated Long value.
+ */
 @Getter
 @Setter
 @MappedSuperclass

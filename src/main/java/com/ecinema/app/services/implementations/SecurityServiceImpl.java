@@ -1,11 +1,11 @@
 package com.ecinema.app.services.implementations;
 
+import com.ecinema.app.domain.dtos.UserDto;
 import com.ecinema.app.domain.entities.User;
+import com.ecinema.app.exceptions.NoEntityFoundException;
+import com.ecinema.app.exceptions.PasswordMismatchException;
 import com.ecinema.app.services.SecurityService;
 import com.ecinema.app.services.UserService;
-import com.ecinema.app.domain.dtos.UserDto;
-import com.ecinema.app.exceptions.PasswordMismatchException;
-import com.ecinema.app.exceptions.NoEntityFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;

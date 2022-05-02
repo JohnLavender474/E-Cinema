@@ -7,7 +7,6 @@ import com.ecinema.app.utils.UtilMethods;
 import com.ecinema.app.utils.UserRole;
 import com.ecinema.app.domain.dtos.UserDto;
 import com.ecinema.app.exceptions.ClashException;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -32,29 +31,15 @@ class UserServiceTest {
     private ReviewService reviewService;
     private TicketService ticketService;
     private PaymentCardService paymentCardService;
-    private ShowroomService showroomService;
-    private ShowroomSeatService showroomSeatService;
-    private ScreeningService screeningService;
-    private ScreeningSeatService screeningSeatService;
     private CouponService couponService;
     private UserService userService;
     private CustomerRoleDefService customerRoleDefService;
     private ModeratorRoleDefService moderatorRoleDefService;
-    private AdminTraineeRoleDefService adminTraineeRoleDefService;
     private AdminRoleDefService adminRoleDefService;
-    private TheaterService theaterService;
     @Mock
     private AddressRepository addressRepository;
     @Mock
     private ReviewRepository reviewRepository;
-    @Mock
-    private ShowroomRepository showroomRepository;
-    @Mock
-    private ShowroomSeatRepository showroomSeatRepository;
-    @Mock
-    private ScreeningRepository screeningRepository;
-    @Mock
-    private ScreeningSeatRepository screeningSeatRepository;
     @Mock
     private TicketRepository ticketRepository;
     @Mock
@@ -68,11 +53,7 @@ class UserServiceTest {
     @Mock
     private ModeratorRoleDefRepository moderatorRoleDefRepository;
     @Mock
-    private AdminTraineeRoleDefRepository adminTraineeRoleDefRepository;
-    @Mock
     private AdminRoleDefRepository adminRoleDefRepository;
-    @Mock
-    private TheaterRepository theaterRepository;
 
     /**
      * Sets up.
@@ -84,33 +65,16 @@ class UserServiceTest {
         ticketService = new TicketServiceImpl(ticketRepository);
         couponService = new CouponServiceImpl(couponRepository);
         paymentCardService = new PaymentCardServiceImpl(paymentCardRepository, addressService);
-        screeningSeatService = new ScreeningSeatServiceImpl(screeningSeatRepository, ticketService);
-        screeningService = new ScreeningServiceImpl(screeningRepository, screeningSeatService);
-        showroomSeatService = new ShowroomSeatServiceImpl(showroomSeatRepository, screeningSeatService);
-        showroomService = new ShowroomServiceImpl(showroomRepository, showroomSeatService, screeningService);
-        theaterService = new TheaterServiceImpl(theaterRepository, addressService,
-                                                showroomService, screeningService);
-        adminTraineeRoleDefService = new AdminTraineeRoleDefServiceImpl(adminTraineeRoleDefRepository);
-        adminRoleDefService = new AdminRoleDefServiceImpl(adminRoleDefRepository, theaterService,
-                                                          adminTraineeRoleDefService);
-        moderatorRoleDefService = new ModeratorRoleDefServiceImpl(moderatorRoleDefRepository);
-        customerRoleDefService = new CustomerRoleDefServiceImpl(customerRoleDefRepository, reviewService, ticketService,
-                                                                paymentCardService, couponService);
-        userService = new UserServiceImpl(userRepository, customerRoleDefService, moderatorRoleDefService,
-                                          adminTraineeRoleDefService, adminRoleDefService);
-    }
-
-    /**
-     * Tear down.
-     */
-    @AfterEach
-    void tearDown() {
-        userService.deleteAll();
-        customerRoleDefService.deleteAll();
-        moderatorRoleDefService.deleteAll();
-        adminTraineeRoleDefService.deleteAll();
-        adminRoleDefService.deleteAll();
-        theaterService.deleteAll();
+        adminRoleDefService = new AdminRoleDefServiceImpl(adminRoleDefRepository);
+        customerRoleDefService = new CustomerRoleDefServiceImpl(customerRoleDefRepository,
+                                                                reviewService, ticketService,
+                                                                paymentCardService,
+                                                                couponService);
+        moderatorRoleDefService = new ModeratorRoleDefServiceImpl(moderatorRoleDefRepository,
+                                                                  customerRoleDefService);
+        userService = new UserServiceImpl(
+                userRepository, customerRoleDefService,
+                moderatorRoleDefService, adminRoleDefService);
     }
 
     /**
@@ -290,10 +254,6 @@ class UserServiceTest {
         given(adminRoleDefRepository.findById(2L))
                 .willReturn(Optional.of(adminRoleDef));
         adminRoleDefService.save(adminRoleDef);
-        AdminTraineeRoleDef adminTraineeRoleDef = new AdminTraineeRoleDef();
-        adminTraineeRoleDef.setMentor(adminRoleDef);
-        adminRoleDef.getTrainees().add(adminTraineeRoleDef);
-        adminTraineeRoleDefService.save(adminTraineeRoleDef);
         CustomerRoleDef customerRoleDef = new CustomerRoleDef();
         customerRoleDef.setId(3L);
         customerRoleDef.setUser(user);
@@ -313,7 +273,6 @@ class UserServiceTest {
         assertNotNull(user.getUserRoleDefs().get(UserRole.CUSTOMER));
         assertNotNull(adminRoleDef.getUser());
         assertNotNull(customerRoleDef.getUser());
-        assertNotNull(adminTraineeRoleDef.getMentor());
         assertNotNull(paymentCard.getCustomerRoleDef());
         // when
         userService.delete(user);
@@ -322,7 +281,6 @@ class UserServiceTest {
         assertNull(user.getUserRoleDefs().get(UserRole.CUSTOMER));
         assertNull(adminRoleDef.getUser());
         assertNull(customerRoleDef.getUser());
-        assertNull(adminTraineeRoleDef.getMentor());
         assertNull(paymentCard.getCustomerRoleDef());
     }
 

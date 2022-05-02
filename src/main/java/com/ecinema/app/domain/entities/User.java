@@ -8,7 +8,10 @@ import org.springframework.security.core.userdetails.UserDetails;
 import javax.persistence.*;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.EnumMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * {@inheritDoc}
@@ -73,7 +76,8 @@ public class User extends AbstractEntity implements UserDetails {
 
     @MapKey(name = "userRole")
     @MapKeyEnumerated(EnumType.ORDINAL)
-    @OneToMany(targetEntity = UserRoleDef.class, mappedBy = "user", cascade = CascadeType.PERSIST, fetch = FetchType.EAGER)
+    @OneToMany(targetEntity = UserRoleDef.class, mappedBy = "user",
+            cascade = CascadeType.PERSIST, fetch = FetchType.EAGER)
     private Map<UserRole, UserRoleDef> userRoleDefs = new EnumMap<>(UserRole.class);
 
     @Override

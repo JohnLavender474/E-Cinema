@@ -1,7 +1,7 @@
 package com.ecinema.app.domain.entities;
 
-import com.ecinema.app.utils.UsState;
 import com.ecinema.app.utils.IAddress;
+import com.ecinema.app.utils.UsState;
 import lombok.Getter;
 import lombok.Setter;
 

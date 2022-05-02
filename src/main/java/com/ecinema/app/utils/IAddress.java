@@ -1,14 +1,12 @@
 package com.ecinema.app.utils;
 
-import com.ecinema.app.utils.UsState;
-
 public interface IAddress {
-    void setStreet(String street);
     String getStreet();
-    void setCity(String city);
+    void setStreet(String street);
     String getCity();
-    void setUsState(UsState usState);
+    void setCity(String city);
     UsState getUsState();
-    void setZipcode(String zipcode);
+    void setUsState(UsState usState);
     String getZipcode();
+    void setZipcode(String zipcode);
 }

@@ -1,7 +1,7 @@
 package com.ecinema.app.validators;
 
-import com.ecinema.app.utils.UtilMethods;
 import com.ecinema.app.utils.IRegistration;
+import com.ecinema.app.utils.UtilMethods;
 import org.springframework.stereotype.Component;
 
 import java.util.List;

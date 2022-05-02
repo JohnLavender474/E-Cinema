@@ -2,11 +2,13 @@ package com.ecinema.app.repositories;
 
 import com.ecinema.app.domain.entities.Movie;
 import com.ecinema.app.domain.entities.Review;
+import com.ecinema.app.utils.UtilMethods;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 
+import javax.sql.CommonDataSource;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -76,6 +78,32 @@ class ReviewRepositoryTest {
         List<Review> test = reviewRepository.findAllByMovieWithId(movie1.getId());
         // then
         assertEquals(control, test);
+    }
+
+    @Test
+    void findAverageOfReviews() {
+        // given
+        Movie movie = new Movie();
+        movieRepository.save(movie);
+        List<Integer> ratings = new ArrayList<>();
+        for (int i = 0; i < 10; i++) {
+            Review review = new Review();
+            review.setMovie(movie);
+            movie.getReviews().add(review);
+            Integer rating = UtilMethods.randomIntBetween(0, 10);
+            ratings.add(rating);
+            review.setRating(rating);
+            reviewRepository.save(review);
+        }
+        Double avgRating = 0D;
+        for (Integer rating : ratings) {
+            avgRating += rating;
+        }
+        avgRating /= ratings.size();
+        // when
+        Double testAvgRating = reviewRepository.findAverageOfReviewRatingsForMovie(movie);
+        // then
+        assertEquals(avgRating, testAvgRating);
     }
 
 }

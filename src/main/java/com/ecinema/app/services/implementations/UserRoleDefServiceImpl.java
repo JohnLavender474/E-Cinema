@@ -44,4 +44,14 @@ public abstract class UserRoleDefServiceImpl<T extends UserRoleDef, R extends Us
         return repository.findByUserWithId(userId);
     }
 
+    @Override
+    public Optional<Long> findIdByUser(User user) {
+        return repository.findIdByUser(user);
+    }
+
+    @Override
+    public Optional<Long> findIdByUserWithId(Long userId) {
+        return repository.findIdByUserWithId(userId);
+    }
+
 }

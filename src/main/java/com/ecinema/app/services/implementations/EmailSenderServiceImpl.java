@@ -1,7 +1,7 @@
 package com.ecinema.app.services.implementations;
 
-import com.ecinema.app.services.EmailSenderService;
 import com.ecinema.app.exceptions.EmailException;
+import com.ecinema.app.services.EmailSenderService;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
@@ -41,6 +41,11 @@ public class EmailSenderServiceImpl implements EmailSenderService {
         } catch (MessagingException e) {
             throw new EmailException(e.getMessage());
         }
+    }
+
+    @Override
+    public String getBusinessEmail() {
+        return BUSINESS_EMAIL;
     }
 
 }

@@ -28,4 +28,20 @@ public interface UserRoleDefService<T extends UserRoleDef> extends AbstractServi
      */
     Optional<T> findByUserWithId(Long userId);
 
+    /**
+     * Find id by user optional.
+     *
+     * @param user the user
+     * @return the optional
+     */
+    Optional<Long> findIdByUser(User user);
+
+    /**
+     * Find id by user with id optional.
+     *
+     * @param userId the user id
+     * @return the optional
+     */
+    Optional<Long> findIdByUserWithId(Long userId);
+
 }

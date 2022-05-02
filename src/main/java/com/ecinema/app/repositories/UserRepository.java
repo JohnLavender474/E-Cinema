@@ -48,6 +48,25 @@ public interface UserRepository extends JpaRepository<User, Long>, AbstractRepos
     Optional<User> findByEmail(String email);
 
     /**
+     * Find id by username long.
+     *
+     * @param username the username
+     * @return the long
+     */
+    @Query("SELECT u.id FROM User u WHERE u.username = ?1")
+    Optional<Long> findIdByUsername(String username);
+
+    /**
+     * Find id by email long.
+     *
+     * @param email the email
+     * @return the long
+     */
+    @Query("SELECT u.id FROM User u WHERE u.email = ?1")
+    Optional<Long> findIdByEmail(String email);
+
+
+    /**
      * Find by username or email optional.
      *
      * @param s the s

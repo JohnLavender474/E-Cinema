@@ -32,8 +32,9 @@ public class CustomerRoleDef extends UserRoleDef {
     @OneToMany(mappedBy = "customerRoleDef", cascade = CascadeType.PERSIST, fetch = FetchType.LAZY)
     private Set<Coupon> coupons = new HashSet<>();
 
-    @Column
-    private Boolean isCensored;
+    @JoinColumn
+    @ManyToOne(fetch = FetchType.LAZY)
+    private ModeratorRoleDef censoredBy;
 
     @Override
     protected UserRole defineUserRole() {

@@ -90,7 +90,7 @@ public class UtilMethods {
     }
 
     public static String removeWhitespace(String s) {
-        return s.replace("\\s", "");
+        return s.replaceAll("\\s+", "");
     }
 
     public static LocalDateTime randomDateTime() {

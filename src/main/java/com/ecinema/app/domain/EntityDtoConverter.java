@@ -13,7 +13,7 @@ import java.util.List;
  * @param <E> the type parameter
  * @param <D> the type parameter
  */
-public interface EntityToDtoConverter<E extends AbstractEntity, D extends AbstractDto> {
+public interface EntityDtoConverter<E extends AbstractEntity, D extends AbstractDto> {
 
     /**
      * Convert to dto d.

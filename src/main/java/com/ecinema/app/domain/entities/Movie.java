@@ -1,15 +1,17 @@
 package com.ecinema.app.domain.entities;
 
+import com.ecinema.app.utils.Duration;
+import com.ecinema.app.utils.DurationConverter;
 import com.ecinema.app.utils.MovieCategory;
 import com.ecinema.app.utils.MsrbRating;
-import com.ecinema.app.utils.DurationConverter;
-import com.ecinema.app.utils.Duration;
 import lombok.Getter;
 import lombok.Setter;
 
 import javax.persistence.*;
 import java.time.LocalDate;
-import java.util.*;
+import java.util.EnumSet;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * The type Movie.
@@ -21,6 +23,9 @@ public class Movie extends AbstractEntity {
 
     @Column
     private String title;
+
+    @Column
+    private String searchTitle;
 
     @Column
     private String director;

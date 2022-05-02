@@ -10,6 +10,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 /**
@@ -17,6 +18,22 @@ import java.util.Set;
  */
 @Repository
 public interface MovieRepository extends JpaRepository<Movie, Long>, AbstractRepository {
+
+    /**
+     * Find by title optional.
+     *
+     * @param title the title
+     * @return the optional
+     */
+    Optional<Movie> findByTitle(String title);
+
+    /**
+     * Exists by title boolean.
+     *
+     * @param searchTitle the title
+     * @return the boolean
+     */
+    boolean existsBySearchTitle(String searchTitle);
 
     /**
      * Find all by like title list.

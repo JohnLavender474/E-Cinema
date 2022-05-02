@@ -1,5 +1,7 @@
 package com.ecinema.app.services;
 
+import com.ecinema.app.domain.EntityDtoConverter;
+import com.ecinema.app.domain.dtos.CustomerRoleDefDto;
 import com.ecinema.app.domain.entities.CustomerRoleDef;
 import com.ecinema.app.domain.entities.PaymentCard;
 import com.ecinema.app.domain.entities.Review;
@@ -7,7 +9,8 @@ import com.ecinema.app.domain.entities.Ticket;
 
 import java.util.Optional;
 
-public interface CustomerRoleDefService extends UserRoleDefService<CustomerRoleDef> {
+public interface CustomerRoleDefService extends UserRoleDefService<CustomerRoleDef>,
+                                                EntityDtoConverter<CustomerRoleDef, CustomerRoleDefDto> {
 
     /**
      * Find by payment cards contains optional.

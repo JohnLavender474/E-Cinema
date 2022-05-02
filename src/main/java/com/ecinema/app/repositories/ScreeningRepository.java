@@ -1,6 +1,10 @@
 package com.ecinema.app.repositories;
 
-import com.ecinema.app.domain.entities.*;
+import com.ecinema.app.domain.entities.Movie;
+import com.ecinema.app.domain.entities.Screening;
+import com.ecinema.app.domain.entities.Showroom;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
@@ -13,6 +17,15 @@ import java.util.List;
  */
 @Repository
 public interface ScreeningRepository extends JpaRepository<Screening, Long>, AbstractRepository {
+
+    /**
+     * Find all by movie id page.
+     *
+     * @param movieId the movie id
+     * @return the page
+     */
+    @Query("SELECT s FROM Screening s WHERE s.movie.id = ?1")
+    Page<Screening> findAllByMovieId(Long movieId, Pageable pageable);
 
     /**
      * Find all by show date time less than equal list.

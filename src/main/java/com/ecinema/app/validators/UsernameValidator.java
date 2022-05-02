@@ -5,7 +5,8 @@ import org.springframework.stereotype.Component;
 
 import java.util.List;
 
-import static com.ecinema.app.utils.UsernameCriteria.*;
+import static com.ecinema.app.utils.UsernameCriteria.MAX_LENGTH;
+import static com.ecinema.app.utils.UsernameCriteria.MIN_LENGTH;
 
 @Component
 public class UsernameValidator implements AbstractValidator<String> {

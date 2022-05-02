@@ -5,7 +5,8 @@ import org.springframework.stereotype.Component;
 
 import java.util.List;
 
-import static com.ecinema.app.utils.PasswordCriteria.*;
+import static com.ecinema.app.utils.PasswordCriteria.MIN_LENGTH;
+import static com.ecinema.app.utils.PasswordCriteria.MIN_SPECIAL_CHARS;
 
 @Component
 public class PasswordValidator implements AbstractValidator<String> {

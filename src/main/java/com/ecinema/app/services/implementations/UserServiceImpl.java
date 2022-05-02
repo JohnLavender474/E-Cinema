@@ -1,15 +1,16 @@
 package com.ecinema.app.services.implementations;
 
-import com.ecinema.app.domain.entities.*;
-import com.ecinema.app.repositories.UserRepository;
-import com.ecinema.app.services.*;
-import com.ecinema.app.utils.UtilMethods;
-import com.ecinema.app.utils.UserRole;
-import com.ecinema.app.utils.IRegistration;
 import com.ecinema.app.domain.dtos.UserDto;
+import com.ecinema.app.domain.entities.User;
+import com.ecinema.app.domain.entities.UserRoleDef;
 import com.ecinema.app.exceptions.ClashException;
 import com.ecinema.app.exceptions.InvalidArgsException;
 import com.ecinema.app.exceptions.NoEntityFoundException;
+import com.ecinema.app.repositories.UserRepository;
+import com.ecinema.app.services.*;
+import com.ecinema.app.utils.IRegistration;
+import com.ecinema.app.utils.UserRole;
+import com.ecinema.app.utils.UtilMethods;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
@@ -35,18 +36,16 @@ public class UserServiceImpl extends AbstractServiceImpl<User, UserRepository> i
      * @param repository                 the repository
      * @param customerRoleDefService     the customer role def service
      * @param moderatorRoleDefService    the moderator role def service
-     * @param adminTraineeRoleDefService the admin trainee role def service
+
      * @param adminRoleDefService        the admin role def service
      */
     public UserServiceImpl(UserRepository repository,
                            CustomerRoleDefService customerRoleDefService,
                            ModeratorRoleDefService moderatorRoleDefService,
-                           AdminTraineeRoleDefService adminTraineeRoleDefService,
                            AdminRoleDefService adminRoleDefService) {
         super(repository);
         userRoleDefServices.put(UserRole.CUSTOMER, customerRoleDefService);
         userRoleDefServices.put(UserRole.MODERATOR, moderatorRoleDefService);
-        userRoleDefServices.put(UserRole.ADMIN_TRAINEE, adminTraineeRoleDefService);
         userRoleDefServices.put(UserRole.ADMIN, adminRoleDefService);
     }
 
@@ -61,6 +60,11 @@ public class UserServiceImpl extends AbstractServiceImpl<User, UserRepository> i
             UserRoleDefService<? extends UserRoleDef> userRoleDefService = userRoleDefServices.get(userRole);
             userRoleDefService.delete(userRole.castToDefType(user.getUserRoleDefs().get(userRole)));
         }
+    }
+
+    @Override
+    public UserRoleDefService<? extends UserRoleDef> getUserRoleDefService(UserRole userRole) {
+        return userRoleDefServices.get(userRole);
     }
 
     @Override
@@ -109,6 +113,16 @@ public class UserServiceImpl extends AbstractServiceImpl<User, UserRepository> i
     }
 
     @Override
+    public Optional<Long> findIdByUsername(String username) {
+        return repository.findIdByUsername(username);
+    }
+
+    @Override
+    public Optional<Long> findIdByEmail(String email) {
+        return repository.findIdByEmail(email);
+    }
+
+    @Override
     public Optional<User> findByEmail(String email) {
         return repository.findByEmail(email);
     }
@@ -119,7 +133,7 @@ public class UserServiceImpl extends AbstractServiceImpl<User, UserRepository> i
         UserRole userRole = UserRole.defClassToUserRole(userRoleDefClass);
         if (userRole == null) {
             throw new InvalidArgsException("The provided class " + userRoleDefClass.getName() +
-                                                  " is not mapped to a user role value");
+                                                   " is not mapped to a user role value");
         }
         User user = findById(userId).orElseThrow(
                 () -> new NoEntityFoundException("User", "id", userId));

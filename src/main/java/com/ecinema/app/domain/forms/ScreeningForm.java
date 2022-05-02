@@ -1,4 +1,4 @@
-package com.ecinema.app.forms;
+package com.ecinema.app.domain.forms;
 
 import lombok.Data;
 

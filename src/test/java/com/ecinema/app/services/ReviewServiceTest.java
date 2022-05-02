@@ -8,9 +8,12 @@ import com.ecinema.app.domain.entities.User;
 import com.ecinema.app.repositories.*;
 import com.ecinema.app.services.implementations.*;
 import com.ecinema.app.utils.UserRole;
+import com.ecinema.app.validators.MovieValidator;
+import com.ecinema.app.validators.ReviewValidator;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.shadow.com.univocity.parsers.annotations.Validate;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
@@ -34,6 +37,8 @@ class ReviewServiceTest {
     private ScreeningService screeningService;
     private CustomerRoleDefService customerRoleDefService;
     private UserService userService;
+    private ReviewValidator reviewValidator;
+    private MovieValidator movieValidator;
     @Mock
     private AddressRepository addressRepository;
     @Mock
@@ -67,14 +72,17 @@ class ReviewServiceTest {
                 screeningSeatRepository, ticketService);
         screeningService = new ScreeningServiceImpl(
                 screeningRepository, screeningSeatService);
-        movieService = new MovieServiceImpl(
-                movieRepository, reviewService, screeningService);
+        movieValidator = new MovieValidator();
+        reviewValidator = new ReviewValidator();
         customerRoleDefService = new CustomerRoleDefServiceImpl(
                 customerRoleDefRepository, reviewService,
                 ticketService, paymentCardService, couponService);
+        movieService = new MovieServiceImpl(
+                movieRepository, reviewService, screeningService,
+                customerRoleDefService, movieValidator, reviewValidator);
         userService = new UserServiceImpl(
                 userRepository, customerRoleDefService,
-                null, null, null);
+                null, null);
     }
 
     @Test

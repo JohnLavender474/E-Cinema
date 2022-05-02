@@ -4,7 +4,6 @@ import com.ecinema.app.utils.Letter;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.io.Serializable;
 import java.util.Set;
 import java.util.TreeSet;
 
@@ -13,5 +12,4 @@ import java.util.TreeSet;
 public class ShowroomDto implements AbstractDto {
     private Long id;
     private Letter showroomLetter;
-    private Set<ShowroomSeatDto> showroomSeatDTOs = new TreeSet<>();
 }

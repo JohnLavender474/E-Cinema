@@ -1,15 +1,13 @@
 package com.ecinema.app.controllers;
 
 import com.ecinema.app.domain.dtos.UserDto;
-import com.ecinema.app.services.SecurityService;
-import com.ecinema.app.exceptions.PasswordMismatchException;
 import com.ecinema.app.exceptions.NoEntityFoundException;
-import lombok.RequiredArgsConstructor;
+import com.ecinema.app.exceptions.PasswordMismatchException;
+import com.ecinema.app.services.SecurityService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;

@@ -2,9 +2,12 @@ package com.ecinema.app.services;
 
 import com.ecinema.app.domain.dtos.*;
 import com.ecinema.app.domain.entities.*;
+import com.ecinema.app.domain.forms.ReviewForm;
 import com.ecinema.app.repositories.*;
 import com.ecinema.app.services.implementations.*;
 import com.ecinema.app.utils.*;
+import com.ecinema.app.validators.MovieValidator;
+import com.ecinema.app.validators.ReviewValidator;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -39,6 +42,8 @@ class MovieServiceTest {
     private ScreeningService screeningService;
     private CustomerRoleDefService customerRoleDefService;
     private UserService userService;
+    private MovieValidator movieValidator;
+    private ReviewValidator reviewValidator;
     @Mock
     private AddressRepository addressRepository;
     @Mock
@@ -79,18 +84,20 @@ class MovieServiceTest {
                 screeningSeatRepository, ticketService);
         screeningService = new ScreeningServiceImpl(
                 screeningRepository, screeningSeatService);
-        movieService = new MovieServiceImpl(
-                movieRepository, reviewService, screeningService);
+        reviewValidator = new ReviewValidator();
+        movieValidator = new MovieValidator();
         customerRoleDefService = new CustomerRoleDefServiceImpl(
                 customerRoleDefRepository, reviewService,
                 ticketService, paymentCardService, couponService);
+        movieService = new MovieServiceImpl(
+                movieRepository, reviewService, screeningService,
+                customerRoleDefService, movieValidator, reviewValidator);
         showroomSeatService = new ShowroomSeatServiceImpl(
                 showroomSeatRepository, screeningSeatService);
         showroomService = new ShowroomServiceImpl(
-                showroomRepository, showroomSeatService, screeningService);
+                showroomRepository, showroomSeatService, screeningService, null);
         userService = new UserServiceImpl(
-                userRepository, customerRoleDefService, null,
-                null, null);
+                userRepository, customerRoleDefService, null, null);
     }
 
     /**
@@ -232,23 +239,43 @@ class MovieServiceTest {
         assertEquals(movie.getReleaseDate().getDayOfMonth(), movieDto.getReleaseDay());
         assertEquals(movie.getReleaseDate().getMonth(), movieDto.getReleaseMonth());
         assertEquals(movie.getReleaseDate().getYear(), movieDto.getReleaseYear());
-        assertEquals(1, movieDto.getReviewDtos().size());
-        assertEquals(7, movieDto.getAverageRating());
-        ReviewDto reviewDto = movieDto.getReviewDtos().get(0);
-        assertEquals(review.getId(), reviewDto.getId());
-        assertEquals(review.getReview(), reviewDto.getReview());
-        assertEquals(review.getIsCensored(), reviewDto.getIsCensored());
-        assertEquals(review.getCreationDateTime(), reviewDto.getCreationDateTime());
-        assertEquals(1, movieDto.getScreeningDtos().size());
-        ScreeningDto screeningDto = movieDto.getScreeningDtos().get(0);
-        assertEquals(screening.getId(), screeningDto.getId());
-        assertEquals(movie.getTitle(), screeningDto.getMovieTitle());
-        assertEquals(showroom.getShowroomLetter(), screeningDto.getShowroomLetter());
-        assertEquals(screening.getShowDateTime(), screeningDto.getShowDateTime());
-        assertEquals(1, screeningDto.getScreeningSeats().size());
-        ScreeningSeatDto screeningSeatDto = ((TreeSet<ScreeningSeatDto>) screeningDto.getScreeningSeats()).last();
-        assertEquals(screeningSeat.getId(), screeningSeatDto.getId());
-        assertTrue(screeningSeatDto.getIsBooked());
+    }
+
+    @Test
+    void submitReviewForm() {
+        // given
+        Movie movie = new Movie();
+        movie.setId(1L);
+        given(movieRepository.findById(1L))
+                .willReturn(Optional.of(movie));
+        movieService.save(movie);
+        User user = new User();
+        user.setId(2L);
+        userService.save(user);
+        CustomerRoleDef customerRoleDef = new CustomerRoleDef();
+        customerRoleDef.setId(3L);
+        customerRoleDef.setUser(user);
+        user.getUserRoleDefs().put(UserRole.CUSTOMER, customerRoleDef);
+        given(customerRoleDefRepository.findByUserWithId(2L))
+                .willReturn(Optional.of(customerRoleDef));
+        customerRoleDefService.save(customerRoleDef);
+        // when
+        ReviewForm reviewForm = new ReviewForm();
+        reviewForm.setMovieId(1L);
+        reviewForm.setUserId(2L);
+        reviewForm.setReview("wow, this movie sucks so much!");
+        reviewForm.setRating(4);
+        movieService.submitReviewForm(reviewForm);
+        Set<Review> reviews = movie.getReviews();
+        // then
+        assertEquals(1, reviews.size());
+        Review review = reviews.stream().findFirst().orElse(null);
+        assertNotNull(review);
+        assertEquals(movie, review.getMovie());
+        assertEquals(reviewForm.getReview(), review.getReview());
+        assertEquals(reviewForm.getRating(), review.getRating());
+        assertEquals(customerRoleDef, review.getWriter());
+        assertEquals(user, review.getWriter().getUser());
     }
 
 }

@@ -3,7 +3,6 @@ package com.ecinema.app.domain.dtos;
 import com.ecinema.app.utils.UserRole;
 import lombok.Data;
 
-import java.io.Serializable;
 import java.util.EnumSet;
 import java.util.Set;
 

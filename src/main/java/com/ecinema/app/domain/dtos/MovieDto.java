@@ -1,14 +1,15 @@
 package com.ecinema.app.domain.dtos;
 
+import com.ecinema.app.utils.Duration;
 import com.ecinema.app.utils.MovieCategory;
 import com.ecinema.app.utils.MsrbRating;
-import com.ecinema.app.utils.Duration;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.time.LocalDate;
 import java.time.Month;
-import java.util.*;
+import java.util.EnumSet;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * The type Movie dto.
@@ -16,7 +17,6 @@ import java.util.*;
 @Getter
 @Setter
 public class MovieDto implements AbstractDto {
-
     private Long id;
     private String title;
     private String director;
@@ -33,7 +33,4 @@ public class MovieDto implements AbstractDto {
     private Set<String> writers = new HashSet<>();
     private Set<MovieCategory> movieCategories =
             EnumSet.noneOf(MovieCategory.class);
-    private List<ReviewDto> reviewDtos = new ArrayList<>();
-    private List<ScreeningDto> screeningDtos = new ArrayList<>();
-
 }

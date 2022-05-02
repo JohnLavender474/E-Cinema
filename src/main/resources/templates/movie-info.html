@@ -51,64 +51,27 @@
         <h1 th:text="${movie.title}"></h1>
     </div>
     <div class="row">
-        <img alt="" th:src="${movie.image}" width="300" src="">
+        <img th:src="${movie.image}" width="300" src="" alt="">
         <br/>
         <iframe width="960" height="540" th:src="${movie.trailer}"></iframe>
     </div>
-</div>
-<!--
-<div th:unless="${movie.screeningDtos.isEmpty()}" class="moviesContainer">
+    <table class="table table-borderless">
+        <tr>
+            <td style="alignment: right">Average Rating:</td>
+            <td style="alignment: left" th:each="star:${#numbers.sequence(0,avgRating)}">
+                <img th:src="@{/img/star.png}" width="50" height="50" src="" alt="">
+            </td>
+        </tr>
+    </table>
     <div class="row">
-        <h1>Screenings</h1>
+        <button class="btn btn-primary">
+            <a th:href="@{/movie-screenings/{id}(id=${movie.id})}">Screenings</a>
+        </button>
+        <button class="btn btn-primary">
+            <a th:href="@{/movie-reviews/{id}(id=${movie.id})}">Reviews</a>
+        </button>
     </div>
-    <table class="table table-striped table-bordered">
-        <thead class="thead-dark">
-        <tr>
-            <th>Showroom</th>
-            <th>Showtime</th>
-            <th>Seats Available</th>
-            <th></th>
-        </tr>
-        </thead>
-        <tbody>
-        <tr th:each="screening:${movie.screeningDtos}">
-            <td th:text="${screening.showroomLetter}"></td>
-            <td th:text="${screening.showDateTime}"></td>
-            <td th:text="${screening.seatsAvailable} + '/' + ${screening.totalSeatsInRoom}"></td>
-            <td>
-                <a th:href="@{/screening/{id}(id=${screening.id})}">View Screening</a>
-            </td>
-        </tr>
-        </tbody>
-    </table>
 </div>
--->
-<!--
-<div th:unless="${movie.reviewDtos.isEmpty()}" class="moviesContainer">
-    <table class="table table-striped table-bordered">
-        <thead class="thead-dark">
-        <tr>
-            <th>Reviews</th>
-        </tr>
-        </thead>
-        <tbody>
-        <tr th:each="review:${movie.reviewDtos}">
-            <td>
-                <table class="table table-striped table-bordered">
-                    <tr>
-                        <td th:text="${review.writer}" style="alignment: left"></td>
-                        <td th:text="${review.creationDateTime}" style="alignment: right"></td>
-                    </tr>
-                    <tr>
-                        <td th:text="${review.review}" style="max-width: 150px; word-wrap: break-word"></td>
-                    </tr>
-                </table>
-            </td>
-        </tr>
-        </tbody>
-    </table>
-</div>
--->
 <div class="moviesContainer">
     <table class="table table-striped table-bordered">
         <thead>

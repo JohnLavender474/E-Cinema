@@ -8,7 +8,7 @@ public interface SecurityService {
     /**
      * Login.
      *
-     * @param s the login credential
+     * @param s        the login credential
      * @param password the password
      * @throws NoEntityFoundException the no entity found exception
      */

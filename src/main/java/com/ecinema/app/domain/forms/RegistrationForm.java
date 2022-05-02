@@ -1,7 +1,7 @@
-package com.ecinema.app.forms;
+package com.ecinema.app.domain.forms;
 
-import com.ecinema.app.utils.UserRole;
 import com.ecinema.app.utils.IRegistration;
+import com.ecinema.app.utils.UserRole;
 import lombok.Getter;
 import lombok.Setter;
 

@@ -1,16 +1,16 @@
 package com.ecinema.app.services.implementations;
 
-import com.ecinema.app.domain.entities.Registration;
-import com.ecinema.app.repositories.RegistrationRepository;
-import com.ecinema.app.services.EmailSenderService;
-import com.ecinema.app.services.RegistrationService;
-import com.ecinema.app.services.UserService;
 import com.ecinema.app.domain.dtos.UserDto;
+import com.ecinema.app.domain.entities.Registration;
+import com.ecinema.app.domain.forms.RegistrationForm;
 import com.ecinema.app.exceptions.ClashException;
 import com.ecinema.app.exceptions.EmailException;
 import com.ecinema.app.exceptions.InvalidArgsException;
 import com.ecinema.app.exceptions.NoEntityFoundException;
-import com.ecinema.app.forms.RegistrationForm;
+import com.ecinema.app.repositories.RegistrationRepository;
+import com.ecinema.app.services.EmailSenderService;
+import com.ecinema.app.services.RegistrationService;
+import com.ecinema.app.services.UserService;
 import com.ecinema.app.validators.RegistrationValidator;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -39,10 +39,10 @@ public class RegistrationServiceImpl extends AbstractServiceImpl<Registration,
     /**
      * Instantiates a new Registration request service.
      *
-     * @param repository                the repository
-     * @param userService               the user service
-     * @param emailSenderService        the email sender service
-     * @param passwordEncoder           the password encoder
+     * @param repository            the repository
+     * @param userService           the user service
+     * @param emailSenderService    the email sender service
+     * @param passwordEncoder       the password encoder
      * @param registrationValidator the registration form validator
      */
     public RegistrationServiceImpl(RegistrationRepository repository, UserService userService,

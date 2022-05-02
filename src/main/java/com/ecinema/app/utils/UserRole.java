@@ -3,7 +3,8 @@ package com.ecinema.app.utils;
 import com.ecinema.app.domain.entities.*;
 import org.springframework.security.core.GrantedAuthority;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Enumeration of each of the roles assignable to {@link User}. There is a one-to-one association between
@@ -11,9 +12,10 @@ import java.util.*;
  */
 public enum UserRole implements GrantedAuthority {
 
-    /** The Admin. */
+    /**
+     * The Admin.
+     */
     ADMIN {
-
         @Override
         @SuppressWarnings("unchecked")
         public AdminRoleDef instantiateNew() {
@@ -28,25 +30,10 @@ public enum UserRole implements GrantedAuthority {
 
     },
 
-    /** The Admin trainee. */
-    ADMIN_TRAINEE {
-        @Override
-        @SuppressWarnings("unchecked")
-        public AdminTraineeRoleDef instantiateNew() {
-            return new AdminTraineeRoleDef();
-        }
-
-        @Override
-        @SuppressWarnings("unchecked")
-        public AdminTraineeRoleDef castToDefType(Object o) {
-            return (AdminTraineeRoleDef) o;
-        }
-
-    },
-
-    /** The Moderator. */
+    /**
+     * The Moderator.
+     */
     MODERATOR {
-
         @Override
         @SuppressWarnings("unchecked")
         public ModeratorRoleDef instantiateNew() {
@@ -61,9 +48,10 @@ public enum UserRole implements GrantedAuthority {
 
     },
 
-    /** The Customer. */
+    /**
+     * The Customer.
+     */
     CUSTOMER {
-
         @Override
         @SuppressWarnings("unchecked")
         public CustomerRoleDef instantiateNew() {
@@ -77,6 +65,22 @@ public enum UserRole implements GrantedAuthority {
         }
 
     };
+
+    private static final Map<Class<? extends UserRoleDef>, UserRole> DEF_CLASS_TO_USER_ROLE_MAP = new HashMap<>() {{
+        put(AdminRoleDef.class, ADMIN);
+        put(CustomerRoleDef.class, CUSTOMER);
+        put(ModeratorRoleDef.class, MODERATOR);
+    }};
+
+    /**
+     * Fetches the UserRole enum value associated with the provided {@link UserRoleDef} child class.
+     *
+     * @param userRoleDefClass the user role def class associated with the UserRole enum value to be fetched.
+     * @return the user role associated with the provided UserRoleDef child class.
+     */
+    public static UserRole defClassToUserRole(Class<? extends UserRoleDef> userRoleDefClass) {
+        return DEF_CLASS_TO_USER_ROLE_MAP.get(userRoleDefClass);
+    }
 
     /**
      * Instantiates a new {@link UserRoleDef} child instance associated with the enum value.
@@ -100,23 +104,6 @@ public enum UserRole implements GrantedAuthority {
     @Override
     public String getAuthority() {
         return name();
-    }
-
-    private static final Map<Class<? extends UserRoleDef>, UserRole> DEF_CLASS_TO_USER_ROLE_MAP = new HashMap<>() {{
-        put(AdminRoleDef.class, ADMIN);
-        put(CustomerRoleDef.class, CUSTOMER);
-        put(ModeratorRoleDef.class, MODERATOR);
-        put(AdminTraineeRoleDef.class, ADMIN_TRAINEE);
-    }};
-
-    /**
-     * Fetches the UserRole enum value associated with the provided {@link UserRoleDef} child class.
-     *
-     * @param userRoleDefClass the user role def class associated with the UserRole enum value to be fetched.
-     * @return the user role associated with the provided UserRoleDef child class.
-     */
-    public static UserRole defClassToUserRole(Class<? extends UserRoleDef> userRoleDefClass) {
-        return DEF_CLASS_TO_USER_ROLE_MAP.get(userRoleDefClass);
     }
 
 }

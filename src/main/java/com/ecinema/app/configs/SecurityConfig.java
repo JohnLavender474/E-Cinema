@@ -21,38 +21,39 @@ import static com.ecinema.app.utils.UserRole.*;
 @RequiredArgsConstructor
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
-    private static final String[] ANY_PERMITTED = new String[] {
+    private static final String[] ANY_PERMITTED = new String[]{
             "/",
-            "/index*",
-            "/about*",
-            "/home*",
-            "/movies*",
-            "/movie-info*",
-            "/movie-reviews*",
-            "/movie-screenings*",
-            "/login*",
-            "/login-error*",
-            "/perform-login*",
-            "/logout*",
-            "/logout-success*",
-            "/register*",
-            "/theaters*",
-            "/forgotPassword*"
+            "/index**",
+            "/about**",
+            "/home**",
+            "/movies",
+            "/movies/**",
+            "/movie-info",
+            "/movie-info/**",
+            "/movie-reviews",
+            "/movie-reviews/**",
+            "/movie-screenings",
+            "/movie-screenings/**",
+            "/login**",
+            "/login-error**",
+            "/perform-login**",
+            "/logout**",
+            "/logout-success**",
+            "/register**",
+            "/theaters**",
+            "/forgotPassword**"
     };
-    private static final String[] AUTHENTICATED_PERMITTED = new String[] {
-            "/authenticated*",
-            "/account*"
+    private static final String[] AUTHENTICATED_PERMITTED = new String[]{
+            "/authenticated**",
+            "/account**"
     };
-    private static final String[] CUSTOMERS_PERMITTED = new String[] {
-            "/customer*"
+    private static final String[] CUSTOMERS_PERMITTED = new String[]{
+            "/customer**"
     };
-    private static final String[] MODERATORS_PERMITTED = new String[] {
-            "/moderator*"
+    private static final String[] MODERATORS_PERMITTED = new String[]{
+            "/moderator**"
     };
-    private static final String[] ADMIN_TRAINEES_PERMITTED = new String[] {
-            "/trainee*"
-    };
-    private static final String[] ADMINS_PERMITTED = new String[] {
+    private static final String[] ADMINS_PERMITTED = new String[]{
             "/admin*"
     };
 
@@ -89,12 +90,10 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .csrf().disable()
                 .authorizeRequests()
                 .antMatchers(ADMINS_PERMITTED).hasAuthority(ADMIN.getAuthority())
-                .antMatchers(ADMIN_TRAINEES_PERMITTED).hasAuthority(ADMIN_TRAINEE.getAuthority())
                 .antMatchers(MODERATORS_PERMITTED).hasAuthority(MODERATOR.getAuthority())
                 .antMatchers(CUSTOMERS_PERMITTED).hasAuthority(CUSTOMER.getAuthority())
                 .antMatchers(AUTHENTICATED_PERMITTED).hasAnyAuthority(
-                        CUSTOMER.getAuthority(), MODERATOR.getAuthority(),
-                        ADMIN_TRAINEE.getAuthority(), ADMIN.getAuthority())
+                        CUSTOMER.getAuthority(), MODERATOR.getAuthority(), ADMIN.getAuthority())
                 .antMatchers(ANY_PERMITTED).permitAll()
                 .anyRequest().authenticated()
                 .and()

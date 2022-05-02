@@ -4,7 +4,6 @@ import com.ecinema.app.utils.Letter;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.Set;
 import java.util.TreeSet;
@@ -19,5 +18,4 @@ public class ScreeningDto implements AbstractDto {
     private Integer seatsAvailable;
     private Integer totalSeatsInRoom;
     private LocalDateTime showDateTime;
-    private Set<ScreeningSeatDto> screeningSeats = new TreeSet<>();
 }

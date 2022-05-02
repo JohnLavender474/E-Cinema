@@ -5,8 +5,12 @@ import lombok.Getter;
 import lombok.Setter;
 
 import javax.persistence.*;
-import java.util.*;
+import java.util.HashSet;
+import java.util.Set;
 
+/**
+ * The type Showroom.
+ */
 @Getter
 @Setter
 @Entity
@@ -14,10 +18,6 @@ public class Showroom extends AbstractEntity {
 
     @Column
     private Letter showroomLetter;
-
-    @JoinColumn
-    @ManyToOne(fetch = FetchType.LAZY)
-    private Theater theater;
 
     @OneToMany(mappedBy = "showroom", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private Set<ShowroomSeat> showroomSeats = new HashSet<>();

@@ -1,30 +1,28 @@
 package com.ecinema.app.utils;
 
-import com.ecinema.app.utils.UserRole;
-
 import java.util.Set;
 
 public interface IRegistration {
-    void setUserRoles(Set<UserRole> userRoles);
     Set<UserRole> getUserRoles();
-    void setUsername(String username);
+    void setUserRoles(Set<UserRole> userRoles);
     String getUsername();
-    void setEmail(String email);
+    void setUsername(String username);
     String getEmail();
-    void setPassword(String password);
+    void setEmail(String email);
     String getPassword();
-    void setConfirmPassword(String confirmPassword);
+    void setPassword(String password);
     String getConfirmPassword();
-    void setFirstName(String firstName);
+    void setConfirmPassword(String confirmPassword);
     String getFirstName();
-    void setLastName(String lastName);
+    void setFirstName(String firstName);
     String getLastName();
-    void setSecurityQuestion1(String securityQuestion1);
+    void setLastName(String lastName);
     String getSecurityQuestion1();
-    void setSecurityAnswer1(String securityAnswer1);
+    void setSecurityQuestion1(String securityQuestion1);
     String getSecurityAnswer1();
-    void setSecurityQuestion2(String securityQuestion2);
+    void setSecurityAnswer1(String securityAnswer1);
     String getSecurityQuestion2();
-    void setSecurityAnswer2(String securityAnswer2);
+    void setSecurityQuestion2(String securityQuestion2);
     String getSecurityAnswer2();
+    void setSecurityAnswer2(String securityAnswer2);
 }

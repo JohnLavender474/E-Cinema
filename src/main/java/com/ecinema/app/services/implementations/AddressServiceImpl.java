@@ -8,11 +8,6 @@ import com.ecinema.app.services.AddressService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.function.Consumer;
-import java.util.stream.Collectors;
-
 /**
  * The type Address service.
  */

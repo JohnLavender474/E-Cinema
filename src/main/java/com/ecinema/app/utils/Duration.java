@@ -6,7 +6,9 @@ import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
 
-/** Represents time duration in hours and minutes. */
+/**
+ * Represents time duration in hours and minutes.
+ */
 @Getter
 @NoArgsConstructor
 public class Duration implements Comparable<Duration>, Serializable {
@@ -28,6 +30,31 @@ public class Duration implements Comparable<Duration>, Serializable {
     }
 
     /**
+     * Convert string representation of Duration into new Duration instance. String representation
+     * is hours:minutes. See {@link #toString()}.
+     *
+     * @param str the String to convertToDto to a new Duration instance.
+     * @return the new Duration instance.
+     * @throws InvalidDurationException see {@link #setHours(Integer)} and {@link #setMinutes(Integer)}.
+     */
+    public static Duration strToDuration(String str)
+            throws InvalidDurationException {
+        String[] tokens = str.split(":");
+        if (tokens.length != 2 || !UtilMethods.isDigitsOnly(tokens[0]) || !UtilMethods.isDigitsOnly(tokens[1])) {
+            throw new InvalidDurationException("String cannot be converted to Duration");
+        }
+        Integer hours = Integer.parseInt(tokens[0]);
+        Integer minutes = Integer.parseInt(tokens[1]);
+        return new Duration(hours, minutes);
+    }
+
+    public static Duration randomDuration() {
+        int hours = UtilMethods.randomIntBetween(0, 4);
+        int minutes = UtilMethods.randomIntBetween(0, 59);
+        return new Duration(hours, minutes);
+    }
+
+    /**
      * Sets hours.
      *
      * @param hours the hours to assign to this.hours.
@@ -43,11 +70,11 @@ public class Duration implements Comparable<Duration>, Serializable {
 
     /**
      * Sets minutes. While minutes is greater than or equal to 60, the following will be performed:
-     *
+     * <p>
      * {@code
      * while (minutes >= 60) {
-     *     minutes -= 60;
-     *     hours++;
+     * minutes -= 60;
+     * hours++;
      * }
      * }
      *
@@ -97,31 +124,6 @@ public class Duration implements Comparable<Duration>, Serializable {
         return o instanceof Duration duration &&
                 hours.equals(duration.getHours()) &&
                 minutes.equals(duration.getMinutes());
-    }
-
-    /**
-     * Convert string representation of Duration into new Duration instance. String representation
-     * is hours:minutes. See {@link #toString()}.
-     *
-     * @param str the String to convertToDto to a new Duration instance.
-     * @return the new Duration instance.
-     * @throws InvalidDurationException see {@link #setHours(Integer)} and {@link #setMinutes(Integer)}.
-     */
-    public static Duration strToDuration(String str)
-            throws InvalidDurationException {
-        String[] tokens = str.split(":");
-        if (tokens.length != 2 || !UtilMethods.isDigitsOnly(tokens[0]) || !UtilMethods.isDigitsOnly(tokens[1])) {
-            throw new InvalidDurationException("String cannot be converted to Duration");
-        }
-        Integer hours = Integer.parseInt(tokens[0]);
-        Integer minutes = Integer.parseInt(tokens[1]);
-        return new Duration(hours, minutes);
-    }
-
-    public static Duration randomDuration() {
-        int hours = UtilMethods.randomIntBetween(0, 4);
-        int minutes = UtilMethods.randomIntBetween(0, 59);
-        return new Duration(hours, minutes);
     }
 
 }

@@ -129,4 +129,22 @@ class CustomerRoleDefRepositoryTest {
         assertEquals(customerRoleDef, customerRoleDefOptional2.get());
     }
 
+    @Test
+    void findIdByUserWithId() {
+        // given
+        User user = new User();
+        userRepository.save(user);
+        CustomerRoleDef customerRoleDef = new CustomerRoleDef();
+        customerRoleDef.setUser(user);
+        user.getUserRoleDefs().put(UserRole.CUSTOMER, customerRoleDef);
+        customerRoleDefRepository.save(customerRoleDef);
+        // when
+        Optional<Long> customerRoleDefIdOptional = customerRoleDefRepository.findIdByUserWithId(user.getId());
+        Optional<CustomerRoleDef> customerRoleDefOptional = customerRoleDefRepository.findByUser(user);
+        // then
+        assertTrue(customerRoleDefIdOptional.isPresent());
+        assertTrue(customerRoleDefOptional.isPresent());
+        assertEquals(customerRoleDefOptional.get().getId(), customerRoleDefIdOptional.get());
+    }
+
 }

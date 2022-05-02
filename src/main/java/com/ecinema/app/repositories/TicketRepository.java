@@ -1,6 +1,9 @@
 package com.ecinema.app.repositories;
 
-import com.ecinema.app.domain.entities.*;
+import com.ecinema.app.domain.entities.CustomerRoleDef;
+import com.ecinema.app.domain.entities.Screening;
+import com.ecinema.app.domain.entities.ScreeningSeat;
+import com.ecinema.app.domain.entities.Ticket;
 import com.ecinema.app.utils.TicketStatus;
 import com.ecinema.app.utils.TicketType;
 import org.springframework.data.jpa.repository.JpaRepository;

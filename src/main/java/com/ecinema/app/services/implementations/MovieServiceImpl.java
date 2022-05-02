@@ -1,25 +1,35 @@
 package com.ecinema.app.services.implementations;
 
 import com.ecinema.app.domain.dtos.MovieDto;
-import com.ecinema.app.domain.dtos.ReviewDto;
-import com.ecinema.app.domain.dtos.ScreeningDto;
+import com.ecinema.app.domain.entities.CustomerRoleDef;
 import com.ecinema.app.domain.entities.Movie;
 import com.ecinema.app.domain.entities.Review;
-import com.ecinema.app.domain.entities.Screening;
+import com.ecinema.app.domain.forms.MovieForm;
+import com.ecinema.app.domain.forms.ReviewForm;
+import com.ecinema.app.exceptions.ClashException;
+import com.ecinema.app.exceptions.InvalidArgsException;
 import com.ecinema.app.exceptions.NoEntityFoundException;
 import com.ecinema.app.repositories.MovieRepository;
+import com.ecinema.app.services.CustomerRoleDefService;
 import com.ecinema.app.services.MovieService;
 import com.ecinema.app.services.ReviewService;
 import com.ecinema.app.services.ScreeningService;
+import com.ecinema.app.utils.Duration;
 import com.ecinema.app.utils.MovieCategory;
 import com.ecinema.app.utils.MsrbRating;
+import com.ecinema.app.utils.UtilMethods;
+import com.ecinema.app.validators.MovieValidator;
+import com.ecinema.app.validators.ReviewValidator;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 /**
@@ -30,8 +40,11 @@ import java.util.Set;
 public class MovieServiceImpl extends AbstractServiceImpl<Movie, MovieRepository>
         implements MovieService {
 
+    private final CustomerRoleDefService customerRoleDefService;
     private final ScreeningService screeningService;
     private final ReviewService reviewService;
+    private final MovieValidator movieValidator;
+    private final ReviewValidator reviewValidator;
 
     /**
      * Instantiates a new Movie service.
@@ -41,10 +54,14 @@ public class MovieServiceImpl extends AbstractServiceImpl<Movie, MovieRepository
      * @param screeningService the screening service
      */
     public MovieServiceImpl(MovieRepository repository, ReviewService reviewService,
-                            ScreeningService screeningService) {
+                            ScreeningService screeningService, CustomerRoleDefService customerRoleDefService,
+                            MovieValidator movieValidator, ReviewValidator reviewValidator) {
         super(repository);
         this.reviewService = reviewService;
         this.screeningService = screeningService;
+        this.customerRoleDefService = customerRoleDefService;
+        this.movieValidator = movieValidator;
+        this.reviewValidator = reviewValidator;
     }
 
     @Override
@@ -56,8 +73,78 @@ public class MovieServiceImpl extends AbstractServiceImpl<Movie, MovieRepository
     }
 
     @Override
+    public void submitReviewForm(ReviewForm reviewForm)
+            throws NoEntityFoundException {
+        List<String> errors = new ArrayList<>();
+        reviewValidator.validate(reviewForm, errors);
+        if (!errors.isEmpty()) {
+            throw new InvalidArgsException(errors);
+        }
+        CustomerRoleDef customerRoleDef = customerRoleDefService.findByUserWithId(reviewForm.getUserId())
+                                                                .orElseThrow(() -> new NoEntityFoundException("user",
+                                                                                                              "id",
+                                                                                                              reviewForm.getUserId()));
+        Movie movie = findById(reviewForm.getMovieId())
+                .orElseThrow(() -> new NoEntityFoundException("movie", "id", reviewForm.getMovieId()));
+        Review review = new Review();
+        review.setReview(reviewForm.getReview());
+        review.setRating(reviewForm.getRating());
+        review.setIsCensored(false);
+        review.setCreationDateTime(LocalDateTime.now());
+        review.setWriter(customerRoleDef);
+        customerRoleDef.getReviews().add(review);
+        review.setMovie(movie);
+        movie.getReviews().add(review);
+        reviewService.save(review);
+    }
+
+    @Override
+    public String convertTitleToSearchTitle(String title) {
+        return UtilMethods.removeWhitespace(title).toUpperCase();
+    }
+
+    @Override
+    public void submitMovieForm(MovieForm movieForm)
+            throws ClashException, InvalidArgsException {
+        List<String> errors = new ArrayList<>();
+        movieValidator.validate(movieForm, errors);
+        if (!errors.isEmpty()) {
+            throw new InvalidArgsException(errors);
+        }
+        String searchTitle = convertTitleToSearchTitle(movieForm.getTitle());
+        if (existsBySearchTitle(searchTitle)) {
+            throw new ClashException("Movie \"" + movieForm.getTitle() + "\" already exists");
+        }
+        Movie movie = new Movie();
+        movie.setSearchTitle(searchTitle);
+        movie.setTitle(movieForm.getTitle());
+        movie.setImage(movieForm.getImage());
+        movie.setTrailer(movieForm.getTrailer());
+        movie.setSynopsis(movieForm.getSynopsis());
+        movie.setDuration(new Duration(movieForm.getHours(), movieForm.getMinutes()));
+        movie.setReleaseDate(LocalDate.of(movieForm.getReleaseYear(),
+                                          movieForm.getReleaseMonth(),
+                                          movieForm.getReleaseDay()));
+        movie.setMsrbRating(movieForm.getMsrbRating());
+        movie.getCast().addAll(movieForm.getCast());
+        movie.getWriters().addAll(movieForm.getWriters());
+        movie.getMovieCategories().addAll(movieForm.getMovieCategories());
+        save(movie);
+    }
+
+    @Override
     public Page<MovieDto> pageOfDtos(Pageable pageable) {
         return findAll(pageable).map(this::convertToDto);
+    }
+
+    @Override
+    public Optional<Movie> findBySearchTitle(String title) {
+        return repository.findByTitle(title.toUpperCase());
+    }
+
+    @Override
+    public boolean existsBySearchTitle(String title) {
+        return repository.existsBySearchTitle(title);
     }
 
     @Override
@@ -111,6 +198,14 @@ public class MovieServiceImpl extends AbstractServiceImpl<Movie, MovieRepository
     }
 
     @Override
+    public Double findAverageRatingOfMovieWithId(Long movieId) {
+        Movie movie = findById(movieId).orElseThrow(
+                () -> new NoEntityFoundException("movie", "id", movieId));
+        Double avgRating = reviewService.findAverageRatingOfMovie(movie);
+        return avgRating == null ? 0D : avgRating;
+    }
+
+    @Override
     public MovieDto convertToDto(Long id)
             throws NoEntityFoundException {
         Movie movie = findById(id).orElseThrow(
@@ -130,22 +225,6 @@ public class MovieServiceImpl extends AbstractServiceImpl<Movie, MovieRepository
         movieDTO.getCast().addAll(movie.getCast());
         movieDTO.getWriters().addAll(movie.getWriters());
         movieDTO.getMovieCategories().addAll(movie.getMovieCategories());
-        List<ScreeningDto> screeningDtos = new ArrayList<>();
-        for (Screening screening : movie.getScreenings()) {
-            ScreeningDto screeningDTO = screeningService.convertToDto(screening.getId());
-            screeningDtos.add(screeningDTO);
-        }
-        movieDTO.getScreeningDtos().addAll(screeningDtos);
-        List<ReviewDto> reviewDtos = new ArrayList<>();
-        Integer ratingSum = 0;
-        for (Review review : movie.getReviews()) {
-            ReviewDto reviewDTO = reviewService.convertToDto(review.getId());
-            reviewDtos.add(reviewDTO);
-            ratingSum += review.getRating();
-        }
-        Integer averageRating = ratingSum / movie.getReviews().size();
-        movieDTO.setAverageRating(averageRating);
-        movieDTO.getReviewDtos().addAll(reviewDtos);
         return movieDTO;
     }
 

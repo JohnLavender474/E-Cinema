@@ -3,7 +3,6 @@ package com.ecinema.app.services;
 import com.ecinema.app.domain.entities.Screening;
 import com.ecinema.app.domain.entities.Showroom;
 import com.ecinema.app.domain.entities.ShowroomSeat;
-import com.ecinema.app.domain.entities.Theater;
 import com.ecinema.app.repositories.*;
 import com.ecinema.app.services.implementations.*;
 import com.ecinema.app.utils.Letter;
@@ -26,7 +25,6 @@ import static org.mockito.BDDMockito.given;
 @ExtendWith(MockitoExtension.class)
 class ShowroomServiceTest {
 
-    private TheaterService theaterService;
     private AddressService addressService;
     private ShowroomService showroomService;
     private ShowroomSeatService showroomSeatService;
@@ -35,8 +33,6 @@ class ShowroomServiceTest {
     private TicketService ticketService;
     @Mock
     private AddressRepository addressRepository;
-    @Mock
-    private TheaterRepository theaterRepository;
     @Mock
     private ShowroomRepository showroomRepository;
     @Mock
@@ -58,9 +54,7 @@ class ShowroomServiceTest {
         screeningSeatService = new ScreeningSeatServiceImpl(screeningSeatRepository, ticketService);
         screeningService = new ScreeningServiceImpl(screeningRepository, screeningSeatService);
         showroomSeatService = new ShowroomSeatServiceImpl(showroomSeatRepository, screeningSeatService);
-        showroomService = new ShowroomServiceImpl(showroomRepository, showroomSeatService, screeningService);
-        theaterService = new TheaterServiceImpl(theaterRepository, addressService,
-                                                showroomService, screeningService);
+        showroomService = new ShowroomServiceImpl(showroomRepository, showroomSeatService, screeningService, null);
     }
 
     /**
@@ -138,11 +132,6 @@ class ShowroomServiceTest {
         given(showroomRepository.findById(1L))
                 .willReturn(Optional.of(showroom));
         showroomService.save(showroom);
-        Theater theater = new Theater();
-        theater.setId(2L);
-        theater.getShowrooms().put(Letter.A, showroom);
-        showroom.setTheater(theater);
-        theaterService.save(theater);
         List<ShowroomSeat> showroomSeats = new ArrayList<>();
         for (int i = 0; i < 3; i++) {
             ShowroomSeat showroomSeat = new ShowroomSeat();
@@ -165,8 +154,6 @@ class ShowroomServiceTest {
             screeningService.save(screening);
             screenings.add(screening);
         }
-        assertEquals(theater, showroom.getTheater());
-        assertFalse(theater.getShowrooms().isEmpty());
         for (ShowroomSeat showroomSeat : showroomSeats) {
             assertEquals(showroom, showroomSeat.getShowroom());
         }
@@ -176,8 +163,6 @@ class ShowroomServiceTest {
         // when
         showroomService.delete(showroom);
         // then
-        assertNull(showroom.getTheater());
-        assertTrue(theater.getShowrooms().isEmpty());
         for (ShowroomSeat showroomSeat : showroomSeats) {
             assertNull(showroomSeat.getShowroom());
         }

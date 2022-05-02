@@ -1,16 +1,18 @@
 package com.ecinema.app.services;
 
-import com.ecinema.app.domain.EntityToDtoConverter;
+import com.ecinema.app.domain.EntityDtoConverter;
 import com.ecinema.app.domain.dtos.ReviewDto;
 import com.ecinema.app.domain.entities.Movie;
 import com.ecinema.app.domain.entities.Review;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 
 /**
  * The interface Review service.
  */
-public interface ReviewService extends AbstractService<Review>, EntityToDtoConverter<Review, ReviewDto> {
+public interface ReviewService extends AbstractService<Review>, EntityDtoConverter<Review, ReviewDto> {
 
     /**
      * Find all dtos by movie list.
@@ -27,5 +29,30 @@ public interface ReviewService extends AbstractService<Review>, EntityToDtoConve
      * @return the list
      */
     List<ReviewDto> findAllDtosByMovieWithId(Long movieId);
+
+    /**
+     * Find page of dtos page.
+     *
+     * @param movieId  the movie id
+     * @param pageable the pageable
+     * @return the page
+     */
+    Page<ReviewDto> findPageOfDtos(Long movieId, Pageable pageable);
+
+    /**
+     * Find average rating of movie double.
+     *
+     * @param movie the movie
+     * @return the double
+     */
+    Double findAverageRatingOfMovie(Movie movie);
+
+    /**
+     * Find average rating of movie with id double.
+     *
+     * @param movieId the movie id
+     * @return the double
+     */
+    Double findAverageRatingOfMovieWithId(Long movieId);
 
 }

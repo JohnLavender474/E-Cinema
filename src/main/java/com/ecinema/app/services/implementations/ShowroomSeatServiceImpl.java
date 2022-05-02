@@ -4,21 +4,25 @@ import com.ecinema.app.domain.dtos.ShowroomSeatDto;
 import com.ecinema.app.domain.entities.ScreeningSeat;
 import com.ecinema.app.domain.entities.Showroom;
 import com.ecinema.app.domain.entities.ShowroomSeat;
+import com.ecinema.app.exceptions.NoEntityFoundException;
 import com.ecinema.app.repositories.ShowroomSeatRepository;
 import com.ecinema.app.services.ScreeningSeatService;
 import com.ecinema.app.services.ShowroomSeatService;
 import com.ecinema.app.utils.Letter;
-import com.ecinema.app.exceptions.NoEntityFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Comparator;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 @Transactional
 public class ShowroomSeatServiceImpl extends AbstractServiceImpl<ShowroomSeat, ShowroomSeatRepository>
         implements ShowroomSeatService {
+
+    private static final Comparator<ShowroomSeat> showroomSeatComparator = Comparator
+            .comparing(ShowroomSeat::getRowLetter)
+            .thenComparingInt(ShowroomSeat::getSeatNumber);
 
     private final ScreeningSeatService screeningSeatService;
 
@@ -40,51 +44,61 @@ public class ShowroomSeatServiceImpl extends AbstractServiceImpl<ShowroomSeat, S
     }
 
     @Override
-    public List<ShowroomSeat> findAllByShowroom(Showroom showroom) {
-        return repository.findAllByShowroom(showroom);
+    public List<ShowroomSeatDto> findAllByShowroom(Showroom showroom) {
+        return sortAndConvert(repository.findAllByShowroom(showroom));
     }
 
     @Override
-    public List<ShowroomSeat> findAllByShowroomWithId(Long showroomId)
+    public List<ShowroomSeatDto> findAllByShowroomWithId(Long showroomId)
             throws NoEntityFoundException {
-        return repository.findAllByShowroomWithId(showroomId);
+        return sortAndConvert(repository.findAllByShowroomWithId(showroomId));
     }
 
     @Override
-    public List<ShowroomSeat> findAllByShowroomAndRowLetter(Showroom showroom, Letter rowLetter) {
-        return repository.findAllByShowroomAndRowLetter(showroom, rowLetter);
+    public List<ShowroomSeatDto> findAllByShowroomAndRowLetter(Showroom showroom, Letter rowLetter) {
+        return sortAndConvert(repository.findAllByShowroomAndRowLetter(
+                showroom, rowLetter));
     }
 
     @Override
-    public List<ShowroomSeat> findAllByShowroomWithIdAndRowLetter(Long showroomId, Letter rowLetter)
+    public List<ShowroomSeatDto> findAllByShowroomWithIdAndRowLetter(Long showroomId, Letter rowLetter)
             throws NoEntityFoundException {
-        return repository.findAllByShowroomWithIdAndRowLetter(showroomId, rowLetter);
+        return sortAndConvert(repository.findAllByShowroomWithIdAndRowLetter(
+                showroomId, rowLetter));
     }
 
     @Override
-    public Optional<ShowroomSeat> findByScreeningSeatsContains(ScreeningSeat screeningSeat) {
-        return repository.findByScreeningSeatsContains(screeningSeat);
+    public ShowroomSeatDto findByScreeningSeatsContains(ScreeningSeat screeningSeat) {
+        return findByScreeningSeatsContainsWithId(screeningSeat.getId());
     }
 
     @Override
-    public Optional<ShowroomSeat> findByScreeningSeatsContainsWithId(Long screeningSeatId)
+    public ShowroomSeatDto findByScreeningSeatsContainsWithId(Long screeningSeatId)
             throws NoEntityFoundException {
-        return repository.findByScreeningSeatsContainsWithId(screeningSeatId);
+        ShowroomSeat showroomSeat = repository.findByScreeningSeatsContainsWithId(screeningSeatId)
+                                              .orElseThrow(() -> new NoEntityFoundException(
+                                                      "showroom seat", "screening seat id", screeningSeatId));
+        return convertToDto(showroomSeat);
     }
 
     @Override
-    public Optional<ShowroomSeat> findByShowroomAndRowLetterAndSeatNumber(
-            Showroom showroom, Letter rowLetter, Integer seatNumber) {
-        return repository.findByShowroomAndRowLetterAndSeatNumber(
-                showroom, rowLetter, seatNumber);
+    public ShowroomSeatDto findByShowroomAndRowLetterAndSeatNumber(
+            Showroom showroom, Letter rowLetter, Integer seatNumber)
+            throws NoEntityFoundException {
+        return findByShowroomWithIdAndRowLetterAndSeatNumber(
+                showroom.getId(), rowLetter, seatNumber);
     }
 
     @Override
-    public Optional<ShowroomSeat> findByShowroomWithIdAndRowLetterAndSeatNumber(
+    public ShowroomSeatDto findByShowroomWithIdAndRowLetterAndSeatNumber(
             Long showroomId, Letter rowLetter, Integer seatNumber)
             throws NoEntityFoundException {
-        return repository.findByShowroomWithIdAndRowLetterAndSeatNumber(
-                showroomId, rowLetter, seatNumber);
+        ShowroomSeat showroomSeat = repository.findByShowroomWithIdAndRowLetterAndSeatNumber(
+                showroomId, rowLetter, seatNumber).orElseThrow(
+                () -> new NoEntityFoundException(
+                        "showroom seat", "showroom id and row letter and seat number",
+                        List.of(showroomId, rowLetter, seatNumber)));
+        return convertToDto(showroomSeat);
     }
 
     @Override
@@ -99,6 +113,11 @@ public class ShowroomSeatServiceImpl extends AbstractServiceImpl<ShowroomSeat, S
         showroomSeatDTO.setShowroomId(showroomSeat.getShowroom().getId());
         showroomSeatDTO.setShowroomLetter(showroomSeat.getShowroom().getShowroomLetter());
         return showroomSeatDTO;
+    }
+
+    private List<ShowroomSeatDto> sortAndConvert(List<ShowroomSeat> showroomSeats) {
+        showroomSeats.sort(showroomSeatComparator);
+        return convertToDto(showroomSeats);
     }
 
 }

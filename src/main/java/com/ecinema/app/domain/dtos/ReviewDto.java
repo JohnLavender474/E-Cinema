@@ -3,7 +3,6 @@ package com.ecinema.app.domain.dtos;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.io.Serializable;
 import java.time.LocalDateTime;
 
 @Getter

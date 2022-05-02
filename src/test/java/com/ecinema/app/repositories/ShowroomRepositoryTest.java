@@ -3,14 +3,12 @@ package com.ecinema.app.repositories;
 import com.ecinema.app.domain.entities.Screening;
 import com.ecinema.app.domain.entities.Showroom;
 import com.ecinema.app.domain.entities.ShowroomSeat;
-import com.ecinema.app.domain.entities.Theater;
 import com.ecinema.app.utils.Letter;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 
-import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -30,9 +28,6 @@ class ShowroomRepositoryTest {
     @Autowired
     private ScreeningRepository screeningRepository;
 
-    @Autowired
-    private TheaterRepository theaterRepository;
-
     /**
      * Tear down.
      */
@@ -41,7 +36,6 @@ class ShowroomRepositoryTest {
         showroomRepository.deleteAll();
         showroomSeatRepository.deleteAll();
         screeningRepository.deleteAll();
-        theaterRepository.deleteAll();
     }
 
     /**
@@ -107,30 +101,6 @@ class ShowroomRepositoryTest {
         assertTrue(showroomOptional2.isPresent());
         assertEquals(showroom, showroomOptional1.get());
         assertEquals(showroom, showroomOptional2.get());
-    }
-
-    /**
-     * Find all by theater.
-     */
-    @Test
-    void findAllByTheater() {
-        // given
-        Theater theater = new Theater();
-        theaterRepository.save(theater);
-        Showroom showroom = new Showroom();
-        showroom.setTheater(theater);
-        showroom.setShowroomLetter(Letter.A);
-        theater.getShowrooms().put(Letter.A, showroom);
-        showroomRepository.save(showroom);
-        // when
-        List<Showroom> showrooms1 = showroomRepository
-                .findAllByTheater(theater);
-        List<Showroom> showrooms2 = showroomRepository
-                .findAllByTheaterWithId(theater.getId());
-        // then
-        assertTrue(showrooms1.contains(showroom));
-        assertTrue(showrooms2.contains(showroom));
-        assertEquals(showrooms1, showrooms2);
     }
 
 }

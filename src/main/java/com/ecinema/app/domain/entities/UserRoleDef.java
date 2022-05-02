@@ -31,6 +31,9 @@ public abstract class UserRoleDef extends AbstractEntity {
     @Column
     private Boolean isRoleValid;
 
+    /**
+     * Instantiates a new User role def.
+     */
     public UserRoleDef() {
         userRole = defineUserRole();
     }

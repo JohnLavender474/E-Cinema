@@ -1,9 +1,9 @@
 package com.ecinema.app.services.implementations;
 
-import com.ecinema.app.repositories.AbstractRepository;
-import com.ecinema.app.services.AbstractService;
 import com.ecinema.app.domain.entities.AbstractEntity;
 import com.ecinema.app.exceptions.NoEntityFoundException;
+import com.ecinema.app.repositories.AbstractRepository;
+import com.ecinema.app.services.AbstractService;
 import com.ecinema.app.utils.UtilMethods;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -12,7 +12,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.List;
+import java.util.Optional;
 
 /**
  * The parent class of service classes handling persistence.
@@ -27,7 +29,9 @@ public abstract class AbstractServiceImpl<E extends AbstractEntity,
 
     protected final Logger logger = LoggerFactory.getLogger(getClass());
 
-    /** The Repository. */
+    /**
+     * The Repository.
+     */
     protected final R repository;
 
     /**

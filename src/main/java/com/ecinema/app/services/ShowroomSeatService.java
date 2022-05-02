@@ -1,22 +1,20 @@
 package com.ecinema.app.services;
 
-import com.ecinema.app.domain.EntityToDtoConverter;
+import com.ecinema.app.domain.EntityDtoConverter;
 import com.ecinema.app.domain.dtos.ShowroomSeatDto;
 import com.ecinema.app.domain.entities.ScreeningSeat;
 import com.ecinema.app.domain.entities.Showroom;
 import com.ecinema.app.domain.entities.ShowroomSeat;
-import com.ecinema.app.utils.Converter;
-import com.ecinema.app.utils.Letter;
 import com.ecinema.app.exceptions.NoEntityFoundException;
+import com.ecinema.app.utils.Letter;
 
 import java.util.List;
-import java.util.Optional;
 
 /**
  * The interface Showroom seat service.
  */
 public interface ShowroomSeatService extends AbstractService<ShowroomSeat>,
-                                             EntityToDtoConverter<ShowroomSeat, ShowroomSeatDto> {
+                                             EntityDtoConverter<ShowroomSeat, ShowroomSeatDto> {
 
     /**
      * Find all by showroom list.
@@ -24,7 +22,7 @@ public interface ShowroomSeatService extends AbstractService<ShowroomSeat>,
      * @param showroom the showroom
      * @return the list
      */
-    List<ShowroomSeat> findAllByShowroom(Showroom showroom);
+    List<ShowroomSeatDto> findAllByShowroom(Showroom showroom);
 
     /**
      * Find all by showroom with id list.
@@ -33,7 +31,7 @@ public interface ShowroomSeatService extends AbstractService<ShowroomSeat>,
      * @return the list
      * @throws NoEntityFoundException the no entity found exception
      */
-    List<ShowroomSeat> findAllByShowroomWithId(Long showroomId)
+    List<ShowroomSeatDto> findAllByShowroomWithId(Long showroomId)
             throws NoEntityFoundException;
 
     /**
@@ -43,7 +41,8 @@ public interface ShowroomSeatService extends AbstractService<ShowroomSeat>,
      * @param rowLetter the row letter
      * @return the list
      */
-    List<ShowroomSeat> findAllByShowroomAndRowLetter(Showroom showroom, Letter rowLetter);
+    List<ShowroomSeatDto> findAllByShowroomAndRowLetter(Showroom showroom, Letter rowLetter)
+            throws NoEntityFoundException;
 
     /**
      * Find all by showroom with id and row letter list.
@@ -53,7 +52,7 @@ public interface ShowroomSeatService extends AbstractService<ShowroomSeat>,
      * @return the list
      * @throws NoEntityFoundException the no entity found exception
      */
-    List<ShowroomSeat> findAllByShowroomWithIdAndRowLetter(Long showroomId, Letter rowLetter)
+    List<ShowroomSeatDto> findAllByShowroomWithIdAndRowLetter(Long showroomId, Letter rowLetter)
             throws NoEntityFoundException;
 
     /**
@@ -62,7 +61,8 @@ public interface ShowroomSeatService extends AbstractService<ShowroomSeat>,
      * @param screeningSeat the screening seat
      * @return the optional
      */
-    Optional<ShowroomSeat> findByScreeningSeatsContains(ScreeningSeat screeningSeat);
+    ShowroomSeatDto findByScreeningSeatsContains(ScreeningSeat screeningSeat)
+            throws NoEntityFoundException;
 
     /**
      * Find by screening seats contains with id optional.
@@ -71,7 +71,7 @@ public interface ShowroomSeatService extends AbstractService<ShowroomSeat>,
      * @return the optional
      * @throws NoEntityFoundException the no entity found exception
      */
-    Optional<ShowroomSeat> findByScreeningSeatsContainsWithId(Long screeningSeatId)
+    ShowroomSeatDto findByScreeningSeatsContainsWithId(Long screeningSeatId)
             throws NoEntityFoundException;
 
     /**
@@ -82,8 +82,9 @@ public interface ShowroomSeatService extends AbstractService<ShowroomSeat>,
      * @param seatNumber the seat number
      * @return the optional
      */
-    Optional<ShowroomSeat> findByShowroomAndRowLetterAndSeatNumber(Showroom showroom, Letter rowLetter,
-                                                                   Integer seatNumber);
+    ShowroomSeatDto findByShowroomAndRowLetterAndSeatNumber(
+            Showroom showroom, Letter rowLetter, Integer seatNumber)
+            throws NoEntityFoundException;
 
     /**
      * Find by showroom with id and row letter and seat number optional.
@@ -94,8 +95,8 @@ public interface ShowroomSeatService extends AbstractService<ShowroomSeat>,
      * @return the optional
      * @throws NoEntityFoundException the no entity found exception
      */
-    Optional<ShowroomSeat> findByShowroomWithIdAndRowLetterAndSeatNumber(Long showroomId, Letter rowLetter,
-                                                                         Integer seatNumber)
+    ShowroomSeatDto findByShowroomWithIdAndRowLetterAndSeatNumber(
+            Long showroomId, Letter rowLetter, Integer seatNumber)
             throws NoEntityFoundException;
 
 }

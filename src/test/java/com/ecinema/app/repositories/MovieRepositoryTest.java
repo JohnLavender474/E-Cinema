@@ -251,4 +251,34 @@ class MovieRepositoryTest {
         }
     }
 
+    @Test
+    void existsByTitle() {
+        // given
+        Movie movie = new Movie();
+        movie.setSearchTitle("TESTMOVIE");
+        movieRepository.save(movie);
+        // when
+        String test1Str = UtilMethods.removeWhitespace("Test Movie").toUpperCase();
+        String test2Str = UtilMethods.removeWhitespace("Test movie").toUpperCase();
+        String test3Str = UtilMethods.removeWhitespace("teStM oVi E").toUpperCase();
+        String test4Str = UtilMethods.removeWhitespace("   t E sT M   O vI e").toUpperCase();
+        String test5Str = UtilMethods.removeWhitespace("false").toUpperCase();
+        boolean test1 = movieRepository.existsBySearchTitle(test1Str);
+        boolean test2 = movieRepository.existsBySearchTitle(test2Str);
+        boolean test3 = movieRepository.existsBySearchTitle(test3Str);
+        boolean test4 = movieRepository.existsBySearchTitle(test4Str);
+        boolean test5 = movieRepository.existsBySearchTitle(test5Str);
+        // then
+        assertEquals("TESTMOVIE", test1Str);
+        assertEquals("TESTMOVIE", test2Str);
+        assertEquals("TESTMOVIE", test3Str);
+        assertEquals("TESTMOVIE", test4Str);
+        assertNotEquals("TESTMOVIE", test5Str);
+        assertTrue(test1);
+        assertTrue(test2);
+        assertTrue(test3);
+        assertTrue(test4);
+        assertFalse(test5);
+    }
+
 }
