@@ -4,6 +4,7 @@ import com.ecinema.app.domain.dtos.UserDto;
 import com.ecinema.app.exceptions.NoEntityFoundException;
 import com.ecinema.app.exceptions.PasswordMismatchException;
 import com.ecinema.app.services.SecurityService;
+import com.ecinema.app.utils.UtilMethods;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
@@ -33,8 +34,10 @@ public class LoginController {
 
     @GetMapping("/login")
     public String showLoginPage() {
-        logger.info("Login get mapping");
+        logger.debug(UtilMethods.getDelimiterLine());
+        logger.debug("Login get mapping");
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        logger.debug("Authentication obj: " + authentication);
         return authentication == null || authentication instanceof AnonymousAuthenticationToken ?
                 "login" : "redirect:/index";
     }
@@ -43,20 +46,23 @@ public class LoginController {
     public String performLogin(final HttpSession httpSession,
                                @RequestParam("username") final String username,
                                @RequestParam("password") final String password) {
-        logger.info("Perform login post mapping");
+        logger.debug(UtilMethods.getDelimiterLine());
+        logger.debug("Perform login post mapping");
         try {
             UserDto userDto = securityService.login(username, password);
+            logger.debug("User DTO: " + userDto);
             httpSession.setAttribute("user", userDto);
             return "redirect:/index";
         } catch (NoEntityFoundException | PasswordMismatchException e) {
-            logger.info(e.toString());
+            logger.debug(e.toString());
             return "login";
         }
     }
 
     @GetMapping("/login-error")
     public String loginError(final Model model) {
-        logger.info("Login error get mapping");
+        logger.debug(UtilMethods.getDelimiterLine());
+        logger.debug("Login error get mapping");
         model.addAttribute("error", "Failed to login, bad credentials");
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         return authentication == null || authentication instanceof AnonymousAuthenticationToken ?

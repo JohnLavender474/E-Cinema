@@ -7,6 +7,7 @@ import com.ecinema.app.exceptions.NoEntityFoundException;
 import com.ecinema.app.services.MovieService;
 import com.ecinema.app.services.ReviewService;
 import com.ecinema.app.services.ScreeningService;
+import com.ecinema.app.utils.UtilMethods;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,13 +36,14 @@ public class MoviesController {
     public String moviesPage(final Model model,
                              @RequestParam(value = "page", required = false, defaultValue = "1") Integer page,
                              @RequestParam(value = "search", required = false, defaultValue = "") String search) {
-        logger.info("Page: " + page);
-        logger.info("Search: " + search);
+        logger.debug(UtilMethods.getDelimiterLine());
+        logger.debug("Page: " + page);
+        logger.debug("Search: " + search);
         PageRequest pageRequest = PageRequest.of(page - 1, 6);
         Page<MovieDto> pageOfDtos = (search == null || search.isBlank()) ?
                 movieService.pageOfDtos(pageRequest) :
                 movieService.pageOfDtosLikeTitle(search, pageRequest);
-        logger.info("Page of movies: " + pageOfDtos);
+        logger.debug("Page of movies: " + pageOfDtos);
         addListOfListsAttribute(model, "mListOfLists", 3, pageOfDtos);
         addPageNumbersAttribute(model, pageOfDtos);
         model.addAttribute("search", search);
@@ -49,11 +51,16 @@ public class MoviesController {
     }
 
     @GetMapping("/movie-info/{id}")
-    public String movieInfoPage(final Model model, @PathVariable("id") final Long id) {
+    public String moviedebugPage(final Model model, @PathVariable("id") final Long id) {
+        logger.debug(UtilMethods.getDelimiterLine());
+        logger.debug("Movie debug get mapping");
         MovieDto movieDto = movieService.convertToDto(id);
+        logger.debug("Movie DTO: " + movieDto);
         model.addAttribute("movie", movieDto);
         Double avgRating = reviewService.findAverageRatingOfMovieWithId(id);
+        logger.debug("Avg rating: " + avgRating);
         Integer roundedAvgRating = (int) Math.round(avgRating);
+        logger.debug("Rounded avg rating: " + roundedAvgRating);
         model.addAttribute("avgRating", roundedAvgRating);
         return "movie-info";
     }
@@ -62,8 +69,10 @@ public class MoviesController {
     public String movieReviewsPage(
             final Model model, @PathVariable("id") final Long id,
             @RequestParam(value = "page", required = false, defaultValue = "1") final Integer page) {
+        logger.debug(UtilMethods.getDelimiterLine());
         PageRequest pageRequest = PageRequest.of(page - 1, 6);
         Page<ReviewDto> pageOfDtos = reviewService.findPageOfDtos(id, pageRequest);
+        logger.debug("Page of DTOs: " + pageOfDtos);
         model.addAttribute("reviews", pageOfDtos);
         addPageNumbersAttribute(model, pageOfDtos);
         return "movie-reviews";
@@ -73,8 +82,10 @@ public class MoviesController {
     public String movieScreeningsPage(
             final Model model, @PathVariable("id") final Long id,
             @RequestParam(value = "page", required = false, defaultValue = "1") final Integer page) {
+        logger.debug(UtilMethods.getDelimiterLine());
         PageRequest pageRequest = PageRequest.of(page - 1, 6);
         Page<ScreeningDto> pageOfDtos = screeningService.findPageByMovieId(id, pageRequest);
+        logger.debug("Screening DTOs: " + pageOfDtos);
         model.addAttribute("screenings", pageOfDtos);
         addPageNumbersAttribute(model, pageOfDtos);
         return "movie-screenings";

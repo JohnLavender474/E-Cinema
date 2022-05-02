@@ -56,7 +56,7 @@
             </td>
         </tr>
     </table>
-    <table class="table-hover">
+    <table class="table table-bordered table-striped">
         <thead class="thead-dark">
         <tr>
             <th>Showroom</th>
@@ -71,7 +71,7 @@
             <td th:text="${screening.seatsAvailable} + '/' + ${screening.totalSeatsInRoom}"></td>
             <td>
                 <button class="button">
-                    <a th:href="@{/screening/{id}(id=${screening.id})}">See Screening</a>
+                    <a th:href="@{/screening/{id}(id=${screening.id})}">See the screening!</a>
                 </button>
             </td>
         </tr>

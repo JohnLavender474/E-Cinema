@@ -1,5 +1,6 @@
 package com.ecinema.app.domain.entities;
 
+import com.ecinema.app.utils.ISeat;
 import com.ecinema.app.utils.Letter;
 import lombok.Getter;
 import lombok.Setter;
@@ -11,7 +12,7 @@ import java.util.Set;
 @Getter
 @Setter
 @Entity
-public class ShowroomSeat extends AbstractEntity {
+public class ShowroomSeat extends AbstractEntity implements ISeat {
 
     @JoinColumn
     @ManyToOne(fetch = FetchType.EAGER)

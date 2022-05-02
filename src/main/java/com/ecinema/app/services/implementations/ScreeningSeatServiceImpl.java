@@ -5,15 +5,17 @@ import com.ecinema.app.domain.entities.Screening;
 import com.ecinema.app.domain.entities.ScreeningSeat;
 import com.ecinema.app.domain.entities.ShowroomSeat;
 import com.ecinema.app.domain.entities.Ticket;
+import com.ecinema.app.exceptions.NoAssociationException;
 import com.ecinema.app.exceptions.NoEntityFoundException;
 import com.ecinema.app.repositories.ScreeningSeatRepository;
 import com.ecinema.app.services.ScreeningSeatService;
 import com.ecinema.app.services.TicketService;
+import com.ecinema.app.utils.ISeat;
+import com.ecinema.app.utils.Letter;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 /**
  * The type Screening seat service.
@@ -54,33 +56,50 @@ public class ScreeningSeatServiceImpl extends AbstractServiceImpl<ScreeningSeat,
     }
 
     @Override
-    public List<ScreeningSeat> findAllByScreening(Screening screening) {
-        return repository.findAllByScreening(screening);
+    public Map<Letter, Set<ScreeningSeatDto>> getMapOfScreeningSeatsForScreeningWithId(Long screeningId)
+            throws NoAssociationException {
+        List<ScreeningSeatDto> screeningSeatDtos = findAllByScreeningWithId(screeningId);
+        if (screeningSeatDtos.isEmpty()) {
+            throw new NoAssociationException("No screening seats mapped to screening with id " + screeningId);
+        }
+        Map<Letter, Set<ScreeningSeatDto>> mapOfScreeningSeats = new TreeMap<>();
+        for (ScreeningSeatDto screeningSeatDto : screeningSeatDtos) {
+            mapOfScreeningSeats.putIfAbsent(screeningSeatDto.getRowLetter(), new TreeSet<>(ISeat.comparator));
+            mapOfScreeningSeats.get(screeningSeatDto.getRowLetter()).add(screeningSeatDto);
+        }
+        return mapOfScreeningSeats;
     }
 
     @Override
-    public List<ScreeningSeat> findAllByScreeningWithId(Long screeningId) {
-        return repository.findAllByScreeningWithId(screeningId);
+    public List<ScreeningSeatDto> findAllByScreening(Screening screening) {
+        return sortAndConvert(repository.findAllByScreening(screening));
     }
 
     @Override
-    public List<ScreeningSeat> findAllByShowroomSeat(ShowroomSeat showroomSeat) {
-        return repository.findAllByShowroomSeat(showroomSeat);
+    public List<ScreeningSeatDto> findAllByScreeningWithId(Long screeningId) {
+        return sortAndConvert(repository.findAllByScreeningWithId(screeningId));
     }
 
     @Override
-    public List<ScreeningSeat> findAllByShowroomSeatWithId(Long showroomSeatId) {
-        return repository.findAllByShowroomSeatWithId(showroomSeatId);
+    public List<ScreeningSeatDto> findAllByShowroomSeat(ShowroomSeat showroomSeat) {
+        return sortAndConvert(repository.findAllByShowroomSeat(showroomSeat));
     }
 
     @Override
-    public Optional<ScreeningSeat> findByTicket(Ticket ticket) {
-        return repository.findByTicket(ticket);
+    public List<ScreeningSeatDto> findAllByShowroomSeatWithId(Long showroomSeatId) {
+        return sortAndConvert(repository.findAllByShowroomSeatWithId(showroomSeatId));
     }
 
     @Override
-    public Optional<ScreeningSeat> findByTicketWithId(Long ticketId) {
-        return repository.findByTicketWithId(ticketId);
+    public ScreeningSeatDto findByTicket(Ticket ticket) {
+        return findByTicketWithId(ticket.getId());
+    }
+
+    @Override
+    public ScreeningSeatDto findByTicketWithId(Long ticketId) {
+        ScreeningSeat screeningSeat = repository.findByTicketWithId(ticketId).orElseThrow(
+                () -> new NoEntityFoundException("screening seat", "ticket id", ticketId));
+        return convertToDto(screeningSeat);
     }
 
     @Override
@@ -95,6 +114,11 @@ public class ScreeningSeatServiceImpl extends AbstractServiceImpl<ScreeningSeat,
         screeningSeatDTO.setIsBooked(screeningSeat.getTicket() != null);
         screeningSeatDTO.setScreeningId(screeningSeat.getScreening().getId());
         return screeningSeatDTO;
+    }
+
+    private List<ScreeningSeatDto> sortAndConvert(List<ScreeningSeat> screeningSeats) {
+        screeningSeats.sort(ISeat.comparator);
+        return convertToDto(screeningSeats);
     }
 
 }

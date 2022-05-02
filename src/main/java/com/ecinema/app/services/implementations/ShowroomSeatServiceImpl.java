@@ -8,6 +8,7 @@ import com.ecinema.app.exceptions.NoEntityFoundException;
 import com.ecinema.app.repositories.ShowroomSeatRepository;
 import com.ecinema.app.services.ScreeningSeatService;
 import com.ecinema.app.services.ShowroomSeatService;
+import com.ecinema.app.utils.ISeat;
 import com.ecinema.app.utils.Letter;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -19,10 +20,6 @@ import java.util.List;
 @Transactional
 public class ShowroomSeatServiceImpl extends AbstractServiceImpl<ShowroomSeat, ShowroomSeatRepository>
         implements ShowroomSeatService {
-
-    private static final Comparator<ShowroomSeat> showroomSeatComparator = Comparator
-            .comparing(ShowroomSeat::getRowLetter)
-            .thenComparingInt(ShowroomSeat::getSeatNumber);
 
     private final ScreeningSeatService screeningSeatService;
 
@@ -116,7 +113,7 @@ public class ShowroomSeatServiceImpl extends AbstractServiceImpl<ShowroomSeat, S
     }
 
     private List<ShowroomSeatDto> sortAndConvert(List<ShowroomSeat> showroomSeats) {
-        showroomSeats.sort(showroomSeatComparator);
+        showroomSeats.sort(ISeat.comparator);
         return convertToDto(showroomSeats);
     }
 
