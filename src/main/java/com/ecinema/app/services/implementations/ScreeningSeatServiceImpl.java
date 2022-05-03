@@ -56,7 +56,7 @@ public class ScreeningSeatServiceImpl extends AbstractServiceImpl<ScreeningSeat,
     }
 
     @Override
-    public Map<Letter, Set<ScreeningSeatDto>> getMapOfScreeningSeatsForScreeningWithId(Long screeningId)
+    public Map<Letter, Set<ScreeningSeatDto>> findScreeningSeatMapByScreeningWithId(Long screeningId)
             throws NoAssociationException {
         List<ScreeningSeatDto> screeningSeatDtos = findAllByScreeningWithId(screeningId);
         if (screeningSeatDtos.isEmpty()) {

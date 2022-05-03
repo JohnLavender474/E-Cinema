@@ -83,7 +83,8 @@ class MovieServiceTest {
         screeningSeatService = new ScreeningSeatServiceImpl(
                 screeningSeatRepository, ticketService);
         screeningService = new ScreeningServiceImpl(
-                screeningRepository, movieRepository, showroomRepository, screeningSeatService, null);
+                screeningRepository, movieRepository, showroomRepository,
+                screeningSeatService, null);
         reviewValidator = new ReviewValidator();
         movieValidator = new MovieValidator();
         customerRoleDefService = new CustomerRoleDefServiceImpl(
@@ -95,9 +96,11 @@ class MovieServiceTest {
         showroomSeatService = new ShowroomSeatServiceImpl(
                 showroomSeatRepository, screeningSeatService);
         showroomService = new ShowroomServiceImpl(
-                showroomRepository, showroomSeatService, screeningService, null);
+                showroomRepository, showroomSeatService,
+                screeningService, null);
         userService = new UserServiceImpl(
-                userRepository, customerRoleDefService, null, null);
+                userRepository, customerRoleDefService,
+                null, null);
     }
 
     /**

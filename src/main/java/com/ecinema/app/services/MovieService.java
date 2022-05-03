@@ -70,7 +70,7 @@ public interface MovieService extends AbstractService<Movie>, EntityDtoConverter
      * @param searchTitle the searchTitle
      * @return the optional
      */
-    Optional<Movie> findBySearchTitle(String searchTitle);
+    MovieDto findByTitle(String searchTitle);
 
     /**
      * Exists by title boolean.
@@ -78,7 +78,7 @@ public interface MovieService extends AbstractService<Movie>, EntityDtoConverter
      * @param searchTitle the searchTitle
      * @return the boolean
      */
-    boolean existsBySearchTitle(String searchTitle);
+    boolean existsByTitle(String searchTitle);
 
     /**
      * Find all by like title list.

@@ -4,6 +4,7 @@ import com.ecinema.app.domain.dtos.ShowroomSeatDto;
 import com.ecinema.app.domain.entities.ScreeningSeat;
 import com.ecinema.app.domain.entities.Showroom;
 import com.ecinema.app.domain.entities.ShowroomSeat;
+import com.ecinema.app.exceptions.NoAssociationException;
 import com.ecinema.app.exceptions.NoEntityFoundException;
 import com.ecinema.app.repositories.ShowroomSeatRepository;
 import com.ecinema.app.services.ScreeningSeatService;
@@ -13,8 +14,7 @@ import com.ecinema.app.utils.Letter;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Comparator;
-import java.util.List;
+import java.util.*;
 
 @Service
 @Transactional
@@ -38,6 +38,21 @@ public class ShowroomSeatServiceImpl extends AbstractServiceImpl<ShowroomSeat, S
         }
         // cascade delete ScreeningSeats
         screeningSeatService.deleteAll(showroomSeat.getScreeningSeats());
+    }
+
+    @Override
+    public Map<Letter, Set<ShowroomSeatDto>> findShowroomSeatMapByShowroomWithId(Long showroomId)
+            throws NoAssociationException {
+        List<ShowroomSeatDto> showroomSeatDtos = findAllByShowroomWithId(showroomId);
+        if (showroomSeatDtos.isEmpty()) {
+            throw new NoAssociationException("No showroom seats mapped to showroom with id " + showroomId);
+        }
+        Map<Letter, Set<ShowroomSeatDto>> showroomSeatMap = new EnumMap<>(Letter.class);
+        for (ShowroomSeatDto showroomSeatDto : showroomSeatDtos) {
+            showroomSeatMap.putIfAbsent(showroomSeatDto.getShowroomLetter(), new TreeSet<>(ISeat.comparator));
+            showroomSeatMap.get(showroomSeatDto.getRowLetter()).add(showroomSeatDto);
+        }
+        return showroomSeatMap;
     }
 
     @Override

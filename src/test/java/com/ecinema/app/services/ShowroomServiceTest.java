@@ -3,9 +3,13 @@ package com.ecinema.app.services;
 import com.ecinema.app.domain.entities.Screening;
 import com.ecinema.app.domain.entities.Showroom;
 import com.ecinema.app.domain.entities.ShowroomSeat;
+import com.ecinema.app.domain.forms.ShowroomForm;
+import com.ecinema.app.exceptions.InvalidArgsException;
 import com.ecinema.app.repositories.*;
 import com.ecinema.app.services.implementations.*;
 import com.ecinema.app.utils.Letter;
+import com.ecinema.app.validators.ScreeningFormValidator;
+import com.ecinema.app.validators.ShowroomFormValidator;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -30,6 +34,8 @@ class ShowroomServiceTest {
     private ScreeningService screeningService;
     private ScreeningSeatService screeningSeatService;
     private TicketService ticketService;
+    private ShowroomFormValidator showroomFormValidator;
+    private ScreeningFormValidator screeningFormValidator;
     @Mock
     private AddressRepository addressRepository;
     @Mock
@@ -50,11 +56,20 @@ class ShowroomServiceTest {
      */
     @BeforeEach
     void setUp() {
+        showroomFormValidator = new ShowroomFormValidator();
+        screeningFormValidator = new ScreeningFormValidator();
         ticketService = new TicketServiceImpl(ticketRepository);
-        screeningSeatService = new ScreeningSeatServiceImpl(screeningSeatRepository, ticketService);
-        screeningService = new ScreeningServiceImpl(screeningRepository, movieRepository, showroomRepository,  screeningSeatService, null);
-        showroomSeatService = new ShowroomSeatServiceImpl(showroomSeatRepository, screeningSeatService);
-        showroomService = new ShowroomServiceImpl(showroomRepository, showroomSeatService, screeningService, null);
+        screeningSeatService = new ScreeningSeatServiceImpl(
+                screeningSeatRepository, ticketService);
+        screeningService = new ScreeningServiceImpl(
+                screeningRepository, movieRepository,
+                showroomRepository,  screeningSeatService,
+                screeningFormValidator);
+        showroomSeatService = new ShowroomSeatServiceImpl(
+                showroomSeatRepository, screeningSeatService);
+        showroomService = new ShowroomServiceImpl(
+                showroomRepository, showroomSeatService,
+                screeningService, showroomFormValidator);
     }
 
     /**

@@ -6,14 +6,9 @@ import org.springframework.boot.test.context.SpringBootTest;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @SpringBootTest
-class ECinemaApplicationTests {
+class ECinemaApplicationContextTest {
 
     @Test
-    public void contextLoads() {}
-
-    @Test
-    public void test() {
-        assertEquals(20, 5 * 4);
-    }
+    public void loadContext() {}
 
 }

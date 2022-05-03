@@ -13,7 +13,7 @@ import com.ecinema.app.services.ScreeningService;
 import com.ecinema.app.services.ShowroomSeatService;
 import com.ecinema.app.services.ShowroomService;
 import com.ecinema.app.utils.Letter;
-import com.ecinema.app.validators.ShowroomValidator;
+import com.ecinema.app.validators.ShowroomFormValidator;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -29,7 +29,7 @@ public class ShowroomServiceImpl extends AbstractServiceImpl<Showroom, ShowroomR
 
     private final ShowroomSeatService showroomSeatService;
     private final ScreeningService screeningService;
-    private final ShowroomValidator showroomValidator;
+    private final ShowroomFormValidator showroomFormValidator;
 
     /**
      * Instantiates a new Showroom service.
@@ -37,11 +37,11 @@ public class ShowroomServiceImpl extends AbstractServiceImpl<Showroom, ShowroomR
      * @param repository the repository
      */
     public ShowroomServiceImpl(ShowroomRepository repository, ShowroomSeatService showroomSeatService,
-                               ScreeningService screeningService, ShowroomValidator showroomValidator) {
+                               ScreeningService screeningService, ShowroomFormValidator showroomFormValidator) {
         super(repository);
         this.showroomSeatService = showroomSeatService;
         this.screeningService = screeningService;
-        this.showroomValidator = showroomValidator;
+        this.showroomFormValidator = showroomFormValidator;
     }
 
     @Override
@@ -53,25 +53,32 @@ public class ShowroomServiceImpl extends AbstractServiceImpl<Showroom, ShowroomR
     }
 
     @Override
-    public void submitShowroomForm(ShowroomForm showroomForm)
+    public Map<Letter, Set<ShowroomSeatDto>> findShowroomSeatMapByShowroomWithId(Long showroomId) {
+        return showroomSeatService.findShowroomSeatMapByShowroomWithId(showroomId);
+    }
+
+    @Override
+    public Long submitShowroomForm(ShowroomForm showroomForm)
             throws InvalidArgsException {
         List<String> errors = new ArrayList<>();
-        showroomValidator.validate(showroomForm, errors);
+        showroomFormValidator.validate(showroomForm, errors);
         if (!errors.isEmpty()) {
             throw new InvalidArgsException(errors);
         }
         Showroom showroom = new Showroom();
-        saveAndFlush(showroom);
-        for (Map.Entry<Letter, Integer> entry : showroomForm.getSeatMap().entrySet()) {
-            for (int i = 1; i <= entry.getValue(); i++) {
+        Long showroomId = saveFlushAndGetId(showroom);
+        for (int i = 0; i < showroomForm.getNumberOfRows(); i++) {
+            for (int j = 0; j < showroomForm.getNumberOfSeatsPerRow(); j++) {
+                Letter rowLetter = Letter.values()[i];
                 ShowroomSeat showroomSeat = new ShowroomSeat();
-                showroomSeat.setRowLetter(entry.getKey());
-                showroomSeat.setSeatNumber(i);
+                showroomSeat.setRowLetter(rowLetter);
+                showroomSeat.setSeatNumber(j);
                 showroomSeat.setShowroom(showroom);
                 showroom.getShowroomSeats().add(showroomSeat);
                 showroomSeatService.save(showroomSeat);
             }
         }
+        return showroomId;
     }
 
     @Override

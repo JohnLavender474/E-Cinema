@@ -60,17 +60,17 @@ class MovieRepositoryTest {
         for (int i = 0; i < 30; i++) {
             Movie movie = new Movie();
             movie.setId((long) i + 1);
-            movie.setTitle(i < 15 ? "title" : "dummy");
+            movie.setSearchTitle(i < 15 ? "TITLE" : "DUMMY");
             movieRepository.save(movie);
         }
         // when
         Pageable pageable =  PageRequest.of(0, 15);
-        Page<Movie> page = movieRepository.findByTitleContaining("t", pageable);
+        Page<Movie> page = movieRepository.findBySearchTitleContaining("T", pageable);
         List<Movie> test = page.getContent();
         // then
         assertEquals(15, test.size());
         for (Movie movie : test) {
-            assertTrue(movie.getTitle().contains("t"));
+            assertTrue(movie.getSearchTitle().contains("T"));
         }
     }
 
@@ -80,15 +80,15 @@ class MovieRepositoryTest {
         for (int i = 0; i < 30; i++) {
             Movie movie = new Movie();
             movie.setId((long) i + 1);
-            movie.setTitle(i < 15 ? "title" + i : "dummy");
+            movie.setSearchTitle(i < 15 ? "TITLE" + i : "DUMMY");
             movieRepository.save(movie);
         }
         // when
-        List<Movie> test = movieRepository.findByTitleContaining("t");
+        List<Movie> test = movieRepository.findBySearchTitleContaining("T");
         // then
         assertEquals(15, test.size());
         for (Movie movie : test) {
-            assertTrue(movie.getTitle().contains("t"));
+            assertTrue(movie.getSearchTitle().contains("T"));
         }
     }
 

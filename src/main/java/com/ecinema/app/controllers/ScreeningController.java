@@ -32,7 +32,7 @@ public class ScreeningController {
         ScreeningDto screeningDto = screeningService.convertToDto(id);
         logger.debug("Screening DTO: " + screeningDto);
         Map<Letter, Set<ScreeningSeatDto>> mapOfScreeningSeats = screeningSeatService
-                .getMapOfScreeningSeatsForScreeningWithId(id);
+                .findScreeningSeatMapByScreeningWithId(id);
         logger.debug("Map of screening seats: has " + mapOfScreeningSeats.keySet().size() + " rows");
         for (Map.Entry<Letter, Set<ScreeningSeatDto>> entry : mapOfScreeningSeats.entrySet()) {
             logger.debug("Row " + entry.getKey() + " has " + entry.getValue() + " seats");

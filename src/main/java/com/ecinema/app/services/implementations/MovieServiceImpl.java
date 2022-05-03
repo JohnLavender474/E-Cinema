@@ -29,7 +29,6 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 
 /**
@@ -49,9 +48,12 @@ public class MovieServiceImpl extends AbstractServiceImpl<Movie, MovieRepository
     /**
      * Instantiates a new Movie service.
      *
-     * @param repository       the repository
-     * @param reviewService    the review service
-     * @param screeningService the screening service
+     * @param repository             the repository
+     * @param reviewService          the review service
+     * @param screeningService       the screening service
+     * @param customerRoleDefService the customer role def service
+     * @param movieValidator         the movie validator
+     * @param reviewValidator        the review validator
      */
     public MovieServiceImpl(MovieRepository repository, ReviewService reviewService,
                             ScreeningService screeningService, CustomerRoleDefService customerRoleDefService,
@@ -111,7 +113,7 @@ public class MovieServiceImpl extends AbstractServiceImpl<Movie, MovieRepository
             throw new InvalidArgsException(errors);
         }
         String searchTitle = convertTitleToSearchTitle(movieForm.getTitle());
-        if (existsBySearchTitle(searchTitle)) {
+        if (existsByTitle(searchTitle)) {
             throw new ClashException("Movie \"" + movieForm.getTitle() + "\" already exists");
         }
         Movie movie = new Movie();
@@ -137,28 +139,35 @@ public class MovieServiceImpl extends AbstractServiceImpl<Movie, MovieRepository
     }
 
     @Override
-    public Optional<Movie> findBySearchTitle(String title) {
-        return repository.findByTitle(title.toUpperCase());
+    public MovieDto findByTitle(String title) {
+        String searchTitle = convertTitleToSearchTitle(title);
+        Movie movie = repository.findBySearchTitle(searchTitle)
+                .orElseThrow(() -> new NoEntityFoundException("movie", "title", title));
+        return convertToDto(movie);
     }
 
     @Override
-    public boolean existsBySearchTitle(String title) {
-        return repository.existsBySearchTitle(title);
+    public boolean existsByTitle(String title) {
+        String searchTitle = convertTitleToSearchTitle(title);
+        return repository.existsBySearchTitle(searchTitle);
     }
 
     @Override
     public List<Movie> findAllByLikeTitle(String title) {
-        return repository.findByTitleContaining(title);
+        String searchTitle = convertTitleToSearchTitle(title);
+        return repository.findBySearchTitleContaining(searchTitle);
     }
 
     @Override
     public Page<MovieDto> pageOfDtosLikeTitle(String title, Pageable pageable) {
-        return findAllByLikeTitle(title, pageable).map(this::convertToDto);
+        String searchTitle = convertTitleToSearchTitle(title);
+        return findAllByLikeTitle(searchTitle, pageable).map(this::convertToDto);
     }
 
     @Override
     public Page<Movie> findAllByLikeTitle(String title, Pageable pageable) {
-        return repository.findByTitleContaining(title, pageable);
+        String searchTitle = convertTitleToSearchTitle(title);
+        return repository.findBySearchTitleContaining(searchTitle, pageable);
     }
 
     @Override

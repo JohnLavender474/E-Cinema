@@ -91,11 +91,27 @@ public interface AbstractService<E extends AbstractEntity> {
     void save(E entity);
 
     /**
+     * Save and get id long.
+     *
+     * @param entity the entity
+     * @return the long
+     */
+    Long saveAndGetId(E entity);
+
+    /**
      * Save all.
      *
      * @param entities the entities
      */
     void saveAll(Iterable<E> entities);
+
+    /**
+     * Save all and get ids list.
+     *
+     * @param entities the entities
+     * @return the list
+     */
+    List<Long> saveAllAndGetIds(Iterable<E> entities);
 
     /**
      * Save and flush.
@@ -105,10 +121,24 @@ public interface AbstractService<E extends AbstractEntity> {
     void saveAndFlush(E entity);
 
     /**
+     * Save flush and get id.
+     *
+     * @param entity the entity
+     */
+    Long saveFlushAndGetId(E entity);
+
+    /**
      * Save and flush all.
      *
      * @param entities the entities
      */
     void saveAndFlushAll(Iterable<E> entities);
+
+    /**
+     * Save flush all and get ids.
+     *
+     * @param entities the entities
+     */
+    List<Long> saveFlushAllAndGetIds(Iterable<E> entities);
 
 }

@@ -26,7 +26,7 @@ public interface ScreeningSeatService extends AbstractService<ScreeningSeat>,
      * @param screeningId the screening id
      * @return the map of screening seats for screening with id
      */
-    Map<Letter, Set<ScreeningSeatDto>> getMapOfScreeningSeatsForScreeningWithId(Long screeningId)
+    Map<Letter, Set<ScreeningSeatDto>> findScreeningSeatMapByScreeningWithId(Long screeningId)
             throws NoAssociationException;
 
     /**

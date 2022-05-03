@@ -12,6 +12,7 @@ import com.ecinema.app.repositories.ScreeningRepository;
 import com.ecinema.app.repositories.ShowroomRepository;
 import com.ecinema.app.services.ScreeningSeatService;
 import com.ecinema.app.services.ScreeningService;
+import com.ecinema.app.utils.Letter;
 import com.ecinema.app.utils.UtilMethods;
 import com.ecinema.app.validators.ScreeningFormValidator;
 import org.springframework.data.domain.Page;
@@ -21,8 +22,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -75,7 +76,12 @@ public class ScreeningServiceImpl extends AbstractServiceImpl<Screening, Screeni
     }
 
     @Override
-    public void submitScreeningForm(ScreeningForm screeningForm)
+    public Map<Letter, Set<ScreeningSeatDto>> findScreeningSeatMapByScreeningWithId(Long screeningId) {
+        return screeningSeatService.findScreeningSeatMapByScreeningWithId(screeningId);
+    }
+
+    @Override
+    public Long submitScreeningForm(ScreeningForm screeningForm)
             throws NoEntityFoundException, InvalidArgsException, ClashException {
         List<String> errors = new ArrayList<>();
         screeningFormValidator.validate(screeningForm, errors);
@@ -109,16 +115,7 @@ public class ScreeningServiceImpl extends AbstractServiceImpl<Screening, Screeni
         showroom.getScreenings().add(screening);
         screening.setMovie(movie);
         movie.getScreenings().add(screening);
-        save(screening);
-        for (ShowroomSeat showroomSeat : showroom.getShowroomSeats()) {
-            ScreeningSeat screeningSeat = new ScreeningSeat();
-            screeningSeat.setTicket(null);
-            screeningSeat.setScreening(screening);
-            screening.getScreeningSeats().add(screeningSeat);
-            screeningSeat.setShowroomSeat(showroomSeat);
-            showroomSeat.getScreeningSeats().add(screeningSeat);
-            screeningSeatService.save(screeningSeat);
-        }
+        return saveAndGetId(screening);
     }
 
     @Override
@@ -203,9 +200,12 @@ public class ScreeningServiceImpl extends AbstractServiceImpl<Screening, Screeni
                 () -> new NoEntityFoundException("screening", "id", id));
         ScreeningDto screeningDTO = new ScreeningDto();
         screeningDTO.setId(screening.getId());
+        screeningDTO.setMovieId(screening.getMovie().getId());
+        screeningDTO.setShowroomId(screening.getShowroom().getId());
         screeningDTO.setMovieTitle(screening.getMovie().getTitle());
         screeningDTO.setShowroomLetter(screening.getShowroom().getShowroomLetter());
         screeningDTO.setShowDateTime(screening.getShowDateTime());
+        screeningDTO.setEndDateTime(screening.getEndDateTime());
         screeningDTO.setTotalSeatsInRoom(screening.getShowroom().getShowroomSeats().size());
         long numberOfSeatsBooked = screening
                 .getScreeningSeats().stream().filter(

@@ -15,6 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 /**
  * The parent class of service classes handling persistence.
@@ -111,6 +112,30 @@ public abstract class AbstractServiceImpl<E extends AbstractEntity,
     @Override
     public Page<E> findAll(Pageable pageable) {
         return repository.findAll(pageable);
+    }
+
+    @Override
+    public Long saveAndGetId(E entity) {
+        return repository.save(entity).getId();
+    }
+
+    @Override
+    public List<Long> saveAllAndGetIds(Iterable<E> entities) {
+        return repository.saveAll(entities)
+                         .stream().map(E::getId)
+                         .collect(Collectors.toList());
+    }
+
+    @Override
+    public Long saveFlushAndGetId(E entity) {
+        return repository.saveAndFlush(entity).getId();
+    }
+
+    @Override
+    public List<Long> saveFlushAllAndGetIds(Iterable<E> entities) {
+        return repository.saveAllAndFlush(entities)
+                .stream().map(E::getId)
+                .collect(Collectors.toList());
     }
 
     @Override

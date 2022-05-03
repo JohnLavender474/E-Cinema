@@ -1,8 +1,10 @@
 package com.ecinema.app.configs;
 
 import com.ecinema.app.domain.entities.Movie;
+import com.ecinema.app.domain.entities.Showroom;
 import com.ecinema.app.domain.entities.User;
 import com.ecinema.app.domain.forms.MovieForm;
+import com.ecinema.app.domain.forms.ShowroomForm;
 import com.ecinema.app.services.EmailSenderService;
 import com.ecinema.app.services.MovieService;
 import com.ecinema.app.services.ShowroomService;
@@ -20,6 +22,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.Month;
 import java.util.ArrayList;
+import java.util.EnumMap;
 import java.util.List;
 
 /**
@@ -75,8 +78,8 @@ public class InitializationConfig {
         root.setIsAccountExpired(false);
         root.setIsCredentialsExpired(false);
         userService.save(root);
-        userService.addUserRoleDefToUser(root, UserRole.ADMIN,
-                                         UserRole.CUSTOMER, UserRole.MODERATOR);
+        userService.addUserRoleDefToUser(
+                root, UserRole.ADMIN, UserRole.CUSTOMER, UserRole.MODERATOR);
     }
 
     private void defineMovies() {
@@ -422,7 +425,29 @@ public class InitializationConfig {
 
     private void defineShowrooms() {
         // Showroom A
-
+        ShowroomForm showroomFormA = new ShowroomForm();
+        showroomFormA.setShowroomLetter(Letter.A);
+        showroomFormA.setNumberOfRows(4);
+        showroomFormA.setNumberOfSeatsPerRow(25);
+        showroomService.submitShowroomForm(showroomFormA);
+        // Showroom B
+        ShowroomForm showroomFormB = new ShowroomForm();
+        showroomFormB.setShowroomLetter(Letter.B);
+        showroomFormB.setNumberOfRows(5);
+        showroomFormB.setNumberOfSeatsPerRow(20);
+        showroomService.submitShowroomForm(showroomFormB);
+        // Showroom C
+        ShowroomForm showroomFormC = new ShowroomForm();
+        showroomFormC.setShowroomLetter(Letter.C);
+        showroomFormC.setNumberOfRows(4);
+        showroomFormC.setNumberOfSeatsPerRow(20);
+        showroomService.submitShowroomForm(showroomFormC);
+        // Showroom D
+        ShowroomForm showroomFormD = new ShowroomForm();
+        showroomFormD.setShowroomLetter(Letter.D);
+        showroomFormD.setNumberOfRows(5);
+        showroomFormD.setNumberOfSeatsPerRow(25);
+        showroomService.submitShowroomForm(showroomFormD);
     }
 
 }

@@ -4,6 +4,7 @@ import com.ecinema.app.domain.entities.ScreeningSeat;
 import com.ecinema.app.domain.entities.ShowroomSeat;
 import com.ecinema.app.domain.entities.Ticket;
 import com.ecinema.app.repositories.ScreeningSeatRepository;
+import com.ecinema.app.repositories.ShowroomRepository;
 import com.ecinema.app.repositories.ShowroomSeatRepository;
 import com.ecinema.app.repositories.TicketRepository;
 import com.ecinema.app.services.implementations.ScreeningSeatServiceImpl;
@@ -34,12 +35,14 @@ class ShowroomSeatServiceTest {
     private ScreeningSeatRepository screeningSeatRepository;
     @Mock
     private ShowroomSeatRepository showroomSeatRepository;
+    @Mock
+    private ShowroomRepository showroomRepository;
 
     @BeforeEach
     void setUp() {
         ticketService = new TicketServiceImpl(ticketRepository);
         screeningSeatService = new ScreeningSeatServiceImpl(screeningSeatRepository, ticketService);
-        showroomSeatService = new ShowroomSeatServiceImpl(showroomSeatRepository, screeningSeatService);
+        showroomSeatService = new ShowroomSeatServiceImpl(showroomSeatRepository,screeningSeatService);
     }
 
     @Test

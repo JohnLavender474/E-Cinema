@@ -2,6 +2,7 @@ package com.ecinema.app.services;
 
 import com.ecinema.app.domain.EntityDtoConverter;
 import com.ecinema.app.domain.dtos.ScreeningDto;
+import com.ecinema.app.domain.dtos.ScreeningSeatDto;
 import com.ecinema.app.domain.entities.Movie;
 import com.ecinema.app.domain.entities.Screening;
 import com.ecinema.app.domain.entities.Showroom;
@@ -9,11 +10,14 @@ import com.ecinema.app.domain.forms.ScreeningForm;
 import com.ecinema.app.exceptions.ClashException;
 import com.ecinema.app.exceptions.InvalidArgsException;
 import com.ecinema.app.exceptions.NoEntityFoundException;
+import com.ecinema.app.utils.Letter;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * The interface Screening service.
@@ -21,14 +25,23 @@ import java.util.List;
 public interface ScreeningService extends AbstractService<Screening>, EntityDtoConverter<Screening, ScreeningDto> {
 
     /**
+     * Find screening seat map by screening with id map.
+     *
+     * @param screeningId the screening id
+     * @return the map
+     */
+    Map<Letter, Set<ScreeningSeatDto>> findScreeningSeatMapByScreeningWithId(Long screeningId);
+
+    /**
      * Submit screening form.
      *
      * @param screeningForm the screening form
+     * @return the long
      * @throws NoEntityFoundException the no entity found exception
      * @throws InvalidArgsException   the invalid args exception
      * @throws ClashException         the clash exception
      */
-    void submitScreeningForm(ScreeningForm screeningForm)
+    Long submitScreeningForm(ScreeningForm screeningForm)
             throws NoEntityFoundException, InvalidArgsException, ClashException;
 
     /**

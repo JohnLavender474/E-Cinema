@@ -12,10 +12,13 @@ import java.util.TreeSet;
 @Setter
 public class ScreeningDto implements AbstractDto {
     private Long id;
+    private Long movieId;
+    private Long showroomId;
     private String movieTitle;
     private Letter showroomLetter;
     private Integer seatsBooked;
     private Integer seatsAvailable;
     private Integer totalSeatsInRoom;
     private LocalDateTime showDateTime;
+    private LocalDateTime endDateTime;
 }

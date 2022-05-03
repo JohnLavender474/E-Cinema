@@ -25,15 +25,15 @@ public interface MovieRepository extends JpaRepository<Movie, Long>, AbstractRep
      * @param title the title
      * @return the optional
      */
-    Optional<Movie> findByTitle(String title);
+    Optional<Movie> findBySearchTitle(String title);
 
     /**
      * Exists by title boolean.
      *
-     * @param searchTitle the title
+     * @param title the title
      * @return the boolean
      */
-    boolean existsBySearchTitle(String searchTitle);
+    boolean existsBySearchTitle(String title);
 
     /**
      * Find all by like title list.
@@ -41,7 +41,7 @@ public interface MovieRepository extends JpaRepository<Movie, Long>, AbstractRep
      * @param title the title
      * @return the list
      */
-    List<Movie> findByTitleContaining(String title);
+    List<Movie> findBySearchTitleContaining(String title);
 
     /**
      * Find all by like title page.
@@ -50,7 +50,7 @@ public interface MovieRepository extends JpaRepository<Movie, Long>, AbstractRep
      * @param pageable the pageable
      * @return the page
      */
-    Page<Movie> findByTitleContaining(String title, Pageable pageable);
+    Page<Movie> findBySearchTitleContaining(String title, Pageable pageable);
 
     /**
      * Find all by msrb rating list.

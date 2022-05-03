@@ -5,16 +5,28 @@ import com.ecinema.app.domain.dtos.ShowroomSeatDto;
 import com.ecinema.app.domain.entities.ScreeningSeat;
 import com.ecinema.app.domain.entities.Showroom;
 import com.ecinema.app.domain.entities.ShowroomSeat;
+import com.ecinema.app.exceptions.NoAssociationException;
 import com.ecinema.app.exceptions.NoEntityFoundException;
 import com.ecinema.app.utils.Letter;
 
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * The interface Showroom seat service.
  */
 public interface ShowroomSeatService extends AbstractService<ShowroomSeat>,
                                              EntityDtoConverter<ShowroomSeat, ShowroomSeatDto> {
+
+    /**
+     * Find showroom seat map by showroom with id map.
+     *
+     * @param showroomId the showroom id
+     * @return the map
+     */
+    Map<Letter, Set<ShowroomSeatDto>> findShowroomSeatMapByShowroomWithId(Long showroomId)
+            throws NoAssociationException;
 
     /**
      * Find all by showroom list.
@@ -40,6 +52,7 @@ public interface ShowroomSeatService extends AbstractService<ShowroomSeat>,
      * @param showroom  the showroom
      * @param rowLetter the row letter
      * @return the list
+     * @throws NoEntityFoundException the no entity found exception
      */
     List<ShowroomSeatDto> findAllByShowroomAndRowLetter(Showroom showroom, Letter rowLetter)
             throws NoEntityFoundException;
@@ -60,6 +73,7 @@ public interface ShowroomSeatService extends AbstractService<ShowroomSeat>,
      *
      * @param screeningSeat the screening seat
      * @return the optional
+     * @throws NoEntityFoundException the no entity found exception
      */
     ShowroomSeatDto findByScreeningSeatsContains(ScreeningSeat screeningSeat)
             throws NoEntityFoundException;
@@ -81,6 +95,7 @@ public interface ShowroomSeatService extends AbstractService<ShowroomSeat>,
      * @param rowLetter  the row letter
      * @param seatNumber the seat number
      * @return the optional
+     * @throws NoEntityFoundException the no entity found exception
      */
     ShowroomSeatDto findByShowroomAndRowLetterAndSeatNumber(
             Showroom showroom, Letter rowLetter, Integer seatNumber)
