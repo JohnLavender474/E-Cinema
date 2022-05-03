@@ -52,6 +52,8 @@ class ReviewServiceTest {
     @Mock
     private MovieRepository movieRepository;
     @Mock
+    private ShowroomRepository showroomRepository;
+    @Mock
     private ScreeningSeatRepository screeningSeatRepository;
     @Mock
     private ScreeningRepository screeningRepository;
@@ -71,7 +73,7 @@ class ReviewServiceTest {
         screeningSeatService = new ScreeningSeatServiceImpl(
                 screeningSeatRepository, ticketService);
         screeningService = new ScreeningServiceImpl(
-                screeningRepository, screeningSeatService);
+                screeningRepository, movieRepository, showroomRepository, screeningSeatService, null);
         movieValidator = new MovieValidator();
         reviewValidator = new ReviewValidator();
         customerRoleDefService = new CustomerRoleDefServiceImpl(

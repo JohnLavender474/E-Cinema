@@ -80,10 +80,9 @@ public class MovieServiceImpl extends AbstractServiceImpl<Movie, MovieRepository
         if (!errors.isEmpty()) {
             throw new InvalidArgsException(errors);
         }
-        CustomerRoleDef customerRoleDef = customerRoleDefService.findByUserWithId(reviewForm.getUserId())
-                                                                .orElseThrow(() -> new NoEntityFoundException("user",
-                                                                                                              "id",
-                                                                                                              reviewForm.getUserId()));
+        CustomerRoleDef customerRoleDef = customerRoleDefService
+                .findByUserWithId(reviewForm.getUserId())
+                .orElseThrow(() -> new NoEntityFoundException("user", "id", reviewForm.getUserId()));
         Movie movie = findById(reviewForm.getMovieId())
                 .orElseThrow(() -> new NoEntityFoundException("movie", "id", reviewForm.getMovieId()));
         Review review = new Review();

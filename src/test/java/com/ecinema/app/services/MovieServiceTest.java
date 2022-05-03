@@ -83,7 +83,7 @@ class MovieServiceTest {
         screeningSeatService = new ScreeningSeatServiceImpl(
                 screeningSeatRepository, ticketService);
         screeningService = new ScreeningServiceImpl(
-                screeningRepository, screeningSeatService);
+                screeningRepository, movieRepository, showroomRepository, screeningSeatService, null);
         reviewValidator = new ReviewValidator();
         movieValidator = new MovieValidator();
         customerRoleDefService = new CustomerRoleDefServiceImpl(

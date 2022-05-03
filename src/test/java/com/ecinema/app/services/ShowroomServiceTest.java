@@ -25,7 +25,6 @@ import static org.mockito.BDDMockito.given;
 @ExtendWith(MockitoExtension.class)
 class ShowroomServiceTest {
 
-    private AddressService addressService;
     private ShowroomService showroomService;
     private ShowroomSeatService showroomSeatService;
     private ScreeningService screeningService;
@@ -43,16 +42,17 @@ class ShowroomServiceTest {
     private ScreeningSeatRepository screeningSeatRepository;
     @Mock
     private TicketRepository ticketRepository;
+    @Mock
+    private MovieRepository movieRepository;
 
     /**
      * Sets up.
      */
     @BeforeEach
     void setUp() {
-        addressService = new AddressServiceImpl(addressRepository);
         ticketService = new TicketServiceImpl(ticketRepository);
         screeningSeatService = new ScreeningSeatServiceImpl(screeningSeatRepository, ticketService);
-        screeningService = new ScreeningServiceImpl(screeningRepository, screeningSeatService);
+        screeningService = new ScreeningServiceImpl(screeningRepository, movieRepository, showroomRepository,  screeningSeatService, null);
         showroomSeatService = new ShowroomSeatServiceImpl(showroomSeatRepository, screeningSeatService);
         showroomService = new ShowroomServiceImpl(showroomRepository, showroomSeatService, screeningService, null);
     }

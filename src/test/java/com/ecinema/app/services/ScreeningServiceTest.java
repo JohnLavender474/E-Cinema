@@ -3,8 +3,10 @@ package com.ecinema.app.services;
 import com.ecinema.app.domain.dtos.ScreeningDto;
 import com.ecinema.app.domain.dtos.ScreeningSeatDto;
 import com.ecinema.app.domain.entities.*;
+import com.ecinema.app.domain.forms.ScreeningForm;
 import com.ecinema.app.repositories.*;
 import com.ecinema.app.services.implementations.*;
+import com.ecinema.app.utils.Duration;
 import com.ecinema.app.utils.Letter;
 import com.ecinema.app.validators.MovieValidator;
 import com.ecinema.app.validators.ReviewValidator;
@@ -55,7 +57,7 @@ class ScreeningServiceTest {
         screeningSeatService = new ScreeningSeatServiceImpl(
                 screeningSeatRepository, ticketService);
         screeningService = new ScreeningServiceImpl(
-                screeningRepository, screeningSeatService);
+                screeningRepository, movieRepository, showroomRepository, screeningSeatService, null);
         showroomSeatService = new ShowroomSeatServiceImpl(
                 showroomSeatRepository, screeningSeatService);
         showroomService = new ShowroomServiceImpl(
@@ -175,6 +177,30 @@ class ScreeningServiceTest {
         assertEquals(LocalDateTime.of(2022, Month.MAY, 1, 12, 0),
                      screeningDto.getShowDateTime());
         assertNotNull(screeningDto);
+    }
+
+    @Test
+    void submitScreeningForm() {
+        // given
+        Movie movie = new Movie();
+        movie.setId(1L);
+        movie.setDuration(new Duration(1, 30));
+        given(movieRepository.findById(1L))
+                .willReturn(Optional.of(movie));
+        movieService.save(movie);
+        Showroom showroom = new Showroom();
+        showroom.setId(2L);
+        given(showroomRepository.findById(2L))
+                .willReturn(Optional.of(showroom));
+        showroomService.save(showroom);
+        ScreeningForm screeningForm = new ScreeningForm();
+        screeningForm.setMovieId(1L);
+        screeningForm.setShowroomId(2L);
+        screeningForm.setShowtimeDay(1);
+        screeningForm.setShowtimeMonth(Month.JANUARY);
+        screeningForm.setShowtimeYear(2023);
+        screeningForm.setShowtimeHour(1);
+        screeningForm.setShowtimeMinute(0);
     }
 
 }

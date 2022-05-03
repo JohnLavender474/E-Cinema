@@ -5,6 +5,10 @@ import com.ecinema.app.domain.dtos.ScreeningDto;
 import com.ecinema.app.domain.entities.Movie;
 import com.ecinema.app.domain.entities.Screening;
 import com.ecinema.app.domain.entities.Showroom;
+import com.ecinema.app.domain.forms.ScreeningForm;
+import com.ecinema.app.exceptions.ClashException;
+import com.ecinema.app.exceptions.InvalidArgsException;
+import com.ecinema.app.exceptions.NoEntityFoundException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
@@ -17,8 +21,42 @@ import java.util.List;
 public interface ScreeningService extends AbstractService<Screening>, EntityDtoConverter<Screening, ScreeningDto> {
 
     /**
+     * Submit screening form.
+     *
+     * @param screeningForm the screening form
+     * @throws NoEntityFoundException the no entity found exception
+     * @throws InvalidArgsException   the invalid args exception
+     * @throws ClashException         the clash exception
+     */
+    void submitScreeningForm(ScreeningForm screeningForm)
+            throws NoEntityFoundException, InvalidArgsException, ClashException;
+
+    /**
+     * Exists screening by showroom and in between start time and end time boolean.
+     *
+     * @param showroom  the showroom
+     * @param startTime the start time
+     * @param endTime   the end time
+     * @return the boolean
+     */
+    boolean existsScreeningByShowroomAndInBetweenStartTimeAndEndTime(
+            Showroom showroom, LocalDateTime startTime, LocalDateTime endTime);
+
+    /**
+     * Exists screening by showroom id and in between start time and end time boolean.
+     *
+     * @param showroomId the showroom id
+     * @param startTime  the start time
+     * @param endTime    the end time
+     * @return the boolean
+     */
+    boolean existsScreeningByShowroomIdAndInBetweenStartTimeAndEndTime(
+            Long showroomId, LocalDateTime startTime, LocalDateTime endTime);
+
+    /**
      * Find all dtos page.
      *
+     * @param movieId  the movie id
      * @param pageable the pageable
      * @return the page
      */

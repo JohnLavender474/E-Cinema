@@ -27,6 +27,8 @@ class TicketServiceTest {
     private CouponService couponService;
     private AddressService addressService;
     @Mock
+    private ShowroomRepository showroomRepository;
+    @Mock
     private TicketRepository ticketRepository;
     @Mock
     private ScreeningRepository screeningRepository;
@@ -42,12 +44,14 @@ class TicketServiceTest {
     private AddressRepository addressRepository;
     @Mock
     private CouponRepository couponRepository;
+    @Mock
+    private MovieRepository movieRepository;
 
     @BeforeEach
     void setUp() {
         ticketService = new TicketServiceImpl(ticketRepository);
         screeningSeatService = new ScreeningSeatServiceImpl(screeningSeatRepository, ticketService);
-        screeningService = new ScreeningServiceImpl(screeningRepository, screeningSeatService);
+        screeningService = new ScreeningServiceImpl(screeningRepository, movieRepository,  showroomRepository,  screeningSeatService, null);
         reviewService = new ReviewServiceImpl(reviewRepository);
         addressService = new AddressServiceImpl(addressRepository);
         paymentCardService = new PaymentCardServiceImpl(paymentCardRepository, addressService);

@@ -19,6 +19,9 @@ public class Screening extends AbstractEntity {
     @Column
     private LocalDateTime showDateTime;
 
+    @Column
+    private LocalDateTime endDateTime;
+
     @JoinColumn
     @ManyToOne(fetch = FetchType.LAZY)
     private Movie movie;
