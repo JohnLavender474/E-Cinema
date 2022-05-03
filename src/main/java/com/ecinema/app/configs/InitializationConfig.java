@@ -424,6 +424,7 @@ public class InitializationConfig {
     }
 
     private void defineShowrooms() {
+        showroomService.deleteAll();
         // Showroom A
         ShowroomForm showroomFormA = new ShowroomForm();
         showroomFormA.setShowroomLetter(Letter.A);

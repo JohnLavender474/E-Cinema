@@ -20,7 +20,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 
-import static com.ecinema.app.controllers.ControllerUtils.addListOfListsAttribute;
 import static com.ecinema.app.controllers.ControllerUtils.addPageNumbersAttribute;
 
 @Controller
@@ -36,32 +35,32 @@ public class MoviesController {
     public String moviesPage(final Model model,
                              @RequestParam(value = "page", required = false, defaultValue = "1") Integer page,
                              @RequestParam(value = "search", required = false, defaultValue = "") String search) {
-        logger.debug(UtilMethods.getDelimiterLine());
-        logger.debug("Page: " + page);
-        logger.debug("Search: " + search);
         PageRequest pageRequest = PageRequest.of(page - 1, 6);
         Page<MovieDto> pageOfDtos = (search == null || search.isBlank()) ?
                 movieService.pageOfDtos(pageRequest) :
                 movieService.pageOfDtosLikeTitle(search, pageRequest);
-        logger.debug("Page of movies: " + pageOfDtos);
-        addListOfListsAttribute(model, "mListOfLists", 3, pageOfDtos);
         addPageNumbersAttribute(model, pageOfDtos);
+        model.addAttribute("movies", pageOfDtos.getContent().toArray());
         model.addAttribute("search", search);
+        logger.debug(UtilMethods.getDelimiterLine());
+        logger.debug("Page: " + page);
+        logger.debug("Search: " + search);
+        logger.debug("Page of movies: " + pageOfDtos);
         return "movies";
     }
 
     @GetMapping("/movie-info/{id}")
     public String moviedebugPage(final Model model, @PathVariable("id") final Long id) {
-        logger.debug(UtilMethods.getDelimiterLine());
-        logger.debug("Movie debug get mapping");
         MovieDto movieDto = movieService.convertToDto(id);
-        logger.debug("Movie DTO: " + movieDto);
         model.addAttribute("movie", movieDto);
         Double avgRating = reviewService.findAverageRatingOfMovieWithId(id);
-        logger.debug("Avg rating: " + avgRating);
         Integer roundedAvgRating = (int) Math.round(avgRating);
-        logger.debug("Rounded avg rating: " + roundedAvgRating);
         model.addAttribute("avgRating", roundedAvgRating);
+        logger.debug(UtilMethods.getDelimiterLine());
+        logger.debug("Movie debug get mapping");
+        logger.debug("Movie DTO: " + movieDto);
+        logger.debug("Avg rating: " + avgRating);
+        logger.debug("Rounded avg rating: " + roundedAvgRating);
         return "movie-info";
     }
 
@@ -69,12 +68,12 @@ public class MoviesController {
     public String movieReviewsPage(
             final Model model, @PathVariable("id") final Long id,
             @RequestParam(value = "page", required = false, defaultValue = "1") final Integer page) {
-        logger.debug(UtilMethods.getDelimiterLine());
         PageRequest pageRequest = PageRequest.of(page - 1, 6);
         Page<ReviewDto> pageOfDtos = reviewService.findPageOfDtos(id, pageRequest);
-        logger.debug("Page of DTOs: " + pageOfDtos);
-        model.addAttribute("reviews", pageOfDtos);
+        model.addAttribute("reviews", pageOfDtos.getContent().toArray());
         addPageNumbersAttribute(model, pageOfDtos);
+        logger.debug(UtilMethods.getDelimiterLine());
+        logger.debug("Page of DTOs: " + pageOfDtos);
         return "movie-reviews";
     }
 
@@ -82,12 +81,12 @@ public class MoviesController {
     public String movieScreeningsPage(
             final Model model, @PathVariable("id") final Long id,
             @RequestParam(value = "page", required = false, defaultValue = "1") final Integer page) {
-        logger.debug(UtilMethods.getDelimiterLine());
         PageRequest pageRequest = PageRequest.of(page - 1, 6);
         Page<ScreeningDto> pageOfDtos = screeningService.findPageByMovieId(id, pageRequest);
-        logger.debug("Screening DTOs: " + pageOfDtos);
-        model.addAttribute("screenings", pageOfDtos);
+        model.addAttribute("screenings", pageOfDtos.getContent().toArray());
         addPageNumbersAttribute(model, pageOfDtos);
+        logger.debug(UtilMethods.getDelimiterLine());
+        logger.debug("Screening DTOs: " + pageOfDtos);
         return "movie-screenings";
     }
 

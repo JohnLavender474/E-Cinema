@@ -121,6 +121,7 @@ public class MovieServiceImpl extends AbstractServiceImpl<Movie, MovieRepository
         movie.setTitle(movieForm.getTitle());
         movie.setImage(movieForm.getImage());
         movie.setTrailer(movieForm.getTrailer());
+        movie.setDirector(movieForm.getDirector());
         movie.setSynopsis(movieForm.getSynopsis());
         movie.setDuration(new Duration(movieForm.getHours(), movieForm.getMinutes()));
         movie.setReleaseDate(LocalDate.of(movieForm.getReleaseYear(),

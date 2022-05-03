@@ -1,11 +1,14 @@
 package com.ecinema.app.repositories;
 
 import com.ecinema.app.domain.entities.Movie;
+import com.ecinema.app.services.MovieService;
+import com.ecinema.app.services.implementations.MovieServiceImpl;
 import com.ecinema.app.utils.UtilMethods;
 import com.ecinema.app.utils.MovieCategory;
 import com.ecinema.app.utils.MsrbRating;
 import com.ecinema.app.utils.Duration;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
@@ -258,11 +261,14 @@ class MovieRepositoryTest {
         movie.setSearchTitle("TESTMOVIE");
         movieRepository.save(movie);
         // when
-        String test1Str = UtilMethods.removeWhitespace("Test Movie").toUpperCase();
-        String test2Str = UtilMethods.removeWhitespace("Test movie").toUpperCase();
-        String test3Str = UtilMethods.removeWhitespace("teStM oVi E").toUpperCase();
-        String test4Str = UtilMethods.removeWhitespace("   t E sT M   O vI e").toUpperCase();
-        String test5Str = UtilMethods.removeWhitespace("false").toUpperCase();
+        MovieService movieService = new MovieServiceImpl(
+                null, null, null,
+                null, null, null);
+        String test1Str = movieService.convertTitleToSearchTitle("Test Movie");
+        String test2Str = movieService.convertTitleToSearchTitle("Test movie");
+        String test3Str = movieService.convertTitleToSearchTitle("teStM oVi E");
+        String test4Str = movieService.convertTitleToSearchTitle("   t E sT M   O vI e");
+        String test5Str = movieService.convertTitleToSearchTitle("false");
         boolean test1 = movieRepository.existsBySearchTitle(test1Str);
         boolean test2 = movieRepository.existsBySearchTitle(test2Str);
         boolean test3 = movieRepository.existsBySearchTitle(test3Str);

@@ -62,10 +62,19 @@
         </tr>
     </table>
     <table class="table table-hover">
-        <tr th:each="movieList:${mListOfLists}">
-            <td th:each="movie:${movieList}">
+        <tr th:each="movie:${movies}">
+            <td>
                 <a th:href="@{/movie-info/{id}(id=${movie.id})}">
-                    <img th:src="${movie.image}" width="300" height="400" alt="" src="">
+                    <img th:src="${movie.image}" width="400" height="500" alt="" src="">
+                </a>
+            </td>
+        </tr>
+    </table>
+    <table class="table-hover">
+        <tr>
+            <td th:if="${totalPages > 0}" th:each="pageNumber:${pageNumbers}">
+                <a th:href="@{/movies(search=${search}, page=${pageNumber})}"
+                   th:text="${pageNumber}" style="font-size: larger; font-weight: bold">
                 </a>
             </td>
         </tr>
