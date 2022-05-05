@@ -3,6 +3,7 @@ package com.ecinema.app.repositories;
 import com.ecinema.app.domain.entities.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDateTime;
@@ -30,6 +31,15 @@ public interface UserRepository extends JpaRepository<User, Long>, AbstractRepos
      * @return the boolean
      */
     boolean existsByEmail(String email);
+
+    /**
+     * Find id by username or email long.
+     *
+     * @param s the s
+     * @return the long
+     */
+    @Query("SELECT u.id FROM User u WHERE u.email = :s OR u.username = :s")
+    Long findIdByUsernameOrEmail(@Param("s") String s);
 
     /**
      * Find by username optional.

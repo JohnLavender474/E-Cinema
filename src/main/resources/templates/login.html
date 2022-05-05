@@ -48,6 +48,7 @@
     <label>
         <button class="btn btn-primary"><a th:href="@{/forgotPassword}">Forgot Password</a></button>
     </label>
+    <span class="text" th:if="${error} != null" th:text="${error}"></span>
 </div>
 </body>
 </html>

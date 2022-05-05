@@ -84,7 +84,7 @@ class ReviewServiceTest {
                 customerRoleDefService, movieValidator, reviewValidator);
         userService = new UserServiceImpl(
                 userRepository, customerRoleDefService,
-                null, null);
+                null, null, null);
     }
 
     @Test

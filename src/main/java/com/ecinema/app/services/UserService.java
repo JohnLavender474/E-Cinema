@@ -7,8 +7,11 @@ import com.ecinema.app.domain.entities.UserRoleDef;
 import com.ecinema.app.exceptions.ClashException;
 import com.ecinema.app.exceptions.InvalidArgsException;
 import com.ecinema.app.exceptions.NoEntityFoundException;
+import com.ecinema.app.utils.IPassword;
 import com.ecinema.app.utils.IRegistration;
 import com.ecinema.app.utils.UserRole;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.security.core.userdetails.UserDetailsService;
 
 import java.time.LocalDateTime;
@@ -24,14 +27,6 @@ import java.util.Set;
 public interface UserService extends UserDetailsService,
                                      AbstractService<User>,
                                      EntityDtoConverter<User, UserDto> {
-
-    /**
-     * Gets user role def service.
-     *
-     * @param userRole the user role
-     * @return the user role def service
-     */
-    UserRoleDefService<? extends UserRoleDef> getUserRoleDefService(UserRole userRole);
 
     /**
      * Registers a new {@link User}. The {@link IRegistration} being passed into this method must
@@ -130,14 +125,14 @@ public interface UserService extends UserDetailsService,
      * {@code
      * Class<? extends UserRoleDef> clazz = UserRole.defClassToUserRole(UserRole.CUSTOMERS_PERMITTED);
      * CustomerRoleDef customerRoleDef = userService.getUserRoleDefOf(user, clazz);
-     * }***********
+     * }**************
      * <p>
      * or
      * <p>
      * {@code
      * CustomerRoleDef customerRoleDef = userService.getUserRoleDefOf(user, UserRole.defClassToUserRole(UserRole
      * .CUSTOMERS_PERMITTED));
-     * }***********
+     * }**************
      *
      * @param <T>    the type parameter, class must extend {@link UserRoleDef}.
      * @param userId the id of the User to fetch the UserRoleDef instance from.
@@ -148,6 +143,16 @@ public interface UserService extends UserDetailsService,
      */
     <T extends UserRoleDef> Optional<T> getUserRoleDefOf(Long userId, Class<T> clazz)
             throws InvalidArgsException, NoEntityFoundException;
+
+
+    /**
+     * Find id by username or email long.
+     *
+     * @param s the s
+     * @return the long
+     */
+    Long findIdByUsernameOrEmail(@Param("s") String s);
+
 
     /**
      * Returns true if there is a User that already has the provided email.
@@ -229,7 +234,7 @@ public interface UserService extends UserDetailsService,
      * Instantiates a new {@link UserRoleDef} instance and maps it to the {@link User} with id equal to userId.
      * The User instance internally contains an enum map for UserRoleDef instances with {@link UserRole} as the key.
      * Each class extending UserRoleDef has a one-to-one mapping with a UserRole value. See {@link
-     * UserRoleDef#getUserRole()}******.
+     * UserRoleDef#getUserRole()}*********.
      * User instances can only be mapped to one instance of each child class of UserRoleDef.
      *
      * @param userId    the user id of the User
@@ -286,5 +291,14 @@ public interface UserService extends UserDetailsService,
      */
     void removeUserRoleDefFromUser(Long userId, Set<UserRole> userRoles)
             throws NoEntityFoundException, InvalidArgsException;
+
+    /**
+     * Request password change.
+     *
+     * @param iPassword the password
+     * @throws InvalidArgsException the invalid args exception
+     */
+    void requestPasswordChange(IPassword iPassword)
+            throws InvalidArgsException;
 
 }

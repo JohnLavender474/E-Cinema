@@ -100,7 +100,7 @@ class MovieServiceTest {
                 screeningService, null);
         userService = new UserServiceImpl(
                 userRepository, customerRoleDefService,
-                null, null);
+                null, null, null);
     }
 
     /**

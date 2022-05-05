@@ -1,11 +1,10 @@
 package com.ecinema.app.configs;
 
 import com.ecinema.app.domain.entities.Movie;
-import com.ecinema.app.domain.entities.Showroom;
 import com.ecinema.app.domain.entities.User;
 import com.ecinema.app.domain.forms.MovieForm;
 import com.ecinema.app.domain.forms.ShowroomForm;
-import com.ecinema.app.services.EmailSenderService;
+import com.ecinema.app.services.EmailService;
 import com.ecinema.app.services.MovieService;
 import com.ecinema.app.services.ShowroomService;
 import com.ecinema.app.services.UserService;
@@ -22,7 +21,6 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.Month;
 import java.util.ArrayList;
-import java.util.EnumMap;
 import java.util.List;
 
 /**
@@ -35,7 +33,7 @@ public class InitializationConfig {
     private final UserService userService;
     private final MovieService movieService;
     private final ShowroomService showroomService;
-    private final EmailSenderService emailSenderService;
+    private final EmailService emailService;
     private final BCryptPasswordEncoder passwordEncoder;
     private final Logger logger = LoggerFactory.getLogger(InitializationConfig.class);
 
@@ -54,10 +52,9 @@ public class InitializationConfig {
         // Root admin
         User root = new User();
         root.setUsername("ROOT");
-        root.setEmail(emailSenderService.getBusinessEmail());
+        root.setEmail(emailService.getBusinessEmail());
         String encodedPassword = passwordEncoder.encode("password123!");
         root.setPassword(encodedPassword);
-        root.setConfirmPassword(encodedPassword);
         root.setFirstName("Jim");
         root.setLastName("Montgomery");
         root.setBirthDate(LocalDate.of(1998, Month.JULY, 9));

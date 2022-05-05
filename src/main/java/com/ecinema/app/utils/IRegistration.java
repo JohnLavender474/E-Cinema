@@ -2,17 +2,13 @@ package com.ecinema.app.utils;
 
 import java.util.Set;
 
-public interface IRegistration {
+public interface IRegistration extends IPassword {
     Set<UserRole> getUserRoles();
     void setUserRoles(Set<UserRole> userRoles);
     String getUsername();
     void setUsername(String username);
     String getEmail();
     void setEmail(String email);
-    String getPassword();
-    void setPassword(String password);
-    String getConfirmPassword();
-    void setConfirmPassword(String confirmPassword);
     String getFirstName();
     void setFirstName(String firstName);
     String getLastName();

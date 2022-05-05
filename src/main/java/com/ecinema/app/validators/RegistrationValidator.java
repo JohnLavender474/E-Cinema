@@ -22,9 +22,9 @@ public class RegistrationValidator implements AbstractValidator<IRegistration> {
 
     @Override
     public void validate(IRegistration registration, List<String> errors) {
+        passwordValidator.validate(registration, errors);
         emailValidator.validate(registration.getEmail(), errors);
         usernameValidator.validate(registration.getUsername(), errors);
-        passwordValidator.validate(registration.getPassword(), errors);
         if (!registration.getPassword().equals(registration.getConfirmPassword())) {
             errors.add("Password does not match password confirmation");
         }

@@ -1,7 +1,7 @@
 package com.ecinema.app.services.implementations;
 
 import com.ecinema.app.exceptions.EmailException;
-import com.ecinema.app.services.EmailSenderService;
+import com.ecinema.app.services.EmailService;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
@@ -10,13 +10,13 @@ import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
 
 @Service
-public class EmailSenderServiceImpl implements EmailSenderService {
+public class EmailServiceImpl implements EmailService {
 
     private static final String BUSINESS_EMAIL = "csci4050.b7.ecinema@gmail.com";
 
     private final JavaMailSender javaMailSender;
 
-    public EmailSenderServiceImpl(JavaMailSender javaMailSender) {
+    public EmailServiceImpl(JavaMailSender javaMailSender) {
         this.javaMailSender = javaMailSender;
     }
 

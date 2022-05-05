@@ -33,9 +33,6 @@ public class User extends AbstractEntity implements UserDetails {
     private String password;
 
     @Column
-    private String confirmPassword;
-
-    @Column
     private String firstName;
 
     @Column

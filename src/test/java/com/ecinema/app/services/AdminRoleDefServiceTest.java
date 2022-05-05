@@ -70,7 +70,7 @@ class AdminRoleDefServiceTest {
         adminRoleDefService = new AdminRoleDefServiceImpl(adminRoleDefRepository);
         userService = new UserServiceImpl(
                 userRepository, customerRoleDefService,
-                moderatorRoleDefService, adminRoleDefService);
+                moderatorRoleDefService, adminRoleDefService, null);
     }
 
     /**

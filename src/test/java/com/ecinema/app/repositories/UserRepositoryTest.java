@@ -34,7 +34,7 @@ class UserRepositoryTest {
     }
 
     @Test
-    void testExistsByEmail() {
+    void existsByEmail() {
         // given
         User user = new User();
         user.setEmail("test@gmail.com");
@@ -194,6 +194,25 @@ class UserRepositoryTest {
                                       .collect(Collectors.toList());
         // then
         assertEquals(usersBefore, userRepository.findAllByLastActivityDateTimeAfter(randomLDT));
+    }
+
+    @Test
+    void findIdByUsernameOrEmail() {
+        // given
+        User user = new User();
+        user.setUsername("username");
+        user.setEmail("username@test.com");
+        User savedUser = userRepository.save(user);
+        // when
+        Long id1 = userRepository.findIdByUsernameOrEmail("username");
+        Long id2 = userRepository.findIdByUsernameOrEmail("username@test.com");
+        Long id3 = userRepository.findIdByUsernameOrEmail("wrong");
+        // then
+        assertNotNull(id1);
+        assertNotNull(id2);
+        assertNull(id3);
+        assertEquals(savedUser.getId(), id1);
+        assertEquals(savedUser.getId(), id2);
     }
 
 }

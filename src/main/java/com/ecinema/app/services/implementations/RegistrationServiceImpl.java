@@ -8,7 +8,7 @@ import com.ecinema.app.exceptions.EmailException;
 import com.ecinema.app.exceptions.InvalidArgsException;
 import com.ecinema.app.exceptions.NoEntityFoundException;
 import com.ecinema.app.repositories.RegistrationRepository;
-import com.ecinema.app.services.EmailSenderService;
+import com.ecinema.app.services.EmailService;
 import com.ecinema.app.services.RegistrationService;
 import com.ecinema.app.services.UserService;
 import com.ecinema.app.validators.RegistrationValidator;
@@ -32,7 +32,7 @@ public class RegistrationServiceImpl extends AbstractServiceImpl<Registration,
         RegistrationRepository> implements RegistrationService {
 
     private final UserService userService;
-    private final EmailSenderService emailSenderService;
+    private final EmailService emailService;
     private final BCryptPasswordEncoder passwordEncoder;
     private final RegistrationValidator registrationValidator;
 
@@ -41,16 +41,16 @@ public class RegistrationServiceImpl extends AbstractServiceImpl<Registration,
      *
      * @param repository            the repository
      * @param userService           the user service
-     * @param emailSenderService    the email sender service
+     * @param emailService    the email sender service
      * @param passwordEncoder       the password encoder
      * @param registrationValidator the registration form validator
      */
     public RegistrationServiceImpl(RegistrationRepository repository, UserService userService,
-                                   EmailSenderService emailSenderService, BCryptPasswordEncoder passwordEncoder,
+                                   EmailService emailService, BCryptPasswordEncoder passwordEncoder,
                                    RegistrationValidator registrationValidator) {
         super(repository);
         this.userService = userService;
-        this.emailSenderService = emailSenderService;
+        this.emailService = emailService;
         this.passwordEncoder = passwordEncoder;
         this.registrationValidator = registrationValidator;
     }
@@ -100,8 +100,8 @@ public class RegistrationServiceImpl extends AbstractServiceImpl<Registration,
             throw new InvalidArgsException(errors);
         }
         String token = UUID.randomUUID().toString();
-        emailSenderService.sendFromBusinessEmail(registrationForm.getEmail(),
-                                                 buildEmail(token), "Confirm Account");
+        emailService.sendFromBusinessEmail(registrationForm.getEmail(),
+                                           buildEmail(token), "Confirm Account");
         Registration registration = new Registration();
         registration.setToken(token);
         registration.setUserRoles(registrationForm.getUserRoles());

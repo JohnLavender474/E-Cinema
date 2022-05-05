@@ -74,7 +74,7 @@ class UserServiceTest {
                                                                   customerRoleDefService);
         userService = new UserServiceImpl(
                 userRepository, customerRoleDefService,
-                moderatorRoleDefService, adminRoleDefService);
+                moderatorRoleDefService, adminRoleDefService, null);
     }
 
     /**

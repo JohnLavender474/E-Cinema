@@ -8,9 +8,11 @@ import com.ecinema.app.exceptions.InvalidArgsException;
 import com.ecinema.app.exceptions.NoEntityFoundException;
 import com.ecinema.app.repositories.UserRepository;
 import com.ecinema.app.services.*;
+import com.ecinema.app.utils.IPassword;
 import com.ecinema.app.utils.IRegistration;
 import com.ecinema.app.utils.UserRole;
 import com.ecinema.app.utils.UtilMethods;
+import com.ecinema.app.validators.PasswordValidator;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
@@ -29,6 +31,7 @@ public class UserServiceImpl extends AbstractServiceImpl<User, UserRepository> i
 
     private final Map<UserRole, UserRoleDefService<? extends UserRoleDef>> userRoleDefServices =
             new EnumMap<>(UserRole.class);
+    private final PasswordValidator passwordValidator;
 
     /**
      * Instantiates a new User service.
@@ -42,11 +45,14 @@ public class UserServiceImpl extends AbstractServiceImpl<User, UserRepository> i
     public UserServiceImpl(UserRepository repository,
                            CustomerRoleDefService customerRoleDefService,
                            ModeratorRoleDefService moderatorRoleDefService,
-                           AdminRoleDefService adminRoleDefService) {
+                           AdminRoleDefService adminRoleDefService,
+                           PasswordValidator passwordValidator) {
         super(repository);
+        this.passwordValidator = passwordValidator;
         userRoleDefServices.put(UserRole.CUSTOMER, customerRoleDefService);
         userRoleDefServices.put(UserRole.MODERATOR, moderatorRoleDefService);
         userRoleDefServices.put(UserRole.ADMIN, adminRoleDefService);
+
     }
 
     @Override
@@ -60,11 +66,6 @@ public class UserServiceImpl extends AbstractServiceImpl<User, UserRepository> i
             UserRoleDefService<? extends UserRoleDef> userRoleDefService = userRoleDefServices.get(userRole);
             userRoleDefService.delete(userRole.castToDefType(user.getUserRoleDefs().get(userRole)));
         }
-    }
-
-    @Override
-    public UserRoleDefService<? extends UserRoleDef> getUserRoleDefService(UserRole userRole) {
-        return userRoleDefServices.get(userRole);
     }
 
     @Override
@@ -139,6 +140,11 @@ public class UserServiceImpl extends AbstractServiceImpl<User, UserRepository> i
                 () -> new NoEntityFoundException("User", "id", userId));
         UserRoleDef userRoleDef = user.getUserRoleDefs().get(userRole);
         return Optional.ofNullable(userRoleDefClass.cast(userRoleDef));
+    }
+
+    @Override
+    public Long findIdByUsernameOrEmail(String s) {
+        return repository.findIdByUsernameOrEmail(s);
     }
 
     @Override
@@ -254,6 +260,17 @@ public class UserServiceImpl extends AbstractServiceImpl<User, UserRepository> i
             UserRoleDefService<? extends UserRoleDef> userRoleDefService = userRoleDefServices.get(userRole);
             userRoleDefService.deleteById(userRoleDef.getId());
         }
+    }
+
+    @Override
+    public void requestPasswordChange(IPassword iPassword)
+            throws InvalidArgsException {
+        List<String> errors = new ArrayList<>();
+        passwordValidator.validate(iPassword, errors);
+        if (!errors.isEmpty()) {
+            throw new InvalidArgsException(errors);
+        }
+
     }
 
     @Override
