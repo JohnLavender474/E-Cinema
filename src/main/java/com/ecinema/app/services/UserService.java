@@ -104,6 +104,26 @@ public interface UserService extends UserDetailsService,
     List<User> findAllByLastActivityDateTimeAfter(LocalDateTime localDateTime);
 
     /**
+     * User roles as list of strings list.
+     *
+     * @param userId the user id
+     * @return the list
+     * @throws NoEntityFoundException the no entity found exception
+     */
+    List<String> userRolesAsListOfStrings(Long userId)
+            throws NoEntityFoundException;
+
+    /**
+     * User roles set.
+     *
+     * @param userId the user id
+     * @return the set
+     * @throws NoEntityFoundException the no entity found exception
+     */
+    Set<UserRole> userRoles(Long userId)
+            throws NoEntityFoundException;
+
+    /**
      * Exists by username boolean.
      *
      * @param username the username
@@ -125,14 +145,14 @@ public interface UserService extends UserDetailsService,
      * {@code
      * Class<? extends UserRoleDef> clazz = UserRole.defClassToUserRole(UserRole.CUSTOMERS_PERMITTED);
      * CustomerRoleDef customerRoleDef = userService.getUserRoleDefOf(user, clazz);
-     * }**************
+     * }****************
      * <p>
      * or
      * <p>
      * {@code
      * CustomerRoleDef customerRoleDef = userService.getUserRoleDefOf(user, UserRole.defClassToUserRole(UserRole
      * .CUSTOMERS_PERMITTED));
-     * }**************
+     * }****************
      *
      * @param <T>    the type parameter, class must extend {@link UserRoleDef}.
      * @param userId the id of the User to fetch the UserRoleDef instance from.
@@ -234,7 +254,7 @@ public interface UserService extends UserDetailsService,
      * Instantiates a new {@link UserRoleDef} instance and maps it to the {@link User} with id equal to userId.
      * The User instance internally contains an enum map for UserRoleDef instances with {@link UserRole} as the key.
      * Each class extending UserRoleDef has a one-to-one mapping with a UserRole value. See {@link
-     * UserRoleDef#getUserRole()}*********.
+     * UserRoleDef#getUserRole()}***********.
      * User instances can only be mapped to one instance of each child class of UserRoleDef.
      *
      * @param userId    the user id of the User

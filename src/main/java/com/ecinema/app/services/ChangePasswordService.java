@@ -7,10 +7,6 @@ import com.ecinema.app.exceptions.ExpirationException;
 import com.ecinema.app.exceptions.InvalidArgsException;
 import com.ecinema.app.exceptions.NoEntityFoundException;
 
-import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Optional;
-
 /**
  * The interface Change password request service.
  */

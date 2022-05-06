@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:insert="fragments/header :: header"></head>
+<body>
+<nav th:insert="fragments/webpage-top :: webpage-top"></nav>
+<div class="moviesContainer">
+    <h1>Movies</h1>
+    <br/>
+    <table class="table table-bordered table-striped">
+        <tbody>
+        <tr th:each="movie:${movies}">
+            <td>
+                <span style="color: white" th:text="${movie.title}"></span>
+                <button class="btn btn-primary">
+                    <a th:href="@{/{action}/{id}(action=${action},id=${movie.id})}">CHOOSE</a>
+                </button>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+</body>
+</html>

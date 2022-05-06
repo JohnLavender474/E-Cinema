@@ -23,38 +23,44 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     private static final String[] ANY_PERMITTED = new String[]{
             "/",
-            "/index**",
-            "/about**",
-            "/home**",
-            "/movies",
-            "/movies/**",
-            "/movie-info",
+            "/about",
+            "/change-password",
+            "/change-password-confirm/**",
+            "/error",
+            "/index",
+            "/login",
+            "/login-error",
+            "/message-page",
             "/movie-info/**",
-            "/movie-reviews",
             "/movie-reviews/**",
-            "/movie-screenings",
             "/movie-screenings/**",
-            "/login**",
-            "/login-error**",
-            "/perform-login**",
-            "/logout**",
-            "/logout-success**",
-            "/register**",
-            "/theaters**",
-            "/forgotPassword**"
+            "/movies",
+            "/register",
+            "/screening/**",
+            "/perform-login"
     };
     private static final String[] AUTHENTICATED_PERMITTED = new String[]{
-            "/authenticated**",
-            "/account**"
+            "/account",
+            "/logout",
+            "/logout-success",
     };
     private static final String[] CUSTOMERS_PERMITTED = new String[]{
-            "/customer**"
+            "/customer"
     };
     private static final String[] MODERATORS_PERMITTED = new String[]{
-            "/moderator**"
+            "/moderator"
     };
     private static final String[] ADMINS_PERMITTED = new String[]{
-            "/admin*"
+            "/admin",
+            "/add-movie",
+            "/add-screening",
+            "/add-showroom",
+            "/edit-movie",
+            "/edit-screening",
+            "/edit-showroom",
+            "/delete-movie",
+            "/delete-screening",
+            "/delete-showroom"
     };
 
     private final UserService userService;

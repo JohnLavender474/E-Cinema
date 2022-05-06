@@ -1,6 +1,5 @@
 package com.ecinema.app.domain.forms;
 
-import com.ecinema.app.utils.MovieCategory;
 import com.ecinema.app.utils.MsrbRating;
 import lombok.Getter;
 import lombok.Setter;
@@ -13,6 +12,7 @@ import java.util.List;
 @Getter
 @Setter
 public class MovieForm implements Serializable {
+    private Long id = null;
     private String title = "";
     private String director = "";
     private String image = "";
@@ -26,5 +26,5 @@ public class MovieForm implements Serializable {
     private MsrbRating msrbRating = MsrbRating.G;
     private List<String> cast = new ArrayList<>();
     private List<String> writers = new ArrayList<>();
-    private List<MovieCategory> movieCategories = new ArrayList<>();
+    private List<String> movieCategories = new ArrayList<>();
 }

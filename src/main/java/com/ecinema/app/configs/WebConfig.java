@@ -16,12 +16,21 @@ public class WebConfig implements WebMvcConfigurer {
     @Override
     public void addViewControllers(ViewControllerRegistry registry) {
         registry.addViewController("/").setViewName("index");
-        registry.addViewController("/home").setViewName("index");
-        registry.addViewController("/index").setViewName("index");
         registry.addViewController("/about").setViewName("about");
+        registry.addViewController("/add-screenings").setViewName("add-screenings");
+        registry.addViewController("/add-showrooms").setViewName("add-showrooms");
+        registry.addViewController("/delete-movie").setViewName("delete-movie");
+        registry.addViewController("/delete-screenings").setViewName("delete-screenings");
+        registry.addViewController("/delete-showrooms").setViewName("delete-showrooms");
+        registry.addViewController("/edit-movie").setViewName("edit-movie");
+        registry.addViewController("/edit-screenings").setViewName("edit-screenings");
+        registry.addViewController("/edit-showrooms").setViewName("edit-showrooms");
         registry.addViewController("/error").setViewName("error");
+        registry.addViewController("/index").setViewName("index");
         registry.addViewController("/login-success").setViewName("login-success");
         registry.addViewController("/logout-success").setViewName("logout-success");
+        registry.addViewController("/manage-user-accounts").setViewName("manage-user-accounts");
+        registry.addViewController("/message-page").setViewName("message-page");
     }
 
     @Override

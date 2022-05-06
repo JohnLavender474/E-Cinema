@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<body>
+<div th:fragment="account-roles(userRoles)">
+    <div th:if="${userRoles.size() > 1}" class="sidenav">
+        <button class="btn btn-primary" th:if="${userRoles.contains('ADMIN')}">
+            <a th:href="@{/admin}">Admin Page</a>
+        </button>
+        <button class="btn btn-primary" th:if="${userRoles.contains('MODERATOR')}">
+            <a th:href="@{/moderator}">Moderator Page</a>
+        </button>
+        <button class="btn btn-primary" th:if="${userRoles.contains('CUSTOMER')}">
+            <a th:href="@{/customer}">Customer Page</a>
+        </button>
+    </div>
+</div>
+</body>
+</html>

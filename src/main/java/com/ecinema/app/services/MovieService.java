@@ -23,9 +23,28 @@ import java.util.Set;
 public interface MovieService extends AbstractService<Movie>, EntityDtoConverter<Movie, MovieDto> {
 
     /**
+     * Find dto by id optional.
+     *
+     * @param movieId the movie id
+     * @return the optional
+     */
+    Optional<MovieDto> findDtoById(Long movieId);
+
+    /**
+     * Fetch as form movie form.
+     *
+     * @param movieId the movie id
+     * @return the movie form
+     * @throws NoEntityFoundException the no entity found exception
+     */
+    MovieForm fetchAsForm(Long movieId)
+        throws NoEntityFoundException;
+
+    /**
      * Submit review form.
      *
      * @param reviewForm the review form
+     * @throws NoEntityFoundException the no entity found exception
      */
     void submitReviewForm(ReviewForm reviewForm)
             throws NoEntityFoundException;
@@ -42,11 +61,10 @@ public interface MovieService extends AbstractService<Movie>, EntityDtoConverter
      * Submit movie form movie dto.
      *
      * @param movieForm the movie form
-     * @throws ClashException       the clash exception
      * @throws InvalidArgsException the invalid args exception
      */
     void submitMovieForm(MovieForm movieForm)
-            throws ClashException, InvalidArgsException;
+            throws InvalidArgsException;
 
     /**
      * Find all page.
@@ -55,6 +73,13 @@ public interface MovieService extends AbstractService<Movie>, EntityDtoConverter
      * @return the page
      */
     Page<Movie> findAll(Pageable pageable);
+
+    /**
+     * Find all dtos list.
+     *
+     * @return the list
+     */
+    List<MovieDto> findAllDtos();
 
     /**
      * Find all dtos page.
@@ -86,16 +111,7 @@ public interface MovieService extends AbstractService<Movie>, EntityDtoConverter
      * @param title the title
      * @return the list
      */
-    List<Movie> findAllByLikeTitle(String title);
-
-    /**
-     * Page of dtos like title page.
-     *
-     * @param title    the title
-     * @param pageable the pageable
-     * @return the page
-     */
-    Page<MovieDto> pageOfDtosLikeTitle(String title, Pageable pageable);
+    List<MovieDto> findAllByLikeTitle(String title);
 
     /**
      * Find all by like title page.
@@ -104,7 +120,7 @@ public interface MovieService extends AbstractService<Movie>, EntityDtoConverter
      * @param pageable the pageable
      * @return the page
      */
-    Page<Movie> findAllByLikeTitle(String title, Pageable pageable);
+    Page<MovieDto> findAllByLikeTitle(String title, Pageable pageable);
 
     /**
      * Find all by msrb rating list.
@@ -112,7 +128,7 @@ public interface MovieService extends AbstractService<Movie>, EntityDtoConverter
      * @param msrbRating the msrb rating
      * @return the list
      */
-    List<Movie> findAllByMsrbRating(MsrbRating msrbRating);
+    List<MovieDto> findAllByMsrbRating(MsrbRating msrbRating);
 
     /**
      * Find all by movies categories contains list.
@@ -120,7 +136,7 @@ public interface MovieService extends AbstractService<Movie>, EntityDtoConverter
      * @param movieCategory the movie category
      * @return the list
      */
-    List<Movie> findAllByMoviesCategoriesContains(MovieCategory movieCategory);
+    List<MovieDto> findAllByMoviesCategoriesContains(MovieCategory movieCategory);
 
     /**
      * Find all by movie categories contains list.
@@ -128,35 +144,35 @@ public interface MovieService extends AbstractService<Movie>, EntityDtoConverter
      * @param movieCategories the movie categories
      * @return the list
      */
-    List<Movie> findAllByMovieCategoriesContainsSet(Set<MovieCategory> movieCategories);
+    List<MovieDto> findAllByMovieCategoriesContainsSet(Set<MovieCategory> movieCategories);
 
     /**
      * Find all order by release date ascending list.
      *
      * @return the list
      */
-    List<Movie> findAllOrderByReleaseDateAscending();
+    List<MovieDto> findAllOrderByReleaseDateAscending();
 
     /**
      * Find all order by release date descending list.
      *
      * @return the list
      */
-    List<Movie> findAllOrderByReleaseDateDescending();
+    List<MovieDto> findAllOrderByReleaseDateDescending();
 
     /**
      * Find all order by duration ascending list.
      *
      * @return the list
      */
-    List<Movie> findAllOrderByDurationAscending();
+    List<MovieDto> findAllOrderByDurationAscending();
 
     /**
      * Find all order by duration descending list.
      *
      * @return the list
      */
-    List<Movie> findAllOrderByDurationDescending();
+    List<MovieDto> findAllOrderByDurationDescending();
 
     /**
      * Find average rating of movie with id double.

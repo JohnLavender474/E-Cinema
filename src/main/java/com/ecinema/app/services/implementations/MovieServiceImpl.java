@@ -6,7 +6,6 @@ import com.ecinema.app.domain.entities.Movie;
 import com.ecinema.app.domain.entities.Review;
 import com.ecinema.app.domain.forms.MovieForm;
 import com.ecinema.app.domain.forms.ReviewForm;
-import com.ecinema.app.exceptions.ClashException;
 import com.ecinema.app.exceptions.InvalidArgsException;
 import com.ecinema.app.exceptions.NoEntityFoundException;
 import com.ecinema.app.repositories.MovieRepository;
@@ -29,7 +28,9 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * The type Movie service.
@@ -75,6 +76,38 @@ public class MovieServiceImpl extends AbstractServiceImpl<Movie, MovieRepository
     }
 
     @Override
+    public Optional<MovieDto> findDtoById(Long movieId) {
+        return findById(movieId).map(this::convertToDto);
+    }
+
+    @Override
+    public MovieForm fetchAsForm(Long movieId)
+            throws NoEntityFoundException {
+        Movie movie = findById(movieId).orElseThrow(
+                () -> new NoEntityFoundException("movie", "id", movieId));
+        MovieForm movieForm = new MovieForm();
+        movieForm.setId(movie.getId());
+        movieForm.setTitle(movie.getTitle());
+        movieForm.setDirector(movie.getDirector());
+        movieForm.setImage(movie.getImage());
+        movieForm.setTrailer(movie.getTrailer());
+        movieForm.setSynopsis(movie.getSynopsis());
+        movieForm.setHours(movie.getDuration().getHours());
+        movieForm.setMinutes(movie.getDuration().getMinutes());
+        movieForm.setReleaseYear(movie.getReleaseDate().getYear());
+        movieForm.setReleaseMonth(movie.getReleaseDate().getMonth());
+        movieForm.setReleaseDay(movie.getReleaseDate().getDayOfMonth());
+        movieForm.setMsrbRating(movie.getMsrbRating());
+        movieForm.getCast().addAll(movie.getCast());
+        movieForm.getWriters().addAll(movie.getWriters());
+        movieForm.getMovieCategories().addAll(
+                movie.getMovieCategories()
+                     .stream().map(MovieCategory::name)
+                     .collect(Collectors.toList()));
+        return movieForm;
+    }
+
+    @Override
     public void submitReviewForm(ReviewForm reviewForm)
             throws NoEntityFoundException {
         List<String> errors = new ArrayList<>();
@@ -106,17 +139,16 @@ public class MovieServiceImpl extends AbstractServiceImpl<Movie, MovieRepository
 
     @Override
     public void submitMovieForm(MovieForm movieForm)
-            throws ClashException, InvalidArgsException {
+            throws InvalidArgsException {
         List<String> errors = new ArrayList<>();
         movieValidator.validate(movieForm, errors);
         if (!errors.isEmpty()) {
             throw new InvalidArgsException(errors);
         }
+        logger.info("Submit Movie Form: passed validation checks");
+        Movie movie = movieForm.getId() != null ? findById(movieForm.getId()).orElseThrow(
+                () -> new NoEntityFoundException("movie", "id", movieForm.getId())) : new Movie();
         String searchTitle = convertTitleToSearchTitle(movieForm.getTitle());
-        if (existsByTitle(searchTitle)) {
-            throw new ClashException("Movie \"" + movieForm.getTitle() + "\" already exists");
-        }
-        Movie movie = new Movie();
         movie.setSearchTitle(searchTitle);
         movie.setTitle(movieForm.getTitle());
         movie.setImage(movieForm.getImage());
@@ -128,10 +160,22 @@ public class MovieServiceImpl extends AbstractServiceImpl<Movie, MovieRepository
                                           movieForm.getReleaseMonth(),
                                           movieForm.getReleaseDay()));
         movie.setMsrbRating(movieForm.getMsrbRating());
+        movie.getCast().clear();
         movie.getCast().addAll(movieForm.getCast());
+        movie.getWriters().clear();
         movie.getWriters().addAll(movieForm.getWriters());
-        movie.getMovieCategories().addAll(movieForm.getMovieCategories());
+        movie.getMovieCategories().clear();
+        movie.getMovieCategories().addAll(
+                movieForm.getMovieCategories()
+                        .stream().map(MovieCategory::valueOf)
+                        .collect(Collectors.toList()));
+        logger.info("Submit Movie Form: Instantiated and saved Movie entity");
         save(movie);
+    }
+
+    @Override
+    public List<MovieDto> findAllDtos() {
+        return convertToDto(findAll());
     }
 
     @Override
@@ -154,56 +198,51 @@ public class MovieServiceImpl extends AbstractServiceImpl<Movie, MovieRepository
     }
 
     @Override
-    public List<Movie> findAllByLikeTitle(String title) {
+    public List<MovieDto> findAllByLikeTitle(String title) {
         String searchTitle = convertTitleToSearchTitle(title);
-        return repository.findBySearchTitleContaining(searchTitle);
+        return convertToDto(repository.findBySearchTitleContaining(searchTitle));
     }
 
     @Override
-    public Page<MovieDto> pageOfDtosLikeTitle(String title, Pageable pageable) {
+    public Page<MovieDto> findAllByLikeTitle(String title, Pageable pageable) {
         String searchTitle = convertTitleToSearchTitle(title);
-        return findAllByLikeTitle(searchTitle, pageable).map(this::convertToDto);
+        return repository.findBySearchTitleContaining(searchTitle, pageable)
+                .map(this::convertToDto);
     }
 
     @Override
-    public Page<Movie> findAllByLikeTitle(String title, Pageable pageable) {
-        String searchTitle = convertTitleToSearchTitle(title);
-        return repository.findBySearchTitleContaining(searchTitle, pageable);
+    public List<MovieDto> findAllByMsrbRating(MsrbRating msrbRating) {
+        return convertToDto(repository.findAllByMsrbRating(msrbRating));
     }
 
     @Override
-    public List<Movie> findAllByMsrbRating(MsrbRating msrbRating) {
-        return repository.findAllByMsrbRating(msrbRating);
+    public List<MovieDto> findAllByMoviesCategoriesContains(MovieCategory movieCategory) {
+        return convertToDto(repository.findAllByMoviesCategoriesContains(movieCategory));
     }
 
     @Override
-    public List<Movie> findAllByMoviesCategoriesContains(MovieCategory movieCategory) {
-        return repository.findAllByMoviesCategoriesContains(movieCategory);
+    public List<MovieDto> findAllByMovieCategoriesContainsSet(Set<MovieCategory> movieCategories) {
+        return convertToDto(repository.findAllByMovieCategoriesContainsSet(movieCategories));
     }
 
     @Override
-    public List<Movie> findAllByMovieCategoriesContainsSet(Set<MovieCategory> movieCategories) {
-        return repository.findAllByMovieCategoriesContainsSet(movieCategories);
+    public List<MovieDto> findAllOrderByReleaseDateAscending() {
+        return convertToDto(repository.findAllOrderByReleaseDateAscending());
     }
 
     @Override
-    public List<Movie> findAllOrderByReleaseDateAscending() {
-        return repository.findAllOrderByReleaseDateAscending();
+    public List<MovieDto> findAllOrderByReleaseDateDescending() {
+        return convertToDto(repository.findAllOrderByReleaseDateDescending());
     }
 
     @Override
-    public List<Movie> findAllOrderByReleaseDateDescending() {
-        return repository.findAllOrderByReleaseDateDescending();
+    public List<MovieDto> findAllOrderByDurationAscending() {
+        return convertToDto(repository.findAllOrderByDurationAscending());
     }
 
     @Override
-    public List<Movie> findAllOrderByDurationAscending() {
-        return repository.findAllOrderByDurationAscending();
-    }
-
-    @Override
-    public List<Movie> findAllOrderByDurationDescending() {
-        return repository.findAllOrderByDurationDescending();
+    public List<MovieDto> findAllOrderByDurationDescending() {
+        return convertToDto(repository.findAllOrderByDurationDescending());
     }
 
     @Override

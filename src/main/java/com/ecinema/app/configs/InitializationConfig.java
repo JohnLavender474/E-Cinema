@@ -75,8 +75,7 @@ public class InitializationConfig {
         root.setIsAccountExpired(false);
         root.setIsCredentialsExpired(false);
         userService.save(root);
-        userService.addUserRoleDefToUser(
-                root, UserRole.ADMIN, UserRole.CUSTOMER, UserRole.MODERATOR);
+        userService.addUserRoleDefToUser(root, UserRole.ADMIN, UserRole.CUSTOMER, UserRole.MODERATOR);
     }
 
     private void defineMovies() {
@@ -113,11 +112,11 @@ public class InitializationConfig {
             add("David Giler");
             add("Walter Hill");
         }});
-        aliens.setMovieCategories(List.of(MovieCategory.ACTION,
-                                          MovieCategory.ADVENTURE,
-                                          MovieCategory.SCI_FI,
-                                          MovieCategory.HORROR,
-                                          MovieCategory.CLASSIC));
+        aliens.setMovieCategories(List.of(MovieCategory.ACTION.name(),
+                                          MovieCategory.ADVENTURE.name(),
+                                          MovieCategory.SCI_FI.name(),
+                                          MovieCategory.HORROR.name(),
+                                          MovieCategory.CLASSIC.name()));
         movieService.submitMovieForm(aliens);
         // Darkest Hour
         MovieForm darkestHour = new MovieForm();
@@ -147,9 +146,9 @@ public class InitializationConfig {
         darkestHour.setWriters(new ArrayList<>() {{
             add("Anthony McCarten");
         }});
-        darkestHour.setMovieCategories(List.of(MovieCategory.BIOGRAPHY,
-                                               MovieCategory.DRAMA,
-                                               MovieCategory.WAR));
+        darkestHour.setMovieCategories(List.of(MovieCategory.BIOGRAPHY.name(),
+                                               MovieCategory.DRAMA.name(),
+                                               MovieCategory.WAR.name()));
         movieService.submitMovieForm(darkestHour);
         // Dune
         MovieForm dune = new MovieForm();
@@ -180,10 +179,10 @@ public class InitializationConfig {
             add("Denis Villeneuve");
             add("Eric Roth");
         }});
-        dune.setMovieCategories(List.of(MovieCategory.SCI_FI,
-                                        MovieCategory.DRAMA,
-                                        MovieCategory.ACTION,
-                                        MovieCategory.ADVENTURE));
+        dune.setMovieCategories(List.of(MovieCategory.SCI_FI.name(),
+                                        MovieCategory.DRAMA.name(),
+                                        MovieCategory.ACTION.name(),
+                                        MovieCategory.ADVENTURE.name()));
         movieService.submitMovieForm(dune);
         // Empire Strikes Back
         MovieForm empireStrikesBack = new MovieForm();
@@ -214,10 +213,10 @@ public class InitializationConfig {
             add("George Lucas");
         }});
         empireStrikesBack.setDirector("Irvin Kershner");
-        empireStrikesBack.setMovieCategories(List.of(MovieCategory.ACTION,
-                                                     MovieCategory.ADVENTURE,
-                                                     MovieCategory.FANTASY,
-                                                     MovieCategory.CLASSIC));
+        empireStrikesBack.setMovieCategories(List.of(MovieCategory.ACTION.name(),
+                                                     MovieCategory.ADVENTURE.name(),
+                                                     MovieCategory.FANTASY.name(),
+                                                     MovieCategory.CLASSIC.name()));
         movieService.submitMovieForm(empireStrikesBack);
         // Interstellar
         MovieForm interstellar = new MovieForm();
@@ -245,9 +244,9 @@ public class InitializationConfig {
             add("Jonathan Nolan");
             add("Christopher Nolan");
         }});
-        interstellar.setMovieCategories(List.of(MovieCategory.ADVENTURE,
-                                                MovieCategory.DRAMA,
-                                                MovieCategory.SCI_FI));
+        interstellar.setMovieCategories(List.of(MovieCategory.ADVENTURE.name(),
+                                                MovieCategory.DRAMA.name(),
+                                                MovieCategory.SCI_FI.name()));
         movieService.submitMovieForm(interstellar);
         // 007: No Time to Die
         MovieForm noTimeToDie = new MovieForm();
@@ -277,9 +276,9 @@ public class InitializationConfig {
             add("Cary Joji Fukunaga");
         }});
         noTimeToDie.setDirector("Cary Joji Fukunaga");
-        noTimeToDie.setMovieCategories(List.of(MovieCategory.ACTION,
-                                               MovieCategory.ADVENTURE,
-                                               MovieCategory.THRILLER));
+        noTimeToDie.setMovieCategories(List.of(MovieCategory.ACTION.name(),
+                                               MovieCategory.ADVENTURE.name(),
+                                               MovieCategory.THRILLER.name()));
         movieService.submitMovieForm(noTimeToDie);
         // Pig
         MovieForm pig = new MovieForm();
@@ -312,10 +311,10 @@ public class InitializationConfig {
             add("Vanessa Block");
             add("Michael Sarnoski");
         }});
-        pig.setMovieCategories(List.of(MovieCategory.DRAMA,
-                                       MovieCategory.DARK,
-                                       MovieCategory.MYSTERY,
-                                       MovieCategory.THRILLER));
+        pig.setMovieCategories(List.of(MovieCategory.DRAMA.name(),
+                                       MovieCategory.DARK.name(),
+                                       MovieCategory.MYSTERY.name(),
+                                       MovieCategory.THRILLER.name()));
         movieService.submitMovieForm(pig);
         // The Batman
         MovieForm batman = new MovieForm();
@@ -342,9 +341,9 @@ public class InitializationConfig {
             add("Peter Craig");
             add("Bill Finger");
         }});
-        batman.setMovieCategories(List.of(MovieCategory.ACTION,
-                                          MovieCategory.CRIME,
-                                          MovieCategory.DRAMA));
+        batman.setMovieCategories(List.of(MovieCategory.ACTION.name(),
+                                          MovieCategory.CRIME.name(),
+                                          MovieCategory.DRAMA.name()));
         movieService.submitMovieForm(batman);
         // The Good, The Bad, And The Ugly
         MovieForm goodBadUgly = new MovieForm();
@@ -384,8 +383,8 @@ public class InitializationConfig {
             add("Sergio Leone");
             add("Agenore Incrocci");
         }});
-        goodBadUgly.setMovieCategories(List.of(MovieCategory.ADVENTURE,
-                                               MovieCategory.WESTERN));
+        goodBadUgly.setMovieCategories(List.of(MovieCategory.ADVENTURE.name(),
+                                               MovieCategory.WESTERN.name()));
         movieService.submitMovieForm(goodBadUgly);
         // The Northman
         MovieForm theNorthman = new MovieForm();
@@ -411,9 +410,9 @@ public class InitializationConfig {
             add("Sjon");
             add("Robert Eggers");
         }});
-        theNorthman.setMovieCategories(List.of(MovieCategory.ACTION,
-                                               MovieCategory.ADVENTURE,
-                                               MovieCategory.DRAMA));
+        theNorthman.setMovieCategories(List.of(MovieCategory.ACTION.name(),
+                                               MovieCategory.ADVENTURE.name(),
+                                               MovieCategory.DRAMA.name()));
         movieService.submitMovieForm(theNorthman);
         for (Movie movie : movieService.findAll()) {
             logger.info("Movie added: " + movie.getTitle());

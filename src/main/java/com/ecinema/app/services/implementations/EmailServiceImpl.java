@@ -12,7 +12,7 @@ import javax.mail.internet.MimeMessage;
 @Service
 public class EmailServiceImpl implements EmailService {
 
-    private static final String BUSINESS_EMAIL = "csci4050.b7.ecinema@gmail.com";
+    private static final String BUSINESS_EMAIL = "ecinema.app.474@gmail.com";
 
     private final JavaMailSender javaMailSender;
 

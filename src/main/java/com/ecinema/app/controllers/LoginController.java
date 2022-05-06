@@ -1,6 +1,5 @@
 package com.ecinema.app.controllers;
 
-import com.ecinema.app.domain.dtos.UserDto;
 import com.ecinema.app.exceptions.NoEntityFoundException;
 import com.ecinema.app.exceptions.PasswordMismatchException;
 import com.ecinema.app.services.SecurityService;
@@ -15,8 +14,6 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-
-import javax.servlet.http.HttpSession;
 
 /**
  * The type Login controller.
@@ -34,24 +31,21 @@ public class LoginController {
 
     @GetMapping("/login")
     public String showLoginPage() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         logger.debug(UtilMethods.getDelimiterLine());
         logger.debug("Login get mapping");
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         logger.debug("Authentication obj: " + authentication);
         return authentication == null || authentication instanceof AnonymousAuthenticationToken ?
                 "login" : "redirect:/index";
     }
 
     @PostMapping("/perform-login")
-    public String performLogin(final HttpSession httpSession,
-                               @RequestParam("username") final String username,
+    public String performLogin(@RequestParam("username") final String username,
                                @RequestParam("password") final String password) {
         logger.debug(UtilMethods.getDelimiterLine());
         logger.debug("Perform login post mapping");
         try {
-            UserDto userDto = securityService.login(username, password);
-            logger.debug("User DTO: " + userDto);
-            httpSession.setAttribute("user", userDto);
+            securityService.login(username, password);
             return "redirect:/index";
         } catch (NoEntityFoundException | PasswordMismatchException e) {
             logger.debug(e.toString());
@@ -61,10 +55,10 @@ public class LoginController {
 
     @GetMapping("/login-error")
     public String loginError(final Model model) {
-        logger.debug(UtilMethods.getDelimiterLine());
-        logger.debug("Login error get mapping");
         model.addAttribute("error", "Failed to login, bad credentials");
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        logger.debug(UtilMethods.getDelimiterLine());
+        logger.debug("Login error get mapping");
         return authentication == null || authentication instanceof AnonymousAuthenticationToken ?
                 "login" : "redirect:/index";
     }

@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:insert="fragments/header :: header"></head>
+<body>
+<nav th:insert="fragments/webpage-top :: webpage-top"></nav>
+<div th:insert="fragments/account-roles :: account-roles(${userRoles})"></div>
+<div class="moviesContainer" style="position: center">
+    <table class="table table-bordered table-striped">
+        <tr>
+            <td>Movies:</td>
+            <td>
+                <label>
+                    <button class="btn btn-primary">
+                        <a th:href="@{/add-movie}">Add Movie</a>
+                    </button>
+                </label>
+            </td>
+            <td>
+                <label>
+                    <button class="btn btn-primary">
+                        <a th:href="@{/edit-movie-search}">Edit Movie</a>
+                    </button>
+                </label>
+            </td>
+            <td>
+                <label>
+                    <button class="btn btn-primary">
+                        <a th:href="@{/delete-movie-search}">Delete Movie</a>
+                    </button>
+                </label>
+            </td>
+        </tr>
+        <tr>
+            <td>Showrooms:</td>
+            <td>
+                <label>
+                    <button class="btn btn-primary">
+                        <a th:href="@{/add-showrooms}">Add Showrooms</a>
+                    </button>
+                </label>
+            </td>
+            <td>
+                <label>
+                    <button class="btn btn-primary">
+                        <a th:href="@{/edit-showrooms}">Edit Showrooms</a>
+                    </button>
+                </label>
+            </td>
+            <td>
+                <label>
+                    <button class="btn btn-primary">
+                        <a th:href="@{/delete-showrooms}">Delete Showrooms</a>
+                    </button>
+                </label>
+            </td>
+        </tr>
+        <tr>
+            <td>Screenings:</td>
+            <td>
+                <label>
+                    <button class="btn btn-primary">
+                        <a th:href="@{/add-screenings}">Add Screenings</a>
+                    </button>
+                </label>
+            </td>
+            <td>
+                <label>
+                    <button class="btn btn-primary">
+                        <a th:href="@{/edit-screenings}">Edit Screenings</a>
+                    </button>
+                </label>
+            </td>
+            <td>
+                <label>
+                    <button class="btn btn-primary">
+                        <a th:href="@{/delete-screenings}">Delete Screenings</a>
+                    </button>
+                </label>
+            </td>
+        </tr>
+        <tr>
+            <td>User Accounts:</td>
+            <td>
+                <label>
+                    <button class="btn btn-primary">
+                        <a th:href="@{/manage-user-accounts}">Manage User Accounts</a>
+                    </button>
+                </label>
+            </td>
+        </tr>
+    </table>
+</div>
+</body>
+</html>

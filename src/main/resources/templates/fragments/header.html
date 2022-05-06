@@ -1,12 +1,12 @@
 <!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
-<head>
+<head th:fragment="header">
     <meta charset="UTF-8">
     <meta content="IE=edge" http-equiv="X-UA-Compatible">
     <meta content="width=device-width, initial-scale=1.0" name="viewport">
     <title>ECinema Theaters</title>
-    <link href="../static/css/style.css" th:href="@{/css/style.css}" rel="stylesheet">
-    <link href="../static/img/logo.png" th:href="@{/img/logo.png}" rel="shortcut"/>
+    <link th:href="@{/css/style.css}" rel="stylesheet">
+    <link th:href="@{/img/logo.png}" rel="shortcut"/>
     <link href="https://fonts.googleapis.com" rel="preconnect">
     <link crossorigin href="https://fonts.gstatic.com" rel="preconnect">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;
@@ -16,15 +16,4 @@
     <link crossorigin href="https://fonts.gstatic.com" rel="preconnect">
     <link href="https://fonts.googleapis.com/css2?family=Limelight&display=swap" rel="stylesheet">
 </head>
-<body>
-<div class="navbar">
-    <a class="logo" th:href="@{/index}">
-        <span>ECinema</span>
-    </a>
-    <a th:href="@{/index}">Home</a>
-    <a th:href="@{/movies}">Movies</a>
-    <a th:href="@{/account}">Account</a>
-</div>
-
-</body>
 </html>

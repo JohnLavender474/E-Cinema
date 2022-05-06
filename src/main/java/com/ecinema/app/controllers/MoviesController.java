@@ -3,6 +3,9 @@ package com.ecinema.app.controllers;
 import com.ecinema.app.domain.dtos.MovieDto;
 import com.ecinema.app.domain.dtos.ReviewDto;
 import com.ecinema.app.domain.dtos.ScreeningDto;
+import com.ecinema.app.domain.forms.MovieForm;
+import com.ecinema.app.exceptions.ClashException;
+import com.ecinema.app.exceptions.InvalidArgsException;
 import com.ecinema.app.exceptions.NoEntityFoundException;
 import com.ecinema.app.services.MovieService;
 import com.ecinema.app.services.ReviewService;
@@ -15,10 +18,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 
 import static com.ecinema.app.controllers.ControllerUtils.addPageNumbersAttribute;
 
@@ -38,7 +38,7 @@ public class MoviesController {
         PageRequest pageRequest = PageRequest.of(page - 1, 6);
         Page<MovieDto> pageOfDtos = (search == null || search.isBlank()) ?
                 movieService.pageOfDtos(pageRequest) :
-                movieService.pageOfDtosLikeTitle(search, pageRequest);
+                movieService.findAllByLikeTitle(search, pageRequest);
         addPageNumbersAttribute(model, pageOfDtos);
         model.addAttribute("movies", pageOfDtos.getContent().toArray());
         model.addAttribute("search", search);

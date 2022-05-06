@@ -20,6 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * {@inheritDoc}
@@ -185,6 +186,22 @@ public class UserServiceImpl extends AbstractServiceImpl<User, UserRepository> i
     @Override
     public List<User> findAllByLastActivityDateTimeAfter(LocalDateTime localDateTime) {
         return repository.findAllByLastActivityDateTimeAfter(localDateTime);
+    }
+
+    @Override
+    public Set<UserRole> userRoles(Long userId)
+            throws NoEntityFoundException {
+        User user = findById(userId).orElseThrow(
+                () -> new NoEntityFoundException("user", "id", userId));
+        return new HashSet<>(user.getUserRoleDefs().keySet());
+    }
+
+    @Override
+    public List<String> userRolesAsListOfStrings(Long userId)
+            throws NoEntityFoundException {
+        return userRoles(userId)
+                .stream().map(UserRole::name)
+                .collect(Collectors.toList());
     }
 
     @Override

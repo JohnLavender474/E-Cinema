@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<body>
+<div th:fragment="movie-form(action, movieForm)">
+    <form method="post" th:action="@{${action}}" th:object="${movieForm}">
+        <table class="table table-bordered table-striped">
+            <tr>
+                <td>Title:</td>
+                <td>
+                    <label><input th:field="*{title}" type="text" required></label>
+                </td>
+            </tr>
+            <tr>
+                <td>Director:</td>
+                <td>
+                    <label><input th:field="*{director}" type="text" required></label>
+                </td>
+            </tr>
+            <tr>
+                <td>Image:</td>
+                <td>
+                    <label><input th:field="*{image}" type="text" required></label>
+                </td>
+            </tr>
+            <tr>
+                <td>Trailer:</td>
+                <td>
+                    <label>
+                        <input th:field="*{trailer}" type="text" required>
+                    </label>
+                </td>
+            </tr>
+            <tr>
+                <td>Synopsis:</td>
+                <td>
+                    <label>
+                        <textarea rows="100" cols="100" style="height: 200px"
+                                  maxlength="1999" th:field="*{synopsis}" type="text" required>
+                        </textarea>
+                    </label>
+                </td>
+            </tr>
+            <tr>
+                <td>Hours:</td>
+                <td>
+                    <label>
+                        <select th:field="*{hours}" required>
+                            <option th:each="hour:${#numbers.sequence(0,6)}"
+                                    th:text="${hour}" th:value="${hour}">
+                        </select>
+                    </label>
+                </td>
+            </tr>
+            <tr>
+                <td>Minutes:</td>
+                <td>
+                    <label>
+                        <input maxlength="2" minlength="1" pattern="[0-9]*" type="text"
+                               th:field="*{minutes}" required>
+                    </label>
+                </td>
+            </tr>
+            <tr>
+                <td>Release Year:</td>
+                <td>
+                    <label>
+                        <input maxlength="4" minlength="4" pattern="[0-9]*" type="text"
+                               th:field="*{releaseYear}" required>
+                    </label>
+                </td>
+            </tr>
+            <tr>
+                <td>Release Day:</td>
+                <td>
+                    <label>
+                        <input maxlength="2" minlength="1" pattern="[0-9]*" type="text"
+                               th:field="*{releaseDay}" required>
+                    </label>
+                </td>
+            </tr>
+            <tr>
+                <td>Release Month:</td>
+                <td>
+                    <label>
+                        <select th:field="*{releaseMonth}">
+                            <option th:each="month:${T(java.time.Month).values()}"
+                                    th:text="${month}" th:value="${month}">
+                            </option>
+                        </select>
+                    </label>
+                </td>
+            </tr>
+            <tr>
+                <td>Msrb Rating:</td>
+                <td>
+                    <label>
+                        <select th:field="*{msrbRating}">
+                            <option th:each="rating:${T(com.ecinema.app.utils.MsrbRating).values()}"
+                                    th:text="${rating}" th:value="${rating}"></option>
+                        </select>
+                    </label>
+                </td>
+            </tr>
+            <tr>
+                <td>Cast Member 1:</td>
+                <td>
+                    <label><input th:field="*{cast[0]}"></label>
+                </td>
+            </tr>
+            <tr>
+                <td>Cast Member 2:</td>
+                <td>
+                    <label><input th:field="*{cast[1]}"></label>
+                </td>
+            </tr>
+            <tr>
+                <td>Cast Member 3:</td>
+                <td>
+                    <label><input th:field="*{cast[2]}"></label>
+                </td>
+            </tr>
+            <tr>
+                <td>Writer 1:</td>
+                <td>
+                    <label><input th:field="*{writers[0]}"></label>
+                </td>
+            </tr>
+            <tr>
+                <td>Writer 2:</td>
+                <td>
+                    <label><input th:field="*{writers[1]}"></label>
+                </td>
+            </tr>
+            <tr>
+                <td>Writer 3:</td>
+                <td>
+                    <label><input th:field="*{writers[2]}"></label>
+                </td>
+            </tr>
+            <tr>
+                <td>Category 1:</td>
+                <td>
+                    <label>
+                        <select th:field="*{movieCategories[0]}">
+                            <option th:each="movieCategory:${T(com.ecinema.app.utils.MovieCategory).values()}"
+                                    th:text="${movieCategory}" th:value="${movieCategory.name()}"></option>
+                        </select>
+                    </label>
+                </td>
+            </tr>
+            <tr>
+                <td>Category 2:</td>
+                <td>
+                    <label>
+                        <select th:field="*{movieCategories[1]}">
+                            <option th:each="movieCategory:${T(com.ecinema.app.utils.MovieCategory).values()}"
+                                    th:text="${movieCategory}" th:value="${movieCategory.name()}"></option>
+                        </select>
+                    </label>
+                </td>
+            </tr>
+            <tr>
+                <td>Category 3:</td>
+                <td>
+                    <label>
+                        <select th:field="*{movieCategories[2]}">
+                            <option th:each="movieCategory:${T(com.ecinema.app.utils.MovieCategory).values()}"
+                                    th:text="${movieCategory}" th:value="${movieCategory.name()}"></option>
+                        </select>
+                    </label>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <input type="submit" value="submit">
+                </td>
+            </tr>
+        </table>
+    </form>
+</div>
+</body>
+</html>

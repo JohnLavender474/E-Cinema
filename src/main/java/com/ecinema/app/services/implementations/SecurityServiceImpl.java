@@ -33,7 +33,7 @@ public class SecurityServiceImpl implements SecurityService {
     }
 
     @Override
-    public UserDto login(final String s, final String password)
+    public void login(final String s, final String password)
             throws NoEntityFoundException, PasswordMismatchException {
         logger.info("Security Service login method");
         User user = userService.findByUsernameOrEmail(s).orElseThrow(
@@ -45,14 +45,14 @@ public class SecurityServiceImpl implements SecurityService {
             logger.info("User has authority: " + authority.getAuthority());
         }
         UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken =
-                new UsernamePasswordAuthenticationToken(user, password, user.getAuthorities());
+                new UsernamePasswordAuthenticationToken(user, password,
+                                                        user.getAuthorities());
         daoAuthenticationProvider.authenticate(usernamePasswordAuthenticationToken);
         SecurityContext securityContext = SecurityContextHolder.getContext();
         if (usernamePasswordAuthenticationToken.isAuthenticated()) {
             logger.info(String.format("Auto login %s success!", user.getUsername()));
             securityContext.setAuthentication(usernamePasswordAuthenticationToken);
         }
-        return userService.convertToDto(user);
     }
 
     @Override
@@ -63,6 +63,12 @@ public class SecurityServiceImpl implements SecurityService {
         }
         Object o = authentication.getPrincipal();
         return o instanceof User user ? userService.convertToDto(user.getId()) : null;
+    }
+
+    @Override
+    public Long findIdOfLoggedInUser() {
+        UserDto userDto = findLoggedInUserDTO();
+        return userDto != null ? userDto.getId() : null;
     }
 
 }

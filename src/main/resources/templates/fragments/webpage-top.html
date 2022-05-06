@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<body>
+<div th:fragment="webpage-top">
+    <nav class="naviBar">
+        <a class="logo" th:href="@{/index}">
+            ECinema<span> Entertainment</span>
+        </a>
+        <a th:href="@{/index}">Home</a>
+        &nbsp;
+        &nbsp;
+        &nbsp;
+        <a th:href="@{/movies}">Movies</a>
+        &nbsp;
+        &nbsp;
+        &nbsp;
+        <a th:href="@{/about}">About</a>
+        &nbsp;
+        &nbsp;
+        &nbsp;
+        <a th:href="@{/account}">Account</a>
+        &nbsp;
+        &nbsp;
+        &nbsp;
+    </nav>
+</div>
+</body>
+</html>
