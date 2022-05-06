@@ -49,7 +49,11 @@ public class InitializationConfig {
 
     private void defineUsers() {
         userService.deleteAll();
-        // Root admin
+        defineRootAdmin();
+        defineCustomer();
+    }
+
+    private void defineRootAdmin() {
         User root = new User();
         root.setUsername("ROOT");
         root.setEmail(emailService.getBusinessEmail());
@@ -75,7 +79,29 @@ public class InitializationConfig {
         root.setIsAccountExpired(false);
         root.setIsCredentialsExpired(false);
         userService.save(root);
-        userService.addUserRoleDefToUser(root, UserRole.ADMIN, UserRole.CUSTOMER, UserRole.MODERATOR);
+        userService.addUserRoleDefToUser(root, UserRole.ADMIN, UserRole.MODERATOR);
+    }
+
+    private void defineCustomer() {
+        User customer = new User();
+        customer.setUsername("Customer1");
+        customer.setEmail("ecinema.app.customer1@gmail.com");
+        String encodedPassword = passwordEncoder.encode("cheeseburger474?");
+        customer.setPassword(encodedPassword);
+        customer.setFirstName("Johnny");
+        customer.setLastName("Bravo");
+        customer.setBirthDate(LocalDate.of(1990, Month.JANUARY, 1));
+        customer.setSecurityAnswer1(SecurityQuestions.SQ4);
+        String answer1 = "Ernest";
+        String answer1Formatted = UtilMethods.removeWhitespace(answer1.toLowerCase());
+        String encodedAnswer1 = passwordEncoder.encode(answer1Formatted);
+        customer.setSecurityAnswer1(encodedAnswer1);
+        customer.setSecurityQuestion2(SecurityQuestions.SQ3);
+        String answer2 = "Handsome";
+
+
+        // TODO: Automate dis shit!
+
     }
 
     private void defineMovies() {

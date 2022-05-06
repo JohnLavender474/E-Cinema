@@ -3,9 +3,6 @@ package com.ecinema.app.controllers;
 import com.ecinema.app.domain.dtos.MovieDto;
 import com.ecinema.app.domain.dtos.ReviewDto;
 import com.ecinema.app.domain.dtos.ScreeningDto;
-import com.ecinema.app.domain.forms.MovieForm;
-import com.ecinema.app.exceptions.ClashException;
-import com.ecinema.app.exceptions.InvalidArgsException;
 import com.ecinema.app.exceptions.NoEntityFoundException;
 import com.ecinema.app.services.MovieService;
 import com.ecinema.app.services.ReviewService;
@@ -20,7 +17,9 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
-import static com.ecinema.app.controllers.ControllerUtils.addPageNumbersAttribute;
+import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 @Controller
 @RequiredArgsConstructor
@@ -94,6 +93,18 @@ public class MoviesController {
     public String handleNoEntityFoundException(final Model model, final NoEntityFoundException e) {
         model.addAttribute("errors", e.getErrors());
         return "error";
+    }
+
+    private void addPageNumbersAttribute(Model model, Page<?> page) {
+        int totalPages = page.getTotalPages();
+        logger.info("Total pages: " + totalPages);
+        model.addAttribute("totalPages", totalPages);
+        if (totalPages > 0) {
+            List<Integer> pageNumbers = IntStream.rangeClosed(1, totalPages)
+                                                 .boxed().collect(Collectors.toList());
+            logger.info("Pages: " + pageNumbers);
+            model.addAttribute("pageNumbers", pageNumbers);
+        }
     }
 
 }
