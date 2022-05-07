@@ -12,8 +12,8 @@ import com.ecinema.app.repositories.ShowroomRepository;
 import com.ecinema.app.services.ScreeningService;
 import com.ecinema.app.services.ShowroomSeatService;
 import com.ecinema.app.services.ShowroomService;
-import com.ecinema.app.utils.Letter;
-import com.ecinema.app.validators.ShowroomFormValidator;
+import com.ecinema.app.domain.enums.Letter;
+import com.ecinema.app.domain.validators.ShowroomValidator;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -29,7 +29,7 @@ public class ShowroomServiceImpl extends AbstractServiceImpl<Showroom, ShowroomR
 
     private final ShowroomSeatService showroomSeatService;
     private final ScreeningService screeningService;
-    private final ShowroomFormValidator showroomFormValidator;
+    private final ShowroomValidator showroomValidator;
 
     /**
      * Instantiates a new Showroom service.
@@ -37,11 +37,11 @@ public class ShowroomServiceImpl extends AbstractServiceImpl<Showroom, ShowroomR
      * @param repository the repository
      */
     public ShowroomServiceImpl(ShowroomRepository repository, ShowroomSeatService showroomSeatService,
-                               ScreeningService screeningService, ShowroomFormValidator showroomFormValidator) {
+                               ScreeningService screeningService, ShowroomValidator showroomValidator) {
         super(repository);
         this.showroomSeatService = showroomSeatService;
         this.screeningService = screeningService;
-        this.showroomFormValidator = showroomFormValidator;
+        this.showroomValidator = showroomValidator;
     }
 
     @Override
@@ -58,15 +58,20 @@ public class ShowroomServiceImpl extends AbstractServiceImpl<Showroom, ShowroomR
     }
 
     @Override
-    public Long submitShowroomForm(ShowroomForm showroomForm)
+    public void submitShowroomForm(ShowroomForm showroomForm)
             throws InvalidArgsException {
         List<String> errors = new ArrayList<>();
-        showroomFormValidator.validate(showroomForm, errors);
+        showroomValidator.validate(showroomForm, errors);
         if (!errors.isEmpty()) {
             throw new InvalidArgsException(errors);
         }
+        logger.debug("Submit Showroom Form: passed validation checks");
         Showroom showroom = new Showroom();
-        Long showroomId = saveFlushAndGetId(showroom);
+        showroom.setShowroomLetter(showroomForm.getShowroomLetter());
+        showroom.setNumberOfRows(showroomForm.getNumberOfRows());
+        showroom.setNumberOfSeatsPerRow(showroomForm.getNumberOfSeatsPerRow());
+        save(showroom);
+        logger.debug("Instantiated and saved showroom " + showroom.getShowroomLetter());
         for (int i = 0; i < showroomForm.getNumberOfRows(); i++) {
             for (int j = 0; j < showroomForm.getNumberOfSeatsPerRow(); j++) {
                 Letter rowLetter = Letter.values()[i];
@@ -76,34 +81,48 @@ public class ShowroomServiceImpl extends AbstractServiceImpl<Showroom, ShowroomR
                 showroomSeat.setShowroom(showroom);
                 showroom.getShowroomSeats().add(showroomSeat);
                 showroomSeatService.save(showroomSeat);
+                logger.debug("Instantiated and saved showroom seat " +
+                                     showroomSeat.getRowLetter() + "-" +
+                                     showroomSeat.getSeatNumber());
             }
         }
-        return showroomId;
     }
 
     @Override
-    public Optional<Showroom> findByShowroomLetter(Letter showroomLetter) {
-        return repository.findByShowroomLetter(showroomLetter);
+    public ShowroomDto findByShowroomLetter(Letter showroomLetter) {
+        Showroom showroom = repository.findByShowroomLetter(showroomLetter).orElseThrow(
+                () -> new NoEntityFoundException("showroom", "room letter", showroomLetter));
+        return convertToDto(showroom);
     }
 
     @Override
-    public Optional<Showroom> findByShowroomSeatsContains(ShowroomSeat showroomSeat) {
-        return repository.findByShowroomSeatsContains(showroomSeat);
+    public ShowroomDto findByShowroomSeatsContains(ShowroomSeat showroomSeat) {
+        Showroom showroom = repository.findByShowroomSeatsContains(showroomSeat)
+                .orElseThrow( () -> new NoEntityFoundException(
+                        "showroom", "showroom seat", showroomSeat));
+        return convertToDto(showroom);
     }
 
     @Override
-    public Optional<Showroom> findByShowroomSeatsContainsWithId(Long showroomSeatId) {
-        return repository.findByShowroomSeatsContainsWithId(showroomSeatId);
+    public ShowroomDto findByShowroomSeatsContainsWithId(Long showroomSeatId) {
+        Showroom showroom = repository.findByShowroomSeatsContainsWithId(showroomSeatId)
+                .orElseThrow(() -> new NoEntityFoundException(
+                        "showroom", "showroom seat with id", showroomSeatId));
+        return convertToDto(showroom);
     }
 
     @Override
-    public Optional<Showroom> findByScreeningsContains(Screening screening) {
-        return repository.findByScreeningsContains(screening);
+    public ShowroomDto findByScreeningsContains(Screening screening) {
+        Showroom showroom = repository.findByScreeningsContains(screening).orElseThrow(
+                () -> new NoEntityFoundException("showroom", "screening", screening));
+        return convertToDto(showroom);
     }
 
     @Override
-    public Optional<Showroom> findByScreeningsContainsWithId(Long screeningId) {
-        return repository.findByScreeningsContainsWithId(screeningId);
+    public ShowroomDto findByScreeningsContainsWithId(Long screeningId) {
+        Showroom showroom = repository.findByScreeningsContainsWithId(screeningId).orElseThrow(
+                () -> new NoEntityFoundException("showroom", "screening with id", screeningId));
+        return convertToDto(showroom);
     }
 
     @Override

@@ -5,7 +5,7 @@ import com.ecinema.app.domain.entities.ScreeningSeat;
 import com.ecinema.app.domain.entities.Ticket;
 import com.ecinema.app.repositories.TicketRepository;
 import com.ecinema.app.services.TicketService;
-import com.ecinema.app.utils.TicketStatus;
+import com.ecinema.app.domain.enums.TicketStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 

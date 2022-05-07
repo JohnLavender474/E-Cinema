@@ -11,7 +11,7 @@ import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
-import static com.ecinema.app.utils.UserRole.*;
+import static com.ecinema.app.domain.enums.UserRole.*;
 
 /**
  * https://www.baeldung.com/spring-security-login

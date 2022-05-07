@@ -7,10 +7,9 @@ import com.ecinema.app.domain.entities.UserRoleDef;
 import com.ecinema.app.exceptions.ClashException;
 import com.ecinema.app.exceptions.InvalidArgsException;
 import com.ecinema.app.exceptions.NoEntityFoundException;
-import com.ecinema.app.utils.IPassword;
-import com.ecinema.app.utils.IRegistration;
-import com.ecinema.app.utils.UserRole;
-import org.springframework.data.jpa.repository.Query;
+import com.ecinema.app.domain.contracts.IPassword;
+import com.ecinema.app.domain.contracts.IRegistration;
+import com.ecinema.app.domain.enums.UserRole;
 import org.springframework.data.repository.query.Param;
 import org.springframework.security.core.userdetails.UserDetailsService;
 
@@ -45,7 +44,7 @@ public interface UserService extends UserDetailsService,
      * @param isAccountLocked the value of getIsAccountLocked() for all User instances in returned list.
      * @return the list of User instances with locked value equal to isAccountLocked.
      */
-    List<User> findAllByIsAccountLocked(boolean isAccountLocked);
+    List<UserDto> findAllByIsAccountLocked(boolean isAccountLocked);
 
     /**
      * Find all by {@link User#getIsAccountEnabled()} equal to isAccountEnabled and return as list.
@@ -53,7 +52,7 @@ public interface UserService extends UserDetailsService,
      * @param isAccountEnabled the value of getIsAccountEnabled() for all User instances in returned list.
      * @return the list of User instances with account enabled value equal to isAccountEnabled.
      */
-    List<User> findAllByIsAccountEnabled(boolean isAccountEnabled);
+    List<UserDto> findAllByIsAccountEnabled(boolean isAccountEnabled);
 
     /**
      * Find all {@link User#getIsAccountExpired()} equal to isAccountExpired and return as list.
@@ -61,7 +60,7 @@ public interface UserService extends UserDetailsService,
      * @param isAccountExpired the value of getIsAccountExpired() for all User instances in returned list.
      * @return the list of User instances with expired value equal to isAccountExpired.
      */
-    List<User> findAllByIsAccountExpired(boolean isAccountExpired);
+    List<UserDto> findAllByIsAccountExpired(boolean isAccountExpired);
 
     /**
      * Find all {@link User#getIsCredentialsExpired()} equal to isCredentialsExpired and return as list.
@@ -69,7 +68,7 @@ public interface UserService extends UserDetailsService,
      * @param isCredentialsExpired the value of getIsCredentialsExpired() for all User instances in returned list.
      * @return the list of User instances with credentials expired value equal to isCredentialsExpired.
      */
-    List<User> findAllByIsCredentialsExpired(boolean isCredentialsExpired);
+    List<UserDto> findAllByIsCredentialsExpired(boolean isCredentialsExpired);
 
     /**
      * Find all by {@link User#getCreationDateTime()} before localDateTime.
@@ -77,7 +76,7 @@ public interface UserService extends UserDetailsService,
      * @param localDateTime the max value of localDateTime in returned list.
      * @return the list of User instances with creationDateTime less than localDateTime.
      */
-    List<User> findAllByCreationDateTimeBefore(LocalDateTime localDateTime);
+    List<UserDto> findAllByCreationDateTimeBefore(LocalDateTime localDateTime);
 
     /**
      * Find all by {@link User#getCreationDateTime()} after localDateTime.
@@ -85,7 +84,7 @@ public interface UserService extends UserDetailsService,
      * @param localDateTime the min value of LocalDateTime in returned list.
      * @return the list of User instances with creationDateTime greater than localDateTime.
      */
-    List<User> findAllByCreationDateTimeAfter(LocalDateTime localDateTime);
+    List<UserDto> findAllByCreationDateTimeAfter(LocalDateTime localDateTime);
 
     /**
      * Find all by {@link User#getLastActivityDateTime()} before localDateTime.
@@ -93,7 +92,7 @@ public interface UserService extends UserDetailsService,
      * @param localDateTime the max value of LocalDateTime in returned list.
      * @return the list of User instances with lastActivityDateTime less than localDateTime.
      */
-    List<User> findAllByLastActivityDateTimeBefore(LocalDateTime localDateTime);
+    List<UserDto> findAllByLastActivityDateTimeBefore(LocalDateTime localDateTime);
 
     /**
      * Find all by {@link User#getLastActivityDateTime()} after localDateTime.
@@ -101,7 +100,7 @@ public interface UserService extends UserDetailsService,
      * @param localDateTime the min value of LocalDateTime in returned list.
      * @return the list of User instances with lastActivityDateTime greater than localDateTime.
      */
-    List<User> findAllByLastActivityDateTimeAfter(LocalDateTime localDateTime);
+    List<UserDto> findAllByLastActivityDateTimeAfter(LocalDateTime localDateTime);
 
     /**
      * User roles as list of strings list.
@@ -137,7 +136,7 @@ public interface UserService extends UserDetailsService,
      * @param email the email of the User
      * @return the optional User
      */
-    Optional<User> findByEmail(String email);
+    UserDto findByEmail(String email);
 
     /**
      * Gets user role def of {@link User}. Use {@link UserRole#defClassToUserRole(Class)} for the class param, i.e.:
@@ -188,7 +187,7 @@ public interface UserService extends UserDetailsService,
      * @param username the username
      * @return the optional
      */
-    Optional<User> findByUsername(String username);
+    UserDto findByUsername(String username);
 
     /**
      * Find by username or email optional.
@@ -196,7 +195,7 @@ public interface UserService extends UserDetailsService,
      * @param s the s
      * @return the optional
      */
-    Optional<User> findByUsernameOrEmail(String s);
+    UserDto findByUsernameOrEmail(String s);
 
     /**
      * Find id by username optional.

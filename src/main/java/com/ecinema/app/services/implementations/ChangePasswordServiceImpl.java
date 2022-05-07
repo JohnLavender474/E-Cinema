@@ -8,7 +8,7 @@ import com.ecinema.app.repositories.ChangePasswordRepository;
 import com.ecinema.app.services.ChangePasswordService;
 import com.ecinema.app.services.EmailService;
 import com.ecinema.app.services.UserService;
-import com.ecinema.app.validators.PasswordValidator;
+import com.ecinema.app.domain.validators.PasswordValidator;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 

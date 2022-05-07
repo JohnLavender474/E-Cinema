@@ -1,7 +1,7 @@
 package com.ecinema.app.domain.entities;
 
-import com.ecinema.app.utils.TicketStatus;
-import com.ecinema.app.utils.TicketType;
+import com.ecinema.app.domain.enums.TicketStatus;
+import com.ecinema.app.domain.enums.TicketType;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -29,7 +29,7 @@ public class Ticket extends AbstractEntity {
     private CustomerRoleDef customerRoleDef;
 
     @JoinColumn
-    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToOne(cascade = CascadeType.PERSIST, fetch = FetchType.LAZY)
     private ScreeningSeat screeningSeat;
 
 }

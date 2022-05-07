@@ -1,8 +1,11 @@
 package com.ecinema.app.services;
 
-import com.ecinema.app.domain.entities.Address;
 import com.ecinema.app.domain.entities.CustomerRoleDef;
 import com.ecinema.app.domain.entities.PaymentCard;
+import com.ecinema.app.domain.enums.UsState;
+import com.ecinema.app.domain.forms.PaymentCardForm;
+import com.ecinema.app.domain.validators.AddressValidator;
+import com.ecinema.app.domain.validators.PaymentCardValidator;
 import com.ecinema.app.repositories.*;
 import com.ecinema.app.services.implementations.*;
 import org.junit.jupiter.api.BeforeEach;
@@ -11,6 +14,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -24,14 +28,13 @@ import static org.mockito.Mockito.verify;
 @ExtendWith(MockitoExtension.class)
 class PaymentCardServiceTest {
 
-    private AddressService addressService;
     private PaymentCardService paymentCardService;
     private ReviewService reviewService;
     private TicketService ticketService;
     private CouponService couponService;
     private CustomerRoleDefService customerRoleDefService;
-    @Mock
-    private AddressRepository addressRepository;
+    private AddressValidator addressValidator;
+    private PaymentCardValidator paymentCardValidator;
     @Mock
     private PaymentCardRepository paymentCardRepository;
     @Mock
@@ -45,9 +48,14 @@ class PaymentCardServiceTest {
 
     @BeforeEach
     void setUp() {
-        addressService = new AddressServiceImpl(addressRepository);
-        paymentCardService = new PaymentCardServiceImpl(paymentCardRepository, addressService);
-        reviewService = new ReviewServiceImpl(reviewRepository);
+        addressValidator = new AddressValidator();
+        paymentCardValidator = new PaymentCardValidator(addressValidator);
+        paymentCardService = new PaymentCardServiceImpl(
+                paymentCardRepository, customerRoleDefRepository,
+                paymentCardValidator);
+        reviewService = new ReviewServiceImpl(
+                reviewRepository, null,
+                customerRoleDefRepository, null);
         ticketService = new TicketServiceImpl(ticketRepository);
         couponService = new CouponServiceImpl(couponRepository);
         customerRoleDefService = new CustomerRoleDefServiceImpl(
@@ -86,13 +94,17 @@ class PaymentCardServiceTest {
         given(paymentCardRepository.findDistinctByCustomerRoleDef(customerRoleDef2))
                 .willReturn(paymentCardsControl2);
         // when
-        List<PaymentCard> paymentCardsTest1 = paymentCardService.findAllByCustomerRoleDef(customerRoleDef1);
-        List<PaymentCard> paymentCardsTest2 = paymentCardService.findAllByCustomerRoleDef(customerRoleDef2);
+        List<PaymentCard> paymentCardsTest1 = paymentCardService
+                .findAllByCustomerRoleDef(customerRoleDef1);
+        List<PaymentCard> paymentCardsTest2 = paymentCardService
+                .findAllByCustomerRoleDef(customerRoleDef2);
         // then
         assertEquals(paymentCardsControl1, paymentCardsTest1);
         assertEquals(paymentCardsControl2, paymentCardsTest2);
-        verify(paymentCardRepository, times(1)).findDistinctByCustomerRoleDef(customerRoleDef1);
-        verify(paymentCardRepository, times(1)).findDistinctByCustomerRoleDef(customerRoleDef2);
+        verify(paymentCardRepository, times(1))
+                .findDistinctByCustomerRoleDef(customerRoleDef1);
+        verify(paymentCardRepository, times(1))
+                .findDistinctByCustomerRoleDef(customerRoleDef2);
         verify(customerRoleDefRepository, times(1)).save(customerRoleDef1);
         verify(customerRoleDefRepository, times(1)).save(customerRoleDef1);
     }
@@ -121,22 +133,28 @@ class PaymentCardServiceTest {
                 .stream().filter(paymentCard -> paymentCard.getCustomerRoleDef().getId()
                                                            .equals(customerRoleDef1.getId()))
                 .collect(Collectors.toList());
-        given(paymentCardRepository.findDistinctByCustomerRoleDefWithId(customerRoleDef1.getId()))
+        given(paymentCardRepository
+                      .findDistinctByCustomerRoleDefWithId(customerRoleDef1.getId()))
                 .willReturn(paymentCardsControl1);
         List<PaymentCard> paymentCardsControl2 = paymentCards
                 .stream().filter(paymentCard -> paymentCard.getCustomerRoleDef().getId()
                                                            .equals(customerRoleDef2.getId()))
                 .collect(Collectors.toList());
-        given(paymentCardRepository.findDistinctByCustomerRoleDefWithId(customerRoleDef2.getId()))
+        given(paymentCardRepository
+                      .findDistinctByCustomerRoleDefWithId(customerRoleDef2.getId()))
                 .willReturn(paymentCardsControl2);
         // when
-        List<PaymentCard> paymentCardsTest1 = paymentCardService.findAllByCustomerRoleDefId(customerRoleDef1.getId());
-        List<PaymentCard> paymentCardsTest2 = paymentCardService.findAllByCustomerRoleDefId(customerRoleDef2.getId());
+        List<PaymentCard> paymentCardsTest1 = paymentCardService
+                .findAllByCustomerRoleDefId(customerRoleDef1.getId());
+        List<PaymentCard> paymentCardsTest2 = paymentCardService
+                .findAllByCustomerRoleDefId(customerRoleDef2.getId());
         // then
         assertEquals(paymentCardsControl1, paymentCardsTest1);
         assertEquals(paymentCardsControl2,  paymentCardsTest2);
-        verify(paymentCardRepository, times(1)).findDistinctByCustomerRoleDefWithId(customerRoleDef1.getId());
-        verify(paymentCardRepository, times(1)).findDistinctByCustomerRoleDefWithId(customerRoleDef2.getId());
+        verify(paymentCardRepository, times(1))
+                .findDistinctByCustomerRoleDefWithId(customerRoleDef1.getId());
+        verify(paymentCardRepository, times(1))
+                .findDistinctByCustomerRoleDefWithId(customerRoleDef2.getId());
         verify(customerRoleDefRepository, times(1)).save(customerRoleDef1);
         verify(customerRoleDefRepository, times(1)).save(customerRoleDef2);
     }
@@ -146,14 +164,8 @@ class PaymentCardServiceTest {
         // given
         CustomerRoleDef customerRoleDef = new CustomerRoleDef();
         customerRoleDefService.save(customerRoleDef);
-        Address address = new Address();
-        address.setId(1L);
-        given(addressRepository.findById(1L))
-                .willReturn(Optional.of(address));
-        addressService.save(address);
         PaymentCard paymentCard = new PaymentCard();
         paymentCard.setId(2L);
-        paymentCard.setBillingAddress(address);
         paymentCard.setCustomerRoleDef(customerRoleDef);
         customerRoleDef.getPaymentCards().add(paymentCard);
         given(paymentCardRepository.findById(2L))
@@ -161,13 +173,44 @@ class PaymentCardServiceTest {
         paymentCardService.save(paymentCard);
         assertTrue(customerRoleDef.getPaymentCards().contains(paymentCard));
         assertEquals(customerRoleDef, paymentCard.getCustomerRoleDef());
-        assertEquals(address, paymentCard.getBillingAddress());
         // when
         paymentCardService.delete(paymentCard);
         // then
         assertFalse(customerRoleDef.getPaymentCards().contains(paymentCard));
         assertNotEquals(customerRoleDef, paymentCard.getCustomerRoleDef());
-        assertNotEquals(address, paymentCard.getBillingAddress());
+    }
+
+    @Test
+    void submitPaymentCardForm() {
+        // given
+        CustomerRoleDef customerRoleDef = new CustomerRoleDef();
+        customerRoleDef.setId(1L);
+        given(customerRoleDefRepository.findById(1L))
+                .willReturn(Optional.of(customerRoleDef));
+        customerRoleDefService.save(customerRoleDef);
+        // when
+        LocalDate expirationDate = LocalDate.now().plusYears(1);
+        PaymentCardForm paymentCardForm = new PaymentCardForm();
+        paymentCardForm.setCustomerRoleDefId(1L);
+        paymentCardForm.setExpirationDate(expirationDate);
+        paymentCardService.submitPaymentCardForm(paymentCardForm);
+        // then
+        assertEquals(1, customerRoleDef.getPaymentCards().size());
+        PaymentCard paymentCard = customerRoleDef.getPaymentCards().stream().findFirst().orElse(null);
+        assertNotNull(paymentCard);
+        assertEquals(customerRoleDef, paymentCard.getCustomerRoleDef());
+        assertEquals("John", paymentCard.getFirstName());
+        assertEquals("Doe", paymentCard.getLastName());
+        assertEquals("1234123412341234", paymentCard.getCardNumber());
+        assertNotNull(paymentCard.getExpirationDate());
+        assertEquals(expirationDate.getMonth(), paymentCard.getExpirationDate().getMonth());
+        assertEquals(1, paymentCard.getExpirationDate().getDayOfMonth());
+        assertEquals(expirationDate.getYear(), paymentCard.getExpirationDate().getYear());
+        assertNotNull(paymentCard.getBillingAddress());
+        assertEquals("Street", paymentCard.getBillingAddress().getStreet());
+        assertEquals("City", paymentCard.getBillingAddress().getCity());
+        assertEquals(UsState.GEORGIA, paymentCard.getBillingAddress().getUsState());
+        assertEquals("12345", paymentCard.getBillingAddress().getZipcode());
     }
 
 }

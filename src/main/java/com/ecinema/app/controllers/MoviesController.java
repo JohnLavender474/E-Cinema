@@ -97,12 +97,12 @@ public class MoviesController {
 
     private void addPageNumbersAttribute(Model model, Page<?> page) {
         int totalPages = page.getTotalPages();
-        logger.info("Total pages: " + totalPages);
+        logger.debug("Total pages: " + totalPages);
         model.addAttribute("totalPages", totalPages);
         if (totalPages > 0) {
             List<Integer> pageNumbers = IntStream.rangeClosed(1, totalPages)
                                                  .boxed().collect(Collectors.toList());
-            logger.info("Pages: " + pageNumbers);
+            logger.debug("Pages: " + pageNumbers);
             model.addAttribute("pageNumbers", pageNumbers);
         }
     }

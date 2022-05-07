@@ -2,12 +2,16 @@ package com.ecinema.app.services;
 
 import com.ecinema.app.domain.dtos.*;
 import com.ecinema.app.domain.entities.*;
+import com.ecinema.app.domain.enums.Letter;
+import com.ecinema.app.domain.enums.MovieCategory;
+import com.ecinema.app.domain.enums.MsrbRating;
+import com.ecinema.app.domain.enums.UserRole;
 import com.ecinema.app.domain.forms.ReviewForm;
 import com.ecinema.app.repositories.*;
 import com.ecinema.app.services.implementations.*;
 import com.ecinema.app.utils.*;
-import com.ecinema.app.validators.MovieValidator;
-import com.ecinema.app.validators.ReviewValidator;
+import com.ecinema.app.domain.validators.MovieValidator;
+import com.ecinema.app.domain.validators.ReviewValidator;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -30,7 +34,6 @@ import static org.mockito.BDDMockito.given;
 @ExtendWith(MockitoExtension.class)
 class MovieServiceTest {
 
-    private AddressService addressService;
     private MovieService movieService;
     private ReviewService reviewService;
     private TicketService ticketService;
@@ -44,8 +47,6 @@ class MovieServiceTest {
     private UserService userService;
     private MovieValidator movieValidator;
     private ReviewValidator reviewValidator;
-    @Mock
-    private AddressRepository addressRepository;
     @Mock
     private MovieRepository movieRepository;
     @Mock
@@ -74,25 +75,26 @@ class MovieServiceTest {
      */
     @BeforeEach
     void setUp() {
-        addressService = new AddressServiceImpl(addressRepository);
-        reviewService = new ReviewServiceImpl(reviewRepository);
+        reviewValidator = new ReviewValidator();
+        movieValidator = new MovieValidator();
+        reviewService = new ReviewServiceImpl(
+                reviewRepository, movieRepository,
+                customerRoleDefRepository, reviewValidator);
         ticketService = new TicketServiceImpl(ticketRepository);
         couponService = new CouponServiceImpl(couponRepository);
         paymentCardService = new PaymentCardServiceImpl(
-                paymentCardRepository, addressService);
+                paymentCardRepository, null, null);
         screeningSeatService = new ScreeningSeatServiceImpl(
                 screeningSeatRepository, ticketService);
         screeningService = new ScreeningServiceImpl(
                 screeningRepository, movieRepository, showroomRepository,
                 screeningSeatService, null);
-        reviewValidator = new ReviewValidator();
-        movieValidator = new MovieValidator();
         customerRoleDefService = new CustomerRoleDefServiceImpl(
                 customerRoleDefRepository, reviewService,
                 ticketService, paymentCardService, couponService);
         movieService = new MovieServiceImpl(
-                movieRepository, reviewService, screeningService,
-                customerRoleDefService, movieValidator, reviewValidator);
+                movieRepository, reviewService,
+                screeningService, movieValidator);
         showroomSeatService = new ShowroomSeatServiceImpl(
                 showroomSeatRepository, screeningSeatService);
         showroomService = new ShowroomServiceImpl(
@@ -266,9 +268,9 @@ class MovieServiceTest {
         ReviewForm reviewForm = new ReviewForm();
         reviewForm.setMovieId(1L);
         reviewForm.setUserId(2L);
-        reviewForm.setReview("wow, this movie sucks so much!");
         reviewForm.setRating(4);
-        movieService.submitReviewForm(reviewForm);
+        reviewForm.setReview("wow, this movie sucks so much!");
+        reviewService.submitReviewForm(reviewForm);
         Set<Review> reviews = movie.getReviews();
         // then
         assertEquals(1, reviews.size());

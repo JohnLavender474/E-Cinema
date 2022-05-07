@@ -4,7 +4,7 @@ import com.ecinema.app.domain.entities.*;
 import com.ecinema.app.repositories.*;
 import com.ecinema.app.services.implementations.*;
 import com.ecinema.app.utils.UtilMethods;
-import com.ecinema.app.utils.UserRole;
+import com.ecinema.app.domain.enums.UserRole;
 import com.ecinema.app.domain.dtos.UserDto;
 import com.ecinema.app.exceptions.ClashException;
 import org.junit.jupiter.api.BeforeEach;
@@ -12,6 +12,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
 
 import java.util.*;
 import java.util.function.Consumer;
@@ -27,7 +29,6 @@ import static org.mockito.Mockito.*;
 @ExtendWith(MockitoExtension.class)
 class UserServiceTest {
 
-    private AddressService addressService;
     private ReviewService reviewService;
     private TicketService ticketService;
     private PaymentCardService paymentCardService;
@@ -36,8 +37,6 @@ class UserServiceTest {
     private CustomerRoleDefService customerRoleDefService;
     private ModeratorRoleDefService moderatorRoleDefService;
     private AdminRoleDefService adminRoleDefService;
-    @Mock
-    private AddressRepository addressRepository;
     @Mock
     private ReviewRepository reviewRepository;
     @Mock
@@ -60,11 +59,12 @@ class UserServiceTest {
      */
     @BeforeEach
     void setUp() {
-        addressService = new AddressServiceImpl(addressRepository);
-        reviewService = new ReviewServiceImpl(reviewRepository);
+        reviewService = new ReviewServiceImpl(reviewRepository, null,
+                                              null, null);
         ticketService = new TicketServiceImpl(ticketRepository);
         couponService = new CouponServiceImpl(couponRepository);
-        paymentCardService = new PaymentCardServiceImpl(paymentCardRepository, addressService);
+        paymentCardService = new PaymentCardServiceImpl(
+                paymentCardRepository, null, null);
         adminRoleDefService = new AdminRoleDefServiceImpl(adminRoleDefRepository);
         customerRoleDefService = new CustomerRoleDefServiceImpl(customerRoleDefRepository,
                                                                 reviewService, ticketService,
@@ -74,23 +74,8 @@ class UserServiceTest {
                                                                   customerRoleDefService);
         userService = new UserServiceImpl(
                 userRepository, customerRoleDefService,
-                moderatorRoleDefService, adminRoleDefService, null);
-    }
-
-    /**
-     * Generate users list list.
-     *
-     * @param consumer the consumer
-     * @return the list
-     */
-    List<User> generateUsersList(Consumer<User> consumer) {
-        List<User> users = new ArrayList<>();
-        for (int i = 0; i < 8; i++) {
-            User user = new User();
-            consumer.accept(user);
-            users.add(user);
-        }
-        return users;
+                moderatorRoleDefService,
+                adminRoleDefService, null);
     }
 
     /**
@@ -101,52 +86,15 @@ class UserServiceTest {
         // given
         String email = "test@gmail.com";
         User user = new User();
+        user.setId(1L);
         user.setEmail(email);
-        given(userRepository.findByEmail(email))
-                .willReturn(Optional.of(user));
+        given(userRepository.findByEmail(email)).willReturn(Optional.of(user));
+        given(userRepository.findById(1L)).willReturn(Optional.of(user));
         // when
-        Optional<User> userOptional = userService.findByEmail(email);
+        UserDto userDto = userService.findByEmail(email);
         // then
-        assertTrue(userOptional.isPresent() && userOptional.get().equals(user));
+        assertEquals(email, userDto.getEmail());
         verify(userRepository, times(1)).findByEmail(email);
-    }
-
-    /**
-     * Test find all by is account locked.
-     */
-    @Test
-    void findAllByIsAccountLocked() {
-        // given
-        List<User> users = generateUsersList(user -> user.setIsAccountLocked(UtilMethods.getRandom().nextBoolean()));
-        List<User> lockedUsers = users.stream()
-                                      .filter(User::getIsAccountLocked)
-                                      .collect(Collectors.toList());
-        given(userRepository.findAllByIsAccountLocked(true))
-                .willReturn(lockedUsers);
-        // when
-        List<User> testLockedUsers = userService.findAllByIsAccountLocked(true);
-        // then
-        assertEquals(lockedUsers, testLockedUsers);
-        verify(userRepository, times(1)).findAllByIsAccountLocked(true);
-    }
-
-    /**
-     * Test find all by is account enabled.
-     */
-    @Test
-    void findAllByIsAccountEnabled() {
-        // given
-        List<User> users = generateUsersList(user -> user.setIsAccountEnabled(UtilMethods.getRandom().nextBoolean()));
-        List<User> enabledUsers = users.stream()
-                                       .filter(User::getIsAccountEnabled)
-                                       .collect(Collectors.toList());
-        given(userRepository.findAllByIsAccountEnabled(true))
-                .willReturn(enabledUsers);
-        // when
-        List<User> testEnabledUsers = userService.findAllByIsAccountEnabled(true);
-        // then
-        assertEquals(enabledUsers, testEnabledUsers);
-        verify(userRepository, times(1)).findAllByIsAccountEnabled(true);
     }
 
     /**

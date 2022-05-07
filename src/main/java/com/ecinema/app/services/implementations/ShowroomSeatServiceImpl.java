@@ -9,8 +9,8 @@ import com.ecinema.app.exceptions.NoEntityFoundException;
 import com.ecinema.app.repositories.ShowroomSeatRepository;
 import com.ecinema.app.services.ScreeningSeatService;
 import com.ecinema.app.services.ShowroomSeatService;
-import com.ecinema.app.utils.ISeat;
-import com.ecinema.app.utils.Letter;
+import com.ecinema.app.domain.contracts.ISeat;
+import com.ecinema.app.domain.enums.Letter;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 

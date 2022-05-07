@@ -7,11 +7,10 @@ import com.ecinema.app.domain.entities.ScreeningSeat;
 import com.ecinema.app.domain.entities.ShowroomSeat;
 import com.ecinema.app.domain.entities.Ticket;
 import com.ecinema.app.exceptions.NoAssociationException;
-import com.ecinema.app.utils.Letter;
+import com.ecinema.app.domain.enums.Letter;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 
 /**

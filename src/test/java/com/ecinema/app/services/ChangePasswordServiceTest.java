@@ -3,34 +3,24 @@ package com.ecinema.app.services;
 import com.ecinema.app.domain.entities.ChangePassword;
 import com.ecinema.app.domain.entities.User;
 import com.ecinema.app.domain.forms.ChangePasswordForm;
-import com.ecinema.app.domain.forms.RegistrationForm;
 import com.ecinema.app.repositories.ChangePasswordRepository;
 import com.ecinema.app.repositories.UserRepository;
 import com.ecinema.app.services.implementations.ChangePasswordServiceImpl;
-import com.ecinema.app.services.implementations.EmailServiceImpl;
 import com.ecinema.app.services.implementations.UserServiceImpl;
-import com.ecinema.app.utils.UserRole;
-import com.ecinema.app.validators.PasswordValidator;
+import com.ecinema.app.domain.validators.PasswordValidator;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.invocation.InvocationOnMock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.mockito.stubbing.Answer;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.security.core.parameters.P;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import java.time.LocalDateTime;
-import java.util.EnumSet;
-import java.util.HashSet;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.doNothing;
 
 /**
  * The type Change password service test.

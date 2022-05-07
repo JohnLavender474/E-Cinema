@@ -4,7 +4,7 @@ import com.ecinema.app.domain.dtos.AdminRoleDefDto;
 import com.ecinema.app.domain.entities.*;
 import com.ecinema.app.repositories.*;
 import com.ecinema.app.services.implementations.*;
-import com.ecinema.app.utils.UserRole;
+import com.ecinema.app.domain.enums.UserRole;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -24,7 +24,6 @@ import static org.mockito.Mockito.verify;
 @ExtendWith(MockitoExtension.class)
 class AdminRoleDefServiceTest {
 
-    private AddressService addressService;
     private ModeratorRoleDefService moderatorRoleDefService;
     private CustomerRoleDefService customerRoleDefService;
     private AdminRoleDefService adminRoleDefService;
@@ -33,8 +32,6 @@ class AdminRoleDefServiceTest {
     private PaymentCardService paymentCardService;
     private CouponService couponService;
     private UserService userService;
-    @Mock
-    private AddressRepository addressRepository;
     @Mock
     private AdminRoleDefRepository adminRoleDefRepository;
     @Mock
@@ -57,10 +54,11 @@ class AdminRoleDefServiceTest {
      */
     @BeforeEach
     void setUp() {
-        addressService = new AddressServiceImpl(addressRepository);
-        reviewService = new ReviewServiceImpl(reviewRepository);
+        reviewService = new ReviewServiceImpl(
+                reviewRepository, null,
+                customerRoleDefRepository, null);
         ticketService = new TicketServiceImpl(ticketRepository);
-        paymentCardService = new PaymentCardServiceImpl(paymentCardRepository, addressService);
+        paymentCardService = new PaymentCardServiceImpl(paymentCardRepository, null, null);
         couponService = new CouponServiceImpl(couponRepository);
         customerRoleDefService = new CustomerRoleDefServiceImpl(
                 customerRoleDefRepository, reviewService,

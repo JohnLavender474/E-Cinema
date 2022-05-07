@@ -1,16 +1,15 @@
 package com.ecinema.app.domain.dtos;
 
-import com.ecinema.app.utils.Letter;
+import com.ecinema.app.domain.contracts.IScreening;
+import com.ecinema.app.domain.enums.Letter;
 import lombok.Getter;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
-import java.util.Set;
-import java.util.TreeSet;
 
 @Getter
 @Setter
-public class ScreeningDto implements AbstractDto {
+public class ScreeningDto implements AbstractDto, IScreening {
     private Long id;
     private Long movieId;
     private Long showroomId;
@@ -19,6 +18,6 @@ public class ScreeningDto implements AbstractDto {
     private Integer seatsBooked;
     private Integer seatsAvailable;
     private Integer totalSeatsInRoom;
-    private LocalDateTime showDateTime;
-    private LocalDateTime endDateTime;
+    private LocalDateTime showtime;
+    private LocalDateTime endtime;
 }

@@ -31,4 +31,9 @@ public class AbstractRuntimeException extends RuntimeException {
         return sb.toString();
     }
 
+    @Override
+    public String getMessage() {
+        return toString();
+    }
+
 }

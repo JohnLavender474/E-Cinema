@@ -5,7 +5,7 @@ import com.ecinema.app.domain.dtos.ScreeningSeatDto;
 import com.ecinema.app.exceptions.NoEntityFoundException;
 import com.ecinema.app.services.ScreeningSeatService;
 import com.ecinema.app.services.ScreeningService;
-import com.ecinema.app.utils.Letter;
+import com.ecinema.app.domain.enums.Letter;
 import com.ecinema.app.utils.UtilMethods;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;

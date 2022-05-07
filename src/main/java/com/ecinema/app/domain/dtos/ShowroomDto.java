@@ -1,15 +1,17 @@
 package com.ecinema.app.domain.dtos;
 
-import com.ecinema.app.utils.Letter;
+import com.ecinema.app.domain.contracts.IShowroom;
+import com.ecinema.app.domain.enums.Letter;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
-
-import java.util.Set;
-import java.util.TreeSet;
 
 @Getter
 @Setter
-public class ShowroomDto implements AbstractDto {
+public class ShowroomDto implements AbstractDto, IShowroom {
     private Long id;
     private Letter showroomLetter;
+    private Integer numberOfRows;
+    private Integer numberOfSeatsPerRow;
 }

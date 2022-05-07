@@ -19,13 +19,10 @@ import static org.mockito.BDDMockito.given;
 class CouponServiceTest {
 
     private CustomerRoleDefService customerRoleDefService;
-    private AddressService addressService;
     private TicketService ticketService;
     private ReviewService reviewService;
     private PaymentCardService paymentCardService;
     private CouponService couponService;
-    @Mock
-    private AddressRepository addressRepository;
     @Mock
     private CustomerRoleDefRepository customerRoleDefRepository;
     @Mock
@@ -40,9 +37,11 @@ class CouponServiceTest {
     @BeforeEach
     void setUp() {
         ticketService = new TicketServiceImpl(ticketRepository);
-        reviewService = new ReviewServiceImpl(reviewRepository);
-        addressService = new AddressServiceImpl(addressRepository);
-        paymentCardService = new PaymentCardServiceImpl(paymentCardRepository, addressService);
+        reviewService = new ReviewServiceImpl(
+                reviewRepository, null,
+                customerRoleDefRepository, null);
+        paymentCardService = new PaymentCardServiceImpl(paymentCardRepository, null,
+                                                        null);
         couponService = new CouponServiceImpl(couponRepository);
         customerRoleDefService = new CustomerRoleDefServiceImpl(
                 customerRoleDefRepository, reviewService, ticketService,

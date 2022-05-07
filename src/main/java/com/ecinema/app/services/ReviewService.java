@@ -4,6 +4,9 @@ import com.ecinema.app.domain.EntityDtoConverter;
 import com.ecinema.app.domain.dtos.ReviewDto;
 import com.ecinema.app.domain.entities.Movie;
 import com.ecinema.app.domain.entities.Review;
+import com.ecinema.app.domain.forms.ReviewForm;
+import com.ecinema.app.exceptions.InvalidArgsException;
+import com.ecinema.app.exceptions.NoEntityFoundException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
@@ -13,6 +16,14 @@ import java.util.List;
  * The interface Review service.
  */
 public interface ReviewService extends AbstractService<Review>, EntityDtoConverter<Review, ReviewDto> {
+
+    /**
+     * Submit review form.
+     *
+     * @param reviewForm the review form
+     */
+    void submitReviewForm(ReviewForm reviewForm)
+            throws NoEntityFoundException, InvalidArgsException;
 
     /**
      * Find all dtos by movie list.

@@ -1,5 +1,6 @@
 package com.ecinema.app.services;
 
+import com.ecinema.app.domain.dtos.CustomerRoleDefDto;
 import com.ecinema.app.domain.entities.*;
 import com.ecinema.app.repositories.*;
 import com.ecinema.app.services.implementations.*;
@@ -21,14 +22,11 @@ import static org.mockito.BDDMockito.given;
 @ExtendWith(MockitoExtension.class)
 class CustomerRoleDefServiceTest {
 
-    private AddressService addressService;
     private CustomerRoleDefService customerRoleDefService;
     private PaymentCardService paymentCardService;
     private TicketService ticketService;
     private ReviewService reviewService;
     private CouponService couponService;
-    @Mock
-    private AddressRepository addressRepository;
     @Mock
     private CustomerRoleDefRepository customerRoleDefRepository;
     @Mock
@@ -45,95 +43,17 @@ class CustomerRoleDefServiceTest {
      */
     @BeforeEach
     void setUp() {
-        addressService = new AddressServiceImpl(addressRepository);
         ticketService = new TicketServiceImpl(ticketRepository);
         couponService = new CouponServiceImpl(couponRepository);
-        reviewService = new ReviewServiceImpl(reviewRepository);
-        paymentCardService = new PaymentCardServiceImpl(paymentCardRepository, addressService);
-        customerRoleDefService = new CustomerRoleDefServiceImpl(customerRoleDefRepository, reviewService,
-                                                                ticketService, paymentCardService,
-                                                                couponService);
+        reviewService = new ReviewServiceImpl(
+                reviewRepository, null,
+                customerRoleDefRepository, null);
+        paymentCardService = new PaymentCardServiceImpl(
+                paymentCardRepository, null, null);
+        customerRoleDefService = new CustomerRoleDefServiceImpl(
+                customerRoleDefRepository, reviewService,
+                ticketService, paymentCardService, couponService);
         ticketService = new TicketServiceImpl(ticketRepository);
-        reviewService = new ReviewServiceImpl(reviewRepository);
-    }
-
-    /**
-     * Tear down.
-     */
-    @AfterEach
-    void tearDown() {
-        customerRoleDefService.deleteAll();
-        paymentCardService.deleteAll();
-        ticketService.deleteAll();
-        reviewService.deleteAll();
-    }
-
-    /**
-     * Test find by payment cards contains.
-     */
-    @Test
-    void findByPaymentCardsContains() {
-        // given
-        CustomerRoleDef customerRoleDef = new CustomerRoleDef();
-        customerRoleDefService.save(customerRoleDef);
-        PaymentCard paymentCard = new PaymentCard();
-        paymentCard.setCustomerRoleDef(customerRoleDef);
-        customerRoleDef.getPaymentCards().add(paymentCard);
-        paymentCardService.save(paymentCard);
-        given(customerRoleDefRepository.findByPaymentCardsContains(paymentCard))
-                .willReturn(Optional.of(customerRoleDef));
-        // when
-        Optional<CustomerRoleDef> customerRoleDefOptional =
-                customerRoleDefService.findByPaymentCardsContains(paymentCard);
-        // then
-        assertTrue(customerRoleDefOptional.isPresent());
-        assertEquals(customerRoleDef, customerRoleDefOptional.get());
-    }
-
-    /**
-     * Test find by tickets contains with id.
-     */
-    @Test
-    void findByTicketsContainsWithId() {
-        // given
-        CustomerRoleDef customerRoleDef = new CustomerRoleDef();
-        customerRoleDefService.save(customerRoleDef);
-        Ticket ticket = new Ticket();
-        ticket.setId(1L);
-        ticket.setCustomerRoleDef(customerRoleDef);
-        customerRoleDef.getTickets().add(ticket);
-        ticketService.save(ticket);
-        given(customerRoleDefRepository.findByTicketsContainsWithId(ticket.getId()))
-                .willReturn(Optional.of(customerRoleDef));
-        // when
-        Optional<CustomerRoleDef> customerRoleDefOptional =
-                customerRoleDefService.findByTicketsContainsWithId(1L);
-        // then
-        assertTrue(customerRoleDefOptional.isPresent());
-        assertEquals(customerRoleDef, customerRoleDefOptional.get());
-    }
-
-    /**
-     * Test find by reviews contains.
-     */
-    @Test
-    void findByReviewsContains() {
-        // given
-        CustomerRoleDef customerRoleDef = new CustomerRoleDef();
-        customerRoleDefService.save(customerRoleDef);
-        Review review = new Review();
-        review.setId(1L);
-        review.setWriter(customerRoleDef);
-        customerRoleDef.getReviews().add(review);
-        reviewService.save(review);
-        given(customerRoleDefRepository.findByReviewsContainsWithId(review.getId()))
-                .willReturn(Optional.of(customerRoleDef));
-        // when
-        Optional<CustomerRoleDef> customerRoleDefOptional =
-                customerRoleDefService.findByReviewsContainsWithId(1L);
-        // then
-        assertTrue(customerRoleDefOptional.isPresent());
-        assertEquals(customerRoleDef, customerRoleDefOptional.get());
     }
 
     @Test

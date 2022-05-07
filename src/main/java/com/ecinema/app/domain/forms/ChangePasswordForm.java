@@ -1,6 +1,6 @@
 package com.ecinema.app.domain.forms;
 
-import com.ecinema.app.utils.IPassword;
+import com.ecinema.app.domain.contracts.IPassword;
 import lombok.Getter;
 import lombok.Setter;
 

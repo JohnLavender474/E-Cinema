@@ -1,7 +1,7 @@
 package com.ecinema.app.repositories;
 
 import com.ecinema.app.domain.entities.*;
-import com.ecinema.app.utils.UserRole;
+import com.ecinema.app.domain.enums.UserRole;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

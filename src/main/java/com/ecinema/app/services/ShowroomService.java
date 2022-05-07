@@ -8,12 +8,9 @@ import com.ecinema.app.domain.entities.Showroom;
 import com.ecinema.app.domain.entities.ShowroomSeat;
 import com.ecinema.app.domain.forms.ShowroomForm;
 import com.ecinema.app.exceptions.InvalidArgsException;
-import com.ecinema.app.utils.Letter;
-import com.ecinema.app.utils.Pair;
+import com.ecinema.app.domain.enums.Letter;
 
-import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 
 /**
@@ -33,10 +30,9 @@ public interface ShowroomService extends AbstractService<Showroom>, EntityDtoCon
      * Submit showroom form.
      *
      * @param showroomForm the showroom form
-     * @return the long
      * @throws InvalidArgsException the invalid args exception
      */
-    Long submitShowroomForm(ShowroomForm showroomForm)
+    void submitShowroomForm(ShowroomForm showroomForm)
             throws InvalidArgsException;
 
     /**
@@ -45,7 +41,7 @@ public interface ShowroomService extends AbstractService<Showroom>, EntityDtoCon
      * @param showroomLetter the showroom letter
      * @return the optional
      */
-    Optional<Showroom> findByShowroomLetter(Letter showroomLetter);
+    ShowroomDto findByShowroomLetter(Letter showroomLetter);
 
     /**
      * Find by showroom seats contains optional.
@@ -53,7 +49,7 @@ public interface ShowroomService extends AbstractService<Showroom>, EntityDtoCon
      * @param showroomSeat the showroom seat
      * @return the optional
      */
-    Optional<Showroom> findByShowroomSeatsContains(ShowroomSeat showroomSeat);
+    ShowroomDto findByShowroomSeatsContains(ShowroomSeat showroomSeat);
 
     /**
      * Find by showroom seats contains with id optional.
@@ -61,7 +57,7 @@ public interface ShowroomService extends AbstractService<Showroom>, EntityDtoCon
      * @param showroomSeatId the showroom seat id
      * @return the optional
      */
-    Optional<Showroom> findByShowroomSeatsContainsWithId(Long showroomSeatId);
+    ShowroomDto findByShowroomSeatsContainsWithId(Long showroomSeatId);
 
     /**
      * Find by screenings contains optional.
@@ -69,7 +65,7 @@ public interface ShowroomService extends AbstractService<Showroom>, EntityDtoCon
      * @param screening the screening
      * @return the optional
      */
-    Optional<Showroom> findByScreeningsContains(Screening screening);
+    ShowroomDto findByScreeningsContains(Screening screening);
 
     /**
      * Find by screenings contains with id optional.
@@ -77,6 +73,6 @@ public interface ShowroomService extends AbstractService<Showroom>, EntityDtoCon
      * @param screeningId the screening id
      * @return the optional
      */
-    Optional<Showroom> findByScreeningsContainsWithId(Long screeningId);
+    ShowroomDto findByScreeningsContainsWithId(Long screeningId);
 
 }

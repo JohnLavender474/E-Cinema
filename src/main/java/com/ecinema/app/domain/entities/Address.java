@@ -1,11 +1,12 @@
 package com.ecinema.app.domain.entities;
 
-import com.ecinema.app.utils.IAddress;
-import com.ecinema.app.utils.UsState;
+import com.ecinema.app.domain.contracts.IAddress;
+import com.ecinema.app.domain.enums.UsState;
 import lombok.Getter;
 import lombok.Setter;
 
 import javax.persistence.Column;
+import javax.persistence.Embeddable;
 import javax.persistence.Entity;
 
 /**
@@ -14,19 +15,10 @@ import javax.persistence.Entity;
  */
 @Getter
 @Setter
-@Entity
-public class Address extends AbstractEntity implements IAddress {
-
-    @Column
+@Embeddable
+public class Address implements IAddress {
     private String street;
-
-    @Column
     private String city;
-
-    @Column
     private UsState usState;
-
-    @Column
     private String zipcode;
-
 }

@@ -1,31 +1,25 @@
 package com.ecinema.app.services.implementations;
 
 import com.ecinema.app.domain.dtos.MovieDto;
-import com.ecinema.app.domain.entities.CustomerRoleDef;
 import com.ecinema.app.domain.entities.Movie;
-import com.ecinema.app.domain.entities.Review;
 import com.ecinema.app.domain.forms.MovieForm;
-import com.ecinema.app.domain.forms.ReviewForm;
 import com.ecinema.app.exceptions.InvalidArgsException;
 import com.ecinema.app.exceptions.NoEntityFoundException;
 import com.ecinema.app.repositories.MovieRepository;
-import com.ecinema.app.services.CustomerRoleDefService;
 import com.ecinema.app.services.MovieService;
 import com.ecinema.app.services.ReviewService;
 import com.ecinema.app.services.ScreeningService;
 import com.ecinema.app.utils.Duration;
-import com.ecinema.app.utils.MovieCategory;
-import com.ecinema.app.utils.MsrbRating;
+import com.ecinema.app.domain.enums.MovieCategory;
+import com.ecinema.app.domain.enums.MsrbRating;
 import com.ecinema.app.utils.UtilMethods;
-import com.ecinema.app.validators.MovieValidator;
-import com.ecinema.app.validators.ReviewValidator;
+import com.ecinema.app.domain.validators.MovieValidator;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -40,11 +34,9 @@ import java.util.stream.Collectors;
 public class MovieServiceImpl extends AbstractServiceImpl<Movie, MovieRepository>
         implements MovieService {
 
-    private final CustomerRoleDefService customerRoleDefService;
     private final ScreeningService screeningService;
     private final ReviewService reviewService;
     private final MovieValidator movieValidator;
-    private final ReviewValidator reviewValidator;
 
     /**
      * Instantiates a new Movie service.
@@ -52,19 +44,14 @@ public class MovieServiceImpl extends AbstractServiceImpl<Movie, MovieRepository
      * @param repository             the repository
      * @param reviewService          the review service
      * @param screeningService       the screening service
-     * @param customerRoleDefService the customer role def service
      * @param movieValidator         the movie validator
-     * @param reviewValidator        the review validator
      */
     public MovieServiceImpl(MovieRepository repository, ReviewService reviewService,
-                            ScreeningService screeningService, CustomerRoleDefService customerRoleDefService,
-                            MovieValidator movieValidator, ReviewValidator reviewValidator) {
+                            ScreeningService screeningService, MovieValidator movieValidator) {
         super(repository);
         this.reviewService = reviewService;
         this.screeningService = screeningService;
-        this.customerRoleDefService = customerRoleDefService;
         this.movieValidator = movieValidator;
-        this.reviewValidator = reviewValidator;
     }
 
     @Override
@@ -108,31 +95,6 @@ public class MovieServiceImpl extends AbstractServiceImpl<Movie, MovieRepository
     }
 
     @Override
-    public void submitReviewForm(ReviewForm reviewForm)
-            throws NoEntityFoundException {
-        List<String> errors = new ArrayList<>();
-        reviewValidator.validate(reviewForm, errors);
-        if (!errors.isEmpty()) {
-            throw new InvalidArgsException(errors);
-        }
-        CustomerRoleDef customerRoleDef = customerRoleDefService
-                .findByUserWithId(reviewForm.getUserId())
-                .orElseThrow(() -> new NoEntityFoundException("user", "id", reviewForm.getUserId()));
-        Movie movie = findById(reviewForm.getMovieId())
-                .orElseThrow(() -> new NoEntityFoundException("movie", "id", reviewForm.getMovieId()));
-        Review review = new Review();
-        review.setReview(reviewForm.getReview());
-        review.setRating(reviewForm.getRating());
-        review.setIsCensored(false);
-        review.setCreationDateTime(LocalDateTime.now());
-        review.setWriter(customerRoleDef);
-        customerRoleDef.getReviews().add(review);
-        review.setMovie(movie);
-        movie.getReviews().add(review);
-        reviewService.save(review);
-    }
-
-    @Override
     public String convertTitleToSearchTitle(String title) {
         return UtilMethods.removeWhitespace(title).toUpperCase();
     }
@@ -145,7 +107,7 @@ public class MovieServiceImpl extends AbstractServiceImpl<Movie, MovieRepository
         if (!errors.isEmpty()) {
             throw new InvalidArgsException(errors);
         }
-        logger.info("Submit Movie Form: passed validation checks");
+        logger.debug("Movie form passed validation checks");
         Movie movie = movieForm.getId() != null ? findById(movieForm.getId()).orElseThrow(
                 () -> new NoEntityFoundException("movie", "id", movieForm.getId())) : new Movie();
         String searchTitle = convertTitleToSearchTitle(movieForm.getTitle());
@@ -169,7 +131,7 @@ public class MovieServiceImpl extends AbstractServiceImpl<Movie, MovieRepository
                 movieForm.getMovieCategories()
                         .stream().map(MovieCategory::valueOf)
                         .collect(Collectors.toList()));
-        logger.info("Submit Movie Form: Instantiated and saved Movie entity");
+        logger.debug("Instantiated and saved Movie entity");
         save(movie);
     }
 

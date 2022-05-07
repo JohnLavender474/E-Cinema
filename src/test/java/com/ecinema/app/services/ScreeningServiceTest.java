@@ -1,19 +1,13 @@
 package com.ecinema.app.services;
 
 import com.ecinema.app.domain.dtos.ScreeningDto;
-import com.ecinema.app.domain.dtos.ScreeningSeatDto;
 import com.ecinema.app.domain.entities.*;
 import com.ecinema.app.domain.forms.ScreeningForm;
-import com.ecinema.app.exceptions.ClashException;
-import com.ecinema.app.exceptions.InvalidArgsException;
-import com.ecinema.app.exceptions.NoEntityFoundException;
 import com.ecinema.app.repositories.*;
 import com.ecinema.app.services.implementations.*;
 import com.ecinema.app.utils.Duration;
-import com.ecinema.app.utils.Letter;
-import com.ecinema.app.validators.MovieValidator;
-import com.ecinema.app.validators.ReviewValidator;
-import com.ecinema.app.validators.ScreeningFormValidator;
+import com.ecinema.app.domain.enums.Letter;
+import com.ecinema.app.domain.validators.ScreeningValidator;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -28,8 +22,6 @@ import java.time.Month;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.BDDMockito.given;
 
 @ExtendWith(MockitoExtension.class)
@@ -43,7 +35,7 @@ class ScreeningServiceTest {
     private ShowroomService showroomService;
     private ReviewService reviewService;
     @MockBean
-    private ScreeningFormValidator screeningFormValidator;
+    private ScreeningValidator screeningValidator;
     @Mock
     private ReviewRepository reviewRepository;
     @Mock
@@ -66,16 +58,16 @@ class ScreeningServiceTest {
                 screeningSeatRepository, ticketService);
         screeningService = new ScreeningServiceImpl(
                 screeningRepository, movieRepository, showroomRepository,
-                screeningSeatService, screeningFormValidator);
+                screeningSeatService, screeningValidator);
         showroomSeatService = new ShowroomSeatServiceImpl(
                 showroomSeatRepository, screeningSeatService);
         showroomService = new ShowroomServiceImpl(
                 showroomRepository, showroomSeatService,
                 screeningService, null);
-        reviewService = new ReviewServiceImpl(reviewRepository);
+        reviewService = new ReviewServiceImpl(reviewRepository, movieRepository,
+                                              null, null);
         movieService = new MovieServiceImpl(movieRepository, reviewService,
-                                            screeningService, null,
-                                            null, null);
+                                            screeningService, null);
     }
 
     @Test
@@ -90,10 +82,12 @@ class ScreeningServiceTest {
         screening.setMovie(movie);
         movieService.save(movie);
         Showroom showroom = new Showroom();
+        showroom.setId(1L);
         showroom.getScreenings().add(screening);
         screening.setShowroom(showroom);
         showroomService.save(showroom);
         ShowroomSeat showroomSeat = new ShowroomSeat();
+        showroomSeat.setId(1L);
         showroomSeat.setShowroom(showroom);
         showroom.getShowroomSeats().add(showroomSeat);
         showroomSeatService.save(showroomSeat);
@@ -189,7 +183,7 @@ class ScreeningServiceTest {
         assertEquals("test", screeningDto.getMovieTitle());
         assertEquals(Letter.A, screeningDto.getShowroomLetter());
         assertEquals(LocalDateTime.of(2022, Month.MAY, 1, 12, 0),
-                     screeningDto.getShowDateTime());
+                     screeningDto.getShowtime());
         assertNotNull(screeningDto);
     }
 
@@ -249,9 +243,9 @@ class ScreeningServiceTest {
         assertEquals(movie.getTitle(), screeningDto.getMovieTitle());
         assertEquals(showroom.getShowroomLetter(), screeningDto.getShowroomLetter());
         assertEquals(LocalDateTime.of(2023, Month.JANUARY, 1, 1, 0),
-                     screeningDto.getShowDateTime());
+                     screeningDto.getShowtime());
         assertEquals(LocalDateTime.of(2023, Month.JANUARY, 1, 2, 30),
-                     screeningDto.getEndDateTime());
+                     screeningDto.getEndtime());
         assertEquals(showroom.getShowroomSeats().size(), screeningDto.getSeatsAvailable());
         assertEquals(screeningDto.getSeatsAvailable(), screeningDto.getTotalSeatsInRoom());
         assertEquals(0, screeningDto.getSeatsBooked());

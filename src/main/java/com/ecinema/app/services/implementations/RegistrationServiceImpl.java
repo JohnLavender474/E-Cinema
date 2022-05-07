@@ -11,11 +11,12 @@ import com.ecinema.app.repositories.RegistrationRepository;
 import com.ecinema.app.services.EmailService;
 import com.ecinema.app.services.RegistrationService;
 import com.ecinema.app.services.UserService;
-import com.ecinema.app.validators.RegistrationValidator;
+import com.ecinema.app.domain.validators.RegistrationValidator;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -112,6 +113,10 @@ public class RegistrationServiceImpl extends AbstractServiceImpl<Registration,
         registration.setUsername(registrationForm.getUsername());
         registration.setFirstName(registrationForm.getFirstName());
         registration.setLastName(registrationForm.getLastName());
+        LocalDate birthDate = LocalDate.of(registrationForm.getBirthYear(),
+                                           registrationForm.getBirthMonth(),
+                                           registrationForm.getBirthDay());
+        registration.setBirthDate(birthDate);
         registration.setSecurityQuestion1(registrationForm.getSecurityQuestion1());
         registration.setSecurityAnswer1(registrationForm.getSecurityAnswer1());
         registration.setSecurityQuestion2(registrationForm.getSecurityQuestion2());

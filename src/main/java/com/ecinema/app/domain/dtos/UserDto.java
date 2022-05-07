@@ -1,6 +1,6 @@
 package com.ecinema.app.domain.dtos;
 
-import com.ecinema.app.utils.UserRole;
+import com.ecinema.app.domain.enums.UserRole;
 import lombok.Data;
 
 import java.util.EnumSet;

@@ -1,7 +1,7 @@
 package com.ecinema.app.domain.entities;
 
-import com.ecinema.app.utils.ISeat;
-import com.ecinema.app.utils.Letter;
+import com.ecinema.app.domain.contracts.ISeat;
+import com.ecinema.app.domain.enums.Letter;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -25,7 +25,7 @@ public class ShowroomSeat extends AbstractEntity implements ISeat {
     @Column
     private Integer seatNumber;
 
-    @OneToMany(mappedBy = "showroomSeat", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "showroomSeat", cascade = CascadeType.PERSIST, fetch = FetchType.LAZY)
     private Set<ScreeningSeat> screeningSeats = new HashSet<>();
 
 }

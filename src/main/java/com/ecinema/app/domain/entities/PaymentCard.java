@@ -1,23 +1,27 @@
 package com.ecinema.app.domain.entities;
 
-import com.ecinema.app.utils.PaymentCardType;
+import com.ecinema.app.domain.contracts.IAddress;
+import com.ecinema.app.domain.contracts.IPaymentCard;
+import com.ecinema.app.domain.enums.PaymentCardType;
 import lombok.Getter;
 import lombok.Setter;
+import org.springframework.lang.Nullable;
 
 import javax.persistence.*;
+import java.time.LocalDate;
 import java.time.Month;
 
 @Getter
 @Setter
 @Entity
-public class PaymentCard extends AbstractEntity {
+public class PaymentCard extends AbstractEntity implements IPaymentCard {
 
     @Column
     @Enumerated(EnumType.STRING)
     private PaymentCardType paymentCardType;
 
     @Column
-    private Integer cardNumber;
+    private String cardNumber;
 
     @Column
     private String firstName;
@@ -26,18 +30,21 @@ public class PaymentCard extends AbstractEntity {
     private String lastName;
 
     @Column
-    @Enumerated(EnumType.STRING)
-    private Month expirationMonth;
-
-    @Column
-    private Integer expirationYear;
+    private LocalDate expirationDate;
 
     @JoinColumn
     @ManyToOne(fetch = FetchType.LAZY)
     private CustomerRoleDef customerRoleDef;
 
-    @JoinColumn
-    @OneToOne(cascade = CascadeType.PERSIST, fetch = FetchType.LAZY)
-    private Address billingAddress;
+    @Embedded
+    private Address billingAddress = new Address();
+
+    @Override
+    public void setBillingAddress(IAddress billingAddress) {
+        this.billingAddress.setCity(billingAddress.getCity());
+        this.billingAddress.setStreet(billingAddress.getStreet());
+        this.billingAddress.setUsState(billingAddress.getUsState());
+        this.billingAddress.setZipcode(billingAddress.getZipcode());
+    }
 
 }

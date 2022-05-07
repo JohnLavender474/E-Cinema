@@ -3,7 +3,7 @@ package com.ecinema.app.repositories;
 import com.ecinema.app.domain.entities.Screening;
 import com.ecinema.app.domain.entities.Showroom;
 import com.ecinema.app.domain.entities.ShowroomSeat;
-import com.ecinema.app.utils.Letter;
+import com.ecinema.app.domain.enums.Letter;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,16 +27,6 @@ class ShowroomRepositoryTest {
 
     @Autowired
     private ScreeningRepository screeningRepository;
-
-    /**
-     * Tear down.
-     */
-    @AfterEach
-    void tearDown() {
-        showroomRepository.deleteAll();
-        showroomSeatRepository.deleteAll();
-        screeningRepository.deleteAll();
-    }
 
     /**
      * Find by showroom letter.

@@ -1,6 +1,6 @@
 package com.ecinema.app.domain.forms;
 
-import com.ecinema.app.utils.MsrbRating;
+import com.ecinema.app.domain.enums.MsrbRating;
 import lombok.Getter;
 import lombok.Setter;
 

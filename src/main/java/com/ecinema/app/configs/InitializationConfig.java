@@ -1,13 +1,12 @@
 package com.ecinema.app.configs;
 
+import com.ecinema.app.domain.dtos.MovieDto;
+import com.ecinema.app.domain.dtos.ShowroomDto;
+import com.ecinema.app.domain.dtos.UserDto;
 import com.ecinema.app.domain.entities.Movie;
-import com.ecinema.app.domain.entities.User;
-import com.ecinema.app.domain.forms.MovieForm;
-import com.ecinema.app.domain.forms.ShowroomForm;
-import com.ecinema.app.services.EmailService;
-import com.ecinema.app.services.MovieService;
-import com.ecinema.app.services.ShowroomService;
-import com.ecinema.app.services.UserService;
+import com.ecinema.app.domain.enums.*;
+import com.ecinema.app.domain.forms.*;
+import com.ecinema.app.services.*;
 import com.ecinema.app.utils.*;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
@@ -20,8 +19,7 @@ import org.springframework.stereotype.Component;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.Month;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 /**
  * Initializes persistence on app start.
@@ -31,9 +29,13 @@ import java.util.List;
 public class InitializationConfig {
 
     private final UserService userService;
-    private final MovieService movieService;
-    private final ShowroomService showroomService;
     private final EmailService emailService;
+    private final MovieService movieService;
+    private final ReviewService reviewService;
+    private final ShowroomService showroomService;
+    private final ScreeningService screeningService;
+    private final PaymentCardService paymentCardService;
+    private final CustomerRoleDefService customerRoleDefService;
     private final BCryptPasswordEncoder passwordEncoder;
     private final Logger logger = LoggerFactory.getLogger(InitializationConfig.class);
 
@@ -44,7 +46,10 @@ public class InitializationConfig {
     public void appReady() {
         defineUsers();
         defineMovies();
+        defineReviews();
         defineShowrooms();
+        defineScreenings();
+        definePaymentCards();
     }
 
     private void defineUsers() {
@@ -54,54 +59,49 @@ public class InitializationConfig {
     }
 
     private void defineRootAdmin() {
-        User root = new User();
-        root.setUsername("ROOT");
-        root.setEmail(emailService.getBusinessEmail());
+        RegistrationForm rootUserForm = new RegistrationForm();
+        rootUserForm.setUsername("ROOT");
+        rootUserForm.setEmail(emailService.getBusinessEmail());
         String encodedPassword = passwordEncoder.encode("password123!");
-        root.setPassword(encodedPassword);
-        root.setFirstName("Jim");
-        root.setLastName("Montgomery");
-        root.setBirthDate(LocalDate.of(1998, Month.JULY, 9));
-        root.setSecurityQuestion1(SecurityQuestions.SQ1);
+        rootUserForm.setPassword(encodedPassword);
+        rootUserForm.setFirstName("Jim");
+        rootUserForm.setLastName("Montgomery");
+        rootUserForm.setBirthDate(LocalDate.of(1998, Month.JULY, 9));
+        rootUserForm.setSecurityQuestion1(SecurityQuestions.SQ1);
         String answer1 = "Bowser";
         String answer1Formatted = UtilMethods.removeWhitespace(answer1.toLowerCase());
         String encodedAnswer1 = passwordEncoder.encode(answer1Formatted);
-        root.setSecurityAnswer1(encodedAnswer1);
-        root.setSecurityQuestion2(SecurityQuestions.SQ5);
+        rootUserForm.setSecurityAnswer1(encodedAnswer1);
+        rootUserForm.setSecurityQuestion2(SecurityQuestions.SQ5);
         String answer2 = "root beer";
         String answer2Formatted = UtilMethods.removeWhitespace(answer2.toLowerCase());
         String encodedAnswer2 = passwordEncoder.encode(answer2Formatted);
-        root.setSecurityAnswer2(encodedAnswer2);
-        root.setCreationDateTime(LocalDateTime.now());
-        root.setLastActivityDateTime(LocalDateTime.now());
-        root.setIsAccountEnabled(true);
-        root.setIsAccountLocked(false);
-        root.setIsAccountExpired(false);
-        root.setIsCredentialsExpired(false);
-        userService.save(root);
-        userService.addUserRoleDefToUser(root, UserRole.ADMIN, UserRole.MODERATOR);
+        rootUserForm.setSecurityAnswer2(encodedAnswer2);
+        rootUserForm.setUserRoles(EnumSet.of(UserRole.ADMIN, UserRole.MODERATOR));
+        userService.register(rootUserForm);
     }
 
     private void defineCustomer() {
-        User customer = new User();
-        customer.setUsername("Customer1");
-        customer.setEmail("ecinema.app.customer1@gmail.com");
+        RegistrationForm customerForm = new RegistrationForm();
+        customerForm.setUsername("Customer1");
+        customerForm.setEmail("ecinema.app.customer1@gmail.com");
         String encodedPassword = passwordEncoder.encode("cheeseburger474?");
-        customer.setPassword(encodedPassword);
-        customer.setFirstName("Johnny");
-        customer.setLastName("Bravo");
-        customer.setBirthDate(LocalDate.of(1990, Month.JANUARY, 1));
-        customer.setSecurityAnswer1(SecurityQuestions.SQ4);
+        customerForm.setPassword(encodedPassword);
+        customerForm.setFirstName("Johnny");
+        customerForm.setLastName("Bravo");
+        customerForm.setBirthDate(LocalDate.of(1990, Month.JANUARY, 1));
+        customerForm.setSecurityQuestion1(SecurityQuestions.SQ4);
         String answer1 = "Ernest";
         String answer1Formatted = UtilMethods.removeWhitespace(answer1.toLowerCase());
         String encodedAnswer1 = passwordEncoder.encode(answer1Formatted);
-        customer.setSecurityAnswer1(encodedAnswer1);
-        customer.setSecurityQuestion2(SecurityQuestions.SQ3);
+        customerForm.setSecurityAnswer1(encodedAnswer1);
+        customerForm.setSecurityQuestion2(SecurityQuestions.SQ3);
         String answer2 = "Handsome";
-
-
-        // TODO: Automate dis shit!
-
+        String answer2Formatted = UtilMethods.removeWhitespace(answer2.toLowerCase());
+        String encodedAnswer2 = passwordEncoder.encode(answer2Formatted);
+        customerForm.setSecurityAnswer2(encodedAnswer2);
+        customerForm.setUserRoles(EnumSet.of(UserRole.CUSTOMER));
+        userService.register(customerForm);
     }
 
     private void defineMovies() {
@@ -441,8 +441,45 @@ public class InitializationConfig {
                                                MovieCategory.DRAMA.name()));
         movieService.submitMovieForm(theNorthman);
         for (Movie movie : movieService.findAll()) {
-            logger.info("Movie added: " + movie.getTitle());
+            logger.debug("Movie added: " + movie.getTitle());
         }
+    }
+
+    private void defineReviews() {
+        Long customerId = userService.findIdByEmail("ecinema.app.customer1@gmail.com")
+                                     .orElseThrow(IllegalStateException::new);
+        Long customerRoleDefId = customerRoleDefService.findIdByUserWithId(customerId)
+                                                       .orElseThrow(IllegalStateException::new);
+        MovieDto pig = movieService.findByTitle("pig");
+        MovieDto dune = movieService.findByTitle("dune");
+        MovieDto batman = movieService.findByTitle("the batman");
+        MovieDto interstellar = movieService.findByTitle("interstellar");
+        // Review 1
+        ReviewForm reviewForm1 = new ReviewForm();
+        reviewForm1.setMovieId(pig.getId());
+        reviewForm1.setUserId(customerId);
+        reviewForm1.setRating(7);
+        reviewForm1.setReview("While the movie is very slow, I couldn't help but be a bit intrigued " +
+                "by Nick Cage's performance as a washed-up old man. His character has lost so much " +
+                "that even losing a pig sends him into a spiral of emotion... but it's not depresion " +
+                "that he's feeling here, it's revenge he's snorting for!");
+        reviewService.submitReviewForm(reviewForm1);
+        // Review 2
+        ReviewForm reviewForm2 = new ReviewForm();
+        reviewForm2.setMovieId(dune.getId());
+        reviewForm2.setUserId(customerId);
+        reviewForm2.setRating(7);
+        reviewForm2.setReview("As someone who has never read the novel, I still feel like what was shown " +
+                "to me was a compelling if flawed presentation of what's obviously a classic sci-fi story. " +
+                "There seems to be some missteps here and there, including some dialogue that was not very " +
+                "well written and an insistence on dream sequences that ate up too much of the movie's time, " +
+                "and also the ending seems to just all of a sudden without much resolution. Nevertheless, " +
+                "the movie is still compelling to watch and is worth at least one watch!");
+        reviewService.submitReviewForm(reviewForm2);
+        // Review 3
+        ReviewForm reviewForm3 = new ReviewForm();
+        reviewForm3.setMovieId(batman.getId());
+        reviewForm3.setUserId(customerId);
     }
 
     private void defineShowrooms() {
@@ -471,6 +508,212 @@ public class InitializationConfig {
         showroomFormD.setNumberOfRows(5);
         showroomFormD.setNumberOfSeatsPerRow(25);
         showroomService.submitShowroomForm(showroomFormD);
+        // Showroom E
+        ShowroomForm showroomFormE = new ShowroomForm();
+        showroomFormE.setShowroomLetter(Letter.E);
+        showroomFormE.setNumberOfRows(4);
+        showroomFormE.setNumberOfSeatsPerRow(25);
+        showroomService.submitShowroomForm(showroomFormE);
+    }
+
+    private void defineScreenings() {
+        screeningService.deleteAll();
+        // Showrooms
+        Map<Letter, ShowroomDto> showrooms = new EnumMap<>(Letter.class);
+        for (int i = 0; i < 5; i++) {
+            Letter letter = Letter.values()[i];
+            ShowroomDto showroom = showroomService.findByShowroomLetter(letter);
+            showrooms.put(letter, showroom);
+        }
+        defineAliensScreenings(showrooms);
+        defineDarkestHourScreenings(showrooms);
+        defineDuneScreenings(showrooms);
+        defineEmpireStrikesBackScreenings(showrooms);
+        defineInterstellarScreenings(showrooms);
+        define007NoTimeToDieScreenings(showrooms);
+        definePigScreenings(showrooms);
+        defineTheBatmanScreenings(showrooms);
+        defineGoodBadUglyScreenings(showrooms);
+        defineTheNorthmanScreenings(showrooms);
+    }
+
+    private void defineAliensScreenings(Map<Letter, ShowroomDto> showrooms) {
+        MovieDto aliens = movieService.findByTitle("aLie Ns");
+        ScreeningForm screeningForm = new ScreeningForm();
+        screeningForm.setMovieId(aliens.getId());
+        screeningForm.setShowroomId(showrooms.get(Letter.E).getId());
+        LocalDateTime aliensShowtime = LocalDateTime.now().plusDays(1);
+        screeningForm.setShowtime(aliensShowtime);
+        screeningService.submitScreeningForm(screeningForm);
+    }
+
+    private void defineDarkestHourScreenings(Map<Letter, ShowroomDto> showrooms) {
+        MovieDto darkestHour = movieService.findByTitle("darKest Hour");
+        ScreeningForm screeningForm = new ScreeningForm();
+        screeningForm.setMovieId(darkestHour.getId());
+        screeningForm.setShowroomId(showrooms.get(Letter.A).getId());
+        LocalDateTime darkestHourShowtime = LocalDateTime.now().plusDays(1);
+        screeningForm.setShowtime(darkestHourShowtime);
+        screeningService.submitScreeningForm(screeningForm);
+    }
+
+    private void defineDuneScreenings(Map<Letter, ShowroomDto> showrooms) {
+        MovieDto dune = movieService.findByTitle("dune");
+        // Screening 1
+        ScreeningForm screeningForm1 = new ScreeningForm();
+        screeningForm1.setMovieId(dune.getId());
+        screeningForm1.setShowroomId(showrooms.get(Letter.A).getId());
+        LocalDateTime duneShowtime1 = LocalDateTime.now().plusHours(3);
+        screeningForm1.setShowtime(duneShowtime1);
+        screeningService.submitScreeningForm(screeningForm1);
+        // Screening 2
+        ScreeningForm screeningForm2 = new ScreeningForm();
+        screeningForm2.setMovieId(dune.getId());
+        screeningForm2.setShowroomId(showrooms.get(Letter.A).getId());
+        LocalDateTime duneShowtime2 = LocalDateTime.now().plusHours(6).plusMinutes(15);
+        screeningForm2.setShowtime(duneShowtime2);
+        screeningService.submitScreeningForm(screeningForm2);
+        // Screening 3
+        ScreeningForm screeningForm3 = new ScreeningForm();
+        screeningForm3.setMovieId(dune.getId());
+        screeningForm3.setShowroomId(showrooms.get(Letter.B).getId());
+        LocalDateTime duneShowtime3 = duneShowtime1.plusMinutes(30);
+        screeningForm3.setShowtime(duneShowtime3);
+        screeningService.submitScreeningForm(screeningForm3);
+    }
+
+    private void defineEmpireStrikesBackScreenings(Map<Letter, ShowroomDto> showrooms) {
+        MovieDto empireStrikesBack = movieService.findByTitle("Star Wars: The Empire Strikes Back");
+        LocalDateTime empireStrikesBackShowtime = LocalDateTime.now().plusDays(2);
+        // Screening 1
+        ScreeningForm screeningForm1 = new ScreeningForm();
+        screeningForm1.setMovieId(empireStrikesBack.getId());
+        screeningForm1.setShowroomId(showrooms.get(Letter.C).getId());
+        screeningForm1.setShowtime(empireStrikesBackShowtime);
+        screeningService.submitScreeningForm(screeningForm1);
+        // Screening 2
+        ScreeningForm screeningForm2 = new ScreeningForm();
+        screeningForm2.setMovieId(empireStrikesBack.getId());
+        screeningForm2.setShowroomId(showrooms.get(Letter.D).getId());
+        screeningForm2.setShowtime(empireStrikesBackShowtime);
+        screeningService.submitScreeningForm(screeningForm2);
+    }
+
+    private void defineInterstellarScreenings(Map<Letter, ShowroomDto> showrooms) {
+        MovieDto interstellar = movieService.findByTitle("Interst ellar");
+        ScreeningForm screeningForm = new ScreeningForm();
+        screeningForm.setMovieId(interstellar.getId());
+        screeningForm.setShowroomId(showrooms.get(Letter.A).getId());
+        LocalDateTime interstellarShowtime = LocalDateTime.now().plusDays(2).minusHours(2);
+        screeningForm.setShowtime(interstellarShowtime);
+        screeningService.submitScreeningForm(screeningForm);
+    }
+
+    private void definePigScreenings(Map<Letter, ShowroomDto> showrooms) {
+        MovieDto pig = movieService.findByTitle("piG");
+        // Screening 1
+        ScreeningForm screeningForm1 = new ScreeningForm();
+        screeningForm1.setMovieId(pig.getId());
+        screeningForm1.setShowroomId(showrooms.get(Letter.E).getId());
+        LocalDateTime pigShowtime1 = LocalDateTime.now().plusDays(1).plusHours(4);
+        screeningForm1.setShowtime(pigShowtime1);
+        screeningService.submitScreeningForm(screeningForm1);
+        // Screening 2
+        ScreeningForm screeningForm2 = new ScreeningForm();
+        screeningForm2.setMovieId(pig.getId());
+        screeningForm2.setShowroomId(showrooms.get(Letter.B).getId());
+        LocalDateTime pigShowtime2 = LocalDateTime.now().plusHours(7).plusMinutes(30);
+        screeningForm2.setShowtime(pigShowtime2);
+        screeningService.submitScreeningForm(screeningForm2);
+    }
+
+    private void defineTheBatmanScreenings(Map<Letter, ShowroomDto> showrooms) {
+        MovieDto batman = movieService.findByTitle("theb atman");
+        // Screening 1
+        ScreeningForm screeningForm1 = new ScreeningForm();
+        screeningForm1.setMovieId(batman.getId());
+        screeningForm1.setShowroomId(showrooms.get(Letter.C).getId());
+        LocalDateTime batmanShowtime1 = LocalDateTime.now().plusHours(1);
+        screeningForm1.setShowtime(batmanShowtime1);
+        screeningService.submitScreeningForm(screeningForm1);
+        // Screening 2
+        ScreeningForm screeningForm2 = new ScreeningForm();
+        screeningForm2.setMovieId(batman.getId());
+        screeningForm2.setShowroomId(showrooms.get(Letter.E).getId());
+        LocalDateTime batmanShowtime2 = LocalDateTime.now().plusHours(4);
+        screeningForm2.setShowtime(batmanShowtime2);
+        screeningService.submitScreeningForm(screeningForm2);
+    }
+
+    private void define007NoTimeToDieScreenings(Map<Letter, ShowroomDto> showrooms) {
+        MovieDto bond = movieService.findByTitle("007:n o t i m e to di e");
+        // Screening 1
+        ScreeningForm screeningForm1 = new ScreeningForm();
+        screeningForm1.setMovieId(bond.getId());
+        screeningForm1.setShowroomId(showrooms.get(Letter.D).getId());
+        LocalDateTime bondShowtime1 = LocalDateTime.now().plusMinutes(45);
+        screeningForm1.setShowtime(bondShowtime1);
+        screeningService.submitScreeningForm(screeningForm1);
+        // Screening 2
+        ScreeningForm screeningForm2 = new ScreeningForm();
+        screeningForm2.setMovieId(bond.getId());
+        screeningForm2.setShowroomId(showrooms.get(Letter.D).getId());
+        LocalDateTime bondShowtime2 = LocalDateTime.now().plusDays(1);
+        screeningForm1.setShowtime(bondShowtime2);
+        screeningService.submitScreeningForm(screeningForm2);
+    }
+
+    private void defineGoodBadUglyScreenings(Map<Letter, ShowroomDto> showrooms) {
+        MovieDto goodBadUgly = movieService.findByTitle("The Good, The Bad, and The Ugly");
+        ScreeningForm screeningForm = new ScreeningForm();
+        screeningForm.setMovieId(goodBadUgly.getId());
+        screeningForm.setShowroomId(showrooms.get(Letter.B).getId());
+        LocalDateTime goodBadUglyShowtime = LocalDateTime.now().plusDays(3).plusHours(8);
+        screeningForm.setShowtime(goodBadUglyShowtime);
+        screeningService.submitScreeningForm(screeningForm);
+    }
+
+    private void defineTheNorthmanScreenings(Map<Letter, ShowroomDto> showrooms) {
+        MovieDto theNorthman = movieService.findByTitle("The Northman");
+        ScreeningForm screeningForm = new ScreeningForm();
+        screeningForm.setMovieId(theNorthman.getId());
+        screeningForm.setShowroomId(showrooms.get(Letter.C).getId());
+        LocalDateTime theNorthmanShowtime = LocalDateTime.now().plusDays(1);
+        screeningForm.setShowtime(theNorthmanShowtime);
+        screeningService.submitScreeningForm(screeningForm);
+    }
+
+    private void definePaymentCards() {
+        paymentCardService.deleteAll();
+        UserDto customer = userService.findByUsername("Customer1");
+        Long customerRoleDefId = customerRoleDefService.findIdByUserWithId(customer.getId())
+                .orElseThrow(IllegalStateException::new);
+        // Paymentcard 1
+        PaymentCardForm paymentCardForm1 = new PaymentCardForm();
+        paymentCardForm1.setCustomerRoleDefId(customerRoleDefId);
+        paymentCardForm1.setExpirationDate(LocalDate.now().plusYears(2));
+        paymentCardForm1.setPaymentCardType(PaymentCardType.CREDIT);
+        paymentCardForm1.setCardNumber("1234123412341234");
+        paymentCardForm1.setFirstName("John");
+        paymentCardForm1.setLastName("Lavender");
+        paymentCardForm1.setStreet("300 Something Road");
+        paymentCardForm1.setCity("Somewhere");
+        paymentCardForm1.setUsState(UsState.GEORGIA);
+        paymentCardForm1.setZipcode("31775");
+        paymentCardService.submitPaymentCardForm(paymentCardForm1);
+        // Paymentcard 2
+        PaymentCardForm paymentCardForm2 = new PaymentCardForm();
+        paymentCardForm2.setCustomerRoleDefId(customerRoleDefId);
+        paymentCardForm2.setExpirationDate(LocalDate.now().plusYears(4));
+        paymentCardForm2.setPaymentCardType(PaymentCardType.DEBIT);
+        paymentCardForm2.setCardNumber("9876987698769876");
+        paymentCardForm2.setFirstName("Johnny");
+        paymentCardForm2.setLastName("Bravo");
+        paymentCardForm2.setStreet("500 Somewhere Lane");
+        paymentCardForm2.setCity("Something");
+        paymentCardForm2.setUsState(UsState.FLORIDA);
+        paymentCardForm2.setZipcode("55555");
+        paymentCardService.submitPaymentCardForm(paymentCardForm2);
     }
 
 }

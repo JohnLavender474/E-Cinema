@@ -25,7 +25,6 @@ class TicketServiceTest {
     private ReviewService reviewService;
     private PaymentCardService paymentCardService;
     private CouponService couponService;
-    private AddressService addressService;
     @Mock
     private ShowroomRepository showroomRepository;
     @Mock
@@ -41,8 +40,6 @@ class TicketServiceTest {
     @Mock
     private PaymentCardRepository paymentCardRepository;
     @Mock
-    private AddressRepository addressRepository;
-    @Mock
     private CouponRepository couponRepository;
     @Mock
     private MovieRepository movieRepository;
@@ -50,14 +47,19 @@ class TicketServiceTest {
     @BeforeEach
     void setUp() {
         ticketService = new TicketServiceImpl(ticketRepository);
-        screeningSeatService = new ScreeningSeatServiceImpl(screeningSeatRepository, ticketService);
-        screeningService = new ScreeningServiceImpl(screeningRepository, movieRepository,  showroomRepository,  screeningSeatService, null);
-        reviewService = new ReviewServiceImpl(reviewRepository);
-        addressService = new AddressServiceImpl(addressRepository);
-        paymentCardService = new PaymentCardServiceImpl(paymentCardRepository, addressService);
+        screeningSeatService = new ScreeningSeatServiceImpl(
+                screeningSeatRepository, ticketService);
+        screeningService = new ScreeningServiceImpl(
+                screeningRepository, movieRepository,
+                showroomRepository,  screeningSeatService, null);
+        reviewService = new ReviewServiceImpl(reviewRepository, movieRepository,
+                                              null, null);
+        paymentCardService = new PaymentCardServiceImpl(paymentCardRepository, null,
+                                                        null);
         couponService = new CouponServiceImpl(couponRepository);
-        customerRoleDefService = new CustomerRoleDefServiceImpl(customerRoleDefRepository, reviewService,
-                                                                ticketService, paymentCardService, couponService);
+        customerRoleDefService = new CustomerRoleDefServiceImpl(
+                customerRoleDefRepository, reviewService,
+                ticketService, paymentCardService, couponService);
     }
 
     @Test

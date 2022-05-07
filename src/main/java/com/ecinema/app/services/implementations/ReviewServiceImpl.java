@@ -1,17 +1,28 @@
 package com.ecinema.app.services.implementations;
 
+import ch.qos.logback.classic.pattern.Abbreviator;
+import com.ecinema.app.domain.dtos.CustomerRoleDefDto;
 import com.ecinema.app.domain.dtos.ReviewDto;
 import com.ecinema.app.domain.entities.CustomerRoleDef;
 import com.ecinema.app.domain.entities.Movie;
 import com.ecinema.app.domain.entities.Review;
+import com.ecinema.app.domain.forms.ReviewForm;
+import com.ecinema.app.domain.validators.ReviewValidator;
+import com.ecinema.app.exceptions.InvalidArgsException;
 import com.ecinema.app.exceptions.NoEntityFoundException;
+import com.ecinema.app.repositories.CustomerRoleDefRepository;
+import com.ecinema.app.repositories.MovieRepository;
 import com.ecinema.app.repositories.ReviewRepository;
+import com.ecinema.app.services.CustomerRoleDefService;
 import com.ecinema.app.services.ReviewService;
+import org.modelmapper.internal.asm.tree.ModuleExportNode;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -20,8 +31,16 @@ import java.util.stream.Collectors;
 public class ReviewServiceImpl extends AbstractServiceImpl<Review, ReviewRepository>
         implements ReviewService {
 
-    public ReviewServiceImpl(ReviewRepository repository) {
+    private final CustomerRoleDefRepository customerRoleDefRepository;
+    private final MovieRepository movieRepository;
+    private final ReviewValidator reviewValidator;
+
+    public ReviewServiceImpl(ReviewRepository repository, MovieRepository movieRepository,
+                             CustomerRoleDefRepository customerRoleDefRepository, ReviewValidator reviewValidator) {
         super(repository);
+        this.movieRepository = movieRepository;
+        this.customerRoleDefRepository = customerRoleDefRepository;
+        this.reviewValidator = reviewValidator;
     }
 
     @Override
@@ -38,6 +57,31 @@ public class ReviewServiceImpl extends AbstractServiceImpl<Review, ReviewReposit
             movie.getReviews().remove(review);
             review.setMovie(null);
         }
+    }
+
+    @Override
+    public void submitReviewForm(ReviewForm reviewForm)
+            throws NoEntityFoundException, InvalidArgsException {
+        CustomerRoleDef customerRoleDef = customerRoleDefRepository.findByUserWithId(reviewForm.getUserId())
+                .orElseThrow(() -> new NoEntityFoundException(
+                        "customer role def", "user id", reviewForm.getUserId()));
+        Movie movie = movieRepository.findById(reviewForm.getMovieId()).orElseThrow(
+                () -> new NoEntityFoundException("movie", "id", reviewForm.getMovieId()));
+        List<String> errors = new ArrayList<>();
+        reviewValidator.validate(reviewForm, errors);
+        if (!errors.isEmpty()) {
+            throw new InvalidArgsException(errors);
+        }
+        Review review = new Review();
+        review.setMovie(movie);
+        movie.getReviews().add(review);
+        review.setWriter(customerRoleDef);
+        customerRoleDef.getReviews().add(review);
+        review.setRating(reviewForm.getRating());
+        review.setReview(reviewForm.getReview());
+        review.setCreationDateTime(LocalDateTime.now());
+        review.setIsCensored(false);
+        save(review);
     }
 
     @Override
@@ -83,6 +127,7 @@ public class ReviewServiceImpl extends AbstractServiceImpl<Review, ReviewReposit
         reviewDTO.setRating(review.getRating());
         reviewDTO.setIsCensored(review.getIsCensored());
         reviewDTO.setCreationDateTime(review.getCreationDateTime());
+        reviewDTO.setCustomerId(review.getWriter().getId());
         reviewDTO.setWriter(review.getWriter().getUser().getUsername());
         return reviewDTO;
     }

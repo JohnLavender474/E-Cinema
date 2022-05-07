@@ -1,8 +1,8 @@
 package com.ecinema.app.services;
 
 import com.ecinema.app.domain.entities.Coupon;
-import com.ecinema.app.utils.CouponType;
-import com.ecinema.app.utils.DiscountType;
+import com.ecinema.app.domain.enums.CouponType;
+import com.ecinema.app.domain.enums.DiscountType;
 
 import java.util.List;
 

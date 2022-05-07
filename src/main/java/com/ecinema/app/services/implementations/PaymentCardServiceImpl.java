@@ -1,14 +1,18 @@
 package com.ecinema.app.services.implementations;
 
-import com.ecinema.app.domain.entities.Address;
 import com.ecinema.app.domain.entities.CustomerRoleDef;
 import com.ecinema.app.domain.entities.PaymentCard;
+import com.ecinema.app.domain.forms.PaymentCardForm;
+import com.ecinema.app.domain.validators.PaymentCardValidator;
+import com.ecinema.app.exceptions.InvalidArgsException;
+import com.ecinema.app.exceptions.NoEntityFoundException;
+import com.ecinema.app.repositories.CustomerRoleDefRepository;
 import com.ecinema.app.repositories.PaymentCardRepository;
-import com.ecinema.app.services.AddressService;
 import com.ecinema.app.services.PaymentCardService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -16,11 +20,15 @@ import java.util.List;
 public class PaymentCardServiceImpl extends AbstractServiceImpl<PaymentCard,
         PaymentCardRepository> implements PaymentCardService {
 
-    private final AddressService addressService;
+    private final CustomerRoleDefRepository customerRoleDefRepository;
+    private final PaymentCardValidator paymentCardValidator;
 
-    public PaymentCardServiceImpl(PaymentCardRepository repository, AddressService addressService) {
+    public PaymentCardServiceImpl(PaymentCardRepository repository,
+                                  CustomerRoleDefRepository customerRoleDefRepository,
+                                  PaymentCardValidator paymentCardValidator) {
         super(repository);
-        this.addressService = addressService;
+        this.customerRoleDefRepository = customerRoleDefRepository;
+        this.paymentCardValidator = paymentCardValidator;
     }
 
     @Override
@@ -31,12 +39,30 @@ public class PaymentCardServiceImpl extends AbstractServiceImpl<PaymentCard,
             customerRoleDef.getPaymentCards().remove(paymentCard);
             paymentCard.setCustomerRoleDef(null);
         }
-        // cascade delete Address
-        Address address = paymentCard.getBillingAddress();
-        if (address != null) {
-            paymentCard.setBillingAddress(null);
-            addressService.delete(address);
+    }
+
+    @Override
+    public void submitPaymentCardForm(PaymentCardForm paymentCardForm)
+            throws NoEntityFoundException, InvalidArgsException {
+        CustomerRoleDef customerRoleDef = customerRoleDefRepository.findById(
+                paymentCardForm.getCustomerRoleDefId())
+                .orElseThrow(() -> new NoEntityFoundException(
+                        "customer role def", "id", paymentCardForm.getCustomerRoleDefId()));
+        List<String> errors = new ArrayList<>();
+        paymentCardValidator.validate(paymentCardForm, errors);
+        if (!errors.isEmpty()) {
+            throw new InvalidArgsException(errors);
         }
+        PaymentCard paymentCard = new PaymentCard();
+        paymentCard.setCustomerRoleDef(customerRoleDef);
+        customerRoleDef.getPaymentCards().add(paymentCard);
+        paymentCard.setBillingAddress(paymentCardForm.getBillingAddress());
+        paymentCard.setPaymentCardType(paymentCardForm.getPaymentCardType());
+        paymentCard.setCardNumber(paymentCardForm.getCardNumber());
+        paymentCard.setFirstName(paymentCardForm.getFirstName());
+        paymentCard.setLastName(paymentCardForm.getLastName());
+        paymentCard.setExpirationDate(paymentCardForm.getExpirationDate());
+        save(paymentCard);
     }
 
     @Override

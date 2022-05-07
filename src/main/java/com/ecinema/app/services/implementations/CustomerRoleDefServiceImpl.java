@@ -5,6 +5,7 @@ import com.ecinema.app.domain.entities.*;
 import com.ecinema.app.exceptions.NoEntityFoundException;
 import com.ecinema.app.repositories.CustomerRoleDefRepository;
 import com.ecinema.app.services.*;
+import org.modelmapper.internal.asm.tree.ModuleExportNode;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -51,33 +52,56 @@ public class CustomerRoleDefServiceImpl extends UserRoleDefServiceImpl<CustomerR
     }
 
     @Override
-    public Optional<CustomerRoleDef> findByPaymentCardsContains(PaymentCard paymentCard) {
-        return repository.findByPaymentCardsContains(paymentCard);
+    public CustomerRoleDefDto findByPaymentCardsContains(PaymentCard paymentCard)
+            throws NoEntityFoundException {
+        CustomerRoleDef customerRoleDef = repository.findByPaymentCardsContains(paymentCard)
+                .orElseThrow(() -> new NoEntityFoundException(
+                        "customer role def", "payment card", paymentCard));
+        return convertToDto(customerRoleDef);
     }
 
     @Override
-    public Optional<CustomerRoleDef> findByPaymentCardsContainsWithId(Long paymentCardId) {
-        return repository.findByPaymentCardsContainsWithId(paymentCardId);
+    public CustomerRoleDefDto findByPaymentCardsContainsWithId(Long paymentCardId)
+            throws NoEntityFoundException {
+        CustomerRoleDef customerRoleDef = repository.findByPaymentCardsContainsWithId(paymentCardId)
+                .orElseThrow(() -> new NoEntityFoundException(
+                        "customer role def", "paymentcard id", paymentCardId));
+        return convertToDto(customerRoleDef);
     }
 
     @Override
-    public Optional<CustomerRoleDef> findByTicketsContains(Ticket ticket) {
-        return repository.findByTicketsContains(ticket);
+    public CustomerRoleDefDto findByTicketsContains(Ticket ticket)
+            throws NoEntityFoundException {
+        CustomerRoleDef customerRoleDef = repository.findByTicketsContains(ticket).orElseThrow(
+                () -> new NoEntityFoundException(
+                        "customer role def", "ticket", ticket));
+        return convertToDto(customerRoleDef);
     }
 
     @Override
-    public Optional<CustomerRoleDef> findByTicketsContainsWithId(Long ticketId) {
-        return repository.findByTicketsContainsWithId(ticketId);
+    public CustomerRoleDefDto findByTicketsContainsWithId(Long ticketId)
+            throws NoEntityFoundException {
+        CustomerRoleDef customerRoleDef = repository.findByTicketsContainsWithId(ticketId)
+                .orElseThrow(() -> new NoEntityFoundException(
+                        "customer role def", "ticket id", ticketId));
+        return convertToDto(customerRoleDef);
     }
 
     @Override
-    public Optional<CustomerRoleDef> findByReviewsContains(Review review) {
-        return repository.findByReviewsContains(review);
+    public CustomerRoleDefDto findByReviewsContains(Review review)
+            throws NoEntityFoundException {
+        CustomerRoleDef customerRoleDef = repository.findByReviewsContains(review).orElseThrow(
+                () -> new NoEntityFoundException("customer role def", "review", review));
+        return convertToDto(customerRoleDef);
     }
 
     @Override
-    public Optional<CustomerRoleDef> findByReviewsContainsWithId(Long reviewId) {
-        return repository.findByReviewsContainsWithId(reviewId);
+    public CustomerRoleDefDto findByReviewsContainsWithId(Long reviewId)
+            throws NoEntityFoundException {
+        CustomerRoleDef customerRoleDef = repository.findByReviewsContainsWithId(reviewId)
+                .orElseThrow(() -> new NoEntityFoundException(
+                        "customer role def", "review id", reviewId));
+        return convertToDto(customerRoleDef);
     }
 
     @Override
@@ -86,6 +110,7 @@ public class CustomerRoleDefServiceImpl extends UserRoleDefServiceImpl<CustomerR
         CustomerRoleDef customerRoleDef = findById(id).orElseThrow(
                 () -> new NoEntityFoundException("customer role def", "id", id));
         CustomerRoleDefDto customerRoleDefDto = new CustomerRoleDefDto();
+        customerRoleDefDto.setId(customerRoleDef.getId());
         customerRoleDefDto.setUserId(customerRoleDef.getUser().getId());
         customerRoleDefDto.setIsCensored(customerRoleDef.getCensoredBy() != null);
         return customerRoleDefDto;

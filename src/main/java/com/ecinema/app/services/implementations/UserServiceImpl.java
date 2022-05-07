@@ -8,11 +8,11 @@ import com.ecinema.app.exceptions.InvalidArgsException;
 import com.ecinema.app.exceptions.NoEntityFoundException;
 import com.ecinema.app.repositories.UserRepository;
 import com.ecinema.app.services.*;
-import com.ecinema.app.utils.IPassword;
-import com.ecinema.app.utils.IRegistration;
-import com.ecinema.app.utils.UserRole;
+import com.ecinema.app.domain.contracts.IPassword;
+import com.ecinema.app.domain.contracts.IRegistration;
+import com.ecinema.app.domain.enums.UserRole;
 import com.ecinema.app.utils.UtilMethods;
-import com.ecinema.app.validators.PasswordValidator;
+import com.ecinema.app.domain.validators.PasswordValidator;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
@@ -58,12 +58,12 @@ public class UserServiceImpl extends AbstractServiceImpl<User, UserRepository> i
 
     @Override
     protected void onDelete(User user) {
-        logger.info("User Service on delete");
+        logger.debug("User Service on delete");
         // cascade delete UserRoleDefs, iterate over copy of keySet to avoid concurrent modification exception
         Set<UserRole> userRoles = new HashSet<>(user.getUserRoleDefs().keySet());
-        logger.info("User Roles size: " + userRoles.size());
+        logger.debug("User Roles size: " + userRoles.size());
         for (UserRole userRole : userRoles) {
-            logger.info("Has user role: " + userRole);
+            logger.debug("Deleting user role: " + userRole);
             UserRoleDefService<? extends UserRoleDef> userRoleDefService = userRoleDefServices.get(userRole);
             userRoleDefService.delete(userRole.castToDefType(user.getUserRoleDefs().get(userRole)));
         }
@@ -72,7 +72,7 @@ public class UserServiceImpl extends AbstractServiceImpl<User, UserRepository> i
     @Override
     public UserDetails loadUserByUsername(String s)
             throws UsernameNotFoundException {
-        return findByUsernameOrEmail(s).orElseThrow(
+        return repository.findByUsernameOrEmail(s).orElseThrow(
                 () -> new UsernameNotFoundException("No user found with username or email " + s));
     }
 
@@ -84,6 +84,7 @@ public class UserServiceImpl extends AbstractServiceImpl<User, UserRepository> i
         user.setPassword(registration.getPassword());
         user.setFirstName(registration.getFirstName());
         user.setLastName(registration.getLastName());
+        user.setBirthDate(registration.getBirthDate());
         user.setSecurityQuestion1(registration.getSecurityQuestion1());
         user.setSecurityAnswer1(registration.getSecurityAnswer1());
         user.setSecurityQuestion2(registration.getSecurityQuestion2());
@@ -94,7 +95,7 @@ public class UserServiceImpl extends AbstractServiceImpl<User, UserRepository> i
         user.setIsAccountLocked(false);
         user.setIsAccountExpired(false);
         user.setIsCredentialsExpired(false);
-        saveAndFlush(user);
+        save(user);
         addUserRoleDefToUser(user, registration.getUserRoles());
         return convertToDto(user.getId());
     }
@@ -105,13 +106,17 @@ public class UserServiceImpl extends AbstractServiceImpl<User, UserRepository> i
     }
 
     @Override
-    public Optional<User> findByUsername(String username) {
-        return repository.findByUsername(username);
+    public UserDto findByUsername(String username) {
+        User user = repository.findByUsername(username).orElseThrow(
+                () -> new NoEntityFoundException("user", "username", username));
+        return convertToDto(user);
     }
 
     @Override
-    public Optional<User> findByUsernameOrEmail(String s) {
-        return repository.findByUsernameOrEmail(s);
+    public UserDto findByUsernameOrEmail(String s) {
+        User user = repository.findByUsernameOrEmail(s).orElseThrow(
+                () -> new NoEntityFoundException("user", "email or username", s));
+        return convertToDto(user);
     }
 
     @Override
@@ -125,8 +130,11 @@ public class UserServiceImpl extends AbstractServiceImpl<User, UserRepository> i
     }
 
     @Override
-    public Optional<User> findByEmail(String email) {
-        return repository.findByEmail(email);
+    public UserDto findByEmail(String email)
+            throws NoEntityFoundException {
+        User user = repository.findByEmail(email).orElseThrow(
+                () -> new NoEntityFoundException("user", "email", email));
+        return convertToDto(user);
     }
 
     @Override
@@ -149,43 +157,51 @@ public class UserServiceImpl extends AbstractServiceImpl<User, UserRepository> i
     }
 
     @Override
-    public List<User> findAllByIsAccountLocked(boolean isAccountLocked) {
-        return repository.findAllByIsAccountLocked(isAccountLocked);
+    public List<UserDto> findAllByIsAccountLocked(boolean isAccountLocked) {
+        List<User> users = repository.findAllByIsAccountLocked(isAccountLocked);
+        return convertToDto(users);
     }
 
     @Override
-    public List<User> findAllByIsAccountEnabled(boolean isAccountEnabled) {
-        return repository.findAllByIsAccountEnabled(isAccountEnabled);
+    public List<UserDto> findAllByIsAccountEnabled(boolean isAccountEnabled) {
+        List<User> users = repository.findAllByIsAccountEnabled(isAccountEnabled);
+        return convertToDto(users);
     }
 
     @Override
-    public List<User> findAllByIsAccountExpired(boolean isAccountExpired) {
-        return repository.findAllByIsAccountExpired(isAccountExpired);
+    public List<UserDto> findAllByIsAccountExpired(boolean isAccountExpired) {
+        List<User> users = repository.findAllByIsAccountExpired(isAccountExpired);
+        return convertToDto(users);
     }
 
     @Override
-    public List<User> findAllByIsCredentialsExpired(boolean isCredentialsExpired) {
-        return repository.findAllByIsCredentialsExpired(isCredentialsExpired);
+    public List<UserDto> findAllByIsCredentialsExpired(boolean isCredentialsExpired) {
+        List<User> users = repository.findAllByIsCredentialsExpired(isCredentialsExpired);
+        return convertToDto(users);
     }
 
     @Override
-    public List<User> findAllByCreationDateTimeBefore(LocalDateTime localDateTime) {
-        return repository.findAllByCreationDateTimeBefore(localDateTime);
+    public List<UserDto> findAllByCreationDateTimeBefore(LocalDateTime localDateTime) {
+        List<User> users = repository.findAllByCreationDateTimeBefore(localDateTime);
+        return convertToDto(users);
     }
 
     @Override
-    public List<User> findAllByCreationDateTimeAfter(LocalDateTime localDateTime) {
-        return repository.findAllByCreationDateTimeAfter(localDateTime);
+    public List<UserDto> findAllByCreationDateTimeAfter(LocalDateTime localDateTime) {
+        List<User> users = repository.findAllByCreationDateTimeAfter(localDateTime);
+        return convertToDto(users);
     }
 
     @Override
-    public List<User> findAllByLastActivityDateTimeBefore(LocalDateTime localDateTime) {
-        return repository.findAllByLastActivityDateTimeBefore(localDateTime);
+    public List<UserDto> findAllByLastActivityDateTimeBefore(LocalDateTime localDateTime) {
+        List<User> users = repository.findAllByLastActivityDateTimeBefore(localDateTime);
+        return convertToDto(users);
     }
 
     @Override
-    public List<User> findAllByLastActivityDateTimeAfter(LocalDateTime localDateTime) {
-        return repository.findAllByLastActivityDateTimeAfter(localDateTime);
+    public List<UserDto> findAllByLastActivityDateTimeAfter(LocalDateTime localDateTime) {
+        List<User> users = repository.findAllByLastActivityDateTimeAfter(localDateTime);
+        return convertToDto(users);
     }
 
     @Override

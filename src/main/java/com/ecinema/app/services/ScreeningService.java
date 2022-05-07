@@ -10,13 +10,14 @@ import com.ecinema.app.domain.forms.ScreeningForm;
 import com.ecinema.app.exceptions.ClashException;
 import com.ecinema.app.exceptions.InvalidArgsException;
 import com.ecinema.app.exceptions.NoEntityFoundException;
-import com.ecinema.app.utils.Letter;
+import com.ecinema.app.domain.enums.Letter;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
 /**
@@ -36,12 +37,11 @@ public interface ScreeningService extends AbstractService<Screening>, EntityDtoC
      * Submit screening form.
      *
      * @param screeningForm the screening form
-     * @return the long
      * @throws NoEntityFoundException the no entity found exception
      * @throws InvalidArgsException   the invalid args exception
      * @throws ClashException         the clash exception
      */
-    Long submitScreeningForm(ScreeningForm screeningForm)
+    void submitScreeningForm(ScreeningForm screeningForm)
             throws NoEntityFoundException, InvalidArgsException, ClashException;
 
     /**
@@ -52,7 +52,7 @@ public interface ScreeningService extends AbstractService<Screening>, EntityDtoC
      * @param endTime   the end time
      * @return the boolean
      */
-    boolean existsScreeningByShowroomAndInBetweenStartTimeAndEndTime(
+    Optional<ScreeningDto> findScreeningByShowroomAndInBetweenStartTimeAndEndTime(
             Showroom showroom, LocalDateTime startTime, LocalDateTime endTime);
 
     /**
@@ -63,7 +63,7 @@ public interface ScreeningService extends AbstractService<Screening>, EntityDtoC
      * @param endTime    the end time
      * @return the boolean
      */
-    boolean existsScreeningByShowroomIdAndInBetweenStartTimeAndEndTime(
+    Optional<ScreeningDto> findScreeningByShowroomIdAndInBetweenStartTimeAndEndTime(
             Long showroomId, LocalDateTime startTime, LocalDateTime endTime);
 
     /**

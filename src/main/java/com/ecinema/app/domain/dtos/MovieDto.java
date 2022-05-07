@@ -1,8 +1,8 @@
 package com.ecinema.app.domain.dtos;
 
 import com.ecinema.app.utils.Duration;
-import com.ecinema.app.utils.MovieCategory;
-import com.ecinema.app.utils.MsrbRating;
+import com.ecinema.app.domain.enums.MovieCategory;
+import com.ecinema.app.domain.enums.MsrbRating;
 import lombok.Getter;
 import lombok.Setter;
 

@@ -1,8 +1,8 @@
 package com.ecinema.app.repositories;
 
 import com.ecinema.app.domain.entities.Movie;
-import com.ecinema.app.utils.MovieCategory;
-import com.ecinema.app.utils.MsrbRating;
+import com.ecinema.app.domain.enums.MovieCategory;
+import com.ecinema.app.domain.enums.MsrbRating;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;

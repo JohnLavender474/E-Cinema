@@ -1,6 +1,6 @@
 package com.ecinema.app.domain.dtos;
 
-import com.ecinema.app.utils.Letter;
+import com.ecinema.app.domain.enums.Letter;
 import lombok.Getter;
 import lombok.Setter;
 

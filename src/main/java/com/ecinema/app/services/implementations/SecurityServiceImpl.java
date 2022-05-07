@@ -14,6 +14,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -35,22 +36,21 @@ public class SecurityServiceImpl implements SecurityService {
     @Override
     public void login(final String s, final String password)
             throws NoEntityFoundException, PasswordMismatchException {
-        logger.info("Security Service login method");
-        User user = userService.findByUsernameOrEmail(s).orElseThrow(
-                () -> new NoEntityFoundException("user", "username or email", s));
+        logger.debug("Security Service login method");
+        UserDetails user = userService.loadUserByUsername(s);
         if (!passwordEncoder.matches(password, user.getPassword())) {
             throw new PasswordMismatchException(s);
         }
         for (GrantedAuthority authority : user.getAuthorities()) {
-            logger.info("User has authority: " + authority.getAuthority());
+            logger.debug("User has authority: " + authority.getAuthority());
         }
         UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken =
-                new UsernamePasswordAuthenticationToken(user, password,
-                                                        user.getAuthorities());
+                new UsernamePasswordAuthenticationToken(
+                        user, password, user.getAuthorities());
         daoAuthenticationProvider.authenticate(usernamePasswordAuthenticationToken);
         SecurityContext securityContext = SecurityContextHolder.getContext();
         if (usernamePasswordAuthenticationToken.isAuthenticated()) {
-            logger.info(String.format("Auto login %s success!", user.getUsername()));
+            logger.debug(String.format("Auto login %s success!", user.getUsername()));
             securityContext.setAuthentication(usernamePasswordAuthenticationToken);
         }
     }

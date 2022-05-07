@@ -12,19 +12,16 @@ import com.ecinema.app.repositories.ScreeningRepository;
 import com.ecinema.app.repositories.ShowroomRepository;
 import com.ecinema.app.services.ScreeningSeatService;
 import com.ecinema.app.services.ScreeningService;
-import com.ecinema.app.utils.Letter;
+import com.ecinema.app.domain.enums.Letter;
 import com.ecinema.app.utils.UtilMethods;
-import com.ecinema.app.validators.ScreeningFormValidator;
+import com.ecinema.app.domain.validators.ScreeningValidator;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -38,7 +35,7 @@ public class ScreeningServiceImpl extends AbstractServiceImpl<Screening, Screeni
     private final MovieRepository movieRepository;
     private final ShowroomRepository showroomRepository;
     private final ScreeningSeatService screeningSeatService;
-    private final ScreeningFormValidator screeningFormValidator;
+    private final ScreeningValidator screeningValidator;
 
     /**
      * Instantiates a new Screening service.
@@ -49,12 +46,12 @@ public class ScreeningServiceImpl extends AbstractServiceImpl<Screening, Screeni
                                 MovieRepository movieRepository,
                                 ShowroomRepository showroomRepository,
                                 ScreeningSeatService screeningSeatService,
-                                ScreeningFormValidator screeningFormValidator) {
+                                ScreeningValidator screeningValidator) {
         super(repository);
         this.movieRepository = movieRepository;
         this.showroomRepository = showroomRepository;
         this.screeningSeatService = screeningSeatService;
-        this.screeningFormValidator = screeningFormValidator;
+        this.screeningValidator = screeningValidator;
     }
 
     @Override
@@ -81,10 +78,10 @@ public class ScreeningServiceImpl extends AbstractServiceImpl<Screening, Screeni
     }
 
     @Override
-    public Long submitScreeningForm(ScreeningForm screeningForm)
+    public void submitScreeningForm(ScreeningForm screeningForm)
             throws NoEntityFoundException, InvalidArgsException, ClashException {
         List<String> errors = new ArrayList<>();
-        screeningFormValidator.validate(screeningForm, errors);
+        screeningValidator.validate(screeningForm, errors);
         if (!errors.isEmpty()) {
             throw new InvalidArgsException(errors);
         }
@@ -104,9 +101,16 @@ public class ScreeningServiceImpl extends AbstractServiceImpl<Screening, Screeni
         LocalDateTime endDateTime = showDateTime
                 .plusHours(movie.getDuration().getHours())
                 .plusMinutes(movie.getDuration().getMinutes());
-        if (existsScreeningByShowroomAndInBetweenStartTimeAndEndTime(
-                showroom, showDateTime, endDateTime)) {
-            throw new ClashException("Screening request overlaps already existent screening");
+        Optional<ScreeningDto> optionalOverlap = findScreeningByShowroomAndInBetweenStartTimeAndEndTime(
+                showroom, showDateTime, endDateTime);
+        if (optionalOverlap.isPresent()) {
+            ScreeningDto overlap = optionalOverlap.get();
+            throw new ClashException("Screening for " + movie.getTitle() +
+                                             " in showroom " + showroom.getShowroomLetter() +
+                                             " at " + showDateTime +
+                                             " overlaps screening for " +  overlap.getMovieTitle() +
+                                             " in showroom " + overlap.getShowroomLetter() +
+                                             " at " + overlap.getShowtime());
         }
         Screening screening = new Screening();
         screening.setShowDateTime(showDateTime);
@@ -115,28 +119,37 @@ public class ScreeningServiceImpl extends AbstractServiceImpl<Screening, Screeni
         showroom.getScreenings().add(screening);
         screening.setMovie(movie);
         movie.getScreenings().add(screening);
-        return saveAndGetId(screening);
+        save(screening);
+        for (ShowroomSeat showroomSeat : showroom.getShowroomSeats()) {
+            ScreeningSeat screeningSeat = new ScreeningSeat();
+            screeningSeat.setShowroomSeat(showroomSeat);
+            showroomSeat.getScreeningSeats().add(screeningSeat);
+            screeningSeat.setScreening(screening);
+            screening.getScreeningSeats().add(screeningSeat);
+            screeningSeat.setTicket(null);
+            screeningSeatService.save(screeningSeat);
+        }
     }
 
     @Override
-    public boolean existsScreeningByShowroomAndInBetweenStartTimeAndEndTime(
+    public Optional<ScreeningDto> findScreeningByShowroomAndInBetweenStartTimeAndEndTime(
             Showroom showroom, LocalDateTime startTime, LocalDateTime endTime) {
-        return existsScreeningByShowroomIdAndInBetweenStartTimeAndEndTime(
+        return findScreeningByShowroomIdAndInBetweenStartTimeAndEndTime(
                 showroom.getId(), startTime, endTime);
     }
 
     @Override
-    public boolean existsScreeningByShowroomIdAndInBetweenStartTimeAndEndTime(
+    public Optional<ScreeningDto> findScreeningByShowroomIdAndInBetweenStartTimeAndEndTime(
             Long showroomId, LocalDateTime startTime, LocalDateTime endTime) {
         List<Screening> screenings = repository.findAllByShowroomWithId(showroomId);
         for (Screening screening : screenings) {
             if (UtilMethods.localDateTimeOverlap(
                     startTime, endTime,
                     screening.getShowDateTime(), screening.getEndDateTime())) {
-                return true;
+                return Optional.of(convertToDto(screening));
             }
         }
-        return false;
+        return Optional.empty();
     }
 
     @Override
@@ -204,8 +217,8 @@ public class ScreeningServiceImpl extends AbstractServiceImpl<Screening, Screeni
         screeningDTO.setShowroomId(screening.getShowroom().getId());
         screeningDTO.setMovieTitle(screening.getMovie().getTitle());
         screeningDTO.setShowroomLetter(screening.getShowroom().getShowroomLetter());
-        screeningDTO.setShowDateTime(screening.getShowDateTime());
-        screeningDTO.setEndDateTime(screening.getEndDateTime());
+        screeningDTO.setShowtime(screening.getShowDateTime());
+        screeningDTO.setEndtime(screening.getEndDateTime());
         screeningDTO.setTotalSeatsInRoom(screening.getShowroom().getShowroomSeats().size());
         long numberOfSeatsBooked = screening
                 .getScreeningSeats().stream().filter(

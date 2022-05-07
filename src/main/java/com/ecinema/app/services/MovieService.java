@@ -5,11 +5,10 @@ import com.ecinema.app.domain.dtos.MovieDto;
 import com.ecinema.app.domain.entities.Movie;
 import com.ecinema.app.domain.forms.MovieForm;
 import com.ecinema.app.domain.forms.ReviewForm;
-import com.ecinema.app.exceptions.ClashException;
 import com.ecinema.app.exceptions.InvalidArgsException;
 import com.ecinema.app.exceptions.NoEntityFoundException;
-import com.ecinema.app.utils.MovieCategory;
-import com.ecinema.app.utils.MsrbRating;
+import com.ecinema.app.domain.enums.MovieCategory;
+import com.ecinema.app.domain.enums.MsrbRating;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
@@ -39,15 +38,6 @@ public interface MovieService extends AbstractService<Movie>, EntityDtoConverter
      */
     MovieForm fetchAsForm(Long movieId)
         throws NoEntityFoundException;
-
-    /**
-     * Submit review form.
-     *
-     * @param reviewForm the review form
-     * @throws NoEntityFoundException the no entity found exception
-     */
-    void submitReviewForm(ReviewForm reviewForm)
-            throws NoEntityFoundException;
 
     /**
      * Convert title to search title string.

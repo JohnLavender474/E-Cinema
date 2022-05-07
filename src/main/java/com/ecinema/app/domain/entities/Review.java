@@ -1,5 +1,6 @@
 package com.ecinema.app.domain.entities;
 
+import com.ecinema.app.domain.contracts.IReview;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -17,7 +18,7 @@ import java.time.LocalDateTime;
 @Getter
 @Setter
 @Entity
-public class Review extends AbstractEntity {
+public class Review extends AbstractEntity implements IReview {
 
     @Column(length = 2000)
     private String review;

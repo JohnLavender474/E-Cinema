@@ -6,6 +6,7 @@ import lombok.Setter;
 @Getter
 @Setter
 public class CustomerRoleDefDto implements AbstractDto {
+    private Long id;
     private Long userId;
     private Boolean isCensored;
 }

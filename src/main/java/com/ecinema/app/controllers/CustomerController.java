@@ -2,7 +2,7 @@ package com.ecinema.app.controllers;
 
 import com.ecinema.app.domain.dtos.UserDto;
 import com.ecinema.app.services.*;
-import com.ecinema.app.utils.UserRole;
+import com.ecinema.app.domain.enums.UserRole;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;

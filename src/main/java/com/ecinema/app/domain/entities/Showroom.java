@@ -1,6 +1,7 @@
 package com.ecinema.app.domain.entities;
 
-import com.ecinema.app.utils.Letter;
+import com.ecinema.app.domain.contracts.IShowroom;
+import com.ecinema.app.domain.enums.Letter;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -14,15 +15,21 @@ import java.util.Set;
 @Getter
 @Setter
 @Entity
-public class Showroom extends AbstractEntity {
+public class Showroom extends AbstractEntity implements IShowroom {
 
     @Column
     private Letter showroomLetter;
 
-    @OneToMany(mappedBy = "showroom", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @Column
+    private Integer numberOfRows;
+
+    @Column
+    private Integer numberOfSeatsPerRow;
+
+    @OneToMany(mappedBy = "showroom", cascade = CascadeType.PERSIST, fetch = FetchType.LAZY)
     private Set<ShowroomSeat> showroomSeats = new HashSet<>();
 
-    @OneToMany(mappedBy = "showroom", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "showroom", cascade = CascadeType.PERSIST, fetch = FetchType.LAZY)
     private Set<Screening> screenings = new HashSet<>();
 
 }

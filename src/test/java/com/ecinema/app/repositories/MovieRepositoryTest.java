@@ -4,11 +4,10 @@ import com.ecinema.app.domain.entities.Movie;
 import com.ecinema.app.services.MovieService;
 import com.ecinema.app.services.implementations.MovieServiceImpl;
 import com.ecinema.app.utils.UtilMethods;
-import com.ecinema.app.utils.MovieCategory;
-import com.ecinema.app.utils.MsrbRating;
+import com.ecinema.app.domain.enums.MovieCategory;
+import com.ecinema.app.domain.enums.MsrbRating;
 import com.ecinema.app.utils.Duration;
 import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
@@ -20,7 +19,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static com.ecinema.app.utils.MovieCategory.*;
+import static com.ecinema.app.domain.enums.MovieCategory.*;
 
 @DataJpaTest
 class MovieRepositoryTest {
@@ -262,8 +261,7 @@ class MovieRepositoryTest {
         movieRepository.save(movie);
         // when
         MovieService movieService = new MovieServiceImpl(
-                null, null, null,
-                null, null, null);
+                null, null, null, null);
         String test1Str = movieService.convertTitleToSearchTitle("Test Movie");
         String test2Str = movieService.convertTitleToSearchTitle("Test movie");
         String test3Str = movieService.convertTitleToSearchTitle("teStM oVi E");
