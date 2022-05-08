@@ -5,7 +5,7 @@ import com.ecinema.app.domain.dtos.ShowroomSeatDto;
 import com.ecinema.app.domain.entities.ScreeningSeat;
 import com.ecinema.app.domain.entities.Showroom;
 import com.ecinema.app.domain.entities.ShowroomSeat;
-import com.ecinema.app.exceptions.NoAssociationException;
+import com.ecinema.app.exceptions.InvalidAssociationException;
 import com.ecinema.app.exceptions.NoEntityFoundException;
 import com.ecinema.app.domain.enums.Letter;
 
@@ -26,7 +26,7 @@ public interface ShowroomSeatService extends AbstractService<ShowroomSeat>,
      * @return the map
      */
     Map<Letter, Set<ShowroomSeatDto>> findShowroomSeatMapByShowroomWithId(Long showroomId)
-            throws NoAssociationException;
+            throws InvalidAssociationException;
 
     /**
      * Find all by showroom list.

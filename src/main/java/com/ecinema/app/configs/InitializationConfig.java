@@ -446,40 +446,48 @@ public class InitializationConfig {
     }
 
     private void defineReviews() {
+        reviewService.deleteAll();
         Long customerId = userService.findIdByEmail("ecinema.app.customer1@gmail.com")
                                      .orElseThrow(IllegalStateException::new);
-        Long customerRoleDefId = customerRoleDefService.findIdByUserWithId(customerId)
-                                                       .orElseThrow(IllegalStateException::new);
         MovieDto pig = movieService.findByTitle("pig");
         MovieDto dune = movieService.findByTitle("dune");
         MovieDto batman = movieService.findByTitle("the batman");
-        MovieDto interstellar = movieService.findByTitle("interstellar");
         // Review 1
         ReviewForm reviewForm1 = new ReviewForm();
         reviewForm1.setMovieId(pig.getId());
         reviewForm1.setUserId(customerId);
         reviewForm1.setRating(7);
-        reviewForm1.setReview("While the movie is very slow, I couldn't help but be a bit intrigued " +
-                "by Nick Cage's performance as a washed-up old man. His character has lost so much " +
-                "that even losing a pig sends him into a spiral of emotion... but it's not depresion " +
-                "that he's feeling here, it's revenge he's snorting for!");
+        reviewForm1.setReview(
+                "While the movie is very slow, I couldn't help but be a bit intrigued " +
+                        "by Nick Cage's performance as a washed-up old man. His character has lost so much " +
+                        "that even losing a pig sends him into a spiral of emotion... but it's not depresion " +
+                        "that he's feeling here, it's revenge he's snorting for!");
         reviewService.submitReviewForm(reviewForm1);
         // Review 2
         ReviewForm reviewForm2 = new ReviewForm();
         reviewForm2.setMovieId(dune.getId());
         reviewForm2.setUserId(customerId);
         reviewForm2.setRating(7);
-        reviewForm2.setReview("As someone who has never read the novel, I still feel like what was shown " +
-                "to me was a compelling if flawed presentation of what's obviously a classic sci-fi story. " +
-                "There seems to be some missteps here and there, including some dialogue that was not very " +
-                "well written and an insistence on dream sequences that ate up too much of the movie's time, " +
-                "and also the ending seems to just all of a sudden without much resolution. Nevertheless, " +
-                "the movie is still compelling to watch and is worth at least one watch!");
+        reviewForm2.setReview(
+                "As someone who has never read the novel, I still feel like what was shown " +
+                        "to me was a compelling if flawed presentation of what's obviously a classic sci-fi story. " +
+                        "There seems to be some missteps here and there, including some dialogue that was not very " +
+                        "well written and an insistence on dream sequences that ate up too much of the movie's time, " +
+                        "and also the ending seems to just all of a sudden without much resolution. Nevertheless, " +
+                        "the movie is still compelling to watch and is worth at least one watch!");
         reviewService.submitReviewForm(reviewForm2);
         // Review 3
         ReviewForm reviewForm3 = new ReviewForm();
         reviewForm3.setMovieId(batman.getId());
         reviewForm3.setUserId(customerId);
+        reviewForm3.setRating(7);
+        reviewForm3.setReview(
+                "While the movie in my opinion pales in comparison to The Dark Knight, I believe " +
+                        "it does a good enough job at what it tries to be. There's some questinable " +
+                        "plot decisions, and there's also the part where an explosion happens directly " +
+                        "in batman's face yet he somehow survives without a scratch, but other than " +
+                        "that I think it holds up as a decent entry in the Batman universe.");
+        reviewService.submitReviewForm(reviewForm3);
     }
 
     private void defineShowrooms() {

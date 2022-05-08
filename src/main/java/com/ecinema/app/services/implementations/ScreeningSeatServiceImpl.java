@@ -5,7 +5,7 @@ import com.ecinema.app.domain.entities.Screening;
 import com.ecinema.app.domain.entities.ScreeningSeat;
 import com.ecinema.app.domain.entities.ShowroomSeat;
 import com.ecinema.app.domain.entities.Ticket;
-import com.ecinema.app.exceptions.NoAssociationException;
+import com.ecinema.app.exceptions.InvalidAssociationException;
 import com.ecinema.app.exceptions.NoEntityFoundException;
 import com.ecinema.app.repositories.ScreeningSeatRepository;
 import com.ecinema.app.services.ScreeningSeatService;
@@ -62,10 +62,10 @@ public class ScreeningSeatServiceImpl extends AbstractServiceImpl<ScreeningSeat,
 
     @Override
     public Map<Letter, Set<ScreeningSeatDto>> findScreeningSeatMapByScreeningWithId(Long screeningId)
-            throws NoAssociationException {
+            throws InvalidAssociationException {
         List<ScreeningSeatDto> screeningSeatDtos = findAllByScreeningWithId(screeningId);
         if (screeningSeatDtos.isEmpty()) {
-            throw new NoAssociationException("No screening seats mapped to screening with id " + screeningId);
+            throw new InvalidAssociationException("No screening seats mapped to screening with id " + screeningId);
         }
         Map<Letter, Set<ScreeningSeatDto>> mapOfScreeningSeats = new TreeMap<>();
         for (ScreeningSeatDto screeningSeatDto : screeningSeatDtos) {

@@ -4,7 +4,7 @@ import com.ecinema.app.domain.dtos.ShowroomSeatDto;
 import com.ecinema.app.domain.entities.ScreeningSeat;
 import com.ecinema.app.domain.entities.Showroom;
 import com.ecinema.app.domain.entities.ShowroomSeat;
-import com.ecinema.app.exceptions.NoAssociationException;
+import com.ecinema.app.exceptions.InvalidAssociationException;
 import com.ecinema.app.exceptions.NoEntityFoundException;
 import com.ecinema.app.repositories.ShowroomSeatRepository;
 import com.ecinema.app.services.ScreeningSeatService;
@@ -42,10 +42,10 @@ public class ShowroomSeatServiceImpl extends AbstractServiceImpl<ShowroomSeat, S
 
     @Override
     public Map<Letter, Set<ShowroomSeatDto>> findShowroomSeatMapByShowroomWithId(Long showroomId)
-            throws NoAssociationException {
+            throws InvalidAssociationException {
         List<ShowroomSeatDto> showroomSeatDtos = findAllByShowroomWithId(showroomId);
         if (showroomSeatDtos.isEmpty()) {
-            throw new NoAssociationException("No showroom seats mapped to showroom with id " + showroomId);
+            throw new InvalidAssociationException("No showroom seats mapped to showroom with id " + showroomId);
         }
         Map<Letter, Set<ShowroomSeatDto>> showroomSeatMap = new EnumMap<>(Letter.class);
         for (ShowroomSeatDto showroomSeatDto : showroomSeatDtos) {

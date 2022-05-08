@@ -1,21 +1,18 @@
 package com.ecinema.app.services.implementations;
 
-import ch.qos.logback.classic.pattern.Abbreviator;
-import com.ecinema.app.domain.dtos.CustomerRoleDefDto;
 import com.ecinema.app.domain.dtos.ReviewDto;
 import com.ecinema.app.domain.entities.CustomerRoleDef;
 import com.ecinema.app.domain.entities.Movie;
 import com.ecinema.app.domain.entities.Review;
 import com.ecinema.app.domain.forms.ReviewForm;
 import com.ecinema.app.domain.validators.ReviewValidator;
+import com.ecinema.app.exceptions.ClashException;
 import com.ecinema.app.exceptions.InvalidArgsException;
 import com.ecinema.app.exceptions.NoEntityFoundException;
 import com.ecinema.app.repositories.CustomerRoleDefRepository;
 import com.ecinema.app.repositories.MovieRepository;
 import com.ecinema.app.repositories.ReviewRepository;
-import com.ecinema.app.services.CustomerRoleDefService;
 import com.ecinema.app.services.ReviewService;
-import org.modelmapper.internal.asm.tree.ModuleExportNode;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -26,6 +23,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+/**
+ * The type Review service.
+ */
 @Service
 @Transactional
 public class ReviewServiceImpl extends AbstractServiceImpl<Review, ReviewRepository>
@@ -35,6 +35,14 @@ public class ReviewServiceImpl extends AbstractServiceImpl<Review, ReviewReposit
     private final MovieRepository movieRepository;
     private final ReviewValidator reviewValidator;
 
+    /**
+     * Instantiates a new Review service.
+     *
+     * @param repository                the repository
+     * @param movieRepository           the movie repository
+     * @param customerRoleDefRepository the customer role def repository
+     * @param reviewValidator           the review validator
+     */
     public ReviewServiceImpl(ReviewRepository repository, MovieRepository movieRepository,
                              CustomerRoleDefRepository customerRoleDefRepository, ReviewValidator reviewValidator) {
         super(repository);
@@ -61,17 +69,22 @@ public class ReviewServiceImpl extends AbstractServiceImpl<Review, ReviewReposit
 
     @Override
     public void submitReviewForm(ReviewForm reviewForm)
-            throws NoEntityFoundException, InvalidArgsException {
+            throws NoEntityFoundException, InvalidArgsException, ClashException {
         CustomerRoleDef customerRoleDef = customerRoleDefRepository.findByUserWithId(reviewForm.getUserId())
                 .orElseThrow(() -> new NoEntityFoundException(
                         "customer role def", "user id", reviewForm.getUserId()));
         Movie movie = movieRepository.findById(reviewForm.getMovieId()).orElseThrow(
                 () -> new NoEntityFoundException("movie", "id", reviewForm.getMovieId()));
+        if (repository.existsByWriterAndMovie(customerRoleDef, movie)) {
+            throw new ClashException(customerRoleDef.getUser().getUsername() + " has already written " +
+                                             "a review for " + movie.getTitle());
+        }
         List<String> errors = new ArrayList<>();
         reviewValidator.validate(reviewForm, errors);
         if (!errors.isEmpty()) {
             throw new InvalidArgsException(errors);
         }
+        logger.debug("Submit Review Form: passed validation checks");
         Review review = new Review();
         review.setMovie(movie);
         movie.getReviews().add(review);
@@ -82,6 +95,8 @@ public class ReviewServiceImpl extends AbstractServiceImpl<Review, ReviewReposit
         review.setCreationDateTime(LocalDateTime.now());
         review.setIsCensored(false);
         save(review);
+        logger.debug("Instantiated and saved review for " + movie.getTitle() +
+                             " by " + customerRoleDef.getUser().getUsername());
     }
 
     @Override

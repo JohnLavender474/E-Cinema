@@ -6,7 +6,7 @@ import com.ecinema.app.domain.entities.Screening;
 import com.ecinema.app.domain.entities.ScreeningSeat;
 import com.ecinema.app.domain.entities.ShowroomSeat;
 import com.ecinema.app.domain.entities.Ticket;
-import com.ecinema.app.exceptions.NoAssociationException;
+import com.ecinema.app.exceptions.InvalidAssociationException;
 import com.ecinema.app.domain.enums.Letter;
 
 import java.util.List;
@@ -26,7 +26,7 @@ public interface ScreeningSeatService extends AbstractService<ScreeningSeat>,
      * @return the map of screening seats for screening with id
      */
     Map<Letter, Set<ScreeningSeatDto>> findScreeningSeatMapByScreeningWithId(Long screeningId)
-            throws NoAssociationException;
+            throws InvalidAssociationException;
 
     /**
      * Find all by screening list.

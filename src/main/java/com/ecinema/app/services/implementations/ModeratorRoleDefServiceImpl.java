@@ -2,9 +2,7 @@ package com.ecinema.app.services.implementations;
 
 import com.ecinema.app.domain.entities.CustomerRoleDef;
 import com.ecinema.app.domain.entities.ModeratorRoleDef;
-import com.ecinema.app.domain.entities.User;
 import com.ecinema.app.exceptions.ClashException;
-import com.ecinema.app.exceptions.NoAssociationException;
 import com.ecinema.app.exceptions.NoEntityFoundException;
 import com.ecinema.app.repositories.ModeratorRoleDefRepository;
 import com.ecinema.app.services.CustomerRoleDefService;

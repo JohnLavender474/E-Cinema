@@ -21,14 +21,6 @@ import java.util.Optional;
 public interface TicketRepository extends JpaRepository<Ticket, Long>, AbstractRepository {
 
     /**
-     * Exists by screening seat boolean.
-     *
-     * @param screeningSeat the screening seat
-     * @return the boolean
-     */
-    boolean existsByScreeningSeat(ScreeningSeat screeningSeat);
-
-    /**
      * Find all by screening list.
      *
      * @param screening the screening
