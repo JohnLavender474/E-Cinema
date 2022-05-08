@@ -59,19 +59,20 @@ class UserServiceTest {
      */
     @BeforeEach
     void setUp() {
-        reviewService = new ReviewServiceImpl(reviewRepository, null,
-                                              null, null);
-        ticketService = new TicketServiceImpl(ticketRepository);
-        couponService = new CouponServiceImpl(couponRepository);
+        reviewService = new ReviewServiceImpl(
+                reviewRepository, null, null, null);
+        ticketService = new TicketServiceImpl(
+                ticketRepository, null, null, null);
+        couponService = new CouponServiceImpl(
+                couponRepository, null, null);
         paymentCardService = new PaymentCardServiceImpl(
                 paymentCardRepository, null, null);
         adminRoleDefService = new AdminRoleDefServiceImpl(adminRoleDefRepository);
-        customerRoleDefService = new CustomerRoleDefServiceImpl(customerRoleDefRepository,
-                                                                reviewService, ticketService,
-                                                                paymentCardService,
-                                                                couponService);
-        moderatorRoleDefService = new ModeratorRoleDefServiceImpl(moderatorRoleDefRepository,
-                                                                  customerRoleDefService);
+        customerRoleDefService = new CustomerRoleDefServiceImpl(
+                customerRoleDefRepository, reviewService, ticketService,
+                paymentCardService, couponService);
+        moderatorRoleDefService = new ModeratorRoleDefServiceImpl(
+                moderatorRoleDefRepository, customerRoleDefService);
         userService = new UserServiceImpl(
                 userRepository, customerRoleDefService,
                 moderatorRoleDefService,

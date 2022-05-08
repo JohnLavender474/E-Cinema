@@ -7,8 +7,11 @@ import com.ecinema.app.exceptions.NoEntityFoundException;
 import com.ecinema.app.repositories.ModeratorRoleDefRepository;
 import com.ecinema.app.services.CustomerRoleDefService;
 import com.ecinema.app.services.ModeratorRoleDefService;
+import com.ecinema.app.utils.UtilMethods;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.Iterator;
 
 @Service
 @Transactional
@@ -28,15 +31,21 @@ public class ModeratorRoleDefServiceImpl extends UserRoleDefServiceImpl<Moderato
         // detach User
         super.onDelete(userRoleDef);
         // uncensor and detach censored Customers
-        for (CustomerRoleDef customerRoleDef : userRoleDef.getCensoredCustomers()) {
+        Iterator<CustomerRoleDef> customerRoleDefIterator = userRoleDef.getCensoredCustomers().iterator();
+        while (customerRoleDefIterator.hasNext()) {
+            CustomerRoleDef customerRoleDef = customerRoleDefIterator.next();
+            logger.debug("Detaching customer role def: " + customerRoleDef);
             customerRoleDef.setCensoredBy(null);
-            userRoleDef.getCensoredCustomers().remove(customerRoleDef);
+            customerRoleDefIterator.remove();
         }
     }
 
     @Override
     public void censorCustomerWithId(Long moderatorRoleDefId, Long customerRoleDefId)
             throws NoEntityFoundException, ClashException {
+        logger.debug(UtilMethods.getDelimiterLine());
+        logger.debug("Moderator with id: " + moderatorRoleDefId);
+        logger.debug("Censoring customer with id: " + customerRoleDefId);
         ModeratorRoleDef moderatorRoleDef = findById(moderatorRoleDefId).orElseThrow(
                 () -> new NoEntityFoundException(
                         "moderator role def", "id", moderatorRoleDefId));
@@ -48,6 +57,8 @@ public class ModeratorRoleDefServiceImpl extends UserRoleDefServiceImpl<Moderato
         }
         customerRoleDef.setCensoredBy(moderatorRoleDef);
         moderatorRoleDef.getCensoredCustomers().add(customerRoleDef);
+        logger.debug("Customer role def is now censored: " + customerRoleDef);
+        logger.debug("Moderator role def: " + moderatorRoleDef);
         save(moderatorRoleDef);
     }
 

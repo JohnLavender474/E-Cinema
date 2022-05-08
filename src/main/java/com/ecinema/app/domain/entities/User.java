@@ -3,6 +3,7 @@ package com.ecinema.app.domain.entities;
 import com.ecinema.app.domain.enums.UserRole;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import javax.persistence.*;
@@ -21,6 +22,7 @@ import java.util.Set;
 @Getter
 @Setter
 @Entity
+@ToString
 public class User extends AbstractEntity implements UserDetails {
 
     @Column(unique = true)
@@ -71,6 +73,7 @@ public class User extends AbstractEntity implements UserDetails {
     @Column
     private Boolean isCredentialsExpired;
 
+    @ToString.Exclude
     @MapKey(name = "userRole")
     @MapKeyEnumerated(EnumType.ORDINAL)
     @OneToMany(targetEntity = UserRoleDef.class, mappedBy = "user",

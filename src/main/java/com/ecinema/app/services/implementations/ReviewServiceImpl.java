@@ -13,6 +13,7 @@ import com.ecinema.app.repositories.CustomerRoleDefRepository;
 import com.ecinema.app.repositories.MovieRepository;
 import com.ecinema.app.repositories.ReviewRepository;
 import com.ecinema.app.services.ReviewService;
+import com.ecinema.app.utils.UtilMethods;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -53,15 +54,18 @@ public class ReviewServiceImpl extends AbstractServiceImpl<Review, ReviewReposit
 
     @Override
     protected void onDelete(Review review) {
+        logger.debug("Review on delete");
         // detach Customer
         CustomerRoleDef customerRoleDef = review.getWriter();
         if (customerRoleDef != null) {
+            logger.debug("Detach customer role def: " + customerRoleDef);
             customerRoleDef.getReviews().remove(review);
             review.setWriter(null);
         }
         // detatch Movie
         Movie movie = review.getMovie();
         if (movie != null) {
+            logger.debug("Detach movie: " + movie);
             movie.getReviews().remove(review);
             review.setMovie(null);
         }
@@ -70,6 +74,8 @@ public class ReviewServiceImpl extends AbstractServiceImpl<Review, ReviewReposit
     @Override
     public void submitReviewForm(ReviewForm reviewForm)
             throws NoEntityFoundException, InvalidArgsException, ClashException {
+        logger.debug(UtilMethods.getDelimiterLine());
+        logger.debug("Submit review form");
         CustomerRoleDef customerRoleDef = customerRoleDefRepository.findByUserWithId(reviewForm.getUserId())
                 .orElseThrow(() -> new NoEntityFoundException(
                         "customer role def", "user id", reviewForm.getUserId()));
@@ -144,6 +150,7 @@ public class ReviewServiceImpl extends AbstractServiceImpl<Review, ReviewReposit
         reviewDTO.setCreationDateTime(review.getCreationDateTime());
         reviewDTO.setCustomerId(review.getWriter().getId());
         reviewDTO.setWriter(review.getWriter().getUser().getUsername());
+        logger.debug("convert review to DTO: " + reviewDTO);
         return reviewDTO;
     }
 

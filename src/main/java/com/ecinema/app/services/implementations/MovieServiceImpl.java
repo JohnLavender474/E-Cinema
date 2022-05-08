@@ -14,6 +14,7 @@ import com.ecinema.app.domain.enums.MovieCategory;
 import com.ecinema.app.domain.enums.MsrbRating;
 import com.ecinema.app.utils.UtilMethods;
 import com.ecinema.app.domain.validators.MovieValidator;
+import org.hibernate.boot.archive.internal.ExplodedArchiveDescriptor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -56,9 +57,12 @@ public class MovieServiceImpl extends AbstractServiceImpl<Movie, MovieRepository
 
     @Override
     protected void onDelete(Movie movie) {
+        logger.debug("Movie on delete");
         // cascade delete Reviews
+        logger.debug("Deleting all associated reviews");
         reviewService.deleteAll(movie.getReviews());
         // cascade delete Screenings
+        logger.debug("Deleting all associated screenings");
         screeningService.deleteAll(movie.getScreenings());
     }
 
@@ -70,8 +74,11 @@ public class MovieServiceImpl extends AbstractServiceImpl<Movie, MovieRepository
     @Override
     public MovieForm fetchAsForm(Long movieId)
             throws NoEntityFoundException {
+        logger.debug(UtilMethods.getDelimiterLine());
+        logger.debug("Fetching movie as form");
         Movie movie = findById(movieId).orElseThrow(
                 () -> new NoEntityFoundException("movie", "id", movieId));
+        logger.debug("Found movie with id: " + movieId);
         MovieForm movieForm = new MovieForm();
         movieForm.setId(movie.getId());
         movieForm.setTitle(movie.getTitle());
@@ -91,6 +98,8 @@ public class MovieServiceImpl extends AbstractServiceImpl<Movie, MovieRepository
                 movie.getMovieCategories()
                      .stream().map(MovieCategory::name)
                      .collect(Collectors.toList()));
+        logger.debug("Instantiated new movie form: " + movieForm);
+        logger.debug("Movie: " + movie);
         return movieForm;
     }
 
@@ -102,6 +111,8 @@ public class MovieServiceImpl extends AbstractServiceImpl<Movie, MovieRepository
     @Override
     public void submitMovieForm(MovieForm movieForm)
             throws InvalidArgsException {
+        logger.debug(UtilMethods.getDelimiterLine());
+        logger.debug("Submit movie form");
         List<String> errors = new ArrayList<>();
         movieValidator.validate(movieForm, errors);
         if (!errors.isEmpty()) {
@@ -131,7 +142,7 @@ public class MovieServiceImpl extends AbstractServiceImpl<Movie, MovieRepository
                 movieForm.getMovieCategories()
                         .stream().map(MovieCategory::valueOf)
                         .collect(Collectors.toList()));
-        logger.debug("Instantiated and saved Movie entity");
+        logger.debug("Instantiated and saved new Movie: " + movie);
         save(movie);
     }
 
@@ -235,6 +246,8 @@ public class MovieServiceImpl extends AbstractServiceImpl<Movie, MovieRepository
         movieDTO.getCast().addAll(movie.getCast());
         movieDTO.getWriters().addAll(movie.getWriters());
         movieDTO.getMovieCategories().addAll(movie.getMovieCategories());
+        logger.debug("Converted movie to DTO: " + movieDTO);
+        logger.debug("Movie: " + movie);
         return movieDTO;
     }
 

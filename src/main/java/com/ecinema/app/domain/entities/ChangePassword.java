@@ -2,6 +2,7 @@ package com.ecinema.app.domain.entities;
 
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -10,6 +11,7 @@ import java.time.LocalDateTime;
 @Entity
 @Getter
 @Setter
+@ToString
 public class ChangePassword extends AbstractEntity {
 
     @Column

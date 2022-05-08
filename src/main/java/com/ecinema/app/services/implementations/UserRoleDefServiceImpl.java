@@ -28,6 +28,7 @@ public abstract class UserRoleDefServiceImpl<T extends UserRoleDef, R extends Us
     @Override
     protected void onDelete(T userRoleDef) {
         User user = userRoleDef.getUser();
+        logger.debug("Detach user role def from user: " + user);
         if (user != null) {
             user.getUserRoleDefs().remove(userRoleDef.getUserRole());
             userRoleDef.setUser(null);

@@ -6,6 +6,7 @@ import com.ecinema.app.domain.enums.MovieCategory;
 import com.ecinema.app.domain.enums.MsrbRating;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 
 import javax.persistence.*;
 import java.time.LocalDate;
@@ -19,6 +20,7 @@ import java.util.Set;
 @Getter
 @Setter
 @Entity
+@ToString
 public class Movie extends AbstractEntity {
 
     @Column
@@ -60,9 +62,11 @@ public class Movie extends AbstractEntity {
     @Enumerated(EnumType.STRING)
     private Set<MovieCategory> movieCategories = EnumSet.noneOf(MovieCategory.class);
 
+    @ToString.Exclude
     @OneToMany(mappedBy = "movie", cascade = CascadeType.PERSIST, fetch = FetchType.LAZY)
     private Set<Review> reviews = new HashSet<>();
 
+    @ToString.Exclude
     @OneToMany(mappedBy = "movie", cascade = CascadeType.PERSIST, fetch = FetchType.LAZY)
     private Set<Screening> screenings = new HashSet<>();
 

@@ -1,6 +1,10 @@
 package com.ecinema.app.services;
 
 import com.ecinema.app.domain.entities.*;
+import com.ecinema.app.domain.enums.TicketStatus;
+import com.ecinema.app.domain.enums.TicketType;
+import com.ecinema.app.domain.enums.UserRole;
+import com.ecinema.app.domain.forms.TicketForm;
 import com.ecinema.app.repositories.*;
 import com.ecinema.app.services.implementations.*;
 import org.junit.jupiter.api.BeforeEach;
@@ -13,11 +17,13 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.same;
 import static org.mockito.BDDMockito.given;
 
 @ExtendWith(MockitoExtension.class)
 class TicketServiceTest {
 
+    private UserService userService;
     private TicketService ticketService;
     private ScreeningService screeningService;
     private ScreeningSeatService screeningSeatService;
@@ -43,23 +49,31 @@ class TicketServiceTest {
     private CouponRepository couponRepository;
     @Mock
     private MovieRepository movieRepository;
+    @Mock
+    private UserRepository userRepository;
 
     @BeforeEach
     void setUp() {
-        ticketService = new TicketServiceImpl(ticketRepository);
+        ticketService = new TicketServiceImpl(
+                ticketRepository, userRepository,
+                couponRepository, screeningSeatRepository);
         screeningSeatService = new ScreeningSeatServiceImpl(
                 screeningSeatRepository, ticketService);
         screeningService = new ScreeningServiceImpl(
                 screeningRepository, movieRepository,
                 showroomRepository,  screeningSeatService, null);
-        reviewService = new ReviewServiceImpl(reviewRepository, movieRepository,
-                                              null, null);
-        paymentCardService = new PaymentCardServiceImpl(paymentCardRepository, null,
-                                                        null);
-        couponService = new CouponServiceImpl(couponRepository);
+        reviewService = new ReviewServiceImpl(
+                reviewRepository, movieRepository,
+                null, null);
+        paymentCardService = new PaymentCardServiceImpl(
+                paymentCardRepository, null, null);
+        couponService = new CouponServiceImpl(couponRepository, null, null);
         customerRoleDefService = new CustomerRoleDefServiceImpl(
                 customerRoleDefRepository, reviewService,
                 ticketService, paymentCardService, couponService);
+        userService = new UserServiceImpl(
+                userRepository, customerRoleDefService,
+                null, null, null);
     }
 
     @Test
@@ -89,10 +103,17 @@ class TicketServiceTest {
         given(ticketRepository.findById(32L))
                 .willReturn(Optional.of(ticket));
         ticketService.save(ticket);
+        Coupon coupon = new Coupon();
+        coupon.setId(33L);
+        coupon.setTicket(ticket);
+        ticket.getCoupons().add(coupon);
+        couponService.save(coupon);
         assertFalse(customerRoleDef.getTickets().isEmpty());
         assertNotNull(ticket.getCustomerRoleDef());
         assertEquals(screeningSeats.get(0), ticket.getScreeningSeat());
         assertEquals(ticket, screeningSeats.get(0).getTicket());
+        assertEquals(ticket, coupon.getTicket());
+        assertEquals(1, ticket.getCoupons().size());
         for (ScreeningSeat screeningSeat : screeningSeats) {
             assertEquals(screening, screeningSeat.getScreening());
         }
@@ -105,6 +126,53 @@ class TicketServiceTest {
         for (ScreeningSeat screeningSeat : screeningSeats) {
             assertEquals(screening, screeningSeat.getScreening());
         }
+        assertNull(coupon.getTicket());
+        assertEquals(0, ticket.getCoupons().size());
+    }
+
+    @Test
+    void submitTicketForm() {
+        // given
+        ScreeningSeat screeningSeat = new ScreeningSeat();
+        screeningSeat.setId(1L);
+        given(screeningSeatRepository.findById(1L))
+                .willReturn(Optional.of(screeningSeat));
+        screeningSeatService.save(screeningSeat);
+        User user = new User();
+        user.setId(2L);
+        given(userRepository.findById(2L))
+                .willReturn(Optional.of(user));
+        userService.save(user);
+        userService.addUserRoleDefToUser(user, UserRole.CUSTOMER);
+        Coupon coupon = new Coupon();
+        coupon.setId(3L);
+        given(couponRepository.findAllById(List.of(3L)))
+                .willReturn(List.of(coupon));
+        couponService.save(coupon);
+        // when
+        TicketForm ticketForm = new TicketForm();
+        ticketForm.setTicketType(TicketType.ADULT);
+        ticketForm.setScreeningSeatId(1L);
+        ticketForm.getCouponIds().add(3L);
+        ticketForm.setUserId(2L);
+        ticketService.submitTicketForm(ticketForm);
+        // then
+        assertNotNull(user.getUserRoleDefs().get(UserRole.CUSTOMER));
+        CustomerRoleDef customerRoleDef = (CustomerRoleDef) user.getUserRoleDefs().get(UserRole.CUSTOMER);
+        assertFalse(customerRoleDef.getTickets().isEmpty());
+        Ticket ticket = customerRoleDef.getTickets()
+                                       .stream().findFirst()
+                                       .orElseThrow(IllegalStateException::new);
+        assertEquals(customerRoleDef, ticket.getCustomerRoleDef());
+        assertEquals(screeningSeat, ticket.getScreeningSeat());
+        assertEquals(ticket, screeningSeat.getTicket());
+        assertEquals(TicketStatus.VALID, ticket.getTicketStatus());
+        assertEquals(TicketType.ADULT, ticket.getTicketType());
+        assertEquals(1, ticket.getCoupons().size());
+        Coupon testCoupon = ticket.getCoupons()
+                                  .stream().findFirst().orElseThrow(
+                        IllegalStateException::new);
+        assertEquals(ticket, testCoupon.getTicket());
     }
 
 }

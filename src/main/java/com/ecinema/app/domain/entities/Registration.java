@@ -4,6 +4,8 @@ import com.ecinema.app.domain.contracts.IRegistration;
 import com.ecinema.app.domain.enums.UserRole;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
+import lombok.ToString.Exclude;
 
 import javax.persistence.*;
 import java.time.LocalDate;
@@ -14,6 +16,7 @@ import java.util.Set;
 @Getter
 @Setter
 @Entity
+@ToString
 public class Registration extends AbstractEntity implements IRegistration {
 
     @Column

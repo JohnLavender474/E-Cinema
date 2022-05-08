@@ -12,6 +12,7 @@ import com.ecinema.app.services.ScreeningSeatService;
 import com.ecinema.app.services.TicketService;
 import com.ecinema.app.domain.contracts.ISeat;
 import com.ecinema.app.domain.enums.Letter;
+import com.ecinema.app.utils.UtilMethods;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -39,9 +40,11 @@ public class ScreeningSeatServiceImpl extends AbstractServiceImpl<ScreeningSeat,
 
     @Override
     protected void onDelete(ScreeningSeat screeningSeat) {
+        logger.debug("Screening seat on delete");
         // cascade delete Ticket
         Ticket ticket = screeningSeat.getTicket();
         if (ticket != null) {
+            logger.debug("Detach ticket: " + ticket);
             screeningSeat.setTicket(null);
             ticket.setScreeningSeat(null);
             ticketService.delete(ticket);
@@ -49,12 +52,14 @@ public class ScreeningSeatServiceImpl extends AbstractServiceImpl<ScreeningSeat,
         // detach Screening
         Screening screening = screeningSeat.getScreening();
         if (screening != null) {
+            logger.debug("Detach screening " + screening);
             screening.getScreeningSeats().remove(screeningSeat);
             screeningSeat.setScreening(null);
         }
         // detach ShowroomSeat
         ShowroomSeat showroomSeat = screeningSeat.getShowroomSeat();
         if (showroomSeat != null) {
+            logger.debug("Detach showroom seat: " + showroomSeat);
             showroomSeat.getScreeningSeats().remove(screeningSeat);
             screeningSeat.setShowroomSeat(null);
         }
@@ -72,6 +77,9 @@ public class ScreeningSeatServiceImpl extends AbstractServiceImpl<ScreeningSeat,
             mapOfScreeningSeats.putIfAbsent(screeningSeatDto.getRowLetter(), new TreeSet<>(ISeat.comparator));
             mapOfScreeningSeats.get(screeningSeatDto.getRowLetter()).add(screeningSeatDto);
         }
+        logger.debug(UtilMethods.getDelimiterLine());
+        logger.debug("Find screening seat map by screening with id: " + screeningId);
+        logger.debug("Screening seat map: " + screeningSeatDtos);
         return mapOfScreeningSeats;
     }
 
@@ -118,6 +126,8 @@ public class ScreeningSeatServiceImpl extends AbstractServiceImpl<ScreeningSeat,
         screeningSeatDTO.setSeatNumber(screeningSeat.getShowroomSeat().getSeatNumber());
         screeningSeatDTO.setIsBooked(screeningSeat.getTicket() != null);
         screeningSeatDTO.setScreeningId(screeningSeat.getScreening().getId());
+        logger.debug("Convert screening seat to DTO: " + screeningSeatDTO);
+        logger.debug("Screening seat: " + screeningSeat);
         return screeningSeatDTO;
     }
 

@@ -5,11 +5,14 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 
 @Getter
 @Setter
 public class TicketForm implements Serializable {
-    private TicketType ticketType;
-    private Long screeningSeatId;
-    private Long userId;
+    private List<Long> couponIds = new ArrayList<>();
+    private TicketType ticketType = TicketType.ADULT;
+    private Long screeningSeatId = 0L;
+    private Long userId = 0L;
 }

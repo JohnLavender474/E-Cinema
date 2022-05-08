@@ -55,7 +55,8 @@ class ShowroomServiceTest {
     void setUp() {
         showroomValidator = new ShowroomValidator();
         screeningValidator = new ScreeningValidator();
-        ticketService = new TicketServiceImpl(ticketRepository);
+        ticketService = new TicketServiceImpl(
+                ticketRepository, null, null, null);
         screeningSeatService = new ScreeningSeatServiceImpl(
                 screeningSeatRepository, ticketService);
         screeningService = new ScreeningServiceImpl(

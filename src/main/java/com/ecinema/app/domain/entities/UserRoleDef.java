@@ -4,6 +4,7 @@ import com.ecinema.app.domain.enums.UserRole;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 
 import javax.persistence.*;
 
@@ -16,10 +17,12 @@ import javax.persistence.*;
 @Getter
 @Setter
 @Entity
+@ToString
 @Inheritance(strategy = InheritanceType.JOINED)
 public abstract class UserRoleDef extends AbstractEntity {
 
     @JoinColumn
+    @ToString.Exclude
     @ManyToOne(fetch = FetchType.EAGER)
     private User user;
 

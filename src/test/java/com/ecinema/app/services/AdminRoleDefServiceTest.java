@@ -57,9 +57,12 @@ class AdminRoleDefServiceTest {
         reviewService = new ReviewServiceImpl(
                 reviewRepository, null,
                 customerRoleDefRepository, null);
-        ticketService = new TicketServiceImpl(ticketRepository);
-        paymentCardService = new PaymentCardServiceImpl(paymentCardRepository, null, null);
-        couponService = new CouponServiceImpl(couponRepository);
+        ticketService = new TicketServiceImpl(
+                ticketRepository, null, null, null);
+        paymentCardService = new PaymentCardServiceImpl(
+                paymentCardRepository, null, null);
+        couponService = new CouponServiceImpl(
+                couponRepository, null, null);
         customerRoleDefService = new CustomerRoleDefServiceImpl(
                 customerRoleDefRepository, reviewService,
                 ticketService, paymentCardService, couponService);

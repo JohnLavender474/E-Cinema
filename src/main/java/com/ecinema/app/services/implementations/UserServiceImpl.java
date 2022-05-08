@@ -61,7 +61,7 @@ public class UserServiceImpl extends AbstractServiceImpl<User, UserRepository> i
         logger.debug("User Service on delete");
         // cascade delete UserRoleDefs, iterate over copy of keySet to avoid concurrent modification exception
         Set<UserRole> userRoles = new HashSet<>(user.getUserRoleDefs().keySet());
-        logger.debug("User Roles size: " + userRoles.size());
+        logger.debug("User roles: " + userRoles);
         for (UserRole userRole : userRoles) {
             logger.debug("Deleting user role: " + userRole);
             UserRoleDefService<? extends UserRoleDef> userRoleDefService = userRoleDefServices.get(userRole);
@@ -78,6 +78,8 @@ public class UserServiceImpl extends AbstractServiceImpl<User, UserRepository> i
 
     @Override
     public UserDto register(IRegistration registration) {
+        logger.debug(UtilMethods.getDelimiterLine());
+        logger.debug("User registration");
         User user = new User();
         user.setUsername(registration.getUsername());
         user.setEmail(registration.getEmail());
@@ -97,7 +99,10 @@ public class UserServiceImpl extends AbstractServiceImpl<User, UserRepository> i
         user.setIsCredentialsExpired(false);
         save(user);
         addUserRoleDefToUser(user, registration.getUserRoles());
-        return convertToDto(user.getId());
+        logger.debug("Instantiated and saved new user: " + user);
+        UserDto userDto = convertToDto(user.getId());
+        logger.debug("Returning new user DTO: " + userDto);
+        return userDto;
     }
 
     @Override
@@ -318,6 +323,8 @@ public class UserServiceImpl extends AbstractServiceImpl<User, UserRepository> i
         userDto.setFirstName(user.getFirstName());
         userDto.setLastName(user.getLastName());
         userDto.getUserRoles().addAll(user.getUserRoleDefs().keySet());
+        logger.debug("Converting user to DTO: " + userDto);
+        logger.debug("User: " + user);
         return userDto;
     }
 

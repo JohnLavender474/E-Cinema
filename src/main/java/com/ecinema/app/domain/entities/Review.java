@@ -3,6 +3,7 @@ package com.ecinema.app.domain.entities;
 import com.ecinema.app.domain.contracts.IReview;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
@@ -18,6 +19,7 @@ import java.time.LocalDateTime;
 @Getter
 @Setter
 @Entity
+@ToString
 public class Review extends AbstractEntity implements IReview {
 
     @Column(length = 2000)
@@ -33,10 +35,12 @@ public class Review extends AbstractEntity implements IReview {
     private LocalDateTime creationDateTime;
 
     @JoinColumn
+    @ToString.Exclude
     @ManyToOne(fetch = FetchType.LAZY)
     private Movie movie;
 
     @JoinColumn
+    @ToString.Exclude
     @ManyToOne(fetch = FetchType.LAZY)
     private CustomerRoleDef writer;
 

@@ -67,8 +67,10 @@ class ReviewServiceTest {
         reviewService = new ReviewServiceImpl(
                 reviewRepository, movieRepository,
                 customerRoleDefRepository, reviewValidator);
-        ticketService = new TicketServiceImpl(ticketRepository);
-        couponService = new CouponServiceImpl(couponRepository);
+        ticketService = new TicketServiceImpl(
+                ticketRepository, null, null, null);
+        couponService = new CouponServiceImpl(
+                couponRepository, null, null);
         screeningSeatService = new ScreeningSeatServiceImpl(
                 screeningSeatRepository, ticketService);
         screeningService = new ScreeningServiceImpl(

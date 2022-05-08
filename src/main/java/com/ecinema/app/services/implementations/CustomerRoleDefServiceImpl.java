@@ -5,6 +5,8 @@ import com.ecinema.app.domain.entities.*;
 import com.ecinema.app.exceptions.NoEntityFoundException;
 import com.ecinema.app.repositories.CustomerRoleDefRepository;
 import com.ecinema.app.services.*;
+import com.ecinema.app.utils.UtilMethods;
+import org.hibernate.boot.archive.internal.ExplodedArchiveDescriptor;
 import org.modelmapper.internal.asm.tree.ModuleExportNode;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -33,18 +35,24 @@ public class CustomerRoleDefServiceImpl extends UserRoleDefServiceImpl<CustomerR
 
     @Override
     protected void onDelete(CustomerRoleDef customerRoleDef) {
+        logger.debug("Customer role def on delete");
         // detach User
         super.onDelete(customerRoleDef);
         // cascade delete Reviews
+        logger.debug("Deleting all associated reviews");
         reviewService.deleteAll(customerRoleDef.getReviews());
         // cascade delete Tickets
+        logger.debug("Deleting all associated tickets");
         ticketService.deleteAll(customerRoleDef.getTickets());
         // cascade delete PaymentCards
+        logger.debug("Deleting all associated payment cards");
         paymentCardService.deleteAll(customerRoleDef.getPaymentCards());
         // cascade delete Coupons
+        logger.debug("Deleting all associated coupons");
         couponService.deleteAll(customerRoleDef.getCoupons());
         // detach Moderator censors
         ModeratorRoleDef moderatorRoleDef = customerRoleDef.getCensoredBy();
+        logger.debug("Detaching moderator role def: " + moderatorRoleDef);
         if (moderatorRoleDef != null) {
             customerRoleDef.setCensoredBy(null);
             moderatorRoleDef.getCensoredCustomers().remove(customerRoleDef);
@@ -113,6 +121,7 @@ public class CustomerRoleDefServiceImpl extends UserRoleDefServiceImpl<CustomerR
         customerRoleDefDto.setId(customerRoleDef.getId());
         customerRoleDefDto.setUserId(customerRoleDef.getUser().getId());
         customerRoleDefDto.setIsCensored(customerRoleDef.getCensoredBy() != null);
+        logger.debug("Converted " + customerRoleDef + " to DTO: " + customerRoleDefDto);
         return customerRoleDefDto;
     }
 

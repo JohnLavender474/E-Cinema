@@ -30,13 +30,16 @@ public class ShowroomSeatServiceImpl extends AbstractServiceImpl<ShowroomSeat, S
 
     @Override
     protected void onDelete(ShowroomSeat showroomSeat) {
+        logger.debug("Showroom seat on delete");
         // detach Showroom
         Showroom showroom = showroomSeat.getShowroom();
+        logger.debug("Detach showroom: " + showroom);
         if (showroom != null) {
             showroom.getShowroomSeats().remove(showroomSeat);
             showroomSeat.setShowroom(null);
         }
         // cascade delete ScreeningSeats
+        logger.debug("Delete all associated screening seats");
         screeningSeatService.deleteAll(showroomSeat.getScreeningSeats());
     }
 
@@ -124,6 +127,8 @@ public class ShowroomSeatServiceImpl extends AbstractServiceImpl<ShowroomSeat, S
         showroomSeatDTO.setSeatNumber(showroomSeat.getSeatNumber());
         showroomSeatDTO.setShowroomId(showroomSeat.getShowroom().getId());
         showroomSeatDTO.setShowroomLetter(showroomSeat.getShowroom().getShowroomLetter());
+        logger.debug("Convereted showroom seat to DTO: " + showroomSeatDTO);
+        logger.debug("Showroom seat: " + showroomSeat);
         return showroomSeatDTO;
     }
 

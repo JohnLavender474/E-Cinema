@@ -9,6 +9,8 @@ import com.ecinema.app.exceptions.NoEntityFoundException;
 import com.ecinema.app.repositories.CustomerRoleDefRepository;
 import com.ecinema.app.repositories.PaymentCardRepository;
 import com.ecinema.app.services.PaymentCardService;
+import com.ecinema.app.utils.UtilMethods;
+import org.hibernate.boot.archive.internal.ExplodedArchiveDescriptor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -33,8 +35,11 @@ public class PaymentCardServiceImpl extends AbstractServiceImpl<PaymentCard,
 
     @Override
     protected void onDelete(PaymentCard paymentCard) {
+        logger.debug(UtilMethods.getDelimiterLine());
+        logger.debug("Payment card on delete");
         // detach Customer
         CustomerRoleDef customerRoleDef = paymentCard.getCustomerRoleDef();
+        logger.debug("Detach customer role def: " + customerRoleDef);
         if (customerRoleDef != null) {
             customerRoleDef.getPaymentCards().remove(paymentCard);
             paymentCard.setCustomerRoleDef(null);
@@ -44,15 +49,19 @@ public class PaymentCardServiceImpl extends AbstractServiceImpl<PaymentCard,
     @Override
     public void submitPaymentCardForm(PaymentCardForm paymentCardForm)
             throws NoEntityFoundException, InvalidArgsException {
+        logger.debug(UtilMethods.getDelimiterLine());
+        logger.debug("Submit payment card form");
         CustomerRoleDef customerRoleDef = customerRoleDefRepository.findById(
                 paymentCardForm.getCustomerRoleDefId())
                 .orElseThrow(() -> new NoEntityFoundException(
                         "customer role def", "id", paymentCardForm.getCustomerRoleDefId()));
+        logger.debug("Found customer role def by id " + paymentCardForm.getCustomerRoleDefId());
         List<String> errors = new ArrayList<>();
         paymentCardValidator.validate(paymentCardForm, errors);
         if (!errors.isEmpty()) {
             throw new InvalidArgsException(errors);
         }
+        logger.debug("Payment card form passed validation checks");
         PaymentCard paymentCard = new PaymentCard();
         paymentCard.setCustomerRoleDef(customerRoleDef);
         customerRoleDef.getPaymentCards().add(paymentCard);
@@ -63,6 +72,8 @@ public class PaymentCardServiceImpl extends AbstractServiceImpl<PaymentCard,
         paymentCard.setLastName(paymentCardForm.getLastName());
         paymentCard.setExpirationDate(paymentCardForm.getExpirationDate());
         save(paymentCard);
+        logger.debug("Instantiated and saved new payment card: " + paymentCard);
+        logger.debug("Payment card form: " + paymentCardForm);
     }
 
     @Override

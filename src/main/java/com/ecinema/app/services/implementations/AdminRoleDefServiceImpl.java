@@ -5,6 +5,7 @@ import com.ecinema.app.domain.entities.AdminRoleDef;
 import com.ecinema.app.exceptions.NoEntityFoundException;
 import com.ecinema.app.repositories.AdminRoleDefRepository;
 import com.ecinema.app.services.AdminRoleDefService;
+import com.ecinema.app.utils.UtilMethods;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -32,6 +33,7 @@ public class AdminRoleDefServiceImpl extends UserRoleDefServiceImpl<AdminRoleDef
                 () -> new NoEntityFoundException("admin role def", "id", id));
         AdminRoleDefDto adminRoleDefDto = new AdminRoleDefDto();
         adminRoleDefDto.setId(adminRoleDef.getId());
+        logger.debug("Converted " + adminRoleDef + " to DTO: " + adminRoleDefDto);
         return adminRoleDefDto;
     }
 

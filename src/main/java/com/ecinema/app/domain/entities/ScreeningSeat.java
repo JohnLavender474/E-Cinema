@@ -4,6 +4,7 @@ import com.ecinema.app.domain.contracts.ISeat;
 import com.ecinema.app.domain.enums.Letter;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 
 import javax.persistence.*;
 
@@ -25,12 +26,17 @@ public class ScreeningSeat extends AbstractEntity implements ISeat {
 
     @Override
     public Letter getRowLetter() {
-        return showroomSeat.getRowLetter();
+        return showroomSeat != null ? showroomSeat.getRowLetter() : null;
     }
 
     @Override
     public Integer getSeatNumber() {
-        return showroomSeat.getSeatNumber();
+        return showroomSeat != null ? showroomSeat.getSeatNumber() : null;
+    }
+
+    @Override
+    public String toString() {
+        return screening.toString() + ": " + getRowLetter() + "-" + getSeatNumber();
     }
 
 }

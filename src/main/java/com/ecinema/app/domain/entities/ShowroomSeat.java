@@ -4,6 +4,7 @@ import com.ecinema.app.domain.contracts.ISeat;
 import com.ecinema.app.domain.enums.Letter;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 
 import javax.persistence.*;
 import java.util.HashSet;
@@ -12,9 +13,11 @@ import java.util.Set;
 @Getter
 @Setter
 @Entity
+@ToString
 public class ShowroomSeat extends AbstractEntity implements ISeat {
 
     @JoinColumn
+    @ToString.Exclude
     @ManyToOne(fetch = FetchType.EAGER)
     private Showroom showroom;
 
@@ -25,6 +28,7 @@ public class ShowroomSeat extends AbstractEntity implements ISeat {
     @Column
     private Integer seatNumber;
 
+    @ToString.Exclude
     @OneToMany(mappedBy = "showroomSeat", cascade = CascadeType.PERSIST, fetch = FetchType.LAZY)
     private Set<ScreeningSeat> screeningSeats = new HashSet<>();
 

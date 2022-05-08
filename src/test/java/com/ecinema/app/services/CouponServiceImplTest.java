@@ -36,13 +36,14 @@ class CouponServiceTest {
 
     @BeforeEach
     void setUp() {
-        ticketService = new TicketServiceImpl(ticketRepository);
+        ticketService = new TicketServiceImpl(
+                ticketRepository, null, null, null);
         reviewService = new ReviewServiceImpl(
                 reviewRepository, null,
                 customerRoleDefRepository, null);
         paymentCardService = new PaymentCardServiceImpl(paymentCardRepository, null,
                                                         null);
-        couponService = new CouponServiceImpl(couponRepository);
+        couponService = new CouponServiceImpl(couponRepository, null, null);
         customerRoleDefService = new CustomerRoleDefServiceImpl(
                 customerRoleDefRepository, reviewService, ticketService,
                 paymentCardService, couponService);

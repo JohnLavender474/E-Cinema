@@ -4,12 +4,14 @@ import com.ecinema.app.domain.enums.CouponType;
 import com.ecinema.app.domain.enums.DiscountType;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 
 import javax.persistence.*;
 
 @Getter
 @Setter
 @Entity
+@ToString
 public class Coupon extends AbstractEntity {
 
     @Column
@@ -25,6 +27,12 @@ public class Coupon extends AbstractEntity {
 
     @ManyToOne
     @JoinColumn
+    @ToString.Exclude
+    private Ticket ticket;
+
+    @ManyToOne
+    @JoinColumn
+    @ToString.Exclude
     private CustomerRoleDef customerRoleDef;
 
 }

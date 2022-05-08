@@ -5,6 +5,7 @@ import com.ecinema.app.domain.contracts.IPaymentCard;
 import com.ecinema.app.domain.enums.PaymentCardType;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 import org.springframework.lang.Nullable;
 
 import javax.persistence.*;
@@ -14,6 +15,7 @@ import java.time.Month;
 @Getter
 @Setter
 @Entity
+@ToString
 public class PaymentCard extends AbstractEntity implements IPaymentCard {
 
     @Column
@@ -33,10 +35,12 @@ public class PaymentCard extends AbstractEntity implements IPaymentCard {
     private LocalDate expirationDate;
 
     @JoinColumn
+    @ToString.Exclude
     @ManyToOne(fetch = FetchType.LAZY)
     private CustomerRoleDef customerRoleDef;
 
     @Embedded
+    @ToString.Exclude
     private Address billingAddress = new Address();
 
     @Override

@@ -56,8 +56,10 @@ class PaymentCardServiceTest {
         reviewService = new ReviewServiceImpl(
                 reviewRepository, null,
                 customerRoleDefRepository, null);
-        ticketService = new TicketServiceImpl(ticketRepository);
-        couponService = new CouponServiceImpl(couponRepository);
+        ticketService = new TicketServiceImpl(
+                ticketRepository, null, null, null);
+        couponService = new CouponServiceImpl(
+                couponRepository, null, null);
         customerRoleDefService = new CustomerRoleDefServiceImpl(
                 customerRoleDefRepository, reviewService,
                 ticketService, paymentCardService, couponService);

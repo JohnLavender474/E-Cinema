@@ -14,6 +14,7 @@ import com.ecinema.app.services.ShowroomSeatService;
 import com.ecinema.app.services.ShowroomService;
 import com.ecinema.app.domain.enums.Letter;
 import com.ecinema.app.domain.validators.ShowroomValidator;
+import com.ecinema.app.utils.UtilMethods;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -46,9 +47,12 @@ public class ShowroomServiceImpl extends AbstractServiceImpl<Showroom, ShowroomR
 
     @Override
     protected void onDelete(Showroom showroom) {
+        logger.debug("Showroom on delete");
         // cascade delete ShowroomSeats
+        logger.debug("Delete all associated showroom seats");
         showroomSeatService.deleteAll(showroom.getShowroomSeats());
         // cascade delete Screenings
+        logger.debug("Delete all associated screenings");
         screeningService.deleteAll(showroom.getScreenings());
     }
 
@@ -60,6 +64,8 @@ public class ShowroomServiceImpl extends AbstractServiceImpl<Showroom, ShowroomR
     @Override
     public void submitShowroomForm(ShowroomForm showroomForm)
             throws InvalidArgsException {
+        logger.debug(UtilMethods.getDelimiterLine());
+        logger.debug("Submit showroom form");
         List<String> errors = new ArrayList<>();
         showroomValidator.validate(showroomForm, errors);
         if (!errors.isEmpty()) {
@@ -71,7 +77,7 @@ public class ShowroomServiceImpl extends AbstractServiceImpl<Showroom, ShowroomR
         showroom.setNumberOfRows(showroomForm.getNumberOfRows());
         showroom.setNumberOfSeatsPerRow(showroomForm.getNumberOfSeatsPerRow());
         save(showroom);
-        logger.debug("Instantiated and saved showroom " + showroom.getShowroomLetter());
+        logger.debug("Instantiated and saved showroom " + showroom);
         for (int i = 0; i < showroomForm.getNumberOfRows(); i++) {
             for (int j = 0; j < showroomForm.getNumberOfSeatsPerRow(); j++) {
                 Letter rowLetter = Letter.values()[i];
@@ -133,6 +139,8 @@ public class ShowroomServiceImpl extends AbstractServiceImpl<Showroom, ShowroomR
         ShowroomDto showroomDto = new ShowroomDto();
         showroomDto.setId(showroom.getId());
         showroomDto.setShowroomLetter(showroom.getShowroomLetter());
+        logger.debug("Convert showroom to DTO: " + showroomDto);
+        logger.debug("Showroom: " + showroom);
         return showroomDto;
     }
 

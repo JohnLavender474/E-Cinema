@@ -9,6 +9,7 @@ import com.ecinema.app.services.ChangePasswordService;
 import com.ecinema.app.services.EmailService;
 import com.ecinema.app.services.UserService;
 import com.ecinema.app.domain.validators.PasswordValidator;
+import com.ecinema.app.utils.UtilMethods;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -53,13 +54,17 @@ public class ChangePasswordServiceImpl extends AbstractServiceImpl<ChangePasswor
     @Override
     public void submitChangePasswordForm(ChangePasswordForm changePasswordForm)
             throws NoEntityFoundException, InvalidArgsException, EmailException {
+        logger.debug(UtilMethods.getDelimiterLine());
+        logger.debug("Submit change password form");
         List<String> errors = new ArrayList<>();
         passwordValidator.validate(changePasswordForm, errors);
         if (!errors.isEmpty()) {
             throw new InvalidArgsException(errors);
         }
+        logger.debug("Change password form passed validation checks");
         Long userId = userService.findIdByEmail(changePasswordForm.getEmail()).orElseThrow(
                 () -> new NoEntityFoundException("user", "email", changePasswordForm.getEmail()));
+        logger.debug("Found user id by email: " + changePasswordForm.getEmail());
         String encryptedPassword = passwordEncoder.encode(changePasswordForm.getPassword());
         LocalDateTime creationDateTime = LocalDateTime.now();
         LocalDateTime expirationDateTime = creationDateTime.plusMinutes(EXPIRATION_MINUTES);
@@ -83,25 +88,34 @@ public class ChangePasswordServiceImpl extends AbstractServiceImpl<ChangePasswor
             }
         }
         changePassword.setToken(token);
+        logger.debug("Set token: " + token);
         sendRequestEmail(changePasswordForm.getEmail(), token,
                          creationDateTime, expirationDateTime);
         save(changePassword);
+        logger.debug("Sent email, instantiated and saved new change password: " + changePassword);
     }
 
     @Override
     public void confirmChangePassword(String token)
             throws NoEntityFoundException, ExpirationException {
+        logger.debug(UtilMethods.getDelimiterLine());
+        logger.debug("Confirm change password");
         ChangePassword changePassword = repository.findByToken(token).orElseThrow(
                 () -> new NoEntityFoundException("change password request", "token", token));
+        logger.debug("Found change password by token: " + changePassword);
         if (changePassword.getExpirationDateTime().isBefore(LocalDateTime.now())) {
             throw new ExpirationException("The token you have request has already expired");
         }
         User user = userService.findById(changePassword.getUserId()).orElseThrow(
                 () -> new NoEntityFoundException("user", "id", changePassword.getUserId()));
+        logger.debug("Found user by id: " + user);
+        logger.debug("Changing user password from " + user.getPassword() + " to " + changePassword.getPassword());
         user.setPassword(changePassword.getPassword());
         userService.save(user);
         repository.deleteAllByUserId(user.getId());
         sendConfirmationEmail(user.getEmail());
+        logger.debug("Deleted all change password requests associated with user id: " + user.getId());
+        logger.debug("Saved new user password");
     }
 
     @Override

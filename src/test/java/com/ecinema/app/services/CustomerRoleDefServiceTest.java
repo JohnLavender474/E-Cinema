@@ -43,8 +43,10 @@ class CustomerRoleDefServiceTest {
      */
     @BeforeEach
     void setUp() {
-        ticketService = new TicketServiceImpl(ticketRepository);
-        couponService = new CouponServiceImpl(couponRepository);
+        ticketService = new TicketServiceImpl(
+                ticketRepository, null, null, null);
+        couponService = new CouponServiceImpl(
+                couponRepository, null, null);
         reviewService = new ReviewServiceImpl(
                 reviewRepository, null,
                 customerRoleDefRepository, null);
@@ -53,7 +55,6 @@ class CustomerRoleDefServiceTest {
         customerRoleDefService = new CustomerRoleDefServiceImpl(
                 customerRoleDefRepository, reviewService,
                 ticketService, paymentCardService, couponService);
-        ticketService = new TicketServiceImpl(ticketRepository);
     }
 
     @Test

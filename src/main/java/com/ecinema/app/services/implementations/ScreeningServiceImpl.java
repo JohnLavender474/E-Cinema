@@ -56,19 +56,23 @@ public class ScreeningServiceImpl extends AbstractServiceImpl<Screening, Screeni
 
     @Override
     protected void onDelete(Screening screening) {
+        logger.debug("Screening on delete");
         // detach Movie
         Movie movie = screening.getMovie();
+        logger.debug("Detach movie: " + movie);
         if (movie != null) {
             movie.getScreenings().remove(screening);
             screening.setMovie(null);
         }
         // detach Showroom
         Showroom showroom = screening.getShowroom();
+        logger.debug("Detach showroom: " + showroom);
         if (showroom != null) {
             showroom.getScreenings().remove(screening);
             screening.setShowroom(null);
         }
         // cascade delete ScreeningSeats
+        logger.debug("Delete all associated screening seats");
         screeningSeatService.deleteAll(screening.getScreeningSeats());
     }
 
@@ -80,6 +84,8 @@ public class ScreeningServiceImpl extends AbstractServiceImpl<Screening, Screeni
     @Override
     public void submitScreeningForm(ScreeningForm screeningForm)
             throws NoEntityFoundException, InvalidArgsException, ClashException {
+        logger.debug(UtilMethods.getDelimiterLine());
+        logger.debug("Submit screening form");
         List<String> errors = new ArrayList<>();
         screeningValidator.validate(screeningForm, errors);
         if (!errors.isEmpty()) {
@@ -129,6 +135,7 @@ public class ScreeningServiceImpl extends AbstractServiceImpl<Screening, Screeni
             screeningSeat.setTicket(null);
             screeningSeatService.save(screeningSeat);
         }
+        logger.debug("Saved and instantiated new screening: " + screening);
     }
 
     @Override
@@ -225,6 +232,8 @@ public class ScreeningServiceImpl extends AbstractServiceImpl<Screening, Screeni
                         screeningSeat -> screeningSeat.getTicket() != null).count();
         screeningDTO.setSeatsBooked((int) numberOfSeatsBooked);
         screeningDTO.setSeatsAvailable(screeningDTO.getTotalSeatsInRoom() - (int) numberOfSeatsBooked);
+        logger.debug("Converted screening to DTO: " + screeningDTO);
+        logger.debug("Screening: " + screening);
         return screeningDTO;
     }
 

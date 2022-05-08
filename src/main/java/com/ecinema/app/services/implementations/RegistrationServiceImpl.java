@@ -12,6 +12,8 @@ import com.ecinema.app.services.EmailService;
 import com.ecinema.app.services.RegistrationService;
 import com.ecinema.app.services.UserService;
 import com.ecinema.app.domain.validators.RegistrationValidator;
+import com.ecinema.app.utils.UtilMethods;
+import org.hibernate.boot.archive.internal.ExplodedArchiveDescriptor;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -87,6 +89,8 @@ public class RegistrationServiceImpl extends AbstractServiceImpl<Registration,
     @Override
     public String submitRegistrationRequestAndGetToken(RegistrationForm registrationForm)
             throws ClashException, InvalidArgsException, EmailException {
+        logger.debug(UtilMethods.getDelimiterLine());
+        logger.debug("Submit registration request and get token");
         if (userService.existsByEmail(registrationForm.getEmail())) {
             throw new ClashException(
                     "User with email " + registrationForm.getEmail() + " already exists");
@@ -100,6 +104,7 @@ public class RegistrationServiceImpl extends AbstractServiceImpl<Registration,
         if (!errors.isEmpty()) {
             throw new InvalidArgsException(errors);
         }
+        logger.debug("Registration form passed validation checks");
         String token = UUID.randomUUID().toString();
         emailService.sendFromBusinessEmail(registrationForm.getEmail(),
                                            buildEmail(token), "Confirm Account");
@@ -122,12 +127,16 @@ public class RegistrationServiceImpl extends AbstractServiceImpl<Registration,
         registration.setSecurityQuestion2(registrationForm.getSecurityQuestion2());
         registration.setSecurityAnswer2(registrationForm.getSecurityAnswer2());
         save(registration);
+        logger.debug("Instantiated and saved new registration: " + registration);
+        logger.debug("Registration form: " + registrationForm);
         return token;
     }
 
     @Override
     public UserDto confirmRegistrationRequest(String token)
             throws NoEntityFoundException, ClashException {
+        logger.debug(UtilMethods.getDelimiterLine());
+        logger.debug("Confirm registration request");
         Registration registration = findByToken(token).orElseThrow(
                 () -> new NoEntityFoundException("registration request", "token", token));
         if (userService.existsByEmail(registration.getEmail())) {
@@ -140,6 +149,7 @@ public class RegistrationServiceImpl extends AbstractServiceImpl<Registration,
         }
         UserDto userDTO = userService.register(registration);
         deleteAllByEmail(registration.getEmail());
+        logger.debug("Registered new user and returned user dto: " + userDTO);
         return userDTO;
     }
 
