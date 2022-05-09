@@ -1,9 +1,7 @@
 package com.ecinema.app.domain.entities;
 
 import com.ecinema.app.domain.enums.UserRole;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.*;
 
 import javax.persistence.*;
 import java.util.HashSet;
@@ -20,6 +18,7 @@ import java.util.Set;
 @Setter
 @Entity
 @ToString
+@NoArgsConstructor
 public class CustomerRoleDef extends UserRoleDef {
 
     @ToString.Exclude

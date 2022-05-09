@@ -5,6 +5,7 @@ import com.ecinema.app.domain.entities.CustomerRoleDef;
 import com.ecinema.app.domain.entities.Movie;
 import com.ecinema.app.domain.entities.Review;
 import com.ecinema.app.domain.entities.User;
+import com.ecinema.app.domain.forms.ReviewForm;
 import com.ecinema.app.repositories.*;
 import com.ecinema.app.services.implementations.*;
 import com.ecinema.app.domain.enums.UserRole;
@@ -21,6 +22,7 @@ import java.time.Month;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.BDDMockito.given;
 
 @ExtendWith(MockitoExtension.class)
@@ -145,6 +147,43 @@ class ReviewServiceTest {
         assertEquals(review.getIsCensored(), reviewDto.getIsCensored());
         assertEquals(LocalDateTime.of(2022, Month.APRIL, 28, 22, 55),
                      reviewDto.getCreationDateTime());
+    }
+
+    @Test
+    void submitReviewForm() {
+        // given
+        User user = new User();
+        user.setId(1L);
+        userService.save(user);
+        CustomerRoleDef customerRoleDef = new CustomerRoleDef();
+        customerRoleDef.setUser(user);
+        user.getUserRoleDefs().put(UserRole.CUSTOMER, customerRoleDef);
+        given(customerRoleDefRepository.findByUserWithId(1L))
+                .willReturn(Optional.of(customerRoleDef));
+        customerRoleDefService.save(customerRoleDef);
+        Movie movie = new Movie();
+        movie.setId(2L);
+        given(movieRepository.findById(2L)).willReturn(Optional.of(movie));
+        movieService.save(movie);
+        given(reviewRepository.existsByWriterAndMovie(customerRoleDef, movie))
+                .willReturn(false);
+        // when
+        String reviewStr = "This movie is absolute garbage, I don't even know why I paid to see it.";
+        ReviewForm reviewForm = new ReviewForm();
+        reviewForm.setUserId(1L);
+        reviewForm.setMovieId(2L);
+        reviewForm.setReview(reviewStr);
+        reviewForm.setRating(10);
+        reviewService.submitReviewForm(reviewForm);
+        // then
+        assertEquals(1, customerRoleDef.getReviews().size());
+        Review review = customerRoleDef.getReviews().stream().findFirst()
+                                       .orElseThrow(IllegalStateException::new);
+        assertEquals(movie, review.getMovie());
+        assertEquals(customerRoleDef, review.getWriter());
+        assertEquals(10, review.getRating());
+        assertEquals(reviewStr, review.getReview());
+        assertFalse(review.getIsCensored());
     }
 
 }

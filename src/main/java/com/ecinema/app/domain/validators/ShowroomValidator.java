@@ -5,13 +5,13 @@ import com.ecinema.app.domain.forms.ShowroomForm;
 import com.ecinema.app.domain.enums.Letter;
 import org.springframework.stereotype.Component;
 
-import java.util.List;
+import java.util.Collection;
 
 @Component
 public class ShowroomValidator implements AbstractValidator<IShowroom> {
 
     @Override
-    public void validate(IShowroom showroom, List<String> errors) {
+    public void validate(IShowroom showroom, Collection<String> errors) {
         if (showroom.getShowroomLetter() == null) {
             errors.add("showroom letter cannot be null");
         }

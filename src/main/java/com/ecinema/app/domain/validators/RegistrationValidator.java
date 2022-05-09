@@ -4,7 +4,7 @@ import com.ecinema.app.domain.contracts.IRegistration;
 import com.ecinema.app.utils.UtilMethods;
 import org.springframework.stereotype.Component;
 
-import java.util.List;
+import java.util.Collection;
 
 @Component
 public class RegistrationValidator implements AbstractValidator<IRegistration> {
@@ -21,7 +21,7 @@ public class RegistrationValidator implements AbstractValidator<IRegistration> {
     }
 
     @Override
-    public void validate(IRegistration registration, List<String> errors) {
+    public void validate(IRegistration registration, Collection<String> errors) {
         passwordValidator.validate(registration, errors);
         emailValidator.validate(registration.getEmail(), errors);
         usernameValidator.validate(registration.getUsername(), errors);

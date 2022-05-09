@@ -1,7 +1,7 @@
 package com.ecinema.app.domain.validators;
 
-import java.util.List;
+import java.util.Collection;
 
 public interface AbstractValidator<T> {
-    void validate(T t, List<String> errors);
+    void validate(T t, Collection<String> errors);
 }

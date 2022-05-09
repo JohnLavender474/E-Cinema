@@ -1,10 +1,7 @@
 package com.ecinema.app.domain.entities;
 
 import com.ecinema.app.domain.enums.UserRole;
-import lombok.AccessLevel;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.*;
 
 import javax.persistence.*;
 

@@ -3,7 +3,7 @@ package com.ecinema.app.domain.validators;
 import com.ecinema.app.utils.UtilMethods;
 import org.springframework.stereotype.Component;
 
-import java.util.List;
+import java.util.Collection;
 
 import static com.ecinema.app.domain.validators.criteria.UsernameCriteria.MAX_LENGTH;
 import static com.ecinema.app.domain.validators.criteria.UsernameCriteria.MIN_LENGTH;
@@ -12,7 +12,7 @@ import static com.ecinema.app.domain.validators.criteria.UsernameCriteria.MIN_LE
 public class UsernameValidator implements AbstractValidator<String> {
 
     @Override
-    public void validate(String username, List<String> errors) {
+    public void validate(String username, Collection<String> errors) {
         if (!UtilMethods.isAlphaAndDigitsOnly(username)) {
             errors.add("Username must contain only letters and numbers");
         }

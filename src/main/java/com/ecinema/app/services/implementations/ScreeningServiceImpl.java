@@ -139,6 +139,12 @@ public class ScreeningServiceImpl extends AbstractServiceImpl<Screening, Screeni
     }
 
     @Override
+    public ScreeningDto findDtoById(Long screeningId)
+            throws NoEntityFoundException {
+        return convertToDto(screeningId);
+    }
+
+    @Override
     public Optional<ScreeningDto> findScreeningByShowroomAndInBetweenStartTimeAndEndTime(
             Showroom showroom, LocalDateTime startTime, LocalDateTime endTime) {
         return findScreeningByShowroomIdAndInBetweenStartTimeAndEndTime(

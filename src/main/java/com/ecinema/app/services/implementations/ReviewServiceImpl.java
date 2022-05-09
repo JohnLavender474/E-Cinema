@@ -72,6 +72,12 @@ public class ReviewServiceImpl extends AbstractServiceImpl<Review, ReviewReposit
     }
 
     @Override
+    public boolean existsByUserIdAndMovieId(Long userId, Long movieId)
+            throws NoEntityFoundException {
+        return repository.existsByUserIdAndMovieId(userId, movieId);
+    }
+
+    @Override
     public void submitReviewForm(ReviewForm reviewForm)
             throws NoEntityFoundException, InvalidArgsException, ClashException {
         logger.debug(UtilMethods.getDelimiterLine());
@@ -120,7 +126,7 @@ public class ReviewServiceImpl extends AbstractServiceImpl<Review, ReviewReposit
     }
 
     @Override
-    public Page<ReviewDto> findPageOfDtos(Long movieId, Pageable pageable) {
+    public Page<ReviewDto> findPageByMovieId(Long movieId, Pageable pageable) {
         return repository.findAllByMovieWithId(movieId, pageable)
                          .map(this::convertToDto);
     }

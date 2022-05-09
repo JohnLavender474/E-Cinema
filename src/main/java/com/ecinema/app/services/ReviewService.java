@@ -19,9 +19,22 @@ import java.util.List;
 public interface ReviewService extends AbstractService<Review>, EntityDtoConverter<Review, ReviewDto> {
 
     /**
+     * Exists by user id and movie id boolean.
+     *
+     * @param userId  the user id
+     * @param movieId the movie id
+     * @return the boolean
+     */
+    boolean existsByUserIdAndMovieId(Long userId, Long movieId)
+            throws NoEntityFoundException;
+
+    /**
      * Submit review form.
      *
      * @param reviewForm the review form
+     * @throws NoEntityFoundException the no entity found exception
+     * @throws InvalidArgsException   the invalid args exception
+     * @throws ClashException         the clash exception
      */
     void submitReviewForm(ReviewForm reviewForm)
             throws NoEntityFoundException, InvalidArgsException, ClashException;
@@ -49,7 +62,7 @@ public interface ReviewService extends AbstractService<Review>, EntityDtoConvert
      * @param pageable the pageable
      * @return the page
      */
-    Page<ReviewDto> findPageOfDtos(Long movieId, Pageable pageable);
+    Page<ReviewDto> findPageByMovieId(Long movieId, Pageable pageable);
 
     /**
      * Find average rating of movie double.

@@ -18,6 +18,17 @@ import java.util.List;
 public interface ReviewRepository extends JpaRepository<Review, Long>, AbstractRepository {
 
     /**
+     * Exists by user id and movie id boolean.
+     *
+     * @param userId  the user id
+     * @param movieId the movie id
+     * @return the boolean
+     */
+    @Query("SELECT CASE WHEN count(r) > 0 THEN true ELSE false END " +
+            "FROM Review r WHERE r.writer.user.id = ?1 AND r.movie.id = ?2")
+    boolean existsByUserIdAndMovieId(Long userId, Long movieId);
+
+    /**
      * Exists by writer and movie boolean.
      *
      * @param writer the writer

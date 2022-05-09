@@ -2,7 +2,7 @@ package com.ecinema.app.domain.validators;
 
 import org.springframework.stereotype.Component;
 
-import java.util.List;
+import java.util.Collection;
 import java.util.regex.Pattern;
 
 @Component
@@ -13,7 +13,7 @@ public class EmailValidator implements AbstractValidator<String> {
             ".[A-Za-z0-9-]+)*(\\.[A-Za-z]{2,})$";
 
     @Override
-    public void validate(String email, List<String> errors) {
+    public void validate(String email, Collection<String> errors) {
         if (!isValidEmail(email)) {
             errors.add("Email fails regex pattern test");
         }

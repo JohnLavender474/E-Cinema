@@ -27,7 +27,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @RequiredArgsConstructor
 @SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
-class MoviesControllerTest {
+class MovieInfoControllerTest {
 
     @Autowired
     private WebApplicationContext context;
@@ -90,7 +90,7 @@ class MoviesControllerTest {
             throws Exception {
         MovieDto movieDto = movieService.findByTitle("dune");
         PageRequest pageRequest = PageRequest.of(0, 6);
-        Page<ReviewDto> pageOfDtos = reviewService.findPageOfDtos(movieDto.getId(), pageRequest);
+        Page<ReviewDto> pageOfDtos = reviewService.findPageByMovieId(movieDto.getId(), pageRequest);
         mockMvc.perform(get("/movie-reviews/" + movieDto.getId()))
                .andDo(print())
                .andExpect(status().isOk())

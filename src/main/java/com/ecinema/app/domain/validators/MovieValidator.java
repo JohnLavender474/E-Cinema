@@ -3,7 +3,7 @@ package com.ecinema.app.domain.validators;
 import com.ecinema.app.domain.forms.MovieForm;
 import org.springframework.stereotype.Component;
 
-import java.util.List;
+import java.util.Collection;
 
 /**
  * The type Movie validator.
@@ -12,7 +12,7 @@ import java.util.List;
 public class MovieValidator implements AbstractValidator<MovieForm> {
 
     @Override
-    public void validate(MovieForm movieForm, List<String> errors) {
+    public void validate(MovieForm movieForm, Collection<String> errors) {
         if (movieForm.getTitle().isBlank()) {
             errors.add("title cannot be blank");
         }

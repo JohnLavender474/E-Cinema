@@ -4,6 +4,9 @@
 <body>
 <nav th:insert="fragments/webpage-top :: webpage-top"></nav>
 <div class="moviesContainer">
+    <div th:if="${success != null}">
+        <span th:text="${success}"></span>
+    </div>
     <table class="table-hover">
         <tr>
             <td th:if="${totalPages > 0}" th:each="pageNumber:${pageNumbers}">

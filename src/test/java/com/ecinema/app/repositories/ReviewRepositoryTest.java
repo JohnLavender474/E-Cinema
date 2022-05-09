@@ -1,7 +1,10 @@
 package com.ecinema.app.repositories;
 
+import com.ecinema.app.domain.entities.CustomerRoleDef;
 import com.ecinema.app.domain.entities.Movie;
 import com.ecinema.app.domain.entities.Review;
+import com.ecinema.app.domain.entities.User;
+import com.ecinema.app.domain.enums.UserRole;
 import com.ecinema.app.utils.UtilMethods;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
@@ -19,10 +22,16 @@ import static org.junit.jupiter.api.Assertions.*;
 class ReviewRepositoryTest {
 
     @Autowired
+    private CustomerRoleDefRepository customerRoleDefRepository;
+
+    @Autowired
     private ReviewRepository reviewRepository;
 
     @Autowired
     private MovieRepository movieRepository;
+
+    @Autowired
+    private UserRepository userRepository;
 
     @AfterEach
     void tearDown() {
@@ -104,6 +113,29 @@ class ReviewRepositoryTest {
         Double testAvgRating = reviewRepository.findAverageOfReviewRatingsForMovie(movie);
         // then
         assertEquals(avgRating, testAvgRating);
+    }
+
+    @Test
+    void findByUserIdAndMovieId() {
+        // given
+        User user = new User();
+        userRepository.save(user);
+        CustomerRoleDef customerRoleDef = new CustomerRoleDef();
+        customerRoleDef.setUser(user);
+        user.getUserRoleDefs().put(UserRole.CUSTOMER, customerRoleDef);
+        customerRoleDefRepository.save(customerRoleDef);
+        Movie movie = new Movie();
+        movieRepository.save(movie);
+        Review review = new Review();
+        review.setMovie(movie);
+        movie.getReviews().add(review);
+        review.setWriter(customerRoleDef);
+        customerRoleDef.getReviews().add(review);
+        reviewRepository.save(review);
+        // when
+        boolean test = reviewRepository.existsByUserIdAndMovieId(user.getId(), movie.getId());
+        // then
+        assertTrue(test);
     }
 
 }

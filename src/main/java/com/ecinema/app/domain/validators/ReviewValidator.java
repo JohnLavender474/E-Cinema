@@ -5,7 +5,7 @@ import com.ecinema.app.domain.forms.ReviewForm;
 import com.ecinema.app.utils.UtilMethods;
 import org.springframework.stereotype.Component;
 
-import java.util.List;
+import java.util.Collection;
 
 @Component
 public class ReviewValidator implements AbstractValidator<IReview> {
@@ -16,7 +16,7 @@ public class ReviewValidator implements AbstractValidator<IReview> {
     public static final Integer MIN_RATING = 0;
 
     @Override
-    public void validate(IReview iReview, List<String> errors) {
+    public void validate(IReview iReview, Collection<String> errors) {
         if (iReview.getReview().isBlank()) {
             errors.add("review cannot be blank");
         }

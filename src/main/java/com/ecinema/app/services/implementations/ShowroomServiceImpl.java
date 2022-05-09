@@ -139,6 +139,8 @@ public class ShowroomServiceImpl extends AbstractServiceImpl<Showroom, ShowroomR
         ShowroomDto showroomDto = new ShowroomDto();
         showroomDto.setId(showroom.getId());
         showroomDto.setShowroomLetter(showroom.getShowroomLetter());
+        showroomDto.setNumberOfRows(showroom.getNumberOfRows());
+        showroomDto.setNumberOfSeatsPerRow(showroom.getNumberOfSeatsPerRow());
         logger.debug("Convert showroom to DTO: " + showroomDto);
         logger.debug("Showroom: " + showroom);
         return showroomDto;

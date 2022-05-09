@@ -42,10 +42,11 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     private static final String[] AUTHENTICATED_PERMITTED = new String[]{
             "/account",
             "/logout",
-            "/logout-success",
+            "/logout-success"
     };
     private static final String[] CUSTOMERS_PERMITTED = new String[]{
-            "/customer"
+            "/customer",
+            "/write-review/**"
     };
     private static final String[] MODERATORS_PERMITTED = new String[]{
             "/moderator"

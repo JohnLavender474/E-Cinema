@@ -5,6 +5,7 @@ import com.ecinema.app.domain.enums.MovieCategory;
 import com.ecinema.app.domain.enums.MsrbRating;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 
 import java.time.Month;
 import java.util.EnumSet;
@@ -16,6 +17,7 @@ import java.util.Set;
  */
 @Getter
 @Setter
+@ToString
 public class MovieDto implements AbstractDto {
     private Long id;
     private String title;

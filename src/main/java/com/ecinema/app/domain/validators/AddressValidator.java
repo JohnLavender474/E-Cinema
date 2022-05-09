@@ -3,13 +3,14 @@ package com.ecinema.app.domain.validators;
 import com.ecinema.app.domain.contracts.IAddress;
 import org.springframework.stereotype.Component;
 
-import java.util.List;
+import java.util.Collection;
+import java.util.Collection;
 
 @Component
 public class AddressValidator implements AbstractValidator<IAddress> {
 
     @Override
-    public void validate(IAddress address, List<String> errors) {
+    public void validate(IAddress address, Collection<String> errors) {
         if (address.getStreet().isBlank()) {
             errors.add("Street cannot be blank");
         }

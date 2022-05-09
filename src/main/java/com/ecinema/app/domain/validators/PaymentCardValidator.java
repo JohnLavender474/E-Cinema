@@ -6,7 +6,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
-import java.util.List;
+import java.util.Collection;
 
 @Component
 @RequiredArgsConstructor
@@ -15,7 +15,7 @@ public class PaymentCardValidator implements AbstractValidator<IPaymentCard> {
     private final AddressValidator addressValidator;
 
     @Override
-    public void validate(IPaymentCard iPaymentCard, List<String> errors) {
+    public void validate(IPaymentCard iPaymentCard, Collection<String> errors) {
         addressValidator.validate(iPaymentCard.getBillingAddress(), errors);
         if (iPaymentCard.getCardNumber().length() != 16) {
             errors.add("Payment card number must be 16 digits");

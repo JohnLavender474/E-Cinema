@@ -5,11 +5,13 @@ import com.ecinema.app.domain.enums.TicketStatus;
 import com.ecinema.app.domain.enums.TicketType;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 
 import java.time.LocalDateTime;
 
 @Getter
 @Setter
+@ToString
 public class TicketDto implements AbstractDto {
     private String username;
     private String movieTitle;

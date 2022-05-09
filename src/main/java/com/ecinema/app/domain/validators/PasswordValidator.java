@@ -4,7 +4,7 @@ import com.ecinema.app.domain.contracts.IPassword;
 import com.ecinema.app.utils.UtilMethods;
 import org.springframework.stereotype.Component;
 
-import java.util.List;
+import java.util.Collection;
 
 import static com.ecinema.app.domain.validators.criteria.PasswordCriteria.MIN_LENGTH;
 import static com.ecinema.app.domain.validators.criteria.PasswordCriteria.MIN_SPECIAL_CHARS;
@@ -13,7 +13,7 @@ import static com.ecinema.app.domain.validators.criteria.PasswordCriteria.MIN_SP
 public class PasswordValidator implements AbstractValidator<IPassword> {
 
     @Override
-    public void validate(IPassword iPassword, List<String> errors) {
+    public void validate(IPassword iPassword, Collection<String> errors) {
         if (iPassword.getPassword().length() < MIN_LENGTH) {
             errors.add("Password length must be at least " + MIN_LENGTH);
         }

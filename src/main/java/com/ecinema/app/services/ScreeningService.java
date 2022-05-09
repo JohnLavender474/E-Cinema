@@ -45,6 +45,16 @@ public interface ScreeningService extends AbstractService<Screening>, EntityDtoC
             throws NoEntityFoundException, InvalidArgsException, ClashException;
 
     /**
+     * Find dto by id optional.
+     *
+     * @param screeningId the screening id
+     * @return the optional
+     * @throws NoEntityFoundException the no entity found exception
+     */
+    ScreeningDto findDtoById(Long screeningId)
+            throws NoEntityFoundException;
+
+    /**
      * Exists screening by showroom and in between start time and end time boolean.
      *
      * @param showroom  the showroom
