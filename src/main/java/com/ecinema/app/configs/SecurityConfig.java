@@ -1,15 +1,12 @@
 package com.ecinema.app.configs;
 
-import com.ecinema.app.services.UserService;
+import com.ecinema.app.beans.AuthenticationProvider;
 import lombok.RequiredArgsConstructor;
-import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import static com.ecinema.app.domain.enums.UserRole.*;
 
@@ -67,25 +64,11 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
             "/delete-showroom/**"
     };
 
-    private final UserService userService;
-    private final BCryptPasswordEncoder passwordEncoder;
-
-    /**
-     * Authentication provider dao authentication provider.
-     *
-     * @return the dao authentication provider
-     */
-    @Bean
-    public DaoAuthenticationProvider authenticationProvider() {
-        DaoAuthenticationProvider authenticationProvider = new DaoAuthenticationProvider();
-        authenticationProvider.setUserDetailsService(userService);
-        authenticationProvider.setPasswordEncoder(passwordEncoder);
-        return authenticationProvider;
-    }
+    private final AuthenticationProvider authenticationProvider;
 
     @Override
     protected void configure(AuthenticationManagerBuilder builder) {
-        builder.authenticationProvider(authenticationProvider());
+        builder.authenticationProvider(authenticationProvider.daoAuthenticationProvider());
     }
 
     @Override

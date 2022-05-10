@@ -62,7 +62,7 @@ public class SecurityServiceImpl implements SecurityService {
             return null;
         }
         Object o = authentication.getPrincipal();
-        return o instanceof User user ? userService.convertToDto(user.getId()) : null;
+        return o instanceof User user ? userService.convertToDto(user) : null;
     }
 
     @Override

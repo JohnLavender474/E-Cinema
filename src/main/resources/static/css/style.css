@@ -108,7 +108,8 @@ and when you move the mouse over it (hover) */
 /* The dropdown container */
 .dropdown {
     float: left;
-    overflow: hidden;
+    overflow: auto;
+    z-index: 1;
 }
 
 /* Dropdown button */
@@ -121,6 +122,7 @@ and when you move the mouse over it (hover) */
     background-color: inherit;
     font-family: inherit; /* Important for vertical align on mobile phones */
     margin: 0; /* Important for vertical align on mobile phones */
+    z-index: 2;
 }
 
 /* Add a red background color to navbar links on hover */
@@ -135,7 +137,7 @@ and when you move the mouse over it (hover) */
     background-color: #f9f9f9;
     min-width: 160px;
     box-shadow: 0 8px 16px 0 rgba(0,0,0,0.2);
-    z-index: 1;
+    z-index: 2;
 }
 
 /* Links inside the dropdown */
@@ -727,6 +729,7 @@ input[type="submit"]:hover {
     background-color: black;
     color: white;
     margin: auto;
+    z-index: auto;
 }
 
 .centerbutton {

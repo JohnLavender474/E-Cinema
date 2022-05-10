@@ -30,13 +30,13 @@ public class MovieInfoController {
                              @RequestParam(value = "page", required = false, defaultValue = "1") Integer page,
                              @RequestParam(value = "search", required = false, defaultValue = "") String search) {
         PageRequest pageRequest = PageRequest.of(page - 1, 6);
+        logger.debug(UtilMethods.getDelimiterLine());
         Page<MovieDto> pageOfDtos = (search == null || search.isBlank()) ?
                 movieService.pageOfDtos(pageRequest) :
                 movieService.findAllByLikeTitle(search, pageRequest);
         addPageNumbersAttribute(model, pageOfDtos);
         model.addAttribute("movies", pageOfDtos.getContent().toArray());
         model.addAttribute("search", search);
-        logger.debug(UtilMethods.getDelimiterLine());
         logger.debug("Page: " + page);
         logger.debug("Search: " + search);
         logger.debug("Page of movies: " + pageOfDtos);
