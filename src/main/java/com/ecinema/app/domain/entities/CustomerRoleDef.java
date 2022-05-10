@@ -22,19 +22,19 @@ import java.util.Set;
 public class CustomerRoleDef extends UserRoleDef {
 
     @ToString.Exclude
-    @OneToMany(mappedBy = "writer", cascade = CascadeType.PERSIST, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "writer", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private Set<Review> reviews = new HashSet<>();
 
     @ToString.Exclude
-    @OneToMany(mappedBy = "customerRoleDef", cascade = CascadeType.PERSIST, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "customerRoleDef", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private Set<Ticket> tickets = new HashSet<>();
 
     @ToString.Exclude
-    @OneToMany(mappedBy = "customerRoleDef", cascade = CascadeType.PERSIST, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "customerRoleDef", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private Set<PaymentCard> paymentCards = new HashSet<>();
 
     @ToString.Exclude
-    @OneToMany(mappedBy = "customerRoleDef", cascade = CascadeType.PERSIST, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "customerRoleDef", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private Set<Coupon> coupons = new HashSet<>();
 
     @JoinColumn

@@ -70,7 +70,7 @@ public interface ReviewService extends AbstractService<Review>, EntityDtoConvert
      * @param movie the movie
      * @return the double
      */
-    Double findAverageRatingOfMovie(Movie movie);
+    Integer findAverageRatingOfMovie(Movie movie);
 
     /**
      * Find average rating of movie with id double.
@@ -78,6 +78,6 @@ public interface ReviewService extends AbstractService<Review>, EntityDtoConvert
      * @param movieId the movie id
      * @return the double
      */
-    Double findAverageRatingOfMovieWithId(Long movieId);
+    Integer findAverageRatingOfMovieWithId(Long movieId);
 
 }

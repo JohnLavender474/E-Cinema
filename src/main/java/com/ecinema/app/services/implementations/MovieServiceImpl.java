@@ -14,7 +14,6 @@ import com.ecinema.app.domain.enums.MovieCategory;
 import com.ecinema.app.domain.enums.MsrbRating;
 import com.ecinema.app.utils.UtilMethods;
 import com.ecinema.app.domain.validators.MovieValidator;
-import org.hibernate.boot.archive.internal.ExplodedArchiveDescriptor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -80,7 +79,7 @@ public class MovieServiceImpl extends AbstractServiceImpl<Movie, MovieRepository
                 () -> new NoEntityFoundException("movie", "id", movieId));
         logger.debug("Found movie with id: " + movieId);
         MovieForm movieForm = new MovieForm();
-        movieForm.setId(movie.getId());
+        movieForm.setId(movieId);
         movieForm.setTitle(movie.getTitle());
         movieForm.setDirector(movie.getDirector());
         movieForm.setImage(movie.getImage());
@@ -112,7 +111,7 @@ public class MovieServiceImpl extends AbstractServiceImpl<Movie, MovieRepository
     public void submitMovieForm(MovieForm movieForm)
             throws InvalidArgsException {
         logger.debug(UtilMethods.getDelimiterLine());
-        logger.debug("Submit movie form");
+        logger.debug("Submit movie form: " + movieForm);
         List<String> errors = new ArrayList<>();
         movieValidator.validate(movieForm, errors);
         if (!errors.isEmpty()) {
@@ -121,6 +120,7 @@ public class MovieServiceImpl extends AbstractServiceImpl<Movie, MovieRepository
         logger.debug("Movie form passed validation checks");
         Movie movie = movieForm.getId() != null ? findById(movieForm.getId()).orElseThrow(
                 () -> new NoEntityFoundException("movie", "id", movieForm.getId())) : new Movie();
+        logger.debug("Movie before set to form: " + movie);
         String searchTitle = convertTitleToSearchTitle(movieForm.getTitle());
         movie.setSearchTitle(searchTitle);
         movie.setTitle(movieForm.getTitle());
@@ -142,7 +142,7 @@ public class MovieServiceImpl extends AbstractServiceImpl<Movie, MovieRepository
                 movieForm.getMovieCategories()
                         .stream().map(MovieCategory::valueOf)
                         .collect(Collectors.toList()));
-        logger.debug("Instantiated and saved new Movie: " + movie);
+        logger.debug("Saved movie: " + movie);
         save(movie);
     }
 
@@ -219,11 +219,11 @@ public class MovieServiceImpl extends AbstractServiceImpl<Movie, MovieRepository
     }
 
     @Override
-    public Double findAverageRatingOfMovieWithId(Long movieId) {
+    public Integer findAverageRatingOfMovieWithId(Long movieId) {
         Movie movie = findById(movieId).orElseThrow(
                 () -> new NoEntityFoundException("movie", "id", movieId));
-        Double avgRating = reviewService.findAverageRatingOfMovie(movie);
-        return avgRating == null ? 0D : avgRating;
+        Integer avgRating = reviewService.findAverageRatingOfMovie(movie);
+        return avgRating == null ? 0 : avgRating;
     }
 
     @Override

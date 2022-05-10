@@ -35,7 +35,7 @@ public class Screening extends AbstractEntity {
     private Showroom showroom;
 
     @ToString.Exclude
-    @OneToMany(mappedBy = "screening", cascade = CascadeType.PERSIST, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "screening", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private Set<ScreeningSeat> screeningSeats = new HashSet<>();
 
 }

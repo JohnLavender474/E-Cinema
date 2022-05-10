@@ -2,7 +2,7 @@
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 <body>
 <div th:fragment="movie-form(action, movieForm)">
-    <form method="post" th:action="@{${action}}" th:object="${movieForm}">
+    <form method="post" th:action="@{${action}(id=${movieForm.id})}" th:object="${movieForm}">
         <table class="table table-bordered table-striped">
             <tr>
                 <td>Title:</td>

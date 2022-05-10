@@ -35,11 +35,11 @@ public class Ticket extends AbstractEntity {
 
     @JoinColumn
     @ToString.Exclude
-    @OneToOne(cascade = CascadeType.PERSIST, fetch = FetchType.LAZY)
+    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private ScreeningSeat screeningSeat;
 
     @ToString.Exclude
-    @OneToMany(mappedBy = "ticket", cascade = CascadeType.PERSIST, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "ticket", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private Set<Coupon> coupons = new HashSet<>();
 
 }

@@ -168,10 +168,10 @@ public interface MovieService extends AbstractService<Movie>, EntityDtoConverter
      * Find average rating of movie with id double.
      *
      * @param movieId the movie id
-     * @return the double
+     * @return the average rating
      * @throws NoEntityFoundException the no entity found exception
      */
-    Double findAverageRatingOfMovieWithId(Long movieId)
+    Integer findAverageRatingOfMovieWithId(Long movieId)
             throws NoEntityFoundException;
 
 }

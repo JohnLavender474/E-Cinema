@@ -71,7 +71,7 @@ public interface ReviewRepository extends JpaRepository<Review, Long>, AbstractR
      * @return the double
      */
     @Query("SELECT AVG(r.rating) FROM Review r WHERE r.movie = ?1")
-    Double findAverageOfReviewRatingsForMovie(Movie movie);
+    Integer findAverageOfReviewRatingsForMovie(Movie movie);
 
     /**
      * Find average of review rating for movie with id double.
@@ -80,6 +80,6 @@ public interface ReviewRepository extends JpaRepository<Review, Long>, AbstractR
      * @return the double
      */
     @Query("SELECT AVG (r.rating) FROM Review r WHERE r.movie.id = ?1")
-    Double findAverageOfReviewRatingsForMovieWithId(Long movieId);
+    Integer findAverageOfReviewRatingsForMovieWithId(Long movieId);
 
 }

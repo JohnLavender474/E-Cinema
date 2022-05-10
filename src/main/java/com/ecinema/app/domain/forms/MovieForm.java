@@ -4,6 +4,7 @@ import com.ecinema.app.domain.contracts.IMovie;
 import com.ecinema.app.domain.enums.MsrbRating;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 import org.slf4j.IMarkerFactory;
 
 import java.io.Serializable;
@@ -13,6 +14,7 @@ import java.util.List;
 
 @Getter
 @Setter
+@ToString
 public class MovieForm implements IMovie, Serializable {
     private Long id = null;
     private String title = "";

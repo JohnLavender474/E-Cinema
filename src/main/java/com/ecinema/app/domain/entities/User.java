@@ -76,8 +76,7 @@ public class User extends AbstractEntity implements UserDetails {
     @ToString.Exclude
     @MapKey(name = "userRole")
     @MapKeyEnumerated(EnumType.ORDINAL)
-    @OneToMany(targetEntity = UserRoleDef.class, mappedBy = "user",
-            cascade = CascadeType.PERSIST, fetch = FetchType.EAGER)
+    @OneToMany(targetEntity = UserRoleDef.class, mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private Map<UserRole, UserRoleDef> userRoleDefs = new EnumMap<>(UserRole.class);
 
     @Override

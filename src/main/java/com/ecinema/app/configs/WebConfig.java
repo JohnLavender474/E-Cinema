@@ -38,9 +38,4 @@ public class WebConfig implements WebMvcConfigurer {
         registry.addResourceHandler("/static/**").addResourceLocations("classpath:/static/");
     }
 
-    @Override
-    public void addInterceptors(InterceptorRegistry registry) {
-        // TODO: add interceptors
-    }
-
 }

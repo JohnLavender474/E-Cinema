@@ -49,14 +49,12 @@ public class MovieInfoController {
         try {
             MovieDto movieDto = movieService.convertToDto(movieId);
             model.addAttribute("movie", movieDto);
-            Double avgRating = reviewService.findAverageRatingOfMovieWithId(movieId);
-            Integer roundedAvgRating = (int) Math.round(avgRating);
-            model.addAttribute("avgRating", roundedAvgRating);
+            Integer avgRating = reviewService.findAverageRatingOfMovieWithId(movieId);
+            model.addAttribute("avgRating", avgRating);
             logger.debug(UtilMethods.getDelimiterLine());
             logger.debug("Movie debug get mapping");
             logger.debug("Movie DTO: " + movieDto);
             logger.debug("Avg rating: " + avgRating);
-            logger.debug("Rounded avg rating: " + roundedAvgRating);
             return "movie-info";
         } catch (NoEntityFoundException e) {
             redirectAttributes.addFlashAttribute("errors", e.getErrors());

@@ -29,7 +29,7 @@ public class ShowroomSeat extends AbstractEntity implements ISeat {
     private Integer seatNumber;
 
     @ToString.Exclude
-    @OneToMany(mappedBy = "showroomSeat", cascade = CascadeType.PERSIST, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "showroomSeat", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private Set<ScreeningSeat> screeningSeats = new HashSet<>();
 
 }

@@ -12,7 +12,7 @@
             <td th:text="${error}"></td>
         </tr>
     </table>
-    <form method="post" th:action="@{/write-review}" th:object="${reviewForm}">
+    <form method="post" th:action="@{/write-review/{id}(id=${reviewForm.movieId})}" th:object="${reviewForm}">
         <table class="table table-bordered table-striped">
             <tr>
                 <td>Rating:</td>

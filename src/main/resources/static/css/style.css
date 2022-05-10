@@ -32,6 +32,15 @@ table.table-hover td:hover {
     font-style: italic;
 }
 
+.moviesContainer .table-bordered {
+    border-color: red;
+    text-align: left;
+}
+
+table .boldtext {
+    font-weight: bold;
+}
+
 .logo {
     color: orangered;
     text-transform: uppercase;

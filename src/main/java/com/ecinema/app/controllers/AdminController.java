@@ -88,7 +88,7 @@ public class AdminController {
      */
     @GetMapping("/edit-movie-search")
     public String showEditMovieSearchPage(final Model model) {
-        model.addAttribute("href", "/edit-movie");
+        model.addAttribute("href", "/edit-movie/{id}");
         model.addAttribute("movies", movieService.findAllDtos());
         return "admin-movie-choose";
     }
@@ -102,7 +102,7 @@ public class AdminController {
      */
     @GetMapping("/edit-movie/{id}")
     public String showEditMoviePage(final Model model, @PathVariable("id") final Long id) {
-        model.addAttribute("action", "/edit-movie");
+        model.addAttribute("action", "/edit-movie/{id}");
         MovieForm movieForm = movieService.fetchAsForm(id);
         model.addAttribute("movieForm", movieForm);
         return "edit-movie";
@@ -116,10 +116,12 @@ public class AdminController {
      * @param movieForm          the movie form
      * @return the string
      */
-    @PostMapping("/edit-movie")
+    @PostMapping("/edit-movie/{id}")
     public String editMovie(final Model model,final RedirectAttributes redirectAttributes,
-                            @ModelAttribute("movieForm") MovieForm movieForm) {
+                            @ModelAttribute("movieForm") final MovieForm movieForm,
+                            @PathVariable("id") final Long movieId) {
         try {
+            movieForm.setId(movieId);
             movieService.submitMovieForm(movieForm);
             redirectAttributes.addFlashAttribute("success", "Successfully edited movie!");
             return "redirect:/edit-movie-search";

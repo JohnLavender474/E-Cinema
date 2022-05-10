@@ -132,15 +132,15 @@ public class ReviewServiceImpl extends AbstractServiceImpl<Review, ReviewReposit
     }
 
     @Override
-    public Double findAverageRatingOfMovie(Movie movie) {
-        Double avgRating = repository.findAverageOfReviewRatingsForMovie(movie);
-        return avgRating == null ? 0D : avgRating;
+    public Integer findAverageRatingOfMovie(Movie movie) {
+        Integer avgRating = repository.findAverageOfReviewRatingsForMovie(movie);
+        return avgRating == null ? 0 : avgRating;
     }
 
     @Override
-    public Double findAverageRatingOfMovieWithId(Long movieId) {
-        Double avgRating = repository.findAverageOfReviewRatingsForMovieWithId(movieId);
-        return avgRating == null ? 0D : avgRating;
+    public Integer findAverageRatingOfMovieWithId(Long movieId) {
+        Integer avgRating = repository.findAverageOfReviewRatingsForMovieWithId(movieId);
+        return avgRating == null ? 0 : avgRating;
     }
 
     @Override

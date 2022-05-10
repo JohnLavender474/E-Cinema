@@ -35,9 +35,13 @@ public class MovieReviewController {
     @GetMapping("/movie-reviews/{id}")
     public String movieReviewsPage(
             final Model model, final RedirectAttributes redirectAttributes,
-            @PathVariable("id") final Long movieId,
-            @RequestParam(value = "page", required = false, defaultValue = "1") final Integer page) {
+            @RequestParam(value = "page", required = false, defaultValue = "1") final Integer page,
+            @PathVariable("id") final Long movieId) {
         try {
+            model.addAttribute("movieId", movieId);
+            UserDto userDto = securityService.findLoggedInUserDTO();
+            boolean canWriteReview = userDto != null && userDto.getUserRoles().contains(UserRole.CUSTOMER);
+            model.addAttribute("canWriteReview", canWriteReview);
             PageRequest pageRequest = PageRequest.of(page - 1, 6);
             Page<ReviewDto> pageOfDtos = reviewService.findPageByMovieId(movieId, pageRequest);
             model.addAttribute("reviews", pageOfDtos.getContent().toArray());
@@ -85,10 +89,12 @@ public class MovieReviewController {
         return "write-review";
     }
 
-    @PostMapping("/write-review")
+    @PostMapping("/write-review/{id}")
     public String writeReview(final Model model, final RedirectAttributes redirectAttributes,
-                              @ModelAttribute("reviewForm") final ReviewForm reviewForm) {
+                              @ModelAttribute("reviewForm") final ReviewForm reviewForm,
+                              @PathVariable("id") final Long movieId) {
         try {
+            reviewForm.setMovieId(movieId);
             logger.debug(UtilMethods.getDelimiterLine());
             logger.debug("Write review post mapping");
             reviewService.submitReviewForm(reviewForm);

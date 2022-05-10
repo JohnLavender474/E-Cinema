@@ -65,11 +65,11 @@ public class Movie extends AbstractEntity implements IMovie {
     private Set<MovieCategory> movieCategories = EnumSet.noneOf(MovieCategory.class);
 
     @ToString.Exclude
-    @OneToMany(mappedBy = "movie", cascade = CascadeType.PERSIST, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "movie", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private Set<Review> reviews = new HashSet<>();
 
     @ToString.Exclude
-    @OneToMany(mappedBy = "movie", cascade = CascadeType.PERSIST, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "movie", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private Set<Screening> screenings = new HashSet<>();
 
     @Override

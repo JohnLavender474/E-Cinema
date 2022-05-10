@@ -19,7 +19,7 @@ import java.util.Set;
 public class ModeratorRoleDef extends UserRoleDef {
 
     @ToString.Exclude
-    @OneToMany(mappedBy = "censoredBy", cascade = CascadeType.PERSIST, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "censoredBy", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private Set<CustomerRoleDef> censoredCustomers = new HashSet<>();
 
     @Override

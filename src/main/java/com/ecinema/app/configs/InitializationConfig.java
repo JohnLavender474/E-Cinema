@@ -480,7 +480,7 @@ public class InitializationConfig {
         ReviewForm reviewForm3 = new ReviewForm();
         reviewForm3.setMovieId(batman.getId());
         reviewForm3.setUserId(customerId);
-        reviewForm3.setRating(7);
+        reviewForm3.setRating(8);
         reviewForm3.setReview(
                 "While the movie in my opinion pales in comparison to The Dark Knight, I believe " +
                         "it does a good enough job at what it tries to be. There's some questinable " +

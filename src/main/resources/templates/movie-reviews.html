@@ -7,6 +7,15 @@
     <div th:if="${success != null}">
         <span th:text="${success}"></span>
     </div>
+    <div th:if="${canWriteReview}">
+        <span>
+            <label>
+                <button class="button">
+                    <a th:href="@{/write-review/{id}(id=${movieId})}">Write Review</a>
+                </button>
+            </label>
+        </span>
+    </div>
     <table class="table-hover">
         <tr>
             <td th:if="${totalPages > 0}" th:each="pageNumber:${pageNumbers}">
@@ -28,7 +37,7 @@
                 <span th:text="${review.writer}" style="font-weight: bold"></span>
             </td>
             <td>
-                <span th:text="${review.creationDateTime}" style="font-style: italic; color: gray"></span>
+                <span th:text="${review.creationDateTimeFormatted()}" style="font-style: italic; color: gray"></span>
             </td>
             <td>
                 <span th:text="${review.review}" style="max-width: 150px; word-wrap: break-word"></span>
