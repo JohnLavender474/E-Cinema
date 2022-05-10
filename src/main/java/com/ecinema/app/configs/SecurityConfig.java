@@ -52,16 +52,19 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
             "/moderator"
     };
     private static final String[] ADMINS_PERMITTED = new String[]{
-            "/admin",
             "/add-movie",
             "/add-screening",
             "/add-showroom",
-            "/edit-movie",
-            "/edit-screening",
-            "/edit-showroom",
-            "/delete-movie",
-            "/delete-screening",
-            "/delete-showroom"
+            "/admin",
+            "/admin-movie-choose",
+            "/edit-movie/**",
+            "/edit-movie-search",
+            "/edit-screening/**",
+            "/edit-showroom/**",
+            "/delete-movie/**",
+            "/delete-movie-search",
+            "/delete-screening/**",
+            "/delete-showroom/**"
     };
 
     private final UserService userService;
@@ -99,8 +102,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers(ADMINS_PERMITTED).hasAuthority(ADMIN.getAuthority())
                 .antMatchers(MODERATORS_PERMITTED).hasAuthority(MODERATOR.getAuthority())
                 .antMatchers(CUSTOMERS_PERMITTED).hasAuthority(CUSTOMER.getAuthority())
-                .antMatchers(AUTHENTICATED_PERMITTED).hasAnyAuthority(
-                        CUSTOMER.getAuthority(), MODERATOR.getAuthority(), ADMIN.getAuthority())
+                .antMatchers(AUTHENTICATED_PERMITTED).authenticated()
                 .antMatchers(ANY_PERMITTED).permitAll()
                 .anyRequest().authenticated()
                 .and()

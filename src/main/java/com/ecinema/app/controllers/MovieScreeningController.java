@@ -55,7 +55,7 @@ public class MovieScreeningController {
         logger.debug(UtilMethods.getDelimiterLine());
         logger.debug("Screening page get mapping");
         logger.debug("Screening DTO: " + screeningDto);
-        logger.debug("Map of screening seats: has " + mapOfScreeningSeats.keySet().size() + " rows");
+        logger.debug("Map of screening seats has " + mapOfScreeningSeats.keySet().size() + " rows");
         for (Map.Entry<Letter, Set<ScreeningSeatDto>> entry : mapOfScreeningSeats.entrySet()) {
             logger.debug("Row " + entry.getKey() + " has " + entry.getValue() + " seats");
         }

@@ -95,7 +95,7 @@
                 <td>
                     <label>
                         <select th:field="*{msrbRating}">
-                            <option th:each="rating:${T(com.ecinema.app.utils.MsrbRating).values()}"
+                            <option th:each="rating:${T(com.ecinema.app.domain.enums.MsrbRating).values()}"
                                     th:text="${rating}" th:value="${rating}"></option>
                         </select>
                     </label>
@@ -142,7 +142,7 @@
                 <td>
                     <label>
                         <select th:field="*{movieCategories[0]}">
-                            <option th:each="movieCategory:${T(com.ecinema.app.utils.MovieCategory).values()}"
+                            <option th:each="movieCategory:${T(com.ecinema.app.domain.enums.MovieCategory).values()}"
                                     th:text="${movieCategory}" th:value="${movieCategory.name()}"></option>
                         </select>
                     </label>
@@ -153,7 +153,7 @@
                 <td>
                     <label>
                         <select th:field="*{movieCategories[1]}">
-                            <option th:each="movieCategory:${T(com.ecinema.app.utils.MovieCategory).values()}"
+                            <option th:each="movieCategory:${T(com.ecinema.app.domain.enums.MovieCategory).values()}"
                                     th:text="${movieCategory}" th:value="${movieCategory.name()}"></option>
                         </select>
                     </label>
@@ -164,7 +164,7 @@
                 <td>
                     <label>
                         <select th:field="*{movieCategories[2]}">
-                            <option th:each="movieCategory:${T(com.ecinema.app.utils.MovieCategory).values()}"
+                            <option th:each="movieCategory:${T(com.ecinema.app.domain.enums.MovieCategory).values()}"
                                     th:text="${movieCategory}" th:value="${movieCategory.name()}"></option>
                         </select>
                     </label>

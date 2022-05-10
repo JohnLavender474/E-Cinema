@@ -1,6 +1,6 @@
 package com.ecinema.app.domain.validators;
 
-import com.ecinema.app.domain.forms.MovieForm;
+import com.ecinema.app.domain.contracts.IMovie;
 import org.springframework.stereotype.Component;
 
 import java.util.Collection;
@@ -9,52 +9,52 @@ import java.util.Collection;
  * The type Movie validator.
  */
 @Component
-public class MovieValidator implements AbstractValidator<MovieForm> {
+public class MovieValidator implements AbstractValidator<IMovie> {
 
     @Override
-    public void validate(MovieForm movieForm, Collection<String> errors) {
-        if (movieForm.getTitle().isBlank()) {
+    public void validate(IMovie iMovie, Collection<String> errors) {
+        if (iMovie.getTitle().isBlank()) {
             errors.add("title cannot be blank");
         }
-        if (movieForm.getDirector().isBlank()) {
+        if (iMovie.getDirector().isBlank()) {
             errors.add("director cannot be blank");
         }
-        if (movieForm.getImage().isBlank()) {
+        if (iMovie.getImage().isBlank()) {
             errors.add("image cannot be blank");
         }
-        if (movieForm.getTrailer().isBlank()) {
+        if (iMovie.getTrailer().isBlank()) {
             errors.add("trailer cannot be blank");
         }
-        if (movieForm.getSynopsis().isBlank()) {
+        if (iMovie.getSynopsis().isBlank()) {
             errors.add("synopsis cannot be blank");
         }
-        if (movieForm.getHours() < 0) {
+        if (iMovie.getHours() < 0) {
             errors.add("hours cannot be less than 0");
         }
-        if (movieForm.getMinutes() <= 0 && movieForm.getHours() <= 0) {
+        if (iMovie.getMinutes() <= 0 && iMovie.getHours() <= 0) {
             errors.add("minutes cannot be less than or equal to 0 when hours is less than or equal to 0");
         }
-        if (movieForm.getReleaseYear() < 1888) {
+        if (iMovie.getReleaseYear() < 1888) {
             errors.add("the earliest surviving movie is Roundhay Garden Scene from 1888, year must be at least 1888");
         }
-        if (movieForm.getReleaseDay() < 1) {
+        if (iMovie.getReleaseDay() < 1) {
             errors.add("day must be greater than 0");
         }
-        if (movieForm.getReleaseMonth() == null) {
+        if (iMovie.getReleaseMonth() == null) {
             errors.add("month cannot be null");
-        } else if (movieForm.getReleaseMonth().maxLength() < movieForm.getReleaseDay()) {
+        } else if (iMovie.getReleaseMonth().maxLength() < iMovie.getReleaseDay()) {
             errors.add("release day cannot exceed max length of month");
         }
-        if (movieForm.getMsrbRating() == null) {
+        if (iMovie.getMsrbRating() == null) {
             errors.add("msrb rating cannot be null");
         }
-        if (movieForm.getCast().isEmpty()) {
+        if (iMovie.getCast().isEmpty()) {
             errors.add("cast cannot be empty");
         }
-        if (movieForm.getWriters().isEmpty()) {
+        if (iMovie.getWriters().isEmpty()) {
             errors.add("writers cannot be empty");
         }
-        if (movieForm.getMovieCategories().isEmpty()) {
+        if (iMovie.getMovieCategories().isEmpty()) {
             errors.add("movie categories cannot be empty");
         }
     }

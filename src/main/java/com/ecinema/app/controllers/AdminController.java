@@ -88,7 +88,7 @@ public class AdminController {
      */
     @GetMapping("/edit-movie-search")
     public String showEditMovieSearchPage(final Model model) {
-        model.addAttribute("action", "edit-movie");
+        model.addAttribute("href", "/edit-movie");
         model.addAttribute("movies", movieService.findAllDtos());
         return "admin-movie-choose";
     }
@@ -137,7 +137,7 @@ public class AdminController {
      */
     @GetMapping("/delete-movie-search")
     public String showDeleteMovieSearchPage(final Model model) {
-        model.addAttribute("action", "delete-movie");
+        model.addAttribute("action", "/delete-movie");
         model.addAttribute("movies", movieService.findAllDtos());
         return "admin-movie-choose";
     }
@@ -173,16 +173,14 @@ public class AdminController {
      * Delete movie string.
      *
      * @param redirectAttributes the redirect attributes
-     * @param movieDto           the movie dto
      * @return the string
      */
-    @PostMapping("/delete-movie")
+    @PostMapping("/delete-movie/{id}")
     public String deleteMovie(final RedirectAttributes redirectAttributes,
-                              @ModelAttribute("movie") MovieDto movieDto) {
-        movieService.deleteById(movieDto.getId());
-        redirectAttributes.addFlashAttribute("success",
-                                             "Successfully deleted " + movieDto.getTitle());
-        return "redirect:/admin";
+                              @PathVariable("id") final Long movieId) {
+        movieService.deleteById(movieId);
+        redirectAttributes.addFlashAttribute("success", "Successfully deleted movie");
+        return "redirect:/delete-movie-search";
     }
 
 }

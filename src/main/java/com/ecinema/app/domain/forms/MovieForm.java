@@ -1,8 +1,10 @@
 package com.ecinema.app.domain.forms;
 
+import com.ecinema.app.domain.contracts.IMovie;
 import com.ecinema.app.domain.enums.MsrbRating;
 import lombok.Getter;
 import lombok.Setter;
+import org.slf4j.IMarkerFactory;
 
 import java.io.Serializable;
 import java.time.Month;
@@ -11,7 +13,7 @@ import java.util.List;
 
 @Getter
 @Setter
-public class MovieForm implements Serializable {
+public class MovieForm implements IMovie, Serializable {
     private Long id = null;
     private String title = "";
     private String director = "";
@@ -20,7 +22,7 @@ public class MovieForm implements Serializable {
     private String synopsis = "";
     private Integer hours = 0;
     private Integer minutes = 0;
-    private Integer releaseYear = 1888;
+    private Integer releaseYear = 2020;
     private Integer releaseDay = 1;
     private Month releaseMonth = Month.JANUARY;
     private MsrbRating msrbRating = MsrbRating.G;

@@ -12,7 +12,7 @@
             <td>
                 <span style="color: white" th:text="${movie.title}"></span>
                 <button class="btn btn-primary">
-                    <a th:href="@{/{action}/{id}(action=${action},id=${movie.id})}">CHOOSE</a>
+                    <a th:href="@{/{href}/{id}(href=${href},id=${movie.id})}">CHOOSE</a>
                 </button>
             </td>
         </tr>

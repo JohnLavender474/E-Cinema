@@ -1,5 +1,6 @@
 package com.ecinema.app.domain.entities;
 
+import com.ecinema.app.domain.contracts.IMovie;
 import com.ecinema.app.utils.Duration;
 import com.ecinema.app.utils.DurationConverter;
 import com.ecinema.app.domain.enums.MovieCategory;
@@ -10,6 +11,7 @@ import lombok.ToString;
 
 import javax.persistence.*;
 import java.time.LocalDate;
+import java.time.Month;
 import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.Set;
@@ -21,7 +23,7 @@ import java.util.Set;
 @Setter
 @Entity
 @ToString
-public class Movie extends AbstractEntity {
+public class Movie extends AbstractEntity implements IMovie {
 
     @Column
     private String title;
@@ -69,5 +71,30 @@ public class Movie extends AbstractEntity {
     @ToString.Exclude
     @OneToMany(mappedBy = "movie", cascade = CascadeType.PERSIST, fetch = FetchType.LAZY)
     private Set<Screening> screenings = new HashSet<>();
+
+    @Override
+    public Integer getHours() {
+        return duration.getHours();
+    }
+
+    @Override
+    public Integer getMinutes() {
+        return duration.getMinutes();
+    }
+
+    @Override
+    public Integer getReleaseYear() {
+        return releaseDate.getYear();
+    }
+
+    @Override
+    public Integer getReleaseDay() {
+        return releaseDate.getDayOfMonth();
+    }
+
+    @Override
+    public Month getReleaseMonth() {
+        return releaseDate.getMonth();
+    }
 
 }

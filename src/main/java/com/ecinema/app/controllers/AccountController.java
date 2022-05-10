@@ -18,9 +18,8 @@ public class AccountController {
     public String navigateToAccount(final RedirectAttributes redirectAttributes) {
         UserDto userDto = securityService.findLoggedInUserDTO();
         if (userDto == null) {
-            redirectAttributes.addFlashAttribute(
-                    "failed", "Must be logged in to access account page");
-            return "redirect:/login";
+            redirectAttributes.addFlashAttribute("error", "FATAL ERROR: Forced to logout");
+            return "redirect:/logout";
         }
         if (userDto.getUserRoles().contains(UserRole.ADMIN)) {
             return "redirect:/admin";
@@ -29,8 +28,7 @@ public class AccountController {
         } else if (userDto.getUserRoles().contains(UserRole.CUSTOMER)) {
             return "redirect:/customer";
         } else {
-            redirectAttributes.addAttribute(
-                    "failed", "No privileges assigned to account");
+            redirectAttributes.addAttribute("error", "No privileges assigned to account");
             return "redirect:/error";
         }
     }

@@ -79,8 +79,8 @@ public class ShowroomServiceImpl extends AbstractServiceImpl<Showroom, ShowroomR
         save(showroom);
         logger.debug("Instantiated and saved showroom " + showroom);
         for (int i = 0; i < showroomForm.getNumberOfRows(); i++) {
-            for (int j = 0; j < showroomForm.getNumberOfSeatsPerRow(); j++) {
-                Letter rowLetter = Letter.values()[i];
+            Letter rowLetter = Letter.values()[i];
+            for (int j = 1; j <= showroomForm.getNumberOfSeatsPerRow(); j++) {
                 ShowroomSeat showroomSeat = new ShowroomSeat();
                 showroomSeat.setRowLetter(rowLetter);
                 showroomSeat.setSeatNumber(j);

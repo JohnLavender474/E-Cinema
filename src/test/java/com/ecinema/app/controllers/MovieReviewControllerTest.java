@@ -91,10 +91,9 @@ class MovieReviewControllerTest {
         List<ReviewDto> reviews = new ArrayList<>(Collections.nCopies(10, new ReviewDto()));
         given(reviewService.findPageByMovieId(1L, PageRequest.of(0, 6)))
                 .willReturn(UtilMethods.convertListToPage(reviews, PageRequest.of(0, 6)));
-        mockMvc
-                .perform(get("/movie-reviews/" + 1L))
-                .andExpect(status().isOk())
-                .andExpect(result -> model().attributeExists("reviews"));
+        mockMvc.perform(get("/movie-reviews/" + 1L))
+               .andExpect(status().isOk())
+               .andExpect(result -> model().attributeExists("reviews"));
     }
 
     @Test
@@ -107,11 +106,10 @@ class MovieReviewControllerTest {
         given(securityService.findLoggedInUserDTO()).willReturn(userDto);
         given(movieService.findDtoById(anyLong())).willReturn(Optional.of(new MovieDto()));
         given(reviewService.existsByUserIdAndMovieId(1L, 2L)).willReturn(false);
-        mockMvc
-                .perform(get("/write-review/" + 2L))
-                .andExpect(status().isOk())
-                .andExpect(result -> model().attributeExists("movie"))
-                .andExpect(result -> model().attributeExists("reviewForm"));
+        mockMvc.perform(get("/write-review/" + 2L))
+               .andExpect(status().isOk())
+               .andExpect(result -> model().attributeExists("movie"))
+               .andExpect(result -> model().attributeExists("reviewForm"));
     }
 
     @Test
@@ -124,11 +122,10 @@ class MovieReviewControllerTest {
         given(securityService.findLoggedInUserDTO()).willReturn(userDto);
         given(movieService.findDtoById(anyLong())).willReturn(Optional.of(new MovieDto()));
         given(reviewService.existsByUserIdAndMovieId(1L, 2L)).willReturn(false);
-        mockMvc
-                .perform(get("/write-review/" + 2L))
-                .andExpect(status().isOk())
-                .andExpect(result -> model().attributeExists("movie"))
-                .andExpect(result -> model().attributeExists("reviewForm"));
+        mockMvc.perform(get("/write-review/" + 2L))
+               .andExpect(status().isOk())
+               .andExpect(result -> model().attributeExists("movie"))
+               .andExpect(result -> model().attributeExists("reviewForm"));
     }
 
     @Test
@@ -165,8 +162,7 @@ class MovieReviewControllerTest {
         reviewForm.setMovieId(2L);
         reviewForm.setRating(10);
         reviewForm.setReview("This movie is absolutely garbage, jeez why did I ever pay to see this?!");
-        mockMvc
-                .perform(post(("/write-review"))
+        mockMvc.perform(post(("/write-review"))
                                  .flashAttr("reviewForm", reviewForm))
                 .andExpect(result -> model().attributeExists("success"))
                 .andExpect(redirectedUrl("/movie-reviews/" + reviewForm.getMovieId()));
@@ -190,8 +186,7 @@ class MovieReviewControllerTest {
         reviewForm.setMovieId(2L);
         reviewForm.setRating(10);
         reviewForm.setReview("This movie is absolutely garbage, jeez why did I ever pay to see this?!");
-        mockMvc
-                .perform(post(("/write-review"))
+        mockMvc.perform(post("/write-review")
                                  .flashAttr("reviewForm", reviewForm))
                 .andExpect(result -> model().attributeExists("success"))
                 .andExpect(redirectedUrl("/movie-reviews/" + reviewForm.getMovieId()));
@@ -201,18 +196,16 @@ class MovieReviewControllerTest {
     @WithMockUser(username = "username", authorities = {"ADMIN", "MODERATOR"})
     void accessDeniedToWriteReview1()
             throws Exception {
-        mockMvc
-                .perform(post("/write-review"))
-                .andExpect(status().isForbidden());
+        mockMvc.perform(post("/write-review"))
+               .andExpect(status().isForbidden());
     }
 
     @Test
     @WithMockUser(username = "username")
     void accessDeniedToWriteReview2()
             throws Exception {
-        mockMvc
-                .perform(post("/write-review"))
-                .andExpect(status().isForbidden());
+        mockMvc.perform(post("/write-review"))
+               .andExpect(status().isForbidden());
     }
 
 }
