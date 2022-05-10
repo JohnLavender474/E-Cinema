@@ -109,7 +109,7 @@ class ReviewRepositoryTest {
             avgRating += rating;
         }
         avgRating /= ratings.size();
-        Integer controlAvgRating = (int) Math.round(avgRating);
+        Integer controlAvgRating = (int) Math.floor(avgRating);
         // when
         Integer testAvgRating = reviewRepository.findAverageOfReviewRatingsForMovie(movie);
         // then

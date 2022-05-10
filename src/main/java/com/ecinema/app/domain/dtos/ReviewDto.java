@@ -1,6 +1,7 @@
 package com.ecinema.app.domain.dtos;
 
 import com.ecinema.app.domain.contracts.IReview;
+import com.ecinema.app.utils.UtilMethods;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -23,22 +24,7 @@ public class ReviewDto implements AbstractDto, IReview {
     private LocalDateTime creationDateTime;
 
     public String creationDateTimeFormatted() {
-        StringBuilder sb = new StringBuilder();
-        sb.append(creationDateTime.getMonth()).append(" ")
-          .append(creationDateTime.getDayOfMonth()).append(", ")
-          .append(creationDateTime.getYear()).append(", ");
-        String append = "am";
-        int hour = creationDateTime.getHour();
-        if (hour >= 12) {
-            append = "pm";
-        }
-        if (hour > 12) {
-            hour -= 12;
-        } else if (hour == 0) {
-            hour = 12;
-        }
-        sb.append(hour).append(":").append(creationDateTime.getMinute()).append(append);
-        return sb.toString();
+        return UtilMethods.localDateTimeFormatted(creationDateTime);
     }
 
 }

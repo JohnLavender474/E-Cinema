@@ -57,6 +57,22 @@ public class ShowroomServiceImpl extends AbstractServiceImpl<Showroom, ShowroomR
     }
 
     @Override
+    public void onDeleteInfo(Long id, Collection<String> info)
+            throws NoEntityFoundException {
+        Showroom showroom = findById(id).orElseThrow(
+                () -> new NoEntityFoundException("showroom", "id", id));
+        onDeleteInfo(showroom, info);
+    }
+
+    @Override
+    public void onDeleteInfo(Showroom showroom, Collection<String> info) {
+        showroom.getShowroomSeats().forEach(
+                showroomSeat -> showroomSeatService.onDeleteInfo(showroomSeat, info));
+        showroom.getScreenings().forEach(
+                screening -> screeningService.onDeleteInfo(screening, info));
+    }
+
+    @Override
     public Map<Letter, Set<ShowroomSeatDto>> findShowroomSeatMapByShowroomWithId(Long showroomId) {
         return showroomSeatService.findShowroomSeatMapByShowroomWithId(showroomId);
     }

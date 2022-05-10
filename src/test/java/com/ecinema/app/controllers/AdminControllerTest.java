@@ -15,7 +15,6 @@ import com.ecinema.app.services.SecurityService;
 import com.ecinema.app.services.UserService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
@@ -153,7 +152,7 @@ class AdminControllerTest {
         movieForm.setId(1L);
         doNothing().when(movieValidator).validate(any(IMovie.class), anyCollection());
         given(movieService.findById(1L)).willReturn(Optional.of(new Movie()));
-        mockMvc.perform(post("/edit-movie")
+        mockMvc.perform(post("/edit-movie/" + 1L)
                                 .flashAttr("movieForm", movieForm))
                .andExpect(result -> model().attributeExists("success"))
                .andExpect(redirectedUrl("/edit-movie-search"));
@@ -166,7 +165,7 @@ class AdminControllerTest {
         MovieForm movieForm = new MovieForm();
         doThrow(InvalidArgsException.class).when(movieService)
                                            .submitMovieForm(movieForm);
-        mockMvc.perform(post("/edit-movie")
+        mockMvc.perform(post("/edit-movie/" + 1L)
                                 .flashAttr("movieForm", movieForm))
                .andExpect(view().name("edit-movie"))
                .andExpect(result -> model().attributeExists("errors"));

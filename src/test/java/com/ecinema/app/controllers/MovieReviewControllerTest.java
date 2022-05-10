@@ -162,7 +162,7 @@ class MovieReviewControllerTest {
         reviewForm.setMovieId(2L);
         reviewForm.setRating(10);
         reviewForm.setReview("This movie is absolutely garbage, jeez why did I ever pay to see this?!");
-        mockMvc.perform(post(("/write-review"))
+        mockMvc.perform(post(("/write-review/" + 2L))
                                  .flashAttr("reviewForm", reviewForm))
                 .andExpect(result -> model().attributeExists("success"))
                 .andExpect(redirectedUrl("/movie-reviews/" + reviewForm.getMovieId()));
@@ -186,7 +186,7 @@ class MovieReviewControllerTest {
         reviewForm.setMovieId(2L);
         reviewForm.setRating(10);
         reviewForm.setReview("This movie is absolutely garbage, jeez why did I ever pay to see this?!");
-        mockMvc.perform(post("/write-review")
+        mockMvc.perform(post("/write-review/" + 2L)
                                  .flashAttr("reviewForm", reviewForm))
                 .andExpect(result -> model().attributeExists("success"))
                 .andExpect(redirectedUrl("/movie-reviews/" + reviewForm.getMovieId()));

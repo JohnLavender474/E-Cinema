@@ -5,9 +5,10 @@ import com.ecinema.app.domain.entities.AdminRoleDef;
 import com.ecinema.app.exceptions.NoEntityFoundException;
 import com.ecinema.app.repositories.AdminRoleDefRepository;
 import com.ecinema.app.services.AdminRoleDefService;
-import com.ecinema.app.utils.UtilMethods;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.Collection;
 
 /**
  * The type Admin role def service.
@@ -36,5 +37,12 @@ public class AdminRoleDefServiceImpl extends UserRoleDefServiceImpl<AdminRoleDef
         logger.debug("Converted " + adminRoleDef + " to DTO: " + adminRoleDefDto);
         return adminRoleDefDto;
     }
+
+    @Override
+    public void onDeleteInfo(Long id, Collection<String> info)
+            throws NoEntityFoundException {}
+
+    @Override
+    public void onDeleteInfo(AdminRoleDef adminRoleDef, Collection<String> info) {}
 
 }

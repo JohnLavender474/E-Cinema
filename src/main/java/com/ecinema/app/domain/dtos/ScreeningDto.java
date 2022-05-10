@@ -2,6 +2,7 @@ package com.ecinema.app.domain.dtos;
 
 import com.ecinema.app.domain.contracts.IScreening;
 import com.ecinema.app.domain.enums.Letter;
+import com.ecinema.app.utils.UtilMethods;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -27,11 +28,11 @@ public class ScreeningDto implements AbstractDto, IScreening {
     private LocalDateTime endtime;
 
     public String showtimeFormatted() {
-        return showtime != null ? showtime.format(DateTimeFormatter.RFC_1123_DATE_TIME) : null;
+        return UtilMethods.localDateTimeFormatted(showtime);
     }
 
     public String endtimeFormatted() {
-        return endtime != null ? endtime.format(DateTimeFormatter.RFC_1123_DATE_TIME) : null;
+        return UtilMethods.localDateTimeFormatted(endtime);
     }
 
 }

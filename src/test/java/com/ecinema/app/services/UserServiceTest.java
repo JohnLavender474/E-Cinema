@@ -1,6 +1,7 @@
 package com.ecinema.app.services;
 
 import com.ecinema.app.domain.entities.*;
+import com.ecinema.app.domain.enums.Letter;
 import com.ecinema.app.repositories.*;
 import com.ecinema.app.services.implementations.*;
 import com.ecinema.app.utils.UtilMethods;
@@ -184,7 +185,6 @@ class UserServiceTest {
                      () -> userService.addUserRoleDefToUser(user, UserRole.CUSTOMER));
     }
 
-
     /**
      * Delete user and cascade.
      */
@@ -258,6 +258,11 @@ class UserServiceTest {
         assertEquals(user.getFirstName(), userDto.getFirstName());
         assertEquals(user.getLastName(), userDto.getLastName());
         assertTrue(userDto.getUserRoles().contains(UserRole.CUSTOMER));
+    }
+
+    @Test
+    void onDeleteInfo() {
+
     }
 
 }

@@ -41,6 +41,40 @@ public class UtilMethods {
         return ThreadLocalRandom.current().nextInt(min, max + 1);
     }
 
+    /**
+     * Local date time formatted string.
+     *
+     * @param localDateTime the local date time
+     * @return the string
+     */
+    public static String localDateTimeFormatted(LocalDateTime localDateTime) {
+        if (localDateTime == null) {
+            return null;
+        }
+        StringBuilder sb = new StringBuilder();
+        sb.append(localDateTime.getMonth()).append(" ")
+          .append(localDateTime.getDayOfMonth()).append(", ")
+          .append(localDateTime.getYear()).append(", ");
+        String append = "am";
+        int hour = localDateTime.getHour();
+        if (hour >= 12) {
+            append = "pm";
+        }
+        if (hour > 12) {
+            hour -= 12;
+        } else if (hour == 0) {
+            hour = 12;
+        }
+        sb.append(hour).append(":").append(localDateTime.getMinute()).append(append);
+        return sb.toString();
+    }
+
+    /**
+     * Add page numbers attribute.
+     *
+     * @param model the model
+     * @param page  the page
+     */
     public static void addPageNumbersAttribute(Model model, Page<?> page) {
         int totalPages = page.getTotalPages();
         model.addAttribute("totalPages", totalPages);

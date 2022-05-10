@@ -20,10 +20,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -63,6 +60,20 @@ public class MovieServiceImpl extends AbstractServiceImpl<Movie, MovieRepository
         // cascade delete Screenings
         logger.debug("Deleting all associated screenings");
         screeningService.deleteAll(movie.getScreenings());
+    }
+
+    @Override
+    public void onDeleteInfo(Long id, Collection<String> info)
+            throws NoEntityFoundException {
+        Movie movie = findById(id).orElseThrow(
+                () -> new NoEntityFoundException("movie", "id", id));
+        onDeleteInfo(movie, info);
+    }
+
+    @Override
+    public void onDeleteInfo(Movie movie, Collection<String> info) {
+        movie.getReviews().forEach(review -> reviewService.onDeleteInfo(review, info));
+        movie.getScreenings().forEach(screening -> screeningService.onDeleteInfo(screening, info));
     }
 
     @Override

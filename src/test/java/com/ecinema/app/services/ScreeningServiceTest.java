@@ -84,11 +84,14 @@ class ScreeningServiceTest {
         movieService.save(movie);
         Showroom showroom = new Showroom();
         showroom.setId(1L);
+        showroom.setShowroomLetter(Letter.A);
         showroom.getScreenings().add(screening);
         screening.setShowroom(showroom);
         showroomService.save(showroom);
         ShowroomSeat showroomSeat = new ShowroomSeat();
         showroomSeat.setId(1L);
+        showroomSeat.setRowLetter(Letter.A);
+        showroomSeat.setSeatNumber(1);
         showroomSeat.setShowroom(showroom);
         showroom.getShowroomSeats().add(showroomSeat);
         showroomSeatService.save(showroomSeat);
@@ -151,10 +154,10 @@ class ScreeningServiceTest {
         showroomService.save(showroom);
         ShowroomSeat showroomSeat = new ShowroomSeat();
         showroomSeat.setId(3L);
-        showroomSeat.setShowroom(showroom);
-        showroom.getShowroomSeats().add(showroomSeat);
         showroomSeat.setRowLetter(Letter.C);
         showroomSeat.setSeatNumber(14);
+        showroomSeat.setShowroom(showroom);
+        showroom.getShowroomSeats().add(showroomSeat);
         given(showroomSeatRepository.findById(3L))
                 .willReturn(Optional.of(showroomSeat));
         Screening screening = new Screening();
@@ -198,12 +201,15 @@ class ScreeningServiceTest {
                 .willReturn(movie);
         movieService.save(movie);
         Showroom showroom = new Showroom();
+        showroom.setShowroomLetter(Letter.A);
         showroom.setId(2L);
         given(showroomRepository.save(showroom))
                 .willReturn(showroom);
         showroomService.save(showroom);
         for (int i = 0; i < 5; i++) {
             ShowroomSeat showroomSeat = new ShowroomSeat();
+            showroomSeat.setRowLetter(Letter.A);
+            showroomSeat.setSeatNumber(i);
             showroomSeat.setShowroom(showroom);
             showroom.getShowroomSeats().add(showroomSeat);
             given(showroomSeatRepository.save(showroomSeat))

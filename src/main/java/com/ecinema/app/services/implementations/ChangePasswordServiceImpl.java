@@ -52,6 +52,13 @@ public class ChangePasswordServiceImpl extends AbstractServiceImpl<ChangePasswor
     protected void onDelete(ChangePassword entity) {}
 
     @Override
+    public void onDeleteInfo(Long id, Collection<String> info)
+            throws NoEntityFoundException {}
+
+    @Override
+    public void onDeleteInfo(ChangePassword entity, Collection<String> info) {}
+
+    @Override
     public void submitChangePasswordForm(ChangePasswordForm changePasswordForm)
             throws NoEntityFoundException, InvalidArgsException, EmailException {
         logger.debug(UtilMethods.getDelimiterLine());

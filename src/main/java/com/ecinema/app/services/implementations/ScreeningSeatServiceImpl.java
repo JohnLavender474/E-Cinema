@@ -66,6 +66,22 @@ public class ScreeningSeatServiceImpl extends AbstractServiceImpl<ScreeningSeat,
     }
 
     @Override
+    public void onDeleteInfo(Long id, Collection<String> info)
+            throws NoEntityFoundException {
+        ScreeningSeat screeningSeat = findById(id).orElseThrow(
+                () -> new NoEntityFoundException("screening seat", "id", id));
+        onDeleteInfo(screeningSeat, info);
+    }
+
+    @Override
+    public void onDeleteInfo(ScreeningSeat screeningSeat, Collection<String> info) {
+        if (screeningSeat.getTicket() != null) {
+            ticketService.onDeleteInfo(screeningSeat.getTicket(), info);
+        }
+        info.add(screeningSeat + " will be deleted from " + screeningSeat.getScreening());
+    }
+
+    @Override
     public Map<Letter, Set<ScreeningSeatDto>> findScreeningSeatMapByScreeningWithId(Long screeningId)
             throws InvalidAssociationException {
         List<ScreeningSeatDto> screeningSeatDtos = findAllByScreeningWithId(screeningId);

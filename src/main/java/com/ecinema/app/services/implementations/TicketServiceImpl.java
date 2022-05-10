@@ -17,6 +17,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
@@ -72,6 +73,21 @@ public class TicketServiceImpl extends AbstractServiceImpl<Ticket, TicketReposit
             coupon.setTicket(null);
             couponIterator.remove();
         }
+    }
+
+    @Override
+    public void onDeleteInfo(Long id, Collection<String> info)
+            throws NoEntityFoundException {
+        Ticket ticket = findById(id).orElseThrow(
+                () -> new NoEntityFoundException("ticket","id", id));
+        onDeleteInfo(ticket, info);
+    }
+
+    @Override
+    public void onDeleteInfo(Ticket ticket, Collection<String> info) {
+        info.add(ticket + " will be detached from " + ticket.getScreeningSeat());
+        info.add(ticket + " will be detached from " + ticket.getCustomerRoleDef());
+        ticket.getCoupons().forEach(coupon -> info.add(ticket + " will be detached from " + coupon));
     }
 
     @Override

@@ -6,7 +6,6 @@ import com.ecinema.app.domain.entities.CustomerRoleDef;
 import com.ecinema.app.domain.entities.Ticket;
 import com.ecinema.app.domain.entities.User;
 import com.ecinema.app.domain.enums.UserRole;
-import com.ecinema.app.exceptions.FatalErrorException;
 import com.ecinema.app.exceptions.InvalidAssociationException;
 import com.ecinema.app.exceptions.NoEntityFoundException;
 import com.ecinema.app.repositories.CouponRepository;
@@ -19,6 +18,7 @@ import com.ecinema.app.utils.UtilMethods;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Collection;
 import java.util.List;
 
 @Service
@@ -52,6 +52,23 @@ public class CouponServiceImpl extends AbstractServiceImpl<Coupon, CouponReposit
         if (ticket != null) {
             ticket.getCoupons().remove(coupon);
             coupon.setTicket(null);
+        }
+    }
+
+    @Override
+    public void onDeleteInfo(Long id, Collection<String> info)
+            throws NoEntityFoundException {
+        Coupon coupon = findById(id).orElseThrow(
+                () -> new NoEntityFoundException("coupon", "id", id));
+        onDeleteInfo(coupon, info);
+    }
+
+    @Override
+    public void onDeleteInfo(Coupon coupon, Collection<String> info) {
+        String username = coupon.getCustomerRoleDef().getUser().getUsername();
+        info.add(username + " will lose coupon: " + coupon.getCouponType() + ", " + coupon.getDiscountType());
+        if (coupon.getTicket() != null) {
+            info.add(coupon.getTicket() + " will lose coupon");
         }
     }
 

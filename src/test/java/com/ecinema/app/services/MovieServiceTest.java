@@ -7,6 +7,7 @@ import com.ecinema.app.domain.enums.MovieCategory;
 import com.ecinema.app.domain.enums.MsrbRating;
 import com.ecinema.app.domain.enums.UserRole;
 import com.ecinema.app.domain.forms.ReviewForm;
+import com.ecinema.app.domain.forms.ShowroomForm;
 import com.ecinema.app.repositories.*;
 import com.ecinema.app.services.implementations.*;
 import com.ecinema.app.utils.*;
@@ -19,6 +20,8 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -33,6 +36,8 @@ import static org.mockito.BDDMockito.given;
  */
 @ExtendWith(MockitoExtension.class)
 class MovieServiceTest {
+
+    private final Logger logger = LoggerFactory.getLogger(MovieServiceTest.class);
 
     private MovieService movieService;
     private ReviewService reviewService;
@@ -283,6 +288,56 @@ class MovieServiceTest {
         assertEquals(reviewForm.getRating(), review.getRating());
         assertEquals(customerRoleDef, review.getWriter());
         assertEquals(user, review.getWriter().getUser());
+    }
+
+    @Test
+    void onDeleteInfo() {
+        // given
+        Movie movie = new Movie();
+        movie.setTitle("Test Movie");
+        movieService.save(movie);
+        Showroom showroom = new Showroom();
+        showroom.setShowroomLetter(Letter.A);
+        showroomService.save(showroom);
+        ShowroomSeat showroomSeat = new ShowroomSeat();
+        showroomSeat.setRowLetter(Letter.A);
+        showroomSeat.setSeatNumber(1);
+        showroomSeatService.save(showroomSeat);
+        Screening screening = new Screening();
+        screening.setMovie(movie);
+        movie.getScreenings().add(screening);
+        screening.setShowroom(showroom);
+        showroom.getScreenings().add(screening);
+        screeningService.save(screening);
+        ScreeningSeat screeningSeat = new ScreeningSeat();
+        screeningSeat.setScreening(screening);
+        screening.getScreeningSeats().add(screeningSeat);
+        screeningSeat.setShowroomSeat(showroomSeat);
+        showroomSeat.getScreeningSeats().add(screeningSeat);
+        screeningSeatService.save(screeningSeat);
+        User user = new User();
+        user.setId(1L);
+        given(userRepository.findById(1L)).willReturn(Optional.of(user));
+        userService.save(user);
+        userService.addUserRoleDefToUser(user, UserRole.CUSTOMER);
+        CustomerRoleDef customerRoleDef = (CustomerRoleDef) user.getUserRoleDefs().get(UserRole.CUSTOMER);
+        Ticket ticket = new Ticket();
+        ticket.setScreeningSeat(screeningSeat);
+        screeningSeat.setTicket(ticket);
+        ticket.setCustomerRoleDef(customerRoleDef);
+        customerRoleDef.getTickets().add(ticket);
+        ticketService.save(ticket);
+        Coupon coupon = new Coupon();
+        coupon.setCustomerRoleDef(customerRoleDef);
+        customerRoleDef.getCoupons().add(coupon);
+        coupon.setTicket(ticket);
+        ticket.getCoupons().add(coupon);
+        couponService.save(coupon);
+        // when
+        List<String> info = new ArrayList<>();
+        movieService.onDeleteInfo(movie, info);
+        // then look at logger debug messages
+        info.forEach(logger::debug);
     }
 
 }

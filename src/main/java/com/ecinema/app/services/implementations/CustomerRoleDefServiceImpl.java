@@ -5,13 +5,10 @@ import com.ecinema.app.domain.entities.*;
 import com.ecinema.app.exceptions.NoEntityFoundException;
 import com.ecinema.app.repositories.CustomerRoleDefRepository;
 import com.ecinema.app.services.*;
-import com.ecinema.app.utils.UtilMethods;
-import org.hibernate.boot.archive.internal.ExplodedArchiveDescriptor;
-import org.modelmapper.internal.asm.tree.ModuleExportNode;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Optional;
+import java.util.Collection;
 
 @Service
 @Transactional
@@ -57,6 +54,22 @@ public class CustomerRoleDefServiceImpl extends UserRoleDefServiceImpl<CustomerR
             customerRoleDef.setCensoredBy(null);
             moderatorRoleDef.getCensoredCustomers().remove(customerRoleDef);
         }
+    }
+
+    @Override
+    public void onDeleteInfo(Long id, Collection<String> info)
+            throws NoEntityFoundException {
+        CustomerRoleDef customerRoleDef = findById(id).orElseThrow(
+                () -> new NoEntityFoundException("customer role def", "id", id));
+        onDeleteInfo(customerRoleDef, info);
+    }
+
+    @Override
+    public void onDeleteInfo(CustomerRoleDef customerRoleDef, Collection<String> info) {
+        super.onDeleteInfo(customerRoleDef, info);
+        customerRoleDef.getReviews().forEach(review -> reviewService.onDeleteInfo(review, info));
+        customerRoleDef.getTickets().forEach(ticket -> ticketService.onDeleteInfo(ticket, info));
+        customerRoleDef.getCoupons().forEach(coupon -> couponService.onDeleteInfo(coupon, info));
     }
 
     @Override

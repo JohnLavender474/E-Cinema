@@ -17,6 +17,23 @@ import java.util.Optional;
 public interface AbstractService<E extends AbstractEntity> {
 
     /**
+     * On delete info list.
+     *
+     * @param id   the id
+     * @param info the info
+     * @throws NoEntityFoundException the no entity found exception
+     */
+    void onDeleteInfo(Long id, Collection<String> info)
+            throws NoEntityFoundException;
+
+    /**
+     * On delete info.
+     *  @param entity the entity
+     * @param info   the info
+     */
+    void onDeleteInfo(E entity, Collection<String> info);
+
+    /**
      * Find by id optional.
      *
      * @param id the id
@@ -124,6 +141,7 @@ public interface AbstractService<E extends AbstractEntity> {
      * Save flush and get id.
      *
      * @param entity the entity
+     * @return the long
      */
     Long saveFlushAndGetId(E entity);
 
@@ -138,6 +156,7 @@ public interface AbstractService<E extends AbstractEntity> {
      * Save flush all and get ids.
      *
      * @param entities the entities
+     * @return the list
      */
     List<Long> saveFlushAllAndGetIds(Iterable<E> entities);
 

@@ -1,6 +1,7 @@
 package com.ecinema.app.repositories;
 
 import com.ecinema.app.domain.entities.*;
+import com.ecinema.app.domain.enums.Letter;
 import com.ecinema.app.utils.UtilMethods;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -131,6 +132,7 @@ class ScreeningRepositoryTest {
     void findAllByShowroom() {
         // given
         Showroom showroom = new Showroom();
+        showroom.setShowroomLetter(Letter.A);
         showroomRepository.save(showroom);
         Screening screening = new Screening();
         screening.setShowroom(showroom);

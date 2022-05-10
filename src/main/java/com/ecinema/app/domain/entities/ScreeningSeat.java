@@ -11,6 +11,7 @@ import javax.persistence.*;
 @Getter
 @Setter
 @Entity
+@ToString
 public class ScreeningSeat extends AbstractEntity implements ISeat {
 
     @JoinColumn
@@ -34,9 +35,8 @@ public class ScreeningSeat extends AbstractEntity implements ISeat {
         return showroomSeat != null ? showroomSeat.getSeatNumber() : null;
     }
 
-    @Override
-    public String toString() {
-        return screening.toString() + ": " + getRowLetter() + "-" + getSeatNumber();
+    public boolean isBooked() {
+        return ticket != null;
     }
 
 }

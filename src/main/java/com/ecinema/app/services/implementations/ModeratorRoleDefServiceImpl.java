@@ -11,6 +11,7 @@ import com.ecinema.app.utils.UtilMethods;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Collection;
 import java.util.Iterator;
 
 @Service
@@ -38,6 +39,22 @@ public class ModeratorRoleDefServiceImpl extends UserRoleDefServiceImpl<Moderato
             customerRoleDef.setCensoredBy(null);
             customerRoleDefIterator.remove();
         }
+    }
+
+    @Override
+    public void onDeleteInfo(Long id, Collection<String> info)
+            throws NoEntityFoundException {
+        ModeratorRoleDef moderatorRoleDef = findById(id).orElseThrow(
+                () -> new NoEntityFoundException("moderator role def", "id", id));
+        onDeleteInfo(moderatorRoleDef, info);
+    }
+
+    @Override
+    public void onDeleteInfo(ModeratorRoleDef moderatorRoleDef, Collection<String> info) {
+        moderatorRoleDef.getCensoredCustomers().forEach(customerRoleDef -> {
+            String username = customerRoleDef.getUser().getUsername();
+            info.add(username + " will be uncensored when the moderator role def is deleted");
+        });
     }
 
     @Override

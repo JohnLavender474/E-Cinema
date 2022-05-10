@@ -26,6 +26,14 @@ import java.util.Set;
 public interface ScreeningService extends AbstractService<Screening>, EntityDtoConverter<Screening, ScreeningDto> {
 
     /**
+     * Find number of tickets booked integer.
+     *
+     * @param screening the screening
+     * @return the integer
+     */
+    int findNumberOfTicketsBooked(Screening screening);
+
+    /**
      * Find screening seat map by screening with id map.
      *
      * @param screeningId the screening id

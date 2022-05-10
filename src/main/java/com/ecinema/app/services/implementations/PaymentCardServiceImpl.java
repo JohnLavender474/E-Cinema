@@ -10,11 +10,11 @@ import com.ecinema.app.repositories.CustomerRoleDefRepository;
 import com.ecinema.app.repositories.PaymentCardRepository;
 import com.ecinema.app.services.PaymentCardService;
 import com.ecinema.app.utils.UtilMethods;
-import org.hibernate.boot.archive.internal.ExplodedArchiveDescriptor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 @Service
@@ -44,6 +44,20 @@ public class PaymentCardServiceImpl extends AbstractServiceImpl<PaymentCard,
             customerRoleDef.getPaymentCards().remove(paymentCard);
             paymentCard.setCustomerRoleDef(null);
         }
+    }
+
+    @Override
+    public void onDeleteInfo(Long id, Collection<String> info)
+            throws NoEntityFoundException {
+        PaymentCard paymentCard = findById(id).orElseThrow(
+                () -> new NoEntityFoundException("payment card", "id", id));
+        onDeleteInfo(paymentCard, info);
+    }
+
+    @Override
+    public void onDeleteInfo(PaymentCard paymentCard, Collection<String> info) {
+        String username = paymentCard.getCustomerRoleDef().getUser().getUsername();
+        info.add(username + " will lose " + paymentCard.getPaymentCardType() + " on delete");
     }
 
     @Override

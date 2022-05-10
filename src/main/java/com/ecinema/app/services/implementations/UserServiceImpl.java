@@ -53,7 +53,6 @@ public class UserServiceImpl extends AbstractServiceImpl<User, UserRepository> i
         userRoleDefServices.put(UserRole.CUSTOMER, customerRoleDefService);
         userRoleDefServices.put(UserRole.MODERATOR, moderatorRoleDefService);
         userRoleDefServices.put(UserRole.ADMIN, adminRoleDefService);
-
     }
 
     @Override
@@ -67,6 +66,22 @@ public class UserServiceImpl extends AbstractServiceImpl<User, UserRepository> i
             UserRoleDefService<? extends UserRoleDef> userRoleDefService = userRoleDefServices.get(userRole);
             userRoleDefService.delete(userRole.castToDefType(user.getUserRoleDefs().get(userRole)));
         }
+    }
+
+    @Override
+    public void onDeleteInfo(Long id, Collection<String> info)
+            throws NoEntityFoundException {
+        User user = findById(id).orElseThrow(
+                () -> new NoEntityFoundException("user", "id", id));
+        onDeleteInfo(user, info);
+    }
+
+    @Override
+    public void onDeleteInfo(User user, Collection<String> info) {
+        user.getUserRoleDefs().forEach((userRole, userRoleDef) -> {
+            UserRoleDefService<? extends UserRoleDef> userRoleDefService = userRoleDefServices.get(userRole);
+            userRoleDefService.onDeleteInfo(userRole.castToDefType(userRoleDef), info);
+        });
     }
 
     @Override

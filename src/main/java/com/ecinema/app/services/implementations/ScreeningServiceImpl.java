@@ -77,6 +77,27 @@ public class ScreeningServiceImpl extends AbstractServiceImpl<Screening, Screeni
     }
 
     @Override
+    public void onDeleteInfo(Long id, Collection<String> info)
+            throws NoEntityFoundException {
+        Screening screening = findById(id).orElseThrow(
+                () -> new NoEntityFoundException("screening", "id", id));
+        onDeleteInfo(screening, info);
+    }
+
+    @Override
+    public void onDeleteInfo(Screening screening, Collection<String> info) {
+        info.add(screening.getMovie().getTitle() + " will be detached from " + screening);
+        info.add("Showroom " + screening.getShowroom().getShowroomLetter() + " will be detached from " + screening);
+        screening.getScreeningSeats().forEach(
+                screeningSeat -> screeningSeatService.onDeleteInfo(screeningSeat, info));
+    }
+
+    @Override
+    public int findNumberOfTicketsBooked(Screening screening) {
+        return (int) screening.getScreeningSeats().stream().filter(ScreeningSeat::isBooked).count();
+    }
+
+    @Override
     public Map<Letter, Set<ScreeningSeatDto>> findScreeningSeatMapByScreeningWithId(Long screeningId) {
         return screeningSeatService.findScreeningSeatMapByScreeningWithId(screeningId);
     }

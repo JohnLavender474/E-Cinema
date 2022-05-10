@@ -52,8 +52,11 @@ class ShowroomRepositoryTest {
     void findByShowroomSeatsContains() {
         // given
         Showroom showroom = new Showroom();
+        showroom.setShowroomLetter(Letter.A);
         showroomRepository.save(showroom);
         ShowroomSeat showroomSeat = new ShowroomSeat();
+        showroomSeat.setRowLetter(Letter.A);
+        showroomSeat.setSeatNumber(1);
         showroomSeat.setShowroom(showroom);
         showroom.getShowroomSeats().add(showroomSeat);
         showroomSeatRepository.save(showroomSeat);
@@ -76,6 +79,7 @@ class ShowroomRepositoryTest {
     void findByScreeningsContains() {
         // given
         Showroom showroom = new Showroom();
+        showroom.setShowroomLetter(Letter.A);
         showroomRepository.save(showroom);
         Screening screening = new Screening();
         screening.setShowroom(showroom);

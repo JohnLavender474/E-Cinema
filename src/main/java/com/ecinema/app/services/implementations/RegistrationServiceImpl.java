@@ -13,17 +13,13 @@ import com.ecinema.app.services.RegistrationService;
 import com.ecinema.app.services.UserService;
 import com.ecinema.app.domain.validators.RegistrationValidator;
 import com.ecinema.app.utils.UtilMethods;
-import org.hibernate.boot.archive.internal.ExplodedArchiveDescriptor;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 /**
  * {@inheritDoc}
@@ -44,7 +40,7 @@ public class RegistrationServiceImpl extends AbstractServiceImpl<Registration,
      *
      * @param repository            the repository
      * @param userService           the user service
-     * @param emailService    the email sender service
+     * @param emailService          the email sender service
      * @param passwordEncoder       the password encoder
      * @param registrationValidator the registration form validator
      */
@@ -58,13 +54,15 @@ public class RegistrationServiceImpl extends AbstractServiceImpl<Registration,
         this.registrationValidator = registrationValidator;
     }
 
-    /**
-     * No implementation for this service.
-     *
-     * @param registration the {@link Registration} being deleted.
-     */
     @Override
     protected void onDelete(Registration registration) {}
+
+    @Override
+    public void onDeleteInfo(Long id, Collection<String> info)
+            throws NoEntityFoundException {}
+
+    @Override
+    public void onDeleteInfo(Registration entity, Collection<String> info) {}
 
     @Override
     public Optional<Registration> findByToken(String token) {

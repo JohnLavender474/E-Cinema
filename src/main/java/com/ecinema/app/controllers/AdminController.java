@@ -16,6 +16,9 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * The type Admin controller.
  */
@@ -159,6 +162,8 @@ public class AdminController {
             MovieDto movieDto = movieService.findDtoById(id).orElseThrow(
                     () -> new NoEntityFoundException("movie", "id", id));
             model.addAttribute("movie", movieDto);
+            List<String> info = new ArrayList<>();
+            movieService.onDeleteInfo(id, info);
 
             // TODO: Add all relevant info including screenings, tickets, etc.
             // associated with the movie for admin to adequately evaluate

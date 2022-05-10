@@ -5,6 +5,7 @@ import com.ecinema.app.domain.entities.UserRoleDef;
 import com.ecinema.app.repositories.UserRoleDefRepository;
 import com.ecinema.app.services.UserRoleDefService;
 
+import java.util.Collection;
 import java.util.Optional;
 
 /**
@@ -33,6 +34,12 @@ public abstract class UserRoleDefServiceImpl<T extends UserRoleDef, R extends Us
             user.getUserRoleDefs().remove(userRoleDef.getUserRole());
             userRoleDef.setUser(null);
         }
+    }
+
+    @Override
+    public void onDeleteInfo(T userRoleDef, Collection<String> info) {
+        String username = userRoleDef.getUser().getUsername();
+        info.add(username + " will lose authority: " + userRoleDef.getClass().getSimpleName());
     }
 
     @Override

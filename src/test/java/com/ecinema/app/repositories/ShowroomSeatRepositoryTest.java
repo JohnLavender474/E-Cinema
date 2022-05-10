@@ -33,8 +33,11 @@ class ShowroomSeatRepositoryTest {
     void findAllByShowroom() {
         // given
         Showroom showroom = new Showroom();
+        showroom.setShowroomLetter(Letter.A);
         showroomRepository.save(showroom);
         ShowroomSeat showroomSeat = new ShowroomSeat();
+        showroomSeat.setRowLetter(Letter.A);
+        showroomSeat.setSeatNumber(1);
         showroomSeat.setShowroom(showroom);
         showroom.getShowroomSeats().add(showroomSeat);
         showroomSeatRepository.save(showroomSeat);
@@ -54,12 +57,14 @@ class ShowroomSeatRepositoryTest {
     void findAllByShowroomAndRowLetter() {
         // given
         Showroom showroom = new Showroom();
+        showroom.setShowroomLetter(Letter.A);
         showroomRepository.save(showroom);
         List<ShowroomSeat> showroomSeats = new ArrayList<>();
         for (int i = 0; i < 10; i++) {
             ShowroomSeat showroomSeat = new ShowroomSeat();
             Letter rowLetter = i % 2 == 0 ? Letter.A : Letter.B;
             showroomSeat.setRowLetter(rowLetter);
+            showroomSeat.setSeatNumber(i);
             showroomSeat.setShowroom(showroom);
             showroom.getShowroomSeats().add(showroomSeat);
             showroomSeatRepository.save(showroomSeat);
@@ -86,7 +91,14 @@ class ShowroomSeatRepositoryTest {
     @Test
     void findByScreeningSeatsContains() {
         // given
+        Showroom showroom = new Showroom();
+        showroom.setShowroomLetter(Letter.A);
+        showroomRepository.save(showroom);
         ShowroomSeat showroomSeat = new ShowroomSeat();
+        showroomSeat.setRowLetter(Letter.A);
+        showroomSeat.setSeatNumber(1);
+        showroomSeat.setShowroom(showroom);
+        showroom.getShowroomSeats().add(showroomSeat);
         showroomSeatRepository.save(showroomSeat);
         ScreeningSeat screeningSeat = new ScreeningSeat();
         screeningSeat.setShowroomSeat(showroomSeat);
@@ -108,6 +120,7 @@ class ShowroomSeatRepositoryTest {
     void findByShowroomAndRowLetterAndSeatNumber() {
         // given
         Showroom showroom = new Showroom();
+        showroom.setShowroomLetter(Letter.A);
         showroomRepository.save(showroom);
         ShowroomSeat showroomSeat = new ShowroomSeat();
         showroomSeat.setShowroom(showroom);

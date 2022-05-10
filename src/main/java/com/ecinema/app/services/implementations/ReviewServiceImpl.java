@@ -21,6 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -69,6 +70,19 @@ public class ReviewServiceImpl extends AbstractServiceImpl<Review, ReviewReposit
             movie.getReviews().remove(review);
             review.setMovie(null);
         }
+    }
+
+    @Override
+    public void onDeleteInfo(Long id, Collection<String> info)
+            throws NoEntityFoundException {
+        Review review = findById(id).orElseThrow(
+                () -> new NoEntityFoundException("review", "id", id));
+        onDeleteInfo(review, info);
+    }
+
+    @Override
+    public void onDeleteInfo(Review review, Collection<String> info) {
+        info.add("Review written by " + review.getWriter().getUser().getUsername() + " will be deleted");
     }
 
     @Override

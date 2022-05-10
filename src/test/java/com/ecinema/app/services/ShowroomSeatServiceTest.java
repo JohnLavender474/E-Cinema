@@ -1,14 +1,17 @@
 package com.ecinema.app.services;
 
 import com.ecinema.app.domain.entities.ScreeningSeat;
+import com.ecinema.app.domain.entities.Showroom;
 import com.ecinema.app.domain.entities.ShowroomSeat;
 import com.ecinema.app.domain.entities.Ticket;
+import com.ecinema.app.domain.enums.Letter;
 import com.ecinema.app.repositories.ScreeningSeatRepository;
 import com.ecinema.app.repositories.ShowroomRepository;
 import com.ecinema.app.repositories.ShowroomSeatRepository;
 import com.ecinema.app.repositories.TicketRepository;
 import com.ecinema.app.services.implementations.ScreeningSeatServiceImpl;
 import com.ecinema.app.services.implementations.ShowroomSeatServiceImpl;
+import com.ecinema.app.services.implementations.ShowroomServiceImpl;
 import com.ecinema.app.services.implementations.TicketServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -29,6 +32,7 @@ class ShowroomSeatServiceTest {
     private TicketService ticketService;
     private ScreeningSeatService screeningSeatService;
     private ShowroomSeatService showroomSeatService;
+    private ShowroomService showroomService;
     @Mock
     private TicketRepository ticketRepository;
     @Mock
@@ -46,13 +50,23 @@ class ShowroomSeatServiceTest {
                 screeningSeatRepository, ticketService);
         showroomSeatService = new ShowroomSeatServiceImpl(
                 showroomSeatRepository,screeningSeatService);
+        showroomService = new ShowroomServiceImpl(
+                showroomRepository, showroomSeatService,
+                null, null);
     }
 
     @Test
     void deleteShowroomSeatCascade() {
         // given
+        Showroom showroom = new Showroom();
+        showroom.setShowroomLetter(Letter.A);
+        showroomService.save(showroom);
         ShowroomSeat showroomSeat = new ShowroomSeat();
         showroomSeat.setId(1L);
+        showroomSeat.setRowLetter(Letter.A);
+        showroomSeat.setSeatNumber(1);
+        showroomSeat.setShowroom(showroom);
+        showroom.getShowroomSeats().add(showroomSeat);
         given(showroomSeatRepository.findById(1L))
                 .willReturn(Optional.of(showroomSeat));
         showroomSeatService.save(showroomSeat);

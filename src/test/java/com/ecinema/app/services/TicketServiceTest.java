@@ -1,6 +1,7 @@
 package com.ecinema.app.services;
 
 import com.ecinema.app.domain.entities.*;
+import com.ecinema.app.domain.enums.Letter;
 import com.ecinema.app.domain.enums.TicketStatus;
 import com.ecinema.app.domain.enums.TicketType;
 import com.ecinema.app.domain.enums.UserRole;
@@ -12,6 +13,9 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -23,9 +27,12 @@ import static org.mockito.BDDMockito.given;
 @ExtendWith(MockitoExtension.class)
 class TicketServiceTest {
 
+    private final Logger logger = LoggerFactory.getLogger(TicketServiceTest.class);
+
     private UserService userService;
     private TicketService ticketService;
     private ScreeningService screeningService;
+    private ShowroomSeatService showroomSeatService;
     private ScreeningSeatService screeningSeatService;
     private CustomerRoleDefService customerRoleDefService;
     private ReviewService reviewService;
@@ -37,6 +44,8 @@ class TicketServiceTest {
     private TicketRepository ticketRepository;
     @Mock
     private ScreeningRepository screeningRepository;
+    @Mock
+    private ShowroomSeatRepository showroomSeatRepository;
     @Mock
     private ScreeningSeatRepository screeningSeatRepository;
     @Mock
@@ -59,6 +68,8 @@ class TicketServiceTest {
                 couponRepository, screeningSeatRepository);
         screeningSeatService = new ScreeningSeatServiceImpl(
                 screeningSeatRepository, ticketService);
+        showroomSeatService = new ShowroomSeatServiceImpl(
+                showroomSeatRepository, screeningSeatService);
         screeningService = new ScreeningServiceImpl(
                 screeningRepository, movieRepository,
                 showroomRepository,  screeningSeatService, null);
@@ -67,7 +78,8 @@ class TicketServiceTest {
                 null, null);
         paymentCardService = new PaymentCardServiceImpl(
                 paymentCardRepository, null, null);
-        couponService = new CouponServiceImpl(couponRepository, null, null);
+        couponService = new CouponServiceImpl(
+                couponRepository, null, null);
         customerRoleDefService = new CustomerRoleDefServiceImpl(
                 customerRoleDefRepository, reviewService,
                 ticketService, paymentCardService, couponService);
@@ -173,6 +185,38 @@ class TicketServiceTest {
                                   .stream().findFirst().orElseThrow(
                         IllegalStateException::new);
         assertEquals(ticket, testCoupon.getTicket());
+    }
+
+    @Test
+    void onDeleteInfo() {
+        // given
+        ShowroomSeat showroomSeat = new ShowroomSeat();
+        showroomSeat.setRowLetter(Letter.A);
+        showroomSeat.setSeatNumber(1);
+        showroomSeatService.save(showroomSeat);
+        ScreeningSeat screeningSeat = new ScreeningSeat();
+        screeningSeat.setShowroomSeat(showroomSeat);
+        showroomSeat.getScreeningSeats().add(screeningSeat);
+        screeningSeatService.save(screeningSeat);
+        CustomerRoleDef customerRoleDef = new CustomerRoleDef();
+        customerRoleDefService.save(customerRoleDef);
+        Ticket ticket = new Ticket();
+        ticket.setScreeningSeat(screeningSeat);
+        screeningSeat.setTicket(ticket);
+        ticket.setCustomerRoleDef(customerRoleDef);
+        customerRoleDef.getTickets().add(ticket);
+        ticketService.save(ticket);
+        Coupon coupon = new Coupon();
+        coupon.setTicket(ticket);
+        ticket.getCoupons().add(coupon);
+        coupon.setCustomerRoleDef(customerRoleDef);
+        customerRoleDef.getCoupons().add(coupon);
+        couponService.save(coupon);
+        // when
+        List<String> info = new ArrayList<>();
+        ticketService.onDeleteInfo(ticket, info);
+        // then look at logger messages
+        info.forEach(logger::debug);
     }
 
 }

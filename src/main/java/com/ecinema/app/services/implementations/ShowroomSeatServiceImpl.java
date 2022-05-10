@@ -44,6 +44,20 @@ public class ShowroomSeatServiceImpl extends AbstractServiceImpl<ShowroomSeat, S
     }
 
     @Override
+    public void onDeleteInfo(Long id, Collection<String> info)
+            throws NoEntityFoundException {
+        ShowroomSeat showroomSeat = findById(id).orElseThrow(
+                () -> new NoEntityFoundException("showroom seat", "id", id));
+        onDeleteInfo(showroomSeat, info);
+    }
+
+    @Override
+    public void onDeleteInfo(ShowroomSeat showroomSeat, Collection<String> info) {
+        info.add("Seat" + showroomSeat + " in showroom " +
+                         showroomSeat.getShowroom().getShowroomLetter() + " will be deleted");
+    }
+
+    @Override
     public Map<Letter, Set<ShowroomSeatDto>> findShowroomSeatMapByShowroomWithId(Long showroomId)
             throws InvalidAssociationException {
         List<ShowroomSeatDto> showroomSeatDtos = findAllByShowroomWithId(showroomId);
