@@ -10,8 +10,7 @@ import java.util.Optional;
  * The interface Change password request repository.
  */
 @Repository
-public interface ChangePasswordRepository extends JpaRepository<ChangePassword, Long>,
-                                                  AbstractRepository {
+public interface ChangePasswordRepository extends JpaRepository<ChangePassword, Long>, AbstractRepository {
 
     /**
      * Delete by user id.

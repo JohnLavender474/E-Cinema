@@ -1,6 +1,6 @@
 package com.ecinema.app.domain.entities;
 
-import com.ecinema.app.domain.enums.UserRole;
+import com.ecinema.app.domain.enums.UserAuthority;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -17,7 +17,7 @@ import java.util.Set;
 /**
  * {@inheritDoc}
  * The User class contains the fields relevant for Spring Security and also acts as the "bucket"
- * for instances of {@link UserRoleDef} with one-to-one relationships with User.
+ * for instances of {@link AbstractUserAuthority} with one-to-one relationships with User.
  */
 @Getter
 @Setter
@@ -74,14 +74,16 @@ public class User extends AbstractEntity implements UserDetails {
     private Boolean isCredentialsExpired;
 
     @ToString.Exclude
-    @MapKey(name = "userRole")
+    @MapKey(name = "userAuthority")
     @MapKeyEnumerated(EnumType.ORDINAL)
-    @OneToMany(targetEntity = UserRoleDef.class, mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-    private Map<UserRole, UserRoleDef> userRoleDefs = new EnumMap<>(UserRole.class);
+    @OneToMany(targetEntity = AbstractUserAuthority.class, mappedBy = "user",
+            cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    private Map<UserAuthority, AbstractUserAuthority> userAuthorities =
+            new EnumMap<>(UserAuthority.class);
 
     @Override
-    public Set<UserRole> getAuthorities() {
-        return new HashSet<>(userRoleDefs.keySet());
+    public Set<UserAuthority> getAuthorities() {
+        return new HashSet<>(userAuthorities.keySet());
     }
 
     @Override

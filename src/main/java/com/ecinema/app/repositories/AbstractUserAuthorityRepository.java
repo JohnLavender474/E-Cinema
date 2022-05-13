@@ -1,7 +1,7 @@
 package com.ecinema.app.repositories;
 
 import com.ecinema.app.domain.entities.User;
-import com.ecinema.app.domain.entities.UserRoleDef;
+import com.ecinema.app.domain.entities.AbstractUserAuthority;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.NoRepositoryBean;
@@ -14,7 +14,8 @@ import java.util.Optional;
  * @param <T> the type parameter
  */
 @NoRepositoryBean
-public interface UserRoleDefRepository<T extends UserRoleDef> extends JpaRepository<T, Long>, AbstractRepository {
+public interface AbstractUserAuthorityRepository<T extends AbstractUserAuthority>
+        extends JpaRepository<T, Long>, AbstractRepository {
 
     /**
      * Find by user optional.
@@ -22,7 +23,7 @@ public interface UserRoleDefRepository<T extends UserRoleDef> extends JpaReposit
      * @param user the user
      * @return the optional
      */
-    @Query("SELECT u FROM UserRoleDef u WHERE u.user = ?1")
+    @Query("SELECT u FROM AbstractUserAuthority u WHERE u.user = ?1")
     Optional<T> findByUser(User user);
 
     /**
@@ -31,7 +32,7 @@ public interface UserRoleDefRepository<T extends UserRoleDef> extends JpaReposit
      * @param userId the user id
      * @return the optional
      */
-    @Query("SELECT u FROM UserRoleDef u WHERE u.user.id = ?1")
+    @Query("SELECT u FROM AbstractUserAuthority u WHERE u.user.id = ?1")
     Optional<T> findByUserWithId(Long userId);
 
     /**
@@ -40,7 +41,7 @@ public interface UserRoleDefRepository<T extends UserRoleDef> extends JpaReposit
      * @param user the user
      * @return the optional
      */
-    @Query("SELECT u.id FROM UserRoleDef u WHERE u.user = ?1")
+    @Query("SELECT u.id FROM AbstractUserAuthority u WHERE u.user = ?1")
     Optional<Long> findIdByUser(User user);
 
     /**
@@ -49,7 +50,7 @@ public interface UserRoleDefRepository<T extends UserRoleDef> extends JpaReposit
      * @param userId the user id
      * @return the optional
      */
-    @Query("SELECT u.id FROM UserRoleDef u WHERE u.user.id = ?1")
+    @Query("SELECT u.id FROM AbstractUserAuthority u WHERE u.user.id = ?1")
     Optional<Long> findIdByUserWithId(Long userId);
 
 }

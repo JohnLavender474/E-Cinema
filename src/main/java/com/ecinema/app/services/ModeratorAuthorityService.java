@@ -1,13 +1,13 @@
 package com.ecinema.app.services;
 
-import com.ecinema.app.domain.entities.ModeratorRoleDef;
+import com.ecinema.app.domain.entities.ModeratorAuthority;
 import com.ecinema.app.exceptions.ClashException;
 import com.ecinema.app.exceptions.NoEntityFoundException;
 
 /**
  * The interface Moderator role def service.
  */
-public interface ModeratorRoleDefService extends UserRoleDefService<ModeratorRoleDef> {
+public interface ModeratorAuthorityService extends AbstractUserAuthorityService<ModeratorAuthority> {
 
     /**
      * Censor customer with id.

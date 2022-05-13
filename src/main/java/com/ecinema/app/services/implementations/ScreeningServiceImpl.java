@@ -86,8 +86,9 @@ public class ScreeningServiceImpl extends AbstractServiceImpl<Screening, Screeni
 
     @Override
     public void onDeleteInfo(Screening screening, Collection<String> info) {
-        info.add(screening.getMovie().getTitle() + " will be detached from " + screening);
-        info.add("Showroom " + screening.getShowroom().getShowroomLetter() + " will be detached from " + screening);
+        info.add("Screening at " + UtilMethods.localDateTimeFormatted(screening.getShowDateTime()) +
+                         " in showroom " + screening.getShowroom().getShowroomLetter() +
+                         " for \"" + screening.getMovie().getTitle() + "\" will be deleted");
         screening.getScreeningSeats().forEach(
                 screeningSeat -> screeningSeatService.onDeleteInfo(screeningSeat, info));
     }
@@ -120,27 +121,22 @@ public class ScreeningServiceImpl extends AbstractServiceImpl<Screening, Screeni
                 .findById(screeningForm.getMovieId())
                 .orElseThrow(() -> new NoEntityFoundException(
                         "movie", "movie id", screeningForm.getMovieId()));
-        LocalDateTime showDateTime = LocalDateTime.of(screeningForm.getShowtimeYear(),
-                                                      screeningForm.getShowtimeMonth(),
-                                                      screeningForm.getShowtimeDay(),
-                                                      screeningForm.getShowtimeHour(),
-                                                      screeningForm.getShowtimeMinute());
-        LocalDateTime endDateTime = showDateTime
+        LocalDateTime endDateTime = screeningForm.getShowDateTime()
                 .plusHours(movie.getDuration().getHours())
                 .plusMinutes(movie.getDuration().getMinutes());
         Optional<ScreeningDto> optionalOverlap = findScreeningByShowroomAndInBetweenStartTimeAndEndTime(
-                showroom, showDateTime, endDateTime);
+                showroom, screeningForm.getShowDateTime(), endDateTime);
         if (optionalOverlap.isPresent()) {
             ScreeningDto overlap = optionalOverlap.get();
             throw new ClashException("Screening for " + movie.getTitle() +
                                              " in showroom " + showroom.getShowroomLetter() +
-                                             " at " + showDateTime +
+                                             " at " + screeningForm.getShowDateTime() +
                                              " overlaps screening for " +  overlap.getMovieTitle() +
                                              " in showroom " + overlap.getShowroomLetter() +
-                                             " at " + overlap.getShowtime());
+                                             " at " + overlap.getShowDateTime());
         }
         Screening screening = new Screening();
-        screening.setShowDateTime(showDateTime);
+        screening.setShowDateTime(screeningForm.getShowDateTime());
         screening.setEndDateTime(endDateTime);
         screening.setShowroom(showroom);
         showroom.getScreenings().add(screening);
@@ -162,7 +158,7 @@ public class ScreeningServiceImpl extends AbstractServiceImpl<Screening, Screeni
     @Override
     public ScreeningDto findDtoById(Long screeningId)
             throws NoEntityFoundException {
-        return convertToDto(screeningId);
+        return convertIdToDto(screeningId);
     }
 
     @Override
@@ -241,7 +237,7 @@ public class ScreeningServiceImpl extends AbstractServiceImpl<Screening, Screeni
     }
 
     @Override
-    public ScreeningDto convertToDto(Long id)
+    public ScreeningDto convertIdToDto(Long id)
             throws NoEntityFoundException {
         Screening screening = findById(id).orElseThrow(
                 () -> new NoEntityFoundException("screening", "id", id));
@@ -251,8 +247,8 @@ public class ScreeningServiceImpl extends AbstractServiceImpl<Screening, Screeni
         screeningDTO.setShowroomId(screening.getShowroom().getId());
         screeningDTO.setMovieTitle(screening.getMovie().getTitle());
         screeningDTO.setShowroomLetter(screening.getShowroom().getShowroomLetter());
-        screeningDTO.setShowtime(screening.getShowDateTime());
-        screeningDTO.setEndtime(screening.getEndDateTime());
+        screeningDTO.setShowDateTime(screening.getShowDateTime());
+        screeningDTO.setEndDateTime(screening.getEndDateTime());
         screeningDTO.setTotalSeatsInRoom(screening.getShowroom().getShowroomSeats().size());
         long numberOfSeatsBooked = screening
                 .getScreeningSeats().stream().filter(

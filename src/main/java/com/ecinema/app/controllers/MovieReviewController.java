@@ -3,7 +3,7 @@ package com.ecinema.app.controllers;
 import com.ecinema.app.domain.dtos.MovieDto;
 import com.ecinema.app.domain.dtos.ReviewDto;
 import com.ecinema.app.domain.dtos.UserDto;
-import com.ecinema.app.domain.enums.UserRole;
+import com.ecinema.app.domain.enums.UserAuthority;
 import com.ecinema.app.domain.forms.ReviewForm;
 import com.ecinema.app.exceptions.ClashException;
 import com.ecinema.app.exceptions.NoEntityFoundException;
@@ -40,7 +40,7 @@ public class MovieReviewController {
         try {
             model.addAttribute("movieId", movieId);
             UserDto userDto = securityService.findLoggedInUserDTO();
-            boolean canWriteReview = userDto != null && userDto.getUserRoles().contains(UserRole.CUSTOMER);
+            boolean canWriteReview = userDto != null && userDto.getUserAuthorities().contains(UserAuthority.CUSTOMER);
             model.addAttribute("canWriteReview", canWriteReview);
             PageRequest pageRequest = PageRequest.of(page - 1, 6);
             Page<ReviewDto> pageOfDtos = reviewService.findPageByMovieId(movieId, pageRequest);
@@ -65,7 +65,7 @@ public class MovieReviewController {
             redirectAttributes.addFlashAttribute("error", "Fatal error: Forced to logout");
             return "redirect:/logout";
         }
-        if (!userDto.getUserRoles().contains(UserRole.CUSTOMER)) {
+        if (!userDto.getUserAuthorities().contains(UserAuthority.CUSTOMER)) {
             redirectAttributes.addFlashAttribute(
                     "error", "Cannot access write-review page without customer credentials");
             return "redirect:/error";

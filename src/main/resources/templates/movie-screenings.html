@@ -25,8 +25,8 @@
         <tbody>
         <tr th:each="screening:${screenings}" style="border: red">
             <td th:text="${screening.showroomLetter}"></td>
-            <td th:text="${screening.showtimeFormatted()}"></td>
-            <td th:text="${screening.endtimeFormatted()}"></td>
+            <td th:text="${screening.showDateTimeFormatted()}"></td>
+            <td th:text="${screening.endDateTimeFormatted()}"></td>
             <td th:text="${screening.seatsAvailable} + '/' + ${screening.totalSeatsInRoom}"></td>
             <td>
                 <button class="button">

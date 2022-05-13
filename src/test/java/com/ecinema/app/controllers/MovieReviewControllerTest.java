@@ -5,12 +5,12 @@ import com.ecinema.app.domain.contracts.IReview;
 import com.ecinema.app.domain.dtos.MovieDto;
 import com.ecinema.app.domain.dtos.ReviewDto;
 import com.ecinema.app.domain.dtos.UserDto;
-import com.ecinema.app.domain.entities.CustomerRoleDef;
+import com.ecinema.app.domain.entities.CustomerAuthority;
 import com.ecinema.app.domain.entities.Movie;
-import com.ecinema.app.domain.enums.UserRole;
+import com.ecinema.app.domain.enums.UserAuthority;
 import com.ecinema.app.domain.forms.ReviewForm;
 import com.ecinema.app.domain.validators.ReviewValidator;
-import com.ecinema.app.repositories.CustomerRoleDefRepository;
+import com.ecinema.app.repositories.CustomerAuthorityRepository;
 import com.ecinema.app.repositories.MovieRepository;
 import com.ecinema.app.repositories.ReviewRepository;
 import com.ecinema.app.services.MovieService;
@@ -71,7 +71,7 @@ class MovieReviewControllerTest {
     private ReviewRepository reviewRepository;
 
     @Mock
-    private CustomerRoleDefRepository customerRoleDefRepository;
+    private CustomerAuthorityRepository customerAuthorityRepository;
 
     @MockBean
     InitializationConfig initializationConfig;
@@ -102,7 +102,7 @@ class MovieReviewControllerTest {
             throws Exception {
         UserDto userDto = new UserDto();
         userDto.setId(1L);
-        userDto.getUserRoles().add(UserRole.CUSTOMER);
+        userDto.getUserAuthorities().add(UserAuthority.CUSTOMER);
         given(securityService.findLoggedInUserDTO()).willReturn(userDto);
         given(movieService.findDtoById(anyLong())).willReturn(Optional.of(new MovieDto()));
         given(reviewService.existsByUserIdAndMovieId(1L, 2L)).willReturn(false);
@@ -118,7 +118,7 @@ class MovieReviewControllerTest {
             throws Exception {
         UserDto userDto = new UserDto();
         userDto.setId(1L);
-        userDto.getUserRoles().add(UserRole.CUSTOMER);
+        userDto.getUserAuthorities().add(UserAuthority.CUSTOMER);
         given(securityService.findLoggedInUserDTO()).willReturn(userDto);
         given(movieService.findDtoById(anyLong())).willReturn(Optional.of(new MovieDto()));
         given(reviewService.existsByUserIdAndMovieId(1L, 2L)).willReturn(false);
@@ -148,13 +148,13 @@ class MovieReviewControllerTest {
     @WithMockUser(username = "username", authorities = {"CUSTOMER"})
     void successfullyWriteReview1()
             throws Exception {
-        CustomerRoleDef customerRoleDef = new CustomerRoleDef();
-        given(customerRoleDefRepository.findByUserWithId(1L))
-                .willReturn(Optional.of(customerRoleDef));
+        CustomerAuthority customerAuthority = new CustomerAuthority();
+        given(customerAuthorityRepository.findByUserWithId(1L))
+                .willReturn(Optional.of(customerAuthority));
         Movie movie = new Movie();
         movie.setId(2L);
         given(movieRepository.findById(2L)).willReturn(Optional.of(movie));
-        given(reviewRepository.existsByWriterAndMovie(customerRoleDef, movie))
+        given(reviewRepository.existsByWriterAndMovie(customerAuthority, movie))
                 .willReturn(false);
         doNothing().when(reviewValidator).validate(any(IReview.class), anyCollection());
         ReviewForm reviewForm = new ReviewForm();
@@ -172,13 +172,13 @@ class MovieReviewControllerTest {
     @WithMockUser(username = "username", authorities = {"CUSTOMER", "MODERATOR"})
     void successfullyWriteReview2()
             throws Exception {
-        CustomerRoleDef customerRoleDef = new CustomerRoleDef();
-        given(customerRoleDefRepository.findByUserWithId(1L))
-                .willReturn(Optional.of(customerRoleDef));
+        CustomerAuthority customerAuthority = new CustomerAuthority();
+        given(customerAuthorityRepository.findByUserWithId(1L))
+                .willReturn(Optional.of(customerAuthority));
         Movie movie = new Movie();
         movie.setId(2L);
         given(movieRepository.findById(2L)).willReturn(Optional.of(movie));
-        given(reviewRepository.existsByWriterAndMovie(customerRoleDef, movie))
+        given(reviewRepository.existsByWriterAndMovie(customerAuthority, movie))
                 .willReturn(false);
         doNothing().when(reviewValidator).validate(any(IReview.class), anyCollection());
         ReviewForm reviewForm = new ReviewForm();

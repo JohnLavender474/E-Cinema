@@ -9,6 +9,8 @@ import lombok.ToString;
 import javax.persistence.*;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
 @Getter
 @Setter
@@ -31,22 +33,5 @@ public class ShowroomSeat extends AbstractEntity implements ISeat {
     @ToString.Exclude
     @OneToMany(mappedBy = "showroomSeat", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private Set<ScreeningSeat> screeningSeats = new HashSet<>();
-
-    @Override
-    public boolean equals(Object o) {
-        return o instanceof ShowroomSeat showroomSeat &&
-                showroomSeat.getShowroom().equals(showroom) &&
-                showroomSeat.getRowLetter().equals(rowLetter) &&
-                showroomSeat.getSeatNumber().equals(seatNumber);
-    }
-
-    @Override
-    public int hashCode() {
-        int hash = 21;
-        hash += 7 * showroom.hashCode();
-        hash += 7 * rowLetter.hashCode();
-        hash += 7 * seatNumber.hashCode();
-        return hash;
-    }
 
 }

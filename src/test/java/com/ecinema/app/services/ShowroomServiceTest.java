@@ -15,6 +15,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.time.LocalDateTime;
 import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -190,6 +191,7 @@ class ShowroomServiceTest {
         movieService.save(movie);
         Screening screening = new Screening();
         screening.setMovie(movie);
+        screening.setShowDateTime(LocalDateTime.now());
         movie.getScreenings().add(screening);
         screening.setShowroom(showroom);
         showroom.getScreenings().add(screening);

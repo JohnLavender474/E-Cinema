@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<body>
+<div th:fragment="errors">
+    <div class="container">
+        <table class="table table-bordered table-striped">
+            <tr th:each="error:${errors}">
+                <td th:text="${error}"></td>
+            </tr>
+        </table>
+    </div>
+</div>
+</body>
+</html>

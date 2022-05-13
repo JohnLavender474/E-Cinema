@@ -1,12 +1,12 @@
 package com.ecinema.app.services.implementations;
 
-import com.ecinema.app.domain.entities.CustomerRoleDef;
+import com.ecinema.app.domain.entities.CustomerAuthority;
 import com.ecinema.app.domain.entities.PaymentCard;
 import com.ecinema.app.domain.forms.PaymentCardForm;
 import com.ecinema.app.domain.validators.PaymentCardValidator;
 import com.ecinema.app.exceptions.InvalidArgsException;
 import com.ecinema.app.exceptions.NoEntityFoundException;
-import com.ecinema.app.repositories.CustomerRoleDefRepository;
+import com.ecinema.app.repositories.CustomerAuthorityRepository;
 import com.ecinema.app.repositories.PaymentCardRepository;
 import com.ecinema.app.services.PaymentCardService;
 import com.ecinema.app.utils.UtilMethods;
@@ -22,14 +22,14 @@ import java.util.List;
 public class PaymentCardServiceImpl extends AbstractServiceImpl<PaymentCard,
         PaymentCardRepository> implements PaymentCardService {
 
-    private final CustomerRoleDefRepository customerRoleDefRepository;
+    private final CustomerAuthorityRepository customerAuthorityRepository;
     private final PaymentCardValidator paymentCardValidator;
 
     public PaymentCardServiceImpl(PaymentCardRepository repository,
-                                  CustomerRoleDefRepository customerRoleDefRepository,
+                                  CustomerAuthorityRepository customerAuthorityRepository,
                                   PaymentCardValidator paymentCardValidator) {
         super(repository);
-        this.customerRoleDefRepository = customerRoleDefRepository;
+        this.customerAuthorityRepository = customerAuthorityRepository;
         this.paymentCardValidator = paymentCardValidator;
     }
 
@@ -38,11 +38,11 @@ public class PaymentCardServiceImpl extends AbstractServiceImpl<PaymentCard,
         logger.debug(UtilMethods.getDelimiterLine());
         logger.debug("Payment card on delete");
         // detach Customer
-        CustomerRoleDef customerRoleDef = paymentCard.getCustomerRoleDef();
-        logger.debug("Detach customer role def: " + customerRoleDef);
-        if (customerRoleDef != null) {
-            customerRoleDef.getPaymentCards().remove(paymentCard);
-            paymentCard.setCustomerRoleDef(null);
+        CustomerAuthority customerAuthority = paymentCard.getCardOwner();
+        logger.debug("Detach customer role def: " + customerAuthority);
+        if (customerAuthority != null) {
+            customerAuthority.getPaymentCards().remove(paymentCard);
+            paymentCard.setCardOwner(null);
         }
     }
 
@@ -56,7 +56,7 @@ public class PaymentCardServiceImpl extends AbstractServiceImpl<PaymentCard,
 
     @Override
     public void onDeleteInfo(PaymentCard paymentCard, Collection<String> info) {
-        String username = paymentCard.getCustomerRoleDef().getUser().getUsername();
+        String username = paymentCard.getCardOwner().getUser().getUsername();
         info.add(username + " will lose " + paymentCard.getPaymentCardType() + " on delete");
     }
 
@@ -65,9 +65,9 @@ public class PaymentCardServiceImpl extends AbstractServiceImpl<PaymentCard,
             throws NoEntityFoundException, InvalidArgsException {
         logger.debug(UtilMethods.getDelimiterLine());
         logger.debug("Submit payment card form");
-        CustomerRoleDef customerRoleDef = customerRoleDefRepository.findById(
-                paymentCardForm.getCustomerRoleDefId())
-                .orElseThrow(() -> new NoEntityFoundException(
+        CustomerAuthority customerAuthority = customerAuthorityRepository.findById(
+                paymentCardForm.getCustomerRoleDefId()).orElseThrow(
+                        () -> new NoEntityFoundException(
                         "customer role def", "id", paymentCardForm.getCustomerRoleDefId()));
         logger.debug("Found customer role def by id " + paymentCardForm.getCustomerRoleDefId());
         List<String> errors = new ArrayList<>();
@@ -77,8 +77,8 @@ public class PaymentCardServiceImpl extends AbstractServiceImpl<PaymentCard,
         }
         logger.debug("Payment card form passed validation checks");
         PaymentCard paymentCard = new PaymentCard();
-        paymentCard.setCustomerRoleDef(customerRoleDef);
-        customerRoleDef.getPaymentCards().add(paymentCard);
+        paymentCard.setCardOwner(customerAuthority);
+        customerAuthority.getPaymentCards().add(paymentCard);
         paymentCard.setBillingAddress(paymentCardForm.getBillingAddress());
         paymentCard.setPaymentCardType(paymentCardForm.getPaymentCardType());
         paymentCard.setCardNumber(paymentCardForm.getCardNumber());
@@ -91,13 +91,13 @@ public class PaymentCardServiceImpl extends AbstractServiceImpl<PaymentCard,
     }
 
     @Override
-    public List<PaymentCard> findAllByCustomerRoleDef(CustomerRoleDef customerRoleDef) {
-        return repository.findDistinctByCustomerRoleDef(customerRoleDef);
+    public List<PaymentCard> findAllByCardOwner(CustomerAuthority customerAuthority) {
+        return repository.findDistinctByCardOwner(customerAuthority);
     }
 
     @Override
-    public List<PaymentCard> findAllByCustomerRoleDefId(Long customerAuthId) {
-        return repository.findDistinctByCustomerRoleDefWithId(customerAuthId);
+    public List<PaymentCard> findAllByCardOwnerWithId(Long customerAuthId) {
+        return repository.findDistinctByCardOwnerWithId(customerAuthId);
     }
 
 }

@@ -1,7 +1,7 @@
 package com.ecinema.app.configs.interceptors;
 
 import com.ecinema.app.domain.dtos.UserDto;
-import com.ecinema.app.domain.enums.UserRole;
+import com.ecinema.app.domain.enums.UserAuthority;
 import com.ecinema.app.services.SecurityService;
 import com.ecinema.app.utils.Pair;
 import com.ecinema.app.utils.UtilMethods;
@@ -28,7 +28,9 @@ public class ViewInterceptor implements HandlerInterceptor {
     @Override
     public void postHandle(HttpServletRequest request, HttpServletResponse response,
                            Object handler, ModelAndView modelAndView) {
-        addAccountDropdownMenu(modelAndView);
+        if (modelAndView != null) {
+            addAccountDropdownMenu(modelAndView);
+        }
     }
 
     private void addAccountDropdownMenu(final ModelAndView modelAndView) {
@@ -37,13 +39,13 @@ public class ViewInterceptor implements HandlerInterceptor {
         if (userDto == null) {
             dropdownMenu.add(new Pair<>("Login", "/login"));
         } else {
-            if (userDto.getUserRoles().contains(UserRole.CUSTOMER)) {
+            if (userDto.getUserAuthorities().contains(UserAuthority.CUSTOMER)) {
                 dropdownMenu.add(new Pair<>("Customer Account", "/customer"));
             }
-            if (userDto.getUserRoles().contains(UserRole.MODERATOR)) {
+            if (userDto.getUserAuthorities().contains(UserAuthority.MODERATOR)) {
                 dropdownMenu.add(new Pair<>("Moderator Account", "/moderator"));
             }
-            if (userDto.getUserRoles().contains(UserRole.ADMIN)) {
+            if (userDto.getUserAuthorities().contains(UserAuthority.ADMIN)) {
                 dropdownMenu.add(new Pair<>("Admin Account", "/admin"));
             }
             dropdownMenu.add(new Pair<>("Logout", "/logout"));

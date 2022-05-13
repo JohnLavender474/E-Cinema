@@ -17,7 +17,9 @@ import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
 import org.springframework.boot.test.mock.mockito.MockBean;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.Month;
 import java.util.Optional;
 
@@ -181,13 +183,13 @@ class ScreeningServiceTest {
                 .willReturn(screeningSeat);
         screeningSeatService.save(screeningSeat);
         // when
-        ScreeningDto screeningDto = screeningService.convertToDto(screening.getId());
+        ScreeningDto screeningDto = screeningService.convertIdToDto(screening.getId());
         // then
         assertEquals(screening.getId(), screeningDto.getId());
         assertEquals("test", screeningDto.getMovieTitle());
         assertEquals(Letter.A, screeningDto.getShowroomLetter());
         assertEquals(LocalDateTime.of(2022, Month.MAY, 1, 12, 0),
-                     screeningDto.getShowtime());
+                     screeningDto.getShowDateTime());
         assertNotNull(screeningDto);
     }
 
@@ -220,16 +222,12 @@ class ScreeningServiceTest {
         ScreeningForm screeningForm = new ScreeningForm();
         screeningForm.setMovieId(1L);
         screeningForm.setShowroomId(2L);
-        screeningForm.setShowtimeDay(1);
-        screeningForm.setShowtimeMonth(Month.JANUARY);
-        screeningForm.setShowtimeYear(2023);
+        screeningForm.setShowdate(LocalDate.of(2023, Month.JANUARY, 1));
         screeningForm.setShowtimeHour(1);
         screeningForm.setShowtimeMinute(0);
-        LocalDateTime showDateTime = LocalDateTime.of(screeningForm.getShowtimeYear(),
-                                                      screeningForm.getShowtimeMonth(),
-                                                      screeningForm.getShowtimeDay(),
-                                                      screeningForm.getShowtimeHour(),
-                                                      screeningForm.getShowtimeMinute());
+        LocalDateTime showDateTime = LocalDateTime.of(
+                screeningForm.getShowdate(), LocalTime.of(screeningForm.getShowtimeHour(),
+                                                          screeningForm.getShowtimeMinute()));
         LocalDateTime endDateTime = showDateTime
                 .plusHours(movie.getDuration().getHours())
                 .plusMinutes(movie.getDuration().getMinutes());
@@ -243,16 +241,16 @@ class ScreeningServiceTest {
         movie.getScreenings().add(screening);
         given(screeningRepository.findById(3L))
                 .willReturn(Optional.of(screening));
-        ScreeningDto screeningDto = screeningService.convertToDto(3L);
+        ScreeningDto screeningDto = screeningService.convertIdToDto(3L);
         // then
         assertEquals(movie.getId(), screeningDto.getMovieId());
         assertEquals(showroom.getId(), screeningDto.getShowroomId());
         assertEquals(movie.getTitle(), screeningDto.getMovieTitle());
         assertEquals(showroom.getShowroomLetter(), screeningDto.getShowroomLetter());
         assertEquals(LocalDateTime.of(2023, Month.JANUARY, 1, 1, 0),
-                     screeningDto.getShowtime());
+                     screeningDto.getShowDateTime());
         assertEquals(LocalDateTime.of(2023, Month.JANUARY, 1, 2, 30),
-                     screeningDto.getEndtime());
+                     screeningDto.getEndDateTime());
         assertEquals(showroom.getShowroomSeats().size(), screeningDto.getSeatsAvailable());
         assertEquals(screeningDto.getSeatsAvailable(), screeningDto.getTotalSeatsInRoom());
         assertEquals(0, screeningDto.getSeatsBooked());

@@ -35,7 +35,7 @@ public class InitializationConfig {
     private final ShowroomService showroomService;
     private final ScreeningService screeningService;
     private final PaymentCardService paymentCardService;
-    private final CustomerRoleDefService customerRoleDefService;
+    private final CustomerAuthorityService customerAuthorityService;
     private final BCryptPasswordEncoder passwordEncoder;
     private final Logger logger = LoggerFactory.getLogger(InitializationConfig.class);
 
@@ -77,7 +77,7 @@ public class InitializationConfig {
         String answer2Formatted = UtilMethods.removeWhitespace(answer2.toLowerCase());
         String encodedAnswer2 = passwordEncoder.encode(answer2Formatted);
         rootUserForm.setSecurityAnswer2(encodedAnswer2);
-        rootUserForm.setUserRoles(EnumSet.of(UserRole.ADMIN, UserRole.MODERATOR));
+        rootUserForm.setUserAuthorities(EnumSet.of(UserAuthority.ADMIN, UserAuthority.MODERATOR));
         userService.register(rootUserForm);
     }
 
@@ -100,7 +100,7 @@ public class InitializationConfig {
         String answer2Formatted = UtilMethods.removeWhitespace(answer2.toLowerCase());
         String encodedAnswer2 = passwordEncoder.encode(answer2Formatted);
         customerForm.setSecurityAnswer2(encodedAnswer2);
-        customerForm.setUserRoles(EnumSet.of(UserRole.CUSTOMER));
+        customerForm.setUserAuthorities(EnumSet.of(UserAuthority.CUSTOMER));
         userService.register(customerForm);
     }
 
@@ -551,7 +551,7 @@ public class InitializationConfig {
         screeningForm.setMovieId(aliens.getId());
         screeningForm.setShowroomId(showrooms.get(Letter.E).getId());
         LocalDateTime aliensShowtime = LocalDateTime.now().plusDays(1);
-        screeningForm.setShowtime(aliensShowtime);
+        screeningForm.setShowDateTime(aliensShowtime);
         screeningService.submitScreeningForm(screeningForm);
     }
 
@@ -561,7 +561,7 @@ public class InitializationConfig {
         screeningForm.setMovieId(darkestHour.getId());
         screeningForm.setShowroomId(showrooms.get(Letter.A).getId());
         LocalDateTime darkestHourShowtime = LocalDateTime.now().plusDays(1);
-        screeningForm.setShowtime(darkestHourShowtime);
+        screeningForm.setShowDateTime(darkestHourShowtime);
         screeningService.submitScreeningForm(screeningForm);
     }
 
@@ -572,21 +572,21 @@ public class InitializationConfig {
         screeningForm1.setMovieId(dune.getId());
         screeningForm1.setShowroomId(showrooms.get(Letter.A).getId());
         LocalDateTime duneShowtime1 = LocalDateTime.now().plusHours(3);
-        screeningForm1.setShowtime(duneShowtime1);
+        screeningForm1.setShowDateTime(duneShowtime1);
         screeningService.submitScreeningForm(screeningForm1);
         // Screening 2
         ScreeningForm screeningForm2 = new ScreeningForm();
         screeningForm2.setMovieId(dune.getId());
         screeningForm2.setShowroomId(showrooms.get(Letter.A).getId());
         LocalDateTime duneShowtime2 = LocalDateTime.now().plusHours(6).plusMinutes(15);
-        screeningForm2.setShowtime(duneShowtime2);
+        screeningForm2.setShowDateTime(duneShowtime2);
         screeningService.submitScreeningForm(screeningForm2);
         // Screening 3
         ScreeningForm screeningForm3 = new ScreeningForm();
         screeningForm3.setMovieId(dune.getId());
         screeningForm3.setShowroomId(showrooms.get(Letter.B).getId());
         LocalDateTime duneShowtime3 = duneShowtime1.plusMinutes(30);
-        screeningForm3.setShowtime(duneShowtime3);
+        screeningForm3.setShowDateTime(duneShowtime3);
         screeningService.submitScreeningForm(screeningForm3);
     }
 
@@ -597,13 +597,13 @@ public class InitializationConfig {
         ScreeningForm screeningForm1 = new ScreeningForm();
         screeningForm1.setMovieId(empireStrikesBack.getId());
         screeningForm1.setShowroomId(showrooms.get(Letter.C).getId());
-        screeningForm1.setShowtime(empireStrikesBackShowtime);
+        screeningForm1.setShowDateTime(empireStrikesBackShowtime);
         screeningService.submitScreeningForm(screeningForm1);
         // Screening 2
         ScreeningForm screeningForm2 = new ScreeningForm();
         screeningForm2.setMovieId(empireStrikesBack.getId());
         screeningForm2.setShowroomId(showrooms.get(Letter.D).getId());
-        screeningForm2.setShowtime(empireStrikesBackShowtime);
+        screeningForm2.setShowDateTime(empireStrikesBackShowtime);
         screeningService.submitScreeningForm(screeningForm2);
     }
 
@@ -613,7 +613,7 @@ public class InitializationConfig {
         screeningForm.setMovieId(interstellar.getId());
         screeningForm.setShowroomId(showrooms.get(Letter.A).getId());
         LocalDateTime interstellarShowtime = LocalDateTime.now().plusDays(2).minusHours(2);
-        screeningForm.setShowtime(interstellarShowtime);
+        screeningForm.setShowDateTime(interstellarShowtime);
         screeningService.submitScreeningForm(screeningForm);
     }
 
@@ -624,14 +624,14 @@ public class InitializationConfig {
         screeningForm1.setMovieId(pig.getId());
         screeningForm1.setShowroomId(showrooms.get(Letter.E).getId());
         LocalDateTime pigShowtime1 = LocalDateTime.now().plusDays(1).plusHours(4);
-        screeningForm1.setShowtime(pigShowtime1);
+        screeningForm1.setShowDateTime(pigShowtime1);
         screeningService.submitScreeningForm(screeningForm1);
         // Screening 2
         ScreeningForm screeningForm2 = new ScreeningForm();
         screeningForm2.setMovieId(pig.getId());
         screeningForm2.setShowroomId(showrooms.get(Letter.B).getId());
         LocalDateTime pigShowtime2 = LocalDateTime.now().plusHours(7).plusMinutes(30);
-        screeningForm2.setShowtime(pigShowtime2);
+        screeningForm2.setShowDateTime(pigShowtime2);
         screeningService.submitScreeningForm(screeningForm2);
     }
 
@@ -642,14 +642,14 @@ public class InitializationConfig {
         screeningForm1.setMovieId(batman.getId());
         screeningForm1.setShowroomId(showrooms.get(Letter.C).getId());
         LocalDateTime batmanShowtime1 = LocalDateTime.now().plusHours(1);
-        screeningForm1.setShowtime(batmanShowtime1);
+        screeningForm1.setShowDateTime(batmanShowtime1);
         screeningService.submitScreeningForm(screeningForm1);
         // Screening 2
         ScreeningForm screeningForm2 = new ScreeningForm();
         screeningForm2.setMovieId(batman.getId());
         screeningForm2.setShowroomId(showrooms.get(Letter.E).getId());
         LocalDateTime batmanShowtime2 = LocalDateTime.now().plusHours(4);
-        screeningForm2.setShowtime(batmanShowtime2);
+        screeningForm2.setShowDateTime(batmanShowtime2);
         screeningService.submitScreeningForm(screeningForm2);
     }
 
@@ -660,14 +660,14 @@ public class InitializationConfig {
         screeningForm1.setMovieId(bond.getId());
         screeningForm1.setShowroomId(showrooms.get(Letter.D).getId());
         LocalDateTime bondShowtime1 = LocalDateTime.now().plusMinutes(45);
-        screeningForm1.setShowtime(bondShowtime1);
+        screeningForm1.setShowDateTime(bondShowtime1);
         screeningService.submitScreeningForm(screeningForm1);
         // Screening 2
         ScreeningForm screeningForm2 = new ScreeningForm();
         screeningForm2.setMovieId(bond.getId());
         screeningForm2.setShowroomId(showrooms.get(Letter.D).getId());
         LocalDateTime bondShowtime2 = LocalDateTime.now().plusDays(1);
-        screeningForm1.setShowtime(bondShowtime2);
+        screeningForm1.setShowDateTime(bondShowtime2);
         screeningService.submitScreeningForm(screeningForm2);
     }
 
@@ -677,7 +677,7 @@ public class InitializationConfig {
         screeningForm.setMovieId(goodBadUgly.getId());
         screeningForm.setShowroomId(showrooms.get(Letter.B).getId());
         LocalDateTime goodBadUglyShowtime = LocalDateTime.now().plusDays(3).plusHours(8);
-        screeningForm.setShowtime(goodBadUglyShowtime);
+        screeningForm.setShowDateTime(goodBadUglyShowtime);
         screeningService.submitScreeningForm(screeningForm);
     }
 
@@ -687,15 +687,15 @@ public class InitializationConfig {
         screeningForm.setMovieId(theNorthman.getId());
         screeningForm.setShowroomId(showrooms.get(Letter.C).getId());
         LocalDateTime theNorthmanShowtime = LocalDateTime.now().plusDays(1);
-        screeningForm.setShowtime(theNorthmanShowtime);
+        screeningForm.setShowDateTime(theNorthmanShowtime);
         screeningService.submitScreeningForm(screeningForm);
     }
 
     private void definePaymentCards() {
         paymentCardService.deleteAll();
         UserDto customer = userService.findByUsername("Customer1");
-        Long customerRoleDefId = customerRoleDefService.findIdByUserWithId(customer.getId())
-                .orElseThrow(IllegalStateException::new);
+        Long customerRoleDefId = customerAuthorityService.findIdByUserWithId(customer.getId())
+                                                         .orElseThrow(IllegalStateException::new);
         // Paymentcard 1
         PaymentCardForm paymentCardForm1 = new PaymentCardForm();
         paymentCardForm1.setCustomerRoleDefId(customerRoleDefId);

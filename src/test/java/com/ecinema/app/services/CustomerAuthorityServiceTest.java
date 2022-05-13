@@ -1,10 +1,8 @@
 package com.ecinema.app.services;
 
-import com.ecinema.app.domain.dtos.CustomerRoleDefDto;
 import com.ecinema.app.domain.entities.*;
 import com.ecinema.app.repositories.*;
 import com.ecinema.app.services.implementations.*;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -20,15 +18,15 @@ import static org.mockito.BDDMockito.given;
  * The type Customer role def service test.
  */
 @ExtendWith(MockitoExtension.class)
-class CustomerRoleDefServiceTest {
+class CustomerAuthorityServiceTest {
 
-    private CustomerRoleDefService customerRoleDefService;
+    private CustomerAuthorityService customerAuthorityService;
     private PaymentCardService paymentCardService;
     private TicketService ticketService;
     private ReviewService reviewService;
     private CouponService couponService;
     @Mock
-    private CustomerRoleDefRepository customerRoleDefRepository;
+    private CustomerAuthorityRepository customerAuthorityRepository;
     @Mock
     private PaymentCardRepository paymentCardRepository;
     @Mock
@@ -49,69 +47,69 @@ class CustomerRoleDefServiceTest {
                 couponRepository, null, null);
         reviewService = new ReviewServiceImpl(
                 reviewRepository, null,
-                customerRoleDefRepository, null);
+                customerAuthorityRepository, null);
         paymentCardService = new PaymentCardServiceImpl(
                 paymentCardRepository, null, null);
-        customerRoleDefService = new CustomerRoleDefServiceImpl(
-                customerRoleDefRepository, reviewService,
+        customerAuthorityService = new CustomerAuthorityServiceImpl(
+                customerAuthorityRepository, reviewService,
                 ticketService, paymentCardService, couponService);
     }
 
     @Test
     void deleteCustomerRoleDefCascade() {
         // given
-       CustomerRoleDef customerRoleDef = new CustomerRoleDef();
-       customerRoleDef.setId(1L);
-       given(customerRoleDefRepository.findById(1L))
-               .willReturn(Optional.of(customerRoleDef));
-       customerRoleDefService.save(customerRoleDef);
+       CustomerAuthority customerAuthority = new CustomerAuthority();
+       customerAuthority.setId(1L);
+       given(customerAuthorityRepository.findById(1L))
+               .willReturn(Optional.of(customerAuthority));
+       customerAuthorityService.save(customerAuthority);
        Review review = new Review();
        review.setId(2L);
-       review.setWriter(customerRoleDef);
-       customerRoleDef.getReviews().add(review);
+       review.setWriter(customerAuthority);
+       customerAuthority.getReviews().add(review);
        given(reviewRepository.findById(2L))
                .willReturn(Optional.of(review));
        reviewService.save(review);
        Ticket ticket = new Ticket();
        ticket.setId(3L);
-       ticket.setCustomerRoleDef(customerRoleDef);
-       customerRoleDef.getTickets().add(ticket);
+       ticket.setTicketOwner(customerAuthority);
+       customerAuthority.getTickets().add(ticket);
        given(ticketRepository.findById(3L))
                .willReturn(Optional.of(ticket));
        ticketService.save(ticket);
        PaymentCard paymentCard = new PaymentCard();
        paymentCard.setId(4L);
-       paymentCard.setCustomerRoleDef(customerRoleDef);
-       customerRoleDef.getPaymentCards().add(paymentCard);
+       paymentCard.setCardOwner(customerAuthority);
+       customerAuthority.getPaymentCards().add(paymentCard);
        given(paymentCardRepository.findById(4L))
                .willReturn(Optional.of(paymentCard));
        paymentCardService.save(paymentCard);
        Coupon coupon = new Coupon();
        coupon.setId(5L);
-       coupon.setCustomerRoleDef(customerRoleDef);
-       customerRoleDef.getCoupons().add(coupon);
+       coupon.setCouponOwner(customerAuthority);
+       customerAuthority.getCoupons().add(coupon);
        given(couponRepository.findById(5L))
                .willReturn(Optional.of(coupon));
        couponService.save(coupon);
-       assertEquals(customerRoleDef, review.getWriter());
-       assertTrue(customerRoleDef.getReviews().contains(review));
-       assertEquals(customerRoleDef, ticket.getCustomerRoleDef());
-       assertTrue(customerRoleDef.getTickets().contains(ticket));
-       assertEquals(customerRoleDef, paymentCard.getCustomerRoleDef());
-       assertTrue(customerRoleDef.getPaymentCards().contains(paymentCard));
-       assertEquals(customerRoleDef, coupon.getCustomerRoleDef());
-       assertTrue(customerRoleDef.getCoupons().contains(coupon));
+       assertEquals(customerAuthority, review.getWriter());
+       assertTrue(customerAuthority.getReviews().contains(review));
+       assertEquals(customerAuthority, ticket.getTicketOwner());
+       assertTrue(customerAuthority.getTickets().contains(ticket));
+       assertEquals(customerAuthority, paymentCard.getCardOwner());
+       assertTrue(customerAuthority.getPaymentCards().contains(paymentCard));
+       assertEquals(customerAuthority, coupon.getCouponOwner());
+       assertTrue(customerAuthority.getCoupons().contains(coupon));
        // when
-        customerRoleDefService.delete(customerRoleDef);
+        customerAuthorityService.delete(customerAuthority);
         // then
-        assertNotEquals(customerRoleDef, review.getWriter());
-        assertFalse(customerRoleDef.getReviews().contains(review));
-        assertNotEquals(customerRoleDef, ticket.getCustomerRoleDef());
-        assertFalse(customerRoleDef.getTickets().contains(ticket));
-        assertNotEquals(customerRoleDef, paymentCard.getCustomerRoleDef());
-        assertFalse(customerRoleDef.getPaymentCards().contains(paymentCard));
-        assertNotEquals(customerRoleDef, coupon.getCustomerRoleDef());
-        assertFalse(customerRoleDef.getCoupons().contains(coupon));
+        assertNotEquals(customerAuthority, review.getWriter());
+        assertFalse(customerAuthority.getReviews().contains(review));
+        assertNotEquals(customerAuthority, ticket.getTicketOwner());
+        assertFalse(customerAuthority.getTickets().contains(ticket));
+        assertNotEquals(customerAuthority, paymentCard.getCardOwner());
+        assertFalse(customerAuthority.getPaymentCards().contains(paymentCard));
+        assertNotEquals(customerAuthority, coupon.getCouponOwner());
+        assertFalse(customerAuthority.getCoupons().contains(coupon));
     }
 
 }

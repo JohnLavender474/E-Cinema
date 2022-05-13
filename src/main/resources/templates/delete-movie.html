@@ -3,6 +3,31 @@
 <head th:insert="fragments/header :: header"></head>
 <body>
 <nav th:insert="fragments/webpage-top :: webpage-top"></nav>
-
+<div th:insert="fragments/back-to-admin-page :: back-to-admin-page"></div>
+<div class="container">
+    <h1>Movie: On Delete Info</h1>
+    <ul th:each="info:${onDeleteInfo}">
+        <li th:text="${info}"></li>
+    </ul>
+    <h1>Deletion of this movie is FINAL and IRREVERSIBLE!</h1>
+    <h1>Are you sure you want to delete this movie?</h1>
+    <button class="button" id="toggle">Confirm</button>
+</div>
+<div id="confirmed" class="container" style="display: none">
+    <h1>Click the button below to confirm deletion</h1>
+    <form method="post" th:action="@{/delete-movie/{id}(id=${movieId})}">
+        <label>
+            <button class="button">Delete</button>
+        </label>
+    </form>
+</div>
+<script>
+    const targetDiv = document.getElementById("confirmed");
+    const btn = document.getElementById("toggle");
+    btn.onclick = function () {
+        btn.style.display = "none";
+        targetDiv.style.display = "block";
+    };
+</script>
 </body>
 </html>

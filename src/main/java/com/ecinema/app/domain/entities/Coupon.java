@@ -33,6 +33,6 @@ public class Coupon extends AbstractEntity {
     @ManyToOne
     @JoinColumn
     @ToString.Exclude
-    private CustomerRoleDef customerRoleDef;
+    private CustomerAuthority couponOwner;
 
 }

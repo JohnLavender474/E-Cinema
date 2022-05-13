@@ -6,10 +6,12 @@ import com.ecinema.app.domain.enums.Letter;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
+import org.hibernate.annotations.SortComparator;
 
 import javax.persistence.*;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.SortedSet;
 import java.util.TreeSet;
 
 /**
@@ -32,11 +34,12 @@ public class Showroom extends AbstractEntity implements IShowroom {
 
     @ToString.Exclude
     @OneToMany(mappedBy = "showroom", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private Set<ShowroomSeat> showroomSeats = new TreeSet<>(ISeat.comparator);
+    private Set<Screening> screenings = new HashSet<>();
 
     @ToString.Exclude
+    @SortComparator(ISeat.SeatComparator.class)
     @OneToMany(mappedBy = "showroom", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private Set<Screening> screenings = new HashSet<>();
+    private SortedSet<ShowroomSeat> showroomSeats = new TreeSet<>(ISeat.SeatComparator.getInstance());
 
     @Override
     public boolean equals(Object o) {

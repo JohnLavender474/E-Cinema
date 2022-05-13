@@ -3,13 +3,13 @@ package com.ecinema.app.services;
 import com.ecinema.app.domain.EntityDtoConverter;
 import com.ecinema.app.domain.dtos.UserDto;
 import com.ecinema.app.domain.entities.User;
-import com.ecinema.app.domain.entities.UserRoleDef;
+import com.ecinema.app.domain.entities.AbstractUserAuthority;
+import com.ecinema.app.domain.enums.UserAuthority;
 import com.ecinema.app.exceptions.ClashException;
 import com.ecinema.app.exceptions.InvalidArgsException;
 import com.ecinema.app.exceptions.NoEntityFoundException;
 import com.ecinema.app.domain.contracts.IPassword;
 import com.ecinema.app.domain.contracts.IRegistration;
-import com.ecinema.app.domain.enums.UserRole;
 import org.springframework.data.repository.query.Param;
 import org.springframework.security.core.userdetails.UserDetailsService;
 
@@ -109,7 +109,7 @@ public interface UserService extends UserDetailsService,
      * @return the list
      * @throws NoEntityFoundException the no entity found exception
      */
-    List<String> userRolesAsListOfStrings(Long userId)
+    List<String> userAuthoritiesAsListOfStrings(Long userId)
             throws NoEntityFoundException;
 
     /**
@@ -119,7 +119,7 @@ public interface UserService extends UserDetailsService,
      * @return the set
      * @throws NoEntityFoundException the no entity found exception
      */
-    Set<UserRole> userRoles(Long userId)
+    Set<UserAuthority> userAuthorities(Long userId)
             throws NoEntityFoundException;
 
     /**
@@ -139,28 +139,30 @@ public interface UserService extends UserDetailsService,
     UserDto findByEmail(String email);
 
     /**
-     * Gets user role def of {@link User}. Use {@link UserRole#defClassToUserRole(Class)} for the class param, i.e.:
+     * Gets user role def of {@link User}. Use {@link UserAuthority#defClassToUserRole(Class)} for the class param,
+     * i.e.:
      * <p>
      * {@code
-     * Class<? extends UserRoleDef> clazz = UserRole.defClassToUserRole(UserRole.CUSTOMERS_PERMITTED);
-     * CustomerRoleDef customerRoleDef = userService.getUserRoleDefOf(user, clazz);
+     * Class<? extends AbstractUserAuthority> clazz =
+     * UserAuthority.defClassToUserRole(UserAuthority.CUSTOMERS_PERMITTED);
+     * CustomerAuthority customerRoleDef = userService.getUserAuthorityOf(user, clazz);
      * }****************
      * <p>
      * or
      * <p>
      * {@code
-     * CustomerRoleDef customerRoleDef = userService.getUserRoleDefOf(user, UserRole.defClassToUserRole(UserRole
-     * .CUSTOMERS_PERMITTED));
+     * CustomerAuthority customerAuthority = userService.getUserAuthorityOf(user,
+     * UserAuthority.classToEnum(UserAuthority.CUSTOMER));
      * }****************
      *
-     * @param <T>    the type parameter, class must extend {@link UserRoleDef}.
-     * @param userId the id of the User to fetch the UserRoleDef instance from.
-     * @param clazz  the clazz of the UserRoleDef
-     * @return the UserRoleDef to be fetched
-     * @throws InvalidArgsException   thrown if the UserRoleDef class is invalid.
+     * @param <T>    the type parameter, class must extend {@link AbstractUserAuthority}.
+     * @param userId the id of the User to fetch the AbstractUserAuthority instance from.
+     * @param clazz  the clazz of the AbstractUserAuthority
+     * @return the AbstractUserAuthority to be fetched
+     * @throws InvalidArgsException   thrown if the AbstractUserAuthority class is invalid.
      * @throws NoEntityFoundException thrown if no User exists associated with userId.
      */
-    <T extends UserRoleDef> Optional<T> getUserRoleDefOf(Long userId, Class<T> clazz)
+    <T extends AbstractUserAuthority> Optional<T> getUserAuthorityOf(Long userId, Class<T> clazz)
             throws InvalidArgsException, NoEntityFoundException;
 
 
@@ -214,101 +216,101 @@ public interface UserService extends UserDetailsService,
     Optional<Long> findIdByEmail(String email);
 
     /**
-     * See {@link #addUserRoleDefToUser(Long, Set)} @param user the user
+     * See {@link #addUserAuthorityToUser(Long, Set)} @param user the user
      *
      * @param user      the user
-     * @param userRoles the user roles
+     * @param userAuthorities the user roles
      * @throws NoEntityFoundException the no entity found exception
      * @throws InvalidArgsException   the invalid arg exception
      * @throws ClashException         the clash exception
      */
-    void addUserRoleDefToUser(User user, UserRole... userRoles)
+    void addUserAuthorityToUser(User user, UserAuthority... userAuthorities)
             throws NoEntityFoundException, InvalidArgsException, ClashException;
 
     /**
-     * See {@link #addUserRoleDefToUser(Long, Set)} @param user the user
+     * See {@link #addUserAuthorityToUser(Long, Set)} @param user the user
      *
      * @param user      the user
-     * @param userRoles the user roles
+     * @param userAuthorities the user roles
      * @throws NoEntityFoundException the no entity found exception
      * @throws InvalidArgsException   the invalid arg exception
      * @throws ClashException         the clash exception
      */
-    void addUserRoleDefToUser(User user, Set<UserRole> userRoles)
+    void addUserAuthorityToUser(User user, Set<UserAuthority> userAuthorities)
             throws NoEntityFoundException, InvalidArgsException, ClashException;
 
     /**
-     * See {@link #addUserRoleDefToUser(Long, Set)} @param userId the user id
+     * See {@link #addUserAuthorityToUser(Long, Set)} @param userId the user id
      *
      * @param userId    the user id
-     * @param userRoles the user roles
+     * @param userAuthorities the user roles
      * @throws NoEntityFoundException the no entity found exception
      * @throws InvalidArgsException   the invalid arg exception
      * @throws ClashException         the clash exception
      */
-    void addUserRoleDefToUser(Long userId, UserRole... userRoles)
+    void addUserAuthorityToUser(Long userId, UserAuthority... userAuthorities)
             throws NoEntityFoundException, InvalidArgsException, ClashException;
 
     /**
-     * Instantiates a new {@link UserRoleDef} instance and maps it to the {@link User} with id equal to userId.
-     * The User instance internally contains an enum map for UserRoleDef instances with {@link UserRole} as the key.
-     * Each class extending UserRoleDef has a one-to-one mapping with a UserRole value. See {@link
-     * UserRoleDef#getUserRole()}***********.
-     * User instances can only be mapped to one instance of each child class of UserRoleDef.
+     * Instantiates a new {@link AbstractUserAuthority} instance and maps it to the {@link User} with id equal to userId.
+     * The User instance internally contains an enum map for AbstractUserAuthority instances with {@link UserAuthority} as the key.
+     * Each class extending AbstractUserAuthority has a one-to-one mapping with a UserAuthority value. See {@link
+     * AbstractUserAuthority#getUserAuthority()}***********.
+     * User instances can only be mapped to one instance of each child class of AbstractUserAuthority.
      *
      * @param userId    the user id of the User
-     * @param userRoles the user roles corresponding to the UserRoleDef entities to map to the User
+     * @param userAuthorities the user roles corresponding to the AbstractUserAuthority entities to map to the User
      * @throws NoEntityFoundException thrown if no User instance is found with id equal to userId.
      * @throws InvalidArgsException   thrown if the provided value for userRole is invalid.
-     * @throws ClashException         thrown if the User instance is already mapped to a UserRoleDef
+     * @throws ClashException         thrown if the User instance is already mapped to a AbstractUserAuthority
      *                                instance corresponding to userRole.
      */
-    void addUserRoleDefToUser(Long userId, Set<UserRole> userRoles)
+    void addUserAuthorityToUser(Long userId, Set<UserAuthority> userAuthorities)
             throws NoEntityFoundException, InvalidArgsException, ClashException;
 
     /**
-     * See {@link #removeUserRoleDefFromUser(Long, Set)} @param user the user
+     * See {@link #removeUserAuthorityFromUser(Long, Set)} @param user the user
      *
      * @param user      the user
-     * @param userRoles the user roles
+     * @param userAuthorities the user roles
      * @throws NoEntityFoundException the no entity found exception
      * @throws InvalidArgsException   the invalid arg exception
      */
-    void removeUserRoleDefFromUser(User user, UserRole... userRoles)
+    void removeUserAuthorityFromUser(User user, UserAuthority... userAuthorities)
             throws NoEntityFoundException, InvalidArgsException;
 
     /**
-     * See {@link #removeUserRoleDefFromUser(Long, Set)} @param user the user
+     * See {@link #removeUserAuthorityFromUser(Long, Set)} @param user the user
      *
      * @param user      the user
-     * @param userRoles the user roles
+     * @param userAuthorities the user roles
      * @throws NoEntityFoundException the no entity found exception
      * @throws InvalidArgsException   the invalid arg exception
      */
-    void removeUserRoleDefFromUser(User user, Set<UserRole> userRoles)
+    void removeUserAuthorityFromUser(User user, Set<UserAuthority> userAuthorities)
             throws NoEntityFoundException, InvalidArgsException;
 
     /**
-     * See {@link #removeUserRoleDefFromUser(Long, Set)} @param userId the user id
+     * See {@link #removeUserAuthorityFromUser(Long, Set)} @param userId the user id
      *
      * @param userId    the user id
-     * @param userRoles the user roles
+     * @param userAuthorities the user roles
      * @throws NoEntityFoundException the no entity found exception
      * @throws InvalidArgsException   the invalid arg exception
      */
-    void removeUserRoleDefFromUser(Long userId, UserRole... userRoles)
+    void removeUserAuthorityFromUser(Long userId, UserAuthority... userAuthorities)
             throws NoEntityFoundException, InvalidArgsException;
 
     /**
-     * Removes the {@link UserRoleDef} instance that is mapped with the provided {@link UserRole} (see
-     * {@link UserRoleDef#getUserRole()}) value from the {@link User} with id equal to userId.
+     * Removes the {@link AbstractUserAuthority} instance that is mapped with the provided {@link UserAuthority} (see
+     * {@link AbstractUserAuthority#getUserAuthority()}) value from the {@link User} with id equal to userId.
      *
      * @param userId    the id of the User
-     * @param userRoles the UserRole values that the UserRoleDef instance is mapped to.
+     * @param userAuthorities the UserAuthority values that the AbstractUserAuthority instance is mapped to.
      * @throws NoEntityFoundException thrown if no User instance is found with id equal to userId.
      * @throws InvalidArgsException   thrown if the provided value of userRole is invalid.
      */
-    void removeUserRoleDefFromUser(Long userId, Set<UserRole> userRoles)
+    void removeUserAuthorityFromUser(Long userId, Set<UserAuthority> userAuthorities)
             throws NoEntityFoundException, InvalidArgsException;
 
     /**

@@ -1,7 +1,7 @@
 package com.ecinema.app.repositories;
 
 import com.ecinema.app.domain.entities.*;
-import com.ecinema.app.domain.enums.UserRole;
+import com.ecinema.app.domain.enums.UserAuthority;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,13 +13,13 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.verify;
 
 @DataJpaTest
-class CustomerRoleDefRepositoryTest {
+class CustomerAuthorityRepositoryTest {
 
     @Autowired
     private UserRepository userRepository;
 
     @Autowired
-    private CustomerRoleDefRepository customerRoleDefRepository;
+    private CustomerAuthorityRepository customerAuthorityRepository;
 
     @Autowired
     private ReviewRepository reviewRepository;
@@ -35,7 +35,7 @@ class CustomerRoleDefRepositoryTest {
 
     @AfterEach
     void tearDown() {
-        customerRoleDefRepository.deleteAll();
+        customerAuthorityRepository.deleteAll();
     }
 
     @Test
@@ -43,20 +43,20 @@ class CustomerRoleDefRepositoryTest {
         // given
         User user = new User();
         userRepository.save(user);
-        CustomerRoleDef customerRoleDef = new CustomerRoleDef();
-        customerRoleDef.setUser(user);
-        user.getUserRoleDefs().put(UserRole.CUSTOMER, customerRoleDef);
-        customerRoleDefRepository.save(customerRoleDef);
+        CustomerAuthority customerAuthority = new CustomerAuthority();
+        customerAuthority.setUser(user);
+        user.getUserAuthorities().put(UserAuthority.CUSTOMER, customerAuthority);
+        customerAuthorityRepository.save(customerAuthority);
         Review review = new Review();
-        review.setWriter(customerRoleDef);
-        customerRoleDef.getReviews().add(review);
+        review.setWriter(customerAuthority);
+        customerAuthority.getReviews().add(review);
         reviewRepository.save(review);
         // when
-        Optional<CustomerRoleDef> customerAuthorityOptional = customerRoleDefRepository
+        Optional<CustomerAuthority> customerAuthorityOptional = customerAuthorityRepository
                 .findByReviewsContains(review);
         // then
         assertTrue(customerAuthorityOptional.isPresent() &&
-                customerAuthorityOptional.get().equals(customerRoleDef) &&
+                customerAuthorityOptional.get().equals(customerAuthority) &&
                 customerAuthorityOptional.get().getReviews().contains(review));
     }
 
@@ -65,20 +65,20 @@ class CustomerRoleDefRepositoryTest {
         // given
         User user = new User();
         userRepository.save(user);
-        CustomerRoleDef customerRoleDef = new CustomerRoleDef();
-        customerRoleDef.setUser(user);
-        user.getUserRoleDefs().put(UserRole.CUSTOMER, customerRoleDef);
-        customerRoleDefRepository.save(customerRoleDef);
+        CustomerAuthority customerAuthority = new CustomerAuthority();
+        customerAuthority.setUser(user);
+        user.getUserAuthorities().put(UserAuthority.CUSTOMER, customerAuthority);
+        customerAuthorityRepository.save(customerAuthority);
         Ticket ticket = new Ticket();
-        ticket.setCustomerRoleDef(customerRoleDef);
-        customerRoleDef.getTickets().add(ticket);
+        ticket.setTicketOwner(customerAuthority);
+        customerAuthority.getTickets().add(ticket);
         ticketRepository.save(ticket);
         // when
-        Optional<CustomerRoleDef> customerAuthorityOptional = customerRoleDefRepository
+        Optional<CustomerAuthority> customerAuthorityOptional = customerAuthorityRepository
                 .findByTicketsContains(ticket);
         // then
         assertTrue(customerAuthorityOptional.isPresent() &&
-                           customerAuthorityOptional.get().equals(customerRoleDef) &&
+                           customerAuthorityOptional.get().equals(customerAuthority) &&
                            customerAuthorityOptional.get().getTickets().contains(ticket));
     }
 
@@ -87,20 +87,20 @@ class CustomerRoleDefRepositoryTest {
         // given
         User user = new User();
         userRepository.save(user);
-        CustomerRoleDef customerRoleDef = new CustomerRoleDef();
-        customerRoleDef.setUser(user);
-        user.getUserRoleDefs().put(UserRole.CUSTOMER, customerRoleDef);
-        customerRoleDefRepository.save(customerRoleDef);
+        CustomerAuthority customerAuthority = new CustomerAuthority();
+        customerAuthority.setUser(user);
+        user.getUserAuthorities().put(UserAuthority.CUSTOMER, customerAuthority);
+        customerAuthorityRepository.save(customerAuthority);
         PaymentCard paymentCard = new PaymentCard();
-        paymentCard.setCustomerRoleDef(customerRoleDef);
-        customerRoleDef.getPaymentCards().add(paymentCard);
+        paymentCard.setCardOwner(customerAuthority);
+        customerAuthority.getPaymentCards().add(paymentCard);
         paymentCardRepository.save(paymentCard);
         // when
-        Optional<CustomerRoleDef> customerAuthorityOptional = customerRoleDefRepository
+        Optional<CustomerAuthority> customerAuthorityOptional = customerAuthorityRepository
                 .findByPaymentCardsContains(paymentCard);
         // then
         assertTrue(customerAuthorityOptional.isPresent() &&
-                customerAuthorityOptional.get().equals(customerRoleDef) &&
+                customerAuthorityOptional.get().equals(customerAuthority) &&
                 customerAuthorityOptional.get().getPaymentCards().contains(paymentCard));
     }
 
@@ -109,24 +109,24 @@ class CustomerRoleDefRepositoryTest {
         // given
         User user = new User();
         userRepository.save(user);
-        CustomerRoleDef customerRoleDef = new CustomerRoleDef();
-        customerRoleDef.setUser(user);
-        user.getUserRoleDefs().put(UserRole.CUSTOMER, customerRoleDef);
-        customerRoleDefRepository.save(customerRoleDef);
+        CustomerAuthority customerAuthority = new CustomerAuthority();
+        customerAuthority.setUser(user);
+        user.getUserAuthorities().put(UserAuthority.CUSTOMER, customerAuthority);
+        customerAuthorityRepository.save(customerAuthority);
         Coupon coupon = new Coupon();
-        coupon.setCustomerRoleDef(customerRoleDef);
-        customerRoleDef.getCoupons().add(coupon);
+        coupon.setCouponOwner(customerAuthority);
+        customerAuthority.getCoupons().add(coupon);
         couponRepository.save(coupon);
         // when
-        Optional<CustomerRoleDef> customerRoleDefOptional1 = customerRoleDefRepository
+        Optional<CustomerAuthority> customerRoleDefOptional1 = customerAuthorityRepository
                 .findByCouponsContains(coupon);
-        Optional<CustomerRoleDef> customerRoleDefOptional2 = customerRoleDefRepository
+        Optional<CustomerAuthority> customerRoleDefOptional2 = customerAuthorityRepository
                 .findByCouponsContainsWithId(coupon.getId());
         // then
         assertTrue(customerRoleDefOptional1.isPresent());
         assertTrue(customerRoleDefOptional2.isPresent());
-        assertEquals(customerRoleDef, customerRoleDefOptional1.get());
-        assertEquals(customerRoleDef, customerRoleDefOptional2.get());
+        assertEquals(customerAuthority, customerRoleDefOptional1.get());
+        assertEquals(customerAuthority, customerRoleDefOptional2.get());
     }
 
     @Test
@@ -134,13 +134,13 @@ class CustomerRoleDefRepositoryTest {
         // given
         User user = new User();
         userRepository.save(user);
-        CustomerRoleDef customerRoleDef = new CustomerRoleDef();
-        customerRoleDef.setUser(user);
-        user.getUserRoleDefs().put(UserRole.CUSTOMER, customerRoleDef);
-        customerRoleDefRepository.save(customerRoleDef);
+        CustomerAuthority customerAuthority = new CustomerAuthority();
+        customerAuthority.setUser(user);
+        user.getUserAuthorities().put(UserAuthority.CUSTOMER, customerAuthority);
+        customerAuthorityRepository.save(customerAuthority);
         // when
-        Optional<Long> customerRoleDefIdOptional = customerRoleDefRepository.findIdByUserWithId(user.getId());
-        Optional<CustomerRoleDef> customerRoleDefOptional = customerRoleDefRepository.findByUser(user);
+        Optional<Long> customerRoleDefIdOptional = customerAuthorityRepository.findIdByUserWithId(user.getId());
+        Optional<CustomerAuthority> customerRoleDefOptional = customerAuthorityRepository.findByUser(user);
         // then
         assertTrue(customerRoleDefIdOptional.isPresent());
         assertTrue(customerRoleDefOptional.isPresent());

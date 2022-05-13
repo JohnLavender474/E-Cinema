@@ -69,11 +69,11 @@ class MovieScreeningControllerTest {
     void showScreeningPage()
             throws Exception {
         ScreeningDto screeningDto = new ScreeningDto();
-        given(screeningService.convertToDto(1L)).willReturn(screeningDto);
+        given(screeningService.convertIdToDto(1L)).willReturn(screeningDto);
         Map<Letter, Set<ScreeningSeatDto>> screeningSeatMap = new EnumMap<>(Letter.class);
         for (int i = 0; i < 5; i++) {
             Letter rowLetter = Letter.values()[i];
-            screeningSeatMap.put(rowLetter, new TreeSet<>(ISeat.comparator));
+            screeningSeatMap.put(rowLetter, new TreeSet<>(ISeat.SeatComparator.getInstance()));
             for (int j = 1; j <= 20; j++) {
                 ScreeningSeatDto screeningSeatDto = new ScreeningSeatDto();
                 screeningSeatDto.setRowLetter(rowLetter);

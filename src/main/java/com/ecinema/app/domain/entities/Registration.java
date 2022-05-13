@@ -1,11 +1,10 @@
 package com.ecinema.app.domain.entities;
 
 import com.ecinema.app.domain.contracts.IRegistration;
-import com.ecinema.app.domain.enums.UserRole;
+import com.ecinema.app.domain.enums.UserAuthority;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
-import lombok.ToString.Exclude;
 
 import javax.persistence.*;
 import java.time.LocalDate;
@@ -24,7 +23,7 @@ public class Registration extends AbstractEntity implements IRegistration {
 
     @ElementCollection
     @Enumerated(EnumType.STRING)
-    private Set<UserRole> userRoles = EnumSet.noneOf(UserRole.class);
+    private Set<UserAuthority> userAuthorities = EnumSet.noneOf(UserAuthority.class);
 
     @Column
     private String token;

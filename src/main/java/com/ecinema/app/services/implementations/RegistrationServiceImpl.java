@@ -108,7 +108,7 @@ public class RegistrationServiceImpl extends AbstractServiceImpl<Registration,
                                            buildEmail(token), "Confirm Account");
         Registration registration = new Registration();
         registration.setToken(token);
-        registration.setUserRoles(registrationForm.getUserRoles());
+        registration.setUserAuthorities(registrationForm.getUserAuthorities());
         String encodedPassword = passwordEncoder.encode(registrationForm.getPassword());
         registration.setPassword(encodedPassword);
         registration.setConfirmPassword(encodedPassword);

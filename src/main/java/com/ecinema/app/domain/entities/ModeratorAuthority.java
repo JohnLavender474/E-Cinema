@@ -1,6 +1,6 @@
 package com.ecinema.app.domain.entities;
 
-import com.ecinema.app.domain.enums.UserRole;
+import com.ecinema.app.domain.enums.UserAuthority;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -16,15 +16,15 @@ import java.util.Set;
 @Setter
 @Entity
 @ToString
-public class ModeratorRoleDef extends UserRoleDef {
+public class ModeratorAuthority extends AbstractUserAuthority {
 
     @ToString.Exclude
     @OneToMany(mappedBy = "censoredBy", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private Set<CustomerRoleDef> censoredCustomers = new HashSet<>();
+    private Set<CustomerAuthority> censoredCustomers = new HashSet<>();
 
     @Override
-    protected UserRole defineUserRole() {
-        return UserRole.MODERATOR;
+    protected UserAuthority defineUserRole() {
+        return UserAuthority.MODERATOR;
     }
 
 }

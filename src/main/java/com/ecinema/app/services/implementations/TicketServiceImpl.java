@@ -3,7 +3,7 @@ package com.ecinema.app.services.implementations;
 import com.ecinema.app.domain.dtos.TicketDto;
 import com.ecinema.app.domain.entities.*;
 import com.ecinema.app.domain.enums.Letter;
-import com.ecinema.app.domain.enums.UserRole;
+import com.ecinema.app.domain.enums.UserAuthority;
 import com.ecinema.app.domain.forms.TicketForm;
 import com.ecinema.app.exceptions.ClashException;
 import com.ecinema.app.exceptions.FatalErrorException;
@@ -58,12 +58,12 @@ public class TicketServiceImpl extends AbstractServiceImpl<Ticket, TicketReposit
             screeningSeat.setTicket(null);
             ticket.setScreeningSeat(null);
         }
-        // detach CustomerRoleDef
-        CustomerRoleDef customerRoleDef = ticket.getCustomerRoleDef();
-        logger.debug("Detaching " + customerRoleDef + " from " + ticket);
-        if (customerRoleDef != null) {
-            customerRoleDef.getTickets().remove(ticket);
-            ticket.setCustomerRoleDef(null);
+        // detach CustomerAuthority
+        CustomerAuthority customerAuthority = ticket.getTicketOwner();
+        logger.debug("Detaching " + customerAuthority + " from " + ticket);
+        if (customerAuthority != null) {
+            customerAuthority.getTickets().remove(ticket);
+            ticket.setTicketOwner(null);
         }
         // detach Coupons
         Iterator<Coupon> couponIterator = ticket.getCoupons().iterator();
@@ -85,9 +85,12 @@ public class TicketServiceImpl extends AbstractServiceImpl<Ticket, TicketReposit
 
     @Override
     public void onDeleteInfo(Ticket ticket, Collection<String> info) {
-        info.add(ticket + " will be detached from " + ticket.getScreeningSeat());
-        info.add(ticket + " will be detached from " + ticket.getCustomerRoleDef());
-        ticket.getCoupons().forEach(coupon -> info.add(ticket + " will be detached from " + coupon));
+        String username = ticket.getTicketOwner().getUser().getUsername();
+        info.add("Ticket purchased by " + username + " for screening seat " +
+                         ticket.getScreeningSeat().seatDesignation() + " will be deleted");
+        ticket.getCoupons().forEach(
+                coupon -> info.add(coupon.getCouponType().toString() + " will be detached from ticket" +
+                                           " but will not deleted; customer can still use coupon for another ticket"));
     }
 
     @Override
@@ -107,21 +110,21 @@ public class TicketServiceImpl extends AbstractServiceImpl<Ticket, TicketReposit
         User user = userRepository.findById(ticketForm.getUserId()).orElseThrow(
                 () -> new NoEntityFoundException("user", "id", ticketForm.getUserId()));
         logger.debug("User found by id");
-        UserRoleDef userRoleDef = user.getUserRoleDefs().get(UserRole.CUSTOMER);
-        if (userRoleDef == null) {
+        AbstractUserAuthority AbstractUserAuthority = user.getUserAuthorities().get(UserAuthority.CUSTOMER);
+        if (AbstractUserAuthority == null) {
             throw new InvalidAssociationException("User does not have customer authority and as " +
                                                           "a result cannot book tickets");
         }
         logger.debug("User has user role def mapped to CUSTOMER");
-        if (!(userRoleDef instanceof CustomerRoleDef)) {
+        if (!(AbstractUserAuthority instanceof CustomerAuthority)) {
             throw new FatalErrorException("Fatal error: There is a user role def mapped to CUSTOMER key but " +
                                                   "the user role def is not an instance of CUSTOMER class");
         }
         logger.debug("User role def mapped to CUSTOMER is instance of customer role def");
         Ticket ticket = new Ticket();
         ticket.setCreationDateTime(LocalDateTime.now());
-        ticket.setCustomerRoleDef((CustomerRoleDef) userRoleDef);
-        ((CustomerRoleDef) userRoleDef).getTickets().add(ticket);
+        ticket.setTicketOwner((CustomerAuthority) AbstractUserAuthority);
+        ((CustomerAuthority) AbstractUserAuthority).getTickets().add(ticket);
         ticket.setScreeningSeat(screeningSeat);
         screeningSeat.setTicket(ticket);
         ticket.setTicketStatus(TicketStatus.VALID);
@@ -151,11 +154,11 @@ public class TicketServiceImpl extends AbstractServiceImpl<Ticket, TicketReposit
     }
 
     @Override
-    public TicketDto convertToDto(Long id)
+    public TicketDto convertIdToDto(Long id)
             throws NoEntityFoundException {
         Ticket ticket = findById(id).orElseThrow(
                 () -> new NoEntityFoundException("ticket", "id", id));
-        String username = ticket.getCustomerRoleDef().getUser().getUsername();
+        String username = ticket.getTicketOwner().getUser().getUsername();
         String movieTitle = ticket.getScreeningSeat().getScreening().getMovie().getTitle();
         Letter showroomLetter = ticket.getScreeningSeat().getScreening().getShowroom().getShowroomLetter();
         LocalDateTime showtime = ticket.getScreeningSeat().getScreening().getShowDateTime();

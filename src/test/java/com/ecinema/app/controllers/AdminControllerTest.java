@@ -2,17 +2,22 @@ package com.ecinema.app.controllers;
 
 import com.ecinema.app.configs.InitializationConfig;
 import com.ecinema.app.domain.contracts.IMovie;
+import com.ecinema.app.domain.contracts.IScreening;
+import com.ecinema.app.domain.contracts.IShowroom;
 import com.ecinema.app.domain.dtos.MovieDto;
 import com.ecinema.app.domain.dtos.UserDto;
 import com.ecinema.app.domain.entities.Movie;
-import com.ecinema.app.domain.enums.UserRole;
+import com.ecinema.app.domain.entities.Showroom;
+import com.ecinema.app.domain.enums.Letter;
+import com.ecinema.app.domain.enums.UserAuthority;
 import com.ecinema.app.domain.forms.MovieForm;
+import com.ecinema.app.domain.forms.ScreeningForm;
 import com.ecinema.app.domain.validators.MovieValidator;
+import com.ecinema.app.domain.validators.ScreeningValidator;
 import com.ecinema.app.exceptions.InvalidArgsException;
 import com.ecinema.app.repositories.MovieRepository;
-import com.ecinema.app.services.MovieService;
-import com.ecinema.app.services.SecurityService;
-import com.ecinema.app.services.UserService;
+import com.ecinema.app.repositories.ShowroomRepository;
+import com.ecinema.app.services.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,6 +30,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -61,7 +67,19 @@ class AdminControllerTest {
     private MovieRepository movieRepository;
 
     @MockBean
+    private ShowroomService showroomService;
+
+    @MockBean
+    private ShowroomRepository showroomRepository;
+
+    @MockBean
+    private ScreeningService screeningService;
+
+    @MockBean
     private MovieValidator movieValidator;
+
+    @MockBean
+    private ScreeningValidator screeningValidator;
 
     @MockBean
     private InitializationConfig initializationConfig;
@@ -167,7 +185,7 @@ class AdminControllerTest {
                                            .submitMovieForm(movieForm);
         mockMvc.perform(post("/edit-movie/" + 1L)
                                 .flashAttr("movieForm", movieForm))
-               .andExpect(view().name("edit-movie"))
+               .andExpect(redirectedUrl("/edit-movie/" + 1L))
                .andExpect(result -> model().attributeExists("errors"));
     }
 
@@ -269,13 +287,81 @@ class AdminControllerTest {
         expectGetRedirectToLogin("/delete-movie/" + 1L);
     }
 
+    @Test
+    @WithMockUser(username = "user", authorities = {"ADMIN"})
+    void accessAddScreeningSearchPage()
+            throws Exception {
+        testAdminMovieChoose("/add-screening-search", "/add-screening/{id}");
+    }
+    
+    @Test
+    @WithMockUser(username = "user", authorities = {"ADMIN"})
+    void accessAddScreeningPage() 
+            throws Exception {
+        MovieDto movie = new MovieDto();
+        given(movieService.findDtoById(1L)).willReturn(Optional.of(movie));
+        mockMvc.perform(get("/add-screening/" + 1L))
+               .andExpect(status().isOk())
+               .andExpect(result -> model().attribute("movie", movie))
+               .andExpect(result -> model().attribute("action", "/add-screening/{id}"))
+               .andExpect(result -> model().attribute("screeningForm", new ScreeningForm()));
+    }
+
+    @Test
+    @WithMockUser(username = "user", authorities = {"CUSTOMER", "MODERATOR"})
+    void failToAccessAddScreeningPage1()
+            throws Exception {
+        expectGetForbidden("/add-screening/" + 1L);
+    }
+
+    @Test
+    @WithAnonymousUser
+    void failToAccessAddScreeningPage2()
+            throws Exception {
+        expectedPostRedirectToLogin("/add-screening/" + 1L);
+    }
+
+    @Test
+    @WithMockUser(username = "user", authorities = {"ADMIN"})
+    void postAddScreening()
+            throws Exception {
+        ScreeningForm screeningForm = new ScreeningForm();
+        screeningForm.setMovieId(1L);
+        screeningForm.setShowroomId(2L);
+        screeningForm.setShowDateTime(LocalDateTime.now().plusHours(8));
+        Movie movie = new Movie();
+        movie.setTitle("Test Movie");
+        given(movieRepository.findById(1L))
+                .willReturn(Optional.of(movie));
+        Showroom showroom = new Showroom();
+        showroom.setShowroomLetter(Letter.A);
+        given(showroomRepository.findById(2L))
+                .willReturn(Optional.of(showroom));
+        doNothing().when(screeningValidator).validate(
+                any(IScreening.class), anyCollection());
+        given(screeningService.findScreeningByShowroomAndInBetweenStartTimeAndEndTime(
+                any(Showroom.class),
+                any(LocalDateTime.class),
+                any(LocalDateTime.class)))
+                .willReturn(Optional.empty());
+        mockMvc.perform(post("/add-screening/" + 1L))
+                .andExpect(redirectedUrl("/add-screening-search"))
+                .andExpect(flash().attribute("success", "Successfully added screening"));
+    }
+
+    @Test
+    @WithMockUser(username = "user", authorities = {"ADMIN"})
+    void failToPostAddScreening() {
+
+    }
+
     void setUpAdminUserDto() {
         UserDto userDto = new UserDto();
         userDto.setId(1L);
         userDto.setUsername("user");
-        userDto.getUserRoles().add(UserRole.ADMIN);
+        userDto.getUserAuthorities().add(UserAuthority.ADMIN);
         given(securityService.findLoggedInUserDTO()).willReturn(userDto);
-        given(userService.userRolesAsListOfStrings(1L)).willReturn(List.of("ADMIN"));
+        given(userService.userAuthoritiesAsListOfStrings(1L)).willReturn(List.of("ADMIN"));
     }
 
     void testAdminMovieChoose(String viewName, String href)

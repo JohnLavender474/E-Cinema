@@ -31,7 +31,7 @@ public class Ticket extends AbstractEntity {
     @JoinColumn
     @ToString.Exclude
     @ManyToOne(fetch = FetchType.LAZY)
-    private CustomerRoleDef customerRoleDef;
+    private CustomerAuthority ticketOwner;
 
     @JoinColumn
     @ToString.Exclude

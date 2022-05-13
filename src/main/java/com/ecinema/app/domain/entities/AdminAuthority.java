@@ -1,6 +1,6 @@
 package com.ecinema.app.domain.entities;
 
-import com.ecinema.app.domain.enums.UserRole;
+import com.ecinema.app.domain.enums.UserAuthority;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -11,11 +11,11 @@ import javax.persistence.Entity;
 @Setter
 @Entity
 @ToString
-public class AdminRoleDef extends UserRoleDef {
+public class AdminAuthority extends AbstractUserAuthority {
 
     @Override
-    protected UserRole defineUserRole() {
-        return UserRole.ADMIN;
+    protected UserAuthority defineUserRole() {
+        return UserAuthority.ADMIN;
     }
 
 }

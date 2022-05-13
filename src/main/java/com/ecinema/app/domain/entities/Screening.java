@@ -1,13 +1,18 @@
 package com.ecinema.app.domain.entities;
 
+import com.ecinema.app.domain.contracts.IScreening;
+import com.ecinema.app.domain.contracts.ISeat;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
+import org.hibernate.annotations.SortComparator;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
 /**
  * The type Screening.
@@ -16,7 +21,7 @@ import java.util.Set;
 @Setter
 @Entity
 @ToString
-public class Screening extends AbstractEntity {
+public class Screening extends AbstractEntity implements IScreening {
 
     @Column
     private LocalDateTime showDateTime;
@@ -35,7 +40,8 @@ public class Screening extends AbstractEntity {
     private Showroom showroom;
 
     @ToString.Exclude
+    @SortComparator(ISeat.SeatComparator.class)
     @OneToMany(mappedBy = "screening", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private Set<ScreeningSeat> screeningSeats = new HashSet<>();
+    private SortedSet<ScreeningSeat> screeningSeats = new TreeSet<>(ISeat.SeatComparator.getInstance());
 
 }

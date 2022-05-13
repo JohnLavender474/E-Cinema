@@ -7,6 +7,8 @@ import lombok.ToString;
 @Getter
 @Setter
 @ToString
-public class AdminRoleDefDto implements AbstractDto {
+public class CustomerAuthorityDto implements AbstractDto {
     private Long id;
+    private Long userId;
+    private Boolean isCensored;
 }

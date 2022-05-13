@@ -65,7 +65,9 @@ public class UtilMethods {
         } else if (hour == 0) {
             hour = 12;
         }
-        sb.append(hour).append(":").append(localDateTime.getMinute()).append(append);
+        String minute = localDateTime.getMinute() < 10 ? "0" + localDateTime.getMinute() :
+                String.valueOf(localDateTime.getMinute());
+        sb.append(hour).append(":").append(minute).append(append);
         return sb.toString();
     }
 

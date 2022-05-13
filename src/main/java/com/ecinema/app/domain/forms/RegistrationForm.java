@@ -1,7 +1,7 @@
 package com.ecinema.app.domain.forms;
 
 import com.ecinema.app.domain.contracts.IRegistration;
-import com.ecinema.app.domain.enums.UserRole;
+import com.ecinema.app.domain.enums.UserAuthority;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -15,8 +15,8 @@ import java.util.Set;
 @Setter
 public class RegistrationForm implements IRegistration, Serializable {
 
-    private Set<UserRole> userRoles =
-            EnumSet.noneOf(UserRole.class);
+    private Set<UserAuthority> userAuthorities =
+            EnumSet.noneOf(UserAuthority.class);
     private String username = "";
     private String email = "";
     private String password = "";

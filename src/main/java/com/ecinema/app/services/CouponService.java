@@ -34,7 +34,7 @@ public interface CouponService extends AbstractService<Coupon>, EntityDtoConvert
      * @return the list
      * @throws NoEntityFoundException the no entity found exception
      */
-    List<CouponDto> findAllByCustomerRoleDefWithId(Long customerRoleDefId)
+    List<CouponDto> findAllByCouponOwnerWithId(Long customerRoleDefId)
             throws NoEntityFoundException;
 
     /**

@@ -3,8 +3,7 @@
 <head th:insert="fragments/header :: header"></head>
 <body>
 <nav th:insert="fragments/webpage-top :: webpage-top"></nav>
-<div class="container">
-    <div th:insert="fragments/movie-form :: movie-form(${action}, ${movieForm})"></div>
-</div>
+<div th:insert="fragments/back-to-admin-page :: back-to-admin-page"></div>
+<div th:insert="fragments/movie-form :: movie-form(${action}, ${movieForm})"></div>
 </body>
 </html>

@@ -39,4 +39,12 @@ public class ScreeningSeat extends AbstractEntity implements ISeat {
         return ticket != null;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        return o instanceof ScreeningSeat screeningSeat &&
+                showroomSeat.equals(screeningSeat.getShowroomSeat()) &&
+                getRowLetter().equals(screeningSeat.getRowLetter()) &&
+                getSeatNumber().equals(screeningSeat.getSeatNumber());
+    }
+
 }

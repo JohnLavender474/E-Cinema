@@ -47,7 +47,7 @@ public class MovieScreeningController {
 
     @GetMapping("/screening/{id}")
     public String seeScreeningPage(final Model model, @PathVariable("id") final Long screeningId) {
-        ScreeningDto screeningDto = screeningService.convertToDto(screeningId);
+        ScreeningDto screeningDto = screeningService.convertIdToDto(screeningId);
         Map<Letter, Set<ScreeningSeatDto>> mapOfScreeningSeats = screeningSeatService
                 .findScreeningSeatMapByScreeningWithId(screeningId);
         model.addAttribute("screening", screeningDto);

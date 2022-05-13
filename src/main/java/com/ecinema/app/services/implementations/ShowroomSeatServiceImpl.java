@@ -53,7 +53,7 @@ public class ShowroomSeatServiceImpl extends AbstractServiceImpl<ShowroomSeat, S
 
     @Override
     public void onDeleteInfo(ShowroomSeat showroomSeat, Collection<String> info) {
-        info.add("Seat" + showroomSeat + " in showroom " +
+        info.add("Showroom seat " + showroomSeat.seatDesignation() + " in showroom " +
                          showroomSeat.getShowroom().getShowroomLetter() + " will be deleted");
     }
 
@@ -66,7 +66,8 @@ public class ShowroomSeatServiceImpl extends AbstractServiceImpl<ShowroomSeat, S
         }
         Map<Letter, Set<ShowroomSeatDto>> showroomSeatMap = new EnumMap<>(Letter.class);
         for (ShowroomSeatDto showroomSeatDto : showroomSeatDtos) {
-            showroomSeatMap.putIfAbsent(showroomSeatDto.getShowroomLetter(), new TreeSet<>(ISeat.comparator));
+            showroomSeatMap.putIfAbsent(showroomSeatDto.getShowroomLetter(),
+                                        new TreeSet<>(ISeat.SeatComparator.getInstance()));
             showroomSeatMap.get(showroomSeatDto.getRowLetter()).add(showroomSeatDto);
         }
         return showroomSeatMap;
@@ -131,7 +132,7 @@ public class ShowroomSeatServiceImpl extends AbstractServiceImpl<ShowroomSeat, S
     }
 
     @Override
-    public ShowroomSeatDto convertToDto(Long id)
+    public ShowroomSeatDto convertIdToDto(Long id)
             throws NoEntityFoundException {
         ShowroomSeat showroomSeat = findById(id).orElseThrow(
                 () -> new NoEntityFoundException("showroom seat", "id", id));
@@ -147,7 +148,7 @@ public class ShowroomSeatServiceImpl extends AbstractServiceImpl<ShowroomSeat, S
     }
 
     private List<ShowroomSeatDto> sortAndConvert(List<ShowroomSeat> showroomSeats) {
-        showroomSeats.sort(ISeat.comparator);
+        showroomSeats.sort(ISeat.SeatComparator.getInstance());
         return convertToDto(showroomSeats);
     }
 

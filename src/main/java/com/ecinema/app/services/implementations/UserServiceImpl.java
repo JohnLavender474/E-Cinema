@@ -2,7 +2,8 @@ package com.ecinema.app.services.implementations;
 
 import com.ecinema.app.domain.dtos.UserDto;
 import com.ecinema.app.domain.entities.User;
-import com.ecinema.app.domain.entities.UserRoleDef;
+import com.ecinema.app.domain.entities.AbstractUserAuthority;
+import com.ecinema.app.domain.enums.UserAuthority;
 import com.ecinema.app.exceptions.ClashException;
 import com.ecinema.app.exceptions.InvalidArgsException;
 import com.ecinema.app.exceptions.NoEntityFoundException;
@@ -10,7 +11,6 @@ import com.ecinema.app.repositories.UserRepository;
 import com.ecinema.app.services.*;
 import com.ecinema.app.domain.contracts.IPassword;
 import com.ecinema.app.domain.contracts.IRegistration;
-import com.ecinema.app.domain.enums.UserRole;
 import com.ecinema.app.utils.UtilMethods;
 import com.ecinema.app.domain.validators.PasswordValidator;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -30,41 +30,42 @@ import java.util.stream.Collectors;
 @Transactional
 public class UserServiceImpl extends AbstractServiceImpl<User, UserRepository> implements UserService {
 
-    private final Map<UserRole, UserRoleDefService<? extends UserRoleDef>> userRoleDefServices =
-            new EnumMap<>(UserRole.class);
+    private final Map<UserAuthority, AbstractUserAuthorityService<? extends AbstractUserAuthority>>
+            userAuthorityServices = new EnumMap<>(UserAuthority.class);
     private final PasswordValidator passwordValidator;
 
     /**
      * Instantiates a new User service.
      *
      * @param repository                 the repository
-     * @param customerRoleDefService     the customer role def service
-     * @param moderatorRoleDefService    the moderator role def service
+     * @param customerAuthorityService     the customer role def service
+     * @param moderatorAuthorityService    the moderator role def service
 
-     * @param adminRoleDefService        the admin role def service
+     * @param adminAuthorityService        the admin role def service
      */
     public UserServiceImpl(UserRepository repository,
-                           CustomerRoleDefService customerRoleDefService,
-                           ModeratorRoleDefService moderatorRoleDefService,
-                           AdminRoleDefService adminRoleDefService,
+                           CustomerAuthorityService customerAuthorityService,
+                           ModeratorAuthorityService moderatorAuthorityService,
+                           AdminAuthorityService adminAuthorityService,
                            PasswordValidator passwordValidator) {
         super(repository);
         this.passwordValidator = passwordValidator;
-        userRoleDefServices.put(UserRole.CUSTOMER, customerRoleDefService);
-        userRoleDefServices.put(UserRole.MODERATOR, moderatorRoleDefService);
-        userRoleDefServices.put(UserRole.ADMIN, adminRoleDefService);
+        userAuthorityServices.put(UserAuthority.CUSTOMER, customerAuthorityService);
+        userAuthorityServices.put(UserAuthority.MODERATOR, moderatorAuthorityService);
+        userAuthorityServices.put(UserAuthority.ADMIN, adminAuthorityService);
     }
 
     @Override
     protected void onDelete(User user) {
         logger.debug("User Service on delete");
-        // cascade delete UserRoleDefs, iterate over copy of keySet to avoid concurrent modification exception
-        Set<UserRole> userRoles = new HashSet<>(user.getUserRoleDefs().keySet());
-        logger.debug("User roles: " + userRoles);
-        for (UserRole userRole : userRoles) {
-            logger.debug("Deleting user role: " + userRole);
-            UserRoleDefService<? extends UserRoleDef> userRoleDefService = userRoleDefServices.get(userRole);
-            userRoleDefService.delete(userRole.castToDefType(user.getUserRoleDefs().get(userRole)));
+        // cascade delete AbstractUserAuthoritys, iterate over copy of keySet to avoid concurrent modification exception
+        Set<UserAuthority> userAuthorities = new HashSet<>(user.getUserAuthorities().keySet());
+        logger.debug("User roles: " + userAuthorities);
+        for (UserAuthority userAuthority : userAuthorities) {
+            logger.debug("Deleting user role: " + userAuthority);
+            AbstractUserAuthorityService<? extends AbstractUserAuthority> userAuthorityService =
+                    userAuthorityServices.get(userAuthority);
+            userAuthorityService.delete(userAuthority.cast(user.getUserAuthorities().get(userAuthority)));
         }
     }
 
@@ -78,9 +79,10 @@ public class UserServiceImpl extends AbstractServiceImpl<User, UserRepository> i
 
     @Override
     public void onDeleteInfo(User user, Collection<String> info) {
-        user.getUserRoleDefs().forEach((userRole, userRoleDef) -> {
-            UserRoleDefService<? extends UserRoleDef> userRoleDefService = userRoleDefServices.get(userRole);
-            userRoleDefService.onDeleteInfo(userRole.castToDefType(userRoleDef), info);
+        user.getUserAuthorities().forEach((userRole, AbstractUserAuthority) -> {
+            AbstractUserAuthorityService<? extends AbstractUserAuthority> userAuthorityService =
+                    userAuthorityServices.get(userRole);
+            userAuthorityService.onDeleteInfo(userRole.cast(AbstractUserAuthority), info);
         });
     }
 
@@ -113,9 +115,9 @@ public class UserServiceImpl extends AbstractServiceImpl<User, UserRepository> i
         user.setIsAccountExpired(false);
         user.setIsCredentialsExpired(false);
         save(user);
-        addUserRoleDefToUser(user, registration.getUserRoles());
+        addUserAuthorityToUser(user, registration.getUserAuthorities());
         logger.debug("Instantiated and saved new user: " + user);
-        UserDto userDto = convertToDto(user.getId());
+        UserDto userDto = convertToDto(user);
         logger.debug("Returning new user DTO: " + userDto);
         return userDto;
     }
@@ -158,17 +160,17 @@ public class UserServiceImpl extends AbstractServiceImpl<User, UserRepository> i
     }
 
     @Override
-    public <T extends UserRoleDef> Optional<T> getUserRoleDefOf(Long userId, Class<T> userRoleDefClass)
+    public <T extends AbstractUserAuthority> Optional<T> getUserAuthorityOf(Long userId, Class<T> userAuthorityClass)
             throws InvalidArgsException, NoEntityFoundException {
-        UserRole userRole = UserRole.defClassToUserRole(userRoleDefClass);
-        if (userRole == null) {
-            throw new InvalidArgsException("The provided class " + userRoleDefClass.getName() +
+        UserAuthority userAuthority = UserAuthority.defClassToUserRole(userAuthorityClass);
+        if (userAuthority == null) {
+            throw new InvalidArgsException("The provided class " + userAuthorityClass.getName() +
                                                    " is not mapped to a user role value");
         }
         User user = findById(userId).orElseThrow(
                 () -> new NoEntityFoundException("User", "id", userId));
-        UserRoleDef userRoleDef = user.getUserRoleDefs().get(userRole);
-        return Optional.ofNullable(userRoleDefClass.cast(userRoleDef));
+        AbstractUserAuthority userAuthorityDef = user.getUserAuthorities().get(userAuthority);
+        return Optional.ofNullable(userAuthorityClass.cast(userAuthorityDef));
     }
 
     @Override
@@ -225,18 +227,18 @@ public class UserServiceImpl extends AbstractServiceImpl<User, UserRepository> i
     }
 
     @Override
-    public Set<UserRole> userRoles(Long userId)
+    public Set<UserAuthority> userAuthorities(Long userId)
             throws NoEntityFoundException {
         User user = findById(userId).orElseThrow(
                 () -> new NoEntityFoundException("user", "id", userId));
-        return new HashSet<>(user.getUserRoleDefs().keySet());
+        return new HashSet<>(user.getUserAuthorities().keySet());
     }
 
     @Override
-    public List<String> userRolesAsListOfStrings(Long userId)
+    public List<String> userAuthoritiesAsListOfStrings(Long userId)
             throws NoEntityFoundException {
-        return userRoles(userId)
-                .stream().map(UserRole::name)
+        return userAuthorities(userId)
+                .stream().map(UserAuthority::name)
                 .collect(Collectors.toList());
     }
 
@@ -246,72 +248,74 @@ public class UserServiceImpl extends AbstractServiceImpl<User, UserRepository> i
     }
 
     @Override
-    public void addUserRoleDefToUser(User user, UserRole... userRoles)
+    public void addUserAuthorityToUser(User user, UserAuthority... userAuthorities)
             throws NoEntityFoundException, InvalidArgsException, ClashException {
-        addUserRoleDefToUser(user.getId(), userRoles);
+        addUserAuthorityToUser(user.getId(), userAuthorities);
     }
 
     @Override
-    public void addUserRoleDefToUser(User user, Set<UserRole> userRoles)
+    public void addUserAuthorityToUser(User user, Set<UserAuthority> userAuthorities)
             throws NoEntityFoundException, InvalidArgsException, ClashException {
-        addUserRoleDefToUser(user.getId(), userRoles);
+        addUserAuthorityToUser(user.getId(), userAuthorities);
     }
 
     @Override
-    public void addUserRoleDefToUser(Long userId, UserRole... userRoles)
+    public void addUserAuthorityToUser(Long userId, UserAuthority... userAuthorities)
             throws NoEntityFoundException, InvalidArgsException, ClashException {
-        addUserRoleDefToUser(userId, Set.of(userRoles));
+        addUserAuthorityToUser(userId, Set.of(userAuthorities));
     }
 
     @Override
-    public void addUserRoleDefToUser(Long userId, Set<UserRole> userRoles)
+    public void addUserAuthorityToUser(Long userId, Set<UserAuthority> userAuthorities)
             throws NoEntityFoundException, InvalidArgsException, ClashException {
         User user = findById(userId).orElseThrow(
                 () -> new NoEntityFoundException("user", "id", userId));
-        List<UserRole> userRolesAlreadyInstantiated = UtilMethods.findAllKeysThatMapContainsIfAny(
-                user.getUserRoleDefs(), userRoles);
+        List<UserAuthority> userRolesAlreadyInstantiated = UtilMethods.findAllKeysThatMapContainsIfAny(
+                user.getUserAuthorities(), userAuthorities);
         if (!userRolesAlreadyInstantiated.isEmpty()) {
             List<String> errors = new ArrayList<>();
-            for (UserRole userRole : userRolesAlreadyInstantiated) {
-                errors.add("FAILURE: User already has " + userRole + " role definition");
+            for (UserAuthority userAuthority : userRolesAlreadyInstantiated) {
+                errors.add("FAILURE: User already has " + userAuthority + " role definition");
             }
             throw new ClashException(errors);
         }
-        for (UserRole userRole : userRoles) {
-            UserRoleDef userRoleDef = userRole.instantiateNew();
-            userRoleDef.setUser(user);
-            user.getUserRoleDefs().put(userRole, userRoleDef);
-            userRoleDefServices.get(userRole).save(userRole.castToDefType(userRoleDef));
+        for (UserAuthority userAuthority : userAuthorities) {
+            AbstractUserAuthority userAuthorityDef = userAuthority.instantiate();
+            userAuthorityDef.setUser(user);
+            user.getUserAuthorities().put(userAuthority, userAuthorityDef);
+            userAuthorityDef.setIsAuthorityValid(true);
+            userAuthorityServices.get(userAuthority).save(userAuthority.cast(userAuthorityDef));
         }
     }
 
     @Override
-    public void removeUserRoleDefFromUser(User user, UserRole... userRoles)
+    public void removeUserAuthorityFromUser(User user, UserAuthority... userAuthorities)
             throws NoEntityFoundException, InvalidArgsException {
-        removeUserRoleDefFromUser(user.getId(), userRoles);
+        removeUserAuthorityFromUser(user.getId(), userAuthorities);
     }
 
     @Override
-    public void removeUserRoleDefFromUser(User user, Set<UserRole> userRoles)
+    public void removeUserAuthorityFromUser(User user, Set<UserAuthority> userAuthorities)
             throws NoEntityFoundException, InvalidArgsException {
-        removeUserRoleDefFromUser(user.getId(), userRoles);
+        removeUserAuthorityFromUser(user.getId(), userAuthorities);
     }
 
     @Override
-    public void removeUserRoleDefFromUser(Long userId, UserRole... userRoles)
+    public void removeUserAuthorityFromUser(Long userId, UserAuthority... userAuthorities)
             throws NoEntityFoundException, InvalidArgsException {
-        removeUserRoleDefFromUser(userId, Set.of(userRoles));
+        removeUserAuthorityFromUser(userId, Set.of(userAuthorities));
     }
 
     @Override
-    public void removeUserRoleDefFromUser(Long userId, Set<UserRole> userRoles)
+    public void removeUserAuthorityFromUser(Long userId, Set<UserAuthority> userAuthorities)
             throws NoEntityFoundException, InvalidArgsException {
         User user = findById(userId).orElseThrow(
                 () -> new NoEntityFoundException("User", "id", userId));
-        for (UserRole userRole : userRoles) {
-            UserRoleDef userRoleDef = user.getUserRoleDefs().get(userRole);
-            UserRoleDefService<? extends UserRoleDef> userRoleDefService = userRoleDefServices.get(userRole);
-            userRoleDefService.deleteById(userRoleDef.getId());
+        for (UserAuthority userAuthority : userAuthorities) {
+            AbstractUserAuthority userAuthorityDef = user.getUserAuthorities().get(userAuthority);
+            AbstractUserAuthorityService<? extends AbstractUserAuthority> userAuthorityService =
+                    userAuthorityServices.get(userAuthority);
+            userAuthorityService.deleteById(userAuthorityDef.getId());
         }
     }
 
@@ -327,7 +331,7 @@ public class UserServiceImpl extends AbstractServiceImpl<User, UserRepository> i
     }
 
     @Override
-    public UserDto convertToDto(Long id)
+    public UserDto convertIdToDto(Long id)
             throws NoEntityFoundException {
         User user = findById(id).orElseThrow(
                 () -> new NoEntityFoundException("user", "id", id));
@@ -337,7 +341,7 @@ public class UserServiceImpl extends AbstractServiceImpl<User, UserRepository> i
         userDto.setUsername(user.getUsername());
         userDto.setFirstName(user.getFirstName());
         userDto.setLastName(user.getLastName());
-        userDto.getUserRoles().addAll(user.getUserRoleDefs().keySet());
+        userDto.getUserAuthorities().addAll(user.getUserAuthorities().keySet());
         logger.debug("Converting user to DTO: " + userDto);
         logger.debug("User: " + user);
         return userDto;

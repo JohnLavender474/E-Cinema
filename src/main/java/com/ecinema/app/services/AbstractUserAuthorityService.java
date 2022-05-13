@@ -1,7 +1,7 @@
 package com.ecinema.app.services;
 
 import com.ecinema.app.domain.entities.User;
-import com.ecinema.app.domain.entities.UserRoleDef;
+import com.ecinema.app.domain.entities.AbstractUserAuthority;
 
 import java.util.Optional;
 
@@ -10,7 +10,7 @@ import java.util.Optional;
  *
  * @param <T> the type parameter
  */
-public interface UserRoleDefService<T extends UserRoleDef> extends AbstractService<T> {
+public interface AbstractUserAuthorityService<T extends AbstractUserAuthority> extends AbstractService<T> {
 
     /**
      * Find by user optional.

@@ -1,11 +1,9 @@
 package com.ecinema.app.services;
 
 import com.ecinema.app.domain.entities.*;
-import com.ecinema.app.domain.enums.Letter;
-import com.ecinema.app.domain.enums.TicketStatus;
-import com.ecinema.app.domain.enums.TicketType;
-import com.ecinema.app.domain.enums.UserRole;
+import com.ecinema.app.domain.enums.*;
 import com.ecinema.app.domain.forms.TicketForm;
+import com.ecinema.app.exceptions.NoEntityFoundException;
 import com.ecinema.app.repositories.*;
 import com.ecinema.app.services.implementations.*;
 import org.junit.jupiter.api.BeforeEach;
@@ -16,12 +14,9 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.same;
 import static org.mockito.BDDMockito.given;
 
 @ExtendWith(MockitoExtension.class)
@@ -32,9 +27,10 @@ class TicketServiceTest {
     private UserService userService;
     private TicketService ticketService;
     private ScreeningService screeningService;
+    private ShowroomService showroomService;
     private ShowroomSeatService showroomSeatService;
     private ScreeningSeatService screeningSeatService;
-    private CustomerRoleDefService customerRoleDefService;
+    private CustomerAuthorityService customerAuthorityService;
     private ReviewService reviewService;
     private PaymentCardService paymentCardService;
     private CouponService couponService;
@@ -49,7 +45,7 @@ class TicketServiceTest {
     @Mock
     private ScreeningSeatRepository screeningSeatRepository;
     @Mock
-    private CustomerRoleDefRepository customerRoleDefRepository;
+    private CustomerAuthorityRepository customerAuthorityRepository;
     @Mock
     private ReviewRepository reviewRepository;
     @Mock
@@ -80,36 +76,56 @@ class TicketServiceTest {
                 paymentCardRepository, null, null);
         couponService = new CouponServiceImpl(
                 couponRepository, null, null);
-        customerRoleDefService = new CustomerRoleDefServiceImpl(
-                customerRoleDefRepository, reviewService,
+        customerAuthorityService = new CustomerAuthorityServiceImpl(
+                customerAuthorityRepository, reviewService,
                 ticketService, paymentCardService, couponService);
         userService = new UserServiceImpl(
-                userRepository, customerRoleDefService,
+                userRepository, customerAuthorityService,
                 null, null, null);
+        showroomService = new ShowroomServiceImpl(
+                showroomRepository, showroomSeatService,
+                screeningService, null);
     }
 
     @Test
     void deleteTicketCascade() {
         // given
+        Showroom showroom = new Showroom();
+        showroom.setShowroomLetter(Letter.A);
+        showroomService.save(showroom);
+        for (int i = 0; i < 30; i++) {
+            ShowroomSeat showroomSeat = new ShowroomSeat();
+            showroomSeat.setId((long) i);
+            showroomSeat.setRowLetter(Letter.A);
+            showroomSeat.setSeatNumber(i);
+            given(showroomSeatRepository.findById((long) i))
+                    .willReturn(Optional.of(showroomSeat));
+            showroomSeatService.save(showroomSeat);
+        }
         Screening screening = new Screening();
         screening.setId(0L);
         screeningService.save(screening);
         List<ScreeningSeat> screeningSeats = new ArrayList<>();
         for (int i = 0; i < 30; i++) {
+            final Integer j = i;
+            ShowroomSeat showroomSeat = showroomSeatService.findById((long) i).orElseThrow(
+                    () -> new NoEntityFoundException("showroom seat", "id", j));
             ScreeningSeat screeningSeat = new ScreeningSeat();
-            screeningSeat.setId((long) i + 1);
+            screeningSeat.setId((long) i);
+            screeningSeat.setShowroomSeat(showroomSeat);
+            showroomSeat.getScreeningSeats().add(screeningSeat);
             screeningSeat.setScreening(screening);
             screening.getScreeningSeats().add(screeningSeat);
             screeningSeatService.save(screeningSeat);
             screeningSeats.add(screeningSeat);
         }
-        CustomerRoleDef customerRoleDef = new CustomerRoleDef();
-        customerRoleDef.setId(31L);
-        customerRoleDefService.save(customerRoleDef);
+        CustomerAuthority customerAuthority = new CustomerAuthority();
+        customerAuthority.setId(31L);
+        customerAuthorityService.save(customerAuthority);
         Ticket ticket = new Ticket();
         ticket.setId(32L);
-        ticket.setCustomerRoleDef(customerRoleDef);
-        customerRoleDef.getTickets().add(ticket);
+        ticket.setTicketOwner(customerAuthority);
+        customerAuthority.getTickets().add(ticket);
         ticket.setScreeningSeat(screeningSeats.get(0));
         screeningSeats.get(0).setTicket(ticket);
         given(ticketRepository.findById(32L))
@@ -120,8 +136,8 @@ class TicketServiceTest {
         coupon.setTicket(ticket);
         ticket.getCoupons().add(coupon);
         couponService.save(coupon);
-        assertFalse(customerRoleDef.getTickets().isEmpty());
-        assertNotNull(ticket.getCustomerRoleDef());
+        assertFalse(customerAuthority.getTickets().isEmpty());
+        assertNotNull(ticket.getTicketOwner());
         assertEquals(screeningSeats.get(0), ticket.getScreeningSeat());
         assertEquals(ticket, screeningSeats.get(0).getTicket());
         assertEquals(ticket, coupon.getTicket());
@@ -132,8 +148,8 @@ class TicketServiceTest {
         // when
         ticketService.delete(ticket);
         // then
-        assertTrue(customerRoleDef.getTickets().isEmpty());
-        assertNull(ticket.getCustomerRoleDef());
+        assertTrue(customerAuthority.getTickets().isEmpty());
+        assertNull(ticket.getTicketOwner());
         assertNotEquals(screeningSeats.get(0), ticket.getScreeningSeat());
         for (ScreeningSeat screeningSeat : screeningSeats) {
             assertEquals(screening, screeningSeat.getScreening());
@@ -145,8 +161,19 @@ class TicketServiceTest {
     @Test
     void submitTicketForm() {
         // given
+        Showroom showroom = new Showroom();
+        showroom.setShowroomLetter(Letter.A);
+        showroomService.save(showroom);
+        ShowroomSeat showroomSeat = new ShowroomSeat();
+        showroomSeat.setRowLetter(Letter.A);
+        showroomSeat.setSeatNumber(1);
+        showroomSeat.setShowroom(showroom);
+        showroom.getShowroomSeats().add(showroomSeat);
+        showroomSeatService.save(showroomSeat);
         ScreeningSeat screeningSeat = new ScreeningSeat();
         screeningSeat.setId(1L);
+        screeningSeat.setShowroomSeat(showroomSeat);
+        showroomSeat.getScreeningSeats().add(screeningSeat);
         given(screeningSeatRepository.findById(1L))
                 .willReturn(Optional.of(screeningSeat));
         screeningSeatService.save(screeningSeat);
@@ -155,7 +182,7 @@ class TicketServiceTest {
         given(userRepository.findById(2L))
                 .willReturn(Optional.of(user));
         userService.save(user);
-        userService.addUserRoleDefToUser(user, UserRole.CUSTOMER);
+        userService.addUserAuthorityToUser(user, UserAuthority.CUSTOMER);
         Coupon coupon = new Coupon();
         coupon.setId(3L);
         given(couponRepository.findAllById(List.of(3L)))
@@ -169,13 +196,13 @@ class TicketServiceTest {
         ticketForm.setUserId(2L);
         ticketService.submitTicketForm(ticketForm);
         // then
-        assertNotNull(user.getUserRoleDefs().get(UserRole.CUSTOMER));
-        CustomerRoleDef customerRoleDef = (CustomerRoleDef) user.getUserRoleDefs().get(UserRole.CUSTOMER);
-        assertFalse(customerRoleDef.getTickets().isEmpty());
-        Ticket ticket = customerRoleDef.getTickets()
-                                       .stream().findFirst()
-                                       .orElseThrow(IllegalStateException::new);
-        assertEquals(customerRoleDef, ticket.getCustomerRoleDef());
+        assertNotNull(user.getUserAuthorities().get(UserAuthority.CUSTOMER));
+        CustomerAuthority customerAuthority = (CustomerAuthority) user.getUserAuthorities().get(UserAuthority.CUSTOMER);
+        assertFalse(customerAuthority.getTickets().isEmpty());
+        Ticket ticket = customerAuthority.getTickets()
+                                         .stream().findFirst()
+                                         .orElseThrow(IllegalStateException::new);
+        assertEquals(customerAuthority, ticket.getTicketOwner());
         assertEquals(screeningSeat, ticket.getScreeningSeat());
         assertEquals(ticket, screeningSeat.getTicket());
         assertEquals(TicketStatus.VALID, ticket.getTicketStatus());
@@ -198,19 +225,26 @@ class TicketServiceTest {
         screeningSeat.setShowroomSeat(showroomSeat);
         showroomSeat.getScreeningSeats().add(screeningSeat);
         screeningSeatService.save(screeningSeat);
-        CustomerRoleDef customerRoleDef = new CustomerRoleDef();
-        customerRoleDefService.save(customerRoleDef);
+        User user = new User();
+        user.setUsername("TestUser123");
+        userService.save(user);
+        CustomerAuthority customerAuthority = new CustomerAuthority();
+        customerAuthority.setUser(user);
+        user.getUserAuthorities().put(UserAuthority.CUSTOMER, customerAuthority);
+        customerAuthorityService.save(customerAuthority);
         Ticket ticket = new Ticket();
         ticket.setScreeningSeat(screeningSeat);
         screeningSeat.setTicket(ticket);
-        ticket.setCustomerRoleDef(customerRoleDef);
-        customerRoleDef.getTickets().add(ticket);
+        ticket.setTicketOwner(customerAuthority);
+        customerAuthority.getTickets().add(ticket);
         ticketService.save(ticket);
         Coupon coupon = new Coupon();
         coupon.setTicket(ticket);
+        coupon.setCouponType(CouponType.FOOD_DRINK_COUPON);
+        coupon.setDiscountType(DiscountType.PERCENTAGE_DISCOUNT);
         ticket.getCoupons().add(coupon);
-        coupon.setCustomerRoleDef(customerRoleDef);
-        customerRoleDef.getCoupons().add(coupon);
+        coupon.setCouponOwner(customerAuthority);
+        customerAuthority.getCoupons().add(coupon);
         couponService.save(coupon);
         // when
         List<String> info = new ArrayList<>();

@@ -1,6 +1,6 @@
 package com.ecinema.app.repositories;
 
-import com.ecinema.app.domain.entities.CustomerRoleDef;
+import com.ecinema.app.domain.entities.CustomerAuthority;
 import com.ecinema.app.domain.entities.Movie;
 import com.ecinema.app.domain.entities.Review;
 import org.springframework.data.domain.Page;
@@ -35,7 +35,7 @@ public interface ReviewRepository extends JpaRepository<Review, Long>, AbstractR
      * @param movie  the movie
      * @return the boolean
      */
-    boolean existsByWriterAndMovie(CustomerRoleDef writer, Movie movie);
+    boolean existsByWriterAndMovie(CustomerAuthority writer, Movie movie);
 
     /**
      * Find all by movie list.

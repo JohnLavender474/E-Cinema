@@ -1,10 +1,17 @@
 package com.ecinema.app.services;
 
 import com.ecinema.app.domain.entities.ScreeningSeat;
+import com.ecinema.app.domain.entities.Showroom;
+import com.ecinema.app.domain.entities.ShowroomSeat;
 import com.ecinema.app.domain.entities.Ticket;
+import com.ecinema.app.domain.enums.Letter;
 import com.ecinema.app.repositories.ScreeningSeatRepository;
+import com.ecinema.app.repositories.ShowroomRepository;
+import com.ecinema.app.repositories.ShowroomSeatRepository;
 import com.ecinema.app.repositories.TicketRepository;
 import com.ecinema.app.services.implementations.ScreeningSeatServiceImpl;
+import com.ecinema.app.services.implementations.ShowroomSeatServiceImpl;
+import com.ecinema.app.services.implementations.ShowroomServiceImpl;
 import com.ecinema.app.services.implementations.TicketServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -21,11 +28,17 @@ import static org.mockito.BDDMockito.given;
 class ScreeningSeatServiceTest {
 
     private TicketService ticketService;
+    private ShowroomService showroomService;
+    private ShowroomSeatService showroomSeatService;
     private ScreeningSeatService screeningSeatService;
     @Mock
     private TicketRepository ticketRepository;
     @Mock
     private ScreeningSeatRepository screeningSeatRepository;
+    @Mock
+    private ShowroomSeatRepository showroomSeatRepository;
+    @Mock
+    private ShowroomRepository showroomRepository;
 
     @BeforeEach
     void setUp() {
@@ -33,13 +46,27 @@ class ScreeningSeatServiceTest {
                 ticketRepository, null, null, null);
         screeningSeatService = new ScreeningSeatServiceImpl(
                 screeningSeatRepository, ticketService);
+        showroomSeatService = new ShowroomSeatServiceImpl(
+                showroomSeatRepository, screeningSeatService);
+        showroomService = new ShowroomServiceImpl(
+                showroomRepository, showroomSeatService,
+                null, null);
     }
 
     @Test
     void deleteScreeningSeatCascade() {
         // given
+        Showroom showroom = new Showroom();
+        showroom.setShowroomLetter(Letter.A);
+        showroomService.save(showroom);
+        ShowroomSeat showroomSeat = new ShowroomSeat();
+        showroomSeat.setRowLetter(Letter.A);
+        showroomSeat.setSeatNumber(1);
+        showroomSeatService.save(showroomSeat);
         ScreeningSeat screeningSeat = new ScreeningSeat();
         screeningSeat.setId(1L);
+        screeningSeat.setShowroomSeat(showroomSeat);
+        showroomSeat.getScreeningSeats().add(screeningSeat);
         given(screeningSeatRepository.findById(1L))
                 .willReturn(Optional.of(screeningSeat));
         screeningSeatService.save(screeningSeat);

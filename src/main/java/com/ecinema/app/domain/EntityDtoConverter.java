@@ -24,7 +24,7 @@ public interface EntityDtoConverter<E extends AbstractEntity, D extends Abstract
      */
     default D convertToDto(E entity)
             throws NoEntityFoundException {
-        return convertToDto(entity.getId());
+        return convertIdToDto(entity.getId());
     }
 
     /**
@@ -38,7 +38,24 @@ public interface EntityDtoConverter<E extends AbstractEntity, D extends Abstract
             throws NoEntityFoundException {
         List<D> dtos = new ArrayList<>();
         for (E e : entities) {
-            D d = convertToDto(e.getId());
+            D d = convertIdToDto(e.getId());
+            dtos.add(d);
+        }
+        return dtos;
+    }
+
+    /**
+     * Convert ids to dto list.
+     *
+     * @param ids the ids
+     * @return the list
+     * @throws NoEntityFoundException the no entity found exception
+     */
+    default List<D> convertIdsToDto(Iterable<Long> ids)
+        throws NoEntityFoundException {
+        List<D> dtos = new ArrayList<>();
+        for (Long id : ids) {
+            D d = convertIdToDto(id);
             dtos.add(d);
         }
         return dtos;
@@ -51,7 +68,7 @@ public interface EntityDtoConverter<E extends AbstractEntity, D extends Abstract
      * @return the d
      * @throws NoEntityFoundException the no entity found exception
      */
-    D convertToDto(Long id)
+    D convertIdToDto(Long id)
             throws NoEntityFoundException;
 
 }

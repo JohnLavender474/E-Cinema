@@ -7,9 +7,7 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 
-import javax.print.attribute.standard.MediaSize.ISO;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 
 @Getter
 @Setter
@@ -24,15 +22,15 @@ public class ScreeningDto implements AbstractDto, IScreening {
     private Integer seatsBooked;
     private Integer seatsAvailable;
     private Integer totalSeatsInRoom;
-    private LocalDateTime showtime;
-    private LocalDateTime endtime;
+    private LocalDateTime showDateTime;
+    private LocalDateTime endDateTime;
 
-    public String showtimeFormatted() {
-        return UtilMethods.localDateTimeFormatted(showtime);
+    public String showDateTimeFormatted() {
+        return UtilMethods.localDateTimeFormatted(showDateTime);
     }
 
-    public String endtimeFormatted() {
-        return UtilMethods.localDateTimeFormatted(endtime);
+    public String endDateTimeFormatted() {
+        return UtilMethods.localDateTimeFormatted(endDateTime);
     }
 
 }

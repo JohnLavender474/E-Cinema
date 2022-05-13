@@ -1,7 +1,6 @@
 package com.ecinema.app.domain.dtos;
 
-import com.ecinema.app.domain.enums.UserRole;
-import lombok.Data;
+import com.ecinema.app.domain.enums.UserAuthority;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -22,6 +21,6 @@ public class UserDto implements AbstractDto {
     private String username;
     private String firstName;
     private String lastName;
-    private Set<UserRole> userRoles =
-            EnumSet.noneOf(UserRole.class);
+    private Set<UserAuthority> userAuthorities =
+            EnumSet.noneOf(UserAuthority.class);
 }

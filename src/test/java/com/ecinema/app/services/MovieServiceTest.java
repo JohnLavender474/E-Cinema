@@ -2,12 +2,8 @@ package com.ecinema.app.services;
 
 import com.ecinema.app.domain.dtos.*;
 import com.ecinema.app.domain.entities.*;
-import com.ecinema.app.domain.enums.Letter;
-import com.ecinema.app.domain.enums.MovieCategory;
-import com.ecinema.app.domain.enums.MsrbRating;
-import com.ecinema.app.domain.enums.UserRole;
+import com.ecinema.app.domain.enums.*;
 import com.ecinema.app.domain.forms.ReviewForm;
-import com.ecinema.app.domain.forms.ShowroomForm;
 import com.ecinema.app.repositories.*;
 import com.ecinema.app.services.implementations.*;
 import com.ecinema.app.utils.*;
@@ -48,7 +44,7 @@ class MovieServiceTest {
     private ShowroomSeatService showroomSeatService;
     private ScreeningSeatService screeningSeatService;
     private ScreeningService screeningService;
-    private CustomerRoleDefService customerRoleDefService;
+    private CustomerAuthorityService customerAuthorityService;
     private UserService userService;
     private MovieValidator movieValidator;
     private ReviewValidator reviewValidator;
@@ -71,7 +67,7 @@ class MovieServiceTest {
     @Mock
     private ScreeningRepository screeningRepository;
     @Mock
-    private CustomerRoleDefRepository customerRoleDefRepository;
+    private CustomerAuthorityRepository customerAuthorityRepository;
     @Mock
     private UserRepository userRepository;
 
@@ -84,7 +80,7 @@ class MovieServiceTest {
         movieValidator = new MovieValidator();
         reviewService = new ReviewServiceImpl(
                 reviewRepository, movieRepository,
-                customerRoleDefRepository, reviewValidator);
+                customerAuthorityRepository, reviewValidator);
         ticketService = new TicketServiceImpl(
                 ticketRepository, null, null, null);
         couponService = new CouponServiceImpl(
@@ -96,8 +92,8 @@ class MovieServiceTest {
         screeningService = new ScreeningServiceImpl(
                 screeningRepository, movieRepository, showroomRepository,
                 screeningSeatService, null);
-        customerRoleDefService = new CustomerRoleDefServiceImpl(
-                customerRoleDefRepository, reviewService,
+        customerAuthorityService = new CustomerAuthorityServiceImpl(
+                customerAuthorityRepository, reviewService,
                 ticketService, paymentCardService, couponService);
         movieService = new MovieServiceImpl(
                 movieRepository, reviewService,
@@ -108,7 +104,7 @@ class MovieServiceTest {
                 showroomRepository, showroomSeatService,
                 screeningService, null);
         userService = new UserServiceImpl(
-                userRepository, customerRoleDefService,
+                userRepository, customerAuthorityService,
                 null, null, null);
     }
 
@@ -123,12 +119,12 @@ class MovieServiceTest {
         given(movieRepository.findById(1L))
                 .willReturn(Optional.of(movie));
         movieService.save(movie);
-        CustomerRoleDef customerRoleDef = new CustomerRoleDef();
-        customerRoleDefService.save(customerRoleDef);
+        CustomerAuthority customerAuthority = new CustomerAuthority();
+        customerAuthorityService.save(customerAuthority);
         Review review = new Review();
         review.setId(2L);
-        review.setWriter(customerRoleDef);
-        customerRoleDef.getReviews().add(review);
+        review.setWriter(customerAuthority);
+        customerAuthority.getReviews().add(review);
         review.setMovie(movie);
         movie.getReviews().add(review);
         given(reviewRepository.findById(2L))
@@ -141,14 +137,14 @@ class MovieServiceTest {
         given(screeningRepository.findById(3L))
                 .willReturn(Optional.of(screening));
         screeningService.save(screening);
-        assertTrue(customerRoleDef.getReviews().contains(review));
+        assertTrue(customerAuthority.getReviews().contains(review));
         assertEquals(movie, review.getMovie());
         assertTrue(movie.getScreenings().contains(screening));
         assertEquals(movie, screening.getMovie());
         // when
         movieService.delete(movie);
         // then
-        assertFalse(customerRoleDef.getReviews().contains(review));
+        assertFalse(customerAuthority.getReviews().contains(review));
         assertNull(review.getMovie());
         assertFalse(movie.getScreenings().contains(screening));
         assertNull(screening.getMovie());
@@ -181,15 +177,15 @@ class MovieServiceTest {
         User user = new User();
         user.setUsername("test username");
         userService.save(user);
-        CustomerRoleDef customerRoleDef = new CustomerRoleDef();
-        customerRoleDef.setUser(user);
-        user.getUserRoleDefs().put(UserRole.CUSTOMER, customerRoleDef);
-        customerRoleDefService.save(customerRoleDef);
+        CustomerAuthority customerAuthority = new CustomerAuthority();
+        customerAuthority.setUser(user);
+        user.getUserAuthorities().put(UserAuthority.CUSTOMER, customerAuthority);
+        customerAuthorityService.save(customerAuthority);
         Review review = new Review();
         review.setId(1L);
         review.setRating(7);
-        review.setWriter(customerRoleDef);
-        customerRoleDef.getReviews().add(review);
+        review.setWriter(customerAuthority);
+        customerAuthority.getReviews().add(review);
         review.setReview("meh, it's okay");
         review.setMovie(movie);
         movie.getReviews().add(review);
@@ -223,6 +219,7 @@ class MovieServiceTest {
         screeningService.save(screening);
         ScreeningSeat screeningSeat = new ScreeningSeat();
         screeningSeat.setId(1L);
+        screeningSeat.setShowroomSeat(showroomSeat);
         screening.getScreeningSeats().add(screeningSeat);
         screeningSeat.setScreening(screening);
         showroomSeat.getScreeningSeats().add(screeningSeat);
@@ -238,7 +235,7 @@ class MovieServiceTest {
                 .willReturn(Optional.of(ticket));
         ticketService.save(ticket);
         // when
-        MovieDto movieDto = movieService.convertToDto(1L);
+        MovieDto movieDto = movieService.convertIdToDto(1L);
         // then
         assertEquals(movie.getId(), movieDto.getId());
         assertEquals(movie.getTitle(), movieDto.getTitle());
@@ -264,13 +261,13 @@ class MovieServiceTest {
         User user = new User();
         user.setId(2L);
         userService.save(user);
-        CustomerRoleDef customerRoleDef = new CustomerRoleDef();
-        customerRoleDef.setId(3L);
-        customerRoleDef.setUser(user);
-        user.getUserRoleDefs().put(UserRole.CUSTOMER, customerRoleDef);
-        given(customerRoleDefRepository.findByUserWithId(2L))
-                .willReturn(Optional.of(customerRoleDef));
-        customerRoleDefService.save(customerRoleDef);
+        CustomerAuthority customerAuthority = new CustomerAuthority();
+        customerAuthority.setId(3L);
+        customerAuthority.setUser(user);
+        user.getUserAuthorities().put(UserAuthority.CUSTOMER, customerAuthority);
+        given(customerAuthorityRepository.findByUserWithId(2L))
+                .willReturn(Optional.of(customerAuthority));
+        customerAuthorityService.save(customerAuthority);
         // when
         ReviewForm reviewForm = new ReviewForm();
         reviewForm.setMovieId(1L);
@@ -286,7 +283,7 @@ class MovieServiceTest {
         assertEquals(movie, review.getMovie());
         assertEquals(reviewForm.getReview(), review.getReview());
         assertEquals(reviewForm.getRating(), review.getRating());
-        assertEquals(customerRoleDef, review.getWriter());
+        assertEquals(customerAuthority, review.getWriter());
         assertEquals(user, review.getWriter().getUser());
     }
 
@@ -305,31 +302,41 @@ class MovieServiceTest {
         showroomSeatService.save(showroomSeat);
         Screening screening = new Screening();
         screening.setMovie(movie);
+        screening.setShowDateTime(LocalDateTime.now());
         movie.getScreenings().add(screening);
         screening.setShowroom(showroom);
         showroom.getScreenings().add(screening);
         screeningService.save(screening);
         ScreeningSeat screeningSeat = new ScreeningSeat();
-        screeningSeat.setScreening(screening);
-        screening.getScreeningSeats().add(screeningSeat);
         screeningSeat.setShowroomSeat(showroomSeat);
         showroomSeat.getScreeningSeats().add(screeningSeat);
+        screeningSeat.setScreening(screening);
+        screening.getScreeningSeats().add(screeningSeat);
         screeningSeatService.save(screeningSeat);
         User user = new User();
+        user.setUsername("TestUser123");
         user.setId(1L);
         given(userRepository.findById(1L)).willReturn(Optional.of(user));
         userService.save(user);
-        userService.addUserRoleDefToUser(user, UserRole.CUSTOMER);
-        CustomerRoleDef customerRoleDef = (CustomerRoleDef) user.getUserRoleDefs().get(UserRole.CUSTOMER);
+        userService.addUserAuthorityToUser(user, UserAuthority.CUSTOMER);
+        CustomerAuthority customerAuthority = (CustomerAuthority) user.getUserAuthorities().get(UserAuthority.CUSTOMER);
+        Review review = new Review();
+        review.setMovie(movie);
+        movie.getReviews().add(review);
+        review.setWriter(customerAuthority);
+        customerAuthority.getReviews().add(review);
+        review.setReview("This is a movie review");
+        reviewService.save(review);
         Ticket ticket = new Ticket();
         ticket.setScreeningSeat(screeningSeat);
         screeningSeat.setTicket(ticket);
-        ticket.setCustomerRoleDef(customerRoleDef);
-        customerRoleDef.getTickets().add(ticket);
+        ticket.setTicketOwner(customerAuthority);
+        customerAuthority.getTickets().add(ticket);
         ticketService.save(ticket);
         Coupon coupon = new Coupon();
-        coupon.setCustomerRoleDef(customerRoleDef);
-        customerRoleDef.getCoupons().add(coupon);
+        coupon.setCouponType(CouponType.FOOD_DRINK_COUPON);
+        coupon.setCouponOwner(customerAuthority);
+        customerAuthority.getCoupons().add(coupon);
         coupon.setTicket(ticket);
         ticket.getCoupons().add(coupon);
         couponService.save(coupon);

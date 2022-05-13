@@ -14,13 +14,13 @@
     </div>
     <br/>
     <form method="get" th:action="@{/movie-screenings/{id}(id=${movie.id})}">
-        <button class="dropbtn" style="alignment: inherit; font-size: xx-large">Screenings</button>
+        <button class="button" style="font-size: xx-large">Screenings</button>
     </form>
     &nbsp;
     &nbsp;
     &nbsp;
     <form method="get" th:action="@{/movie-reviews/{id}(id=${movie.id})}">
-        <button class="dropbtn" style="alignment: inherit; font-size: xx-large">Reviews</button>
+        <button class="button" style="font-size: xx-large">Reviews</button>
     </form>
     <br/>
     <table th:if="${avgRating >= 1}" style="border: red dot-dot-dash 1px">

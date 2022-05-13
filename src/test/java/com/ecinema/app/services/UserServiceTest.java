@@ -1,11 +1,9 @@
 package com.ecinema.app.services;
 
 import com.ecinema.app.domain.entities.*;
-import com.ecinema.app.domain.enums.Letter;
+import com.ecinema.app.domain.enums.UserAuthority;
 import com.ecinema.app.repositories.*;
 import com.ecinema.app.services.implementations.*;
-import com.ecinema.app.utils.UtilMethods;
-import com.ecinema.app.domain.enums.UserRole;
 import com.ecinema.app.domain.dtos.UserDto;
 import com.ecinema.app.exceptions.ClashException;
 import org.junit.jupiter.api.BeforeEach;
@@ -13,12 +11,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.mockito.junit.jupiter.MockitoSettings;
-import org.mockito.quality.Strictness;
 
 import java.util.*;
-import java.util.function.Consumer;
-import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.BDDMockito.given;
@@ -35,9 +29,9 @@ class UserServiceTest {
     private PaymentCardService paymentCardService;
     private CouponService couponService;
     private UserService userService;
-    private CustomerRoleDefService customerRoleDefService;
-    private ModeratorRoleDefService moderatorRoleDefService;
-    private AdminRoleDefService adminRoleDefService;
+    private CustomerAuthorityService customerAuthorityService;
+    private ModeratorAuthorityService moderatorAuthorityService;
+    private AdminAuthorityService adminAuthorityService;
     @Mock
     private ReviewRepository reviewRepository;
     @Mock
@@ -49,11 +43,11 @@ class UserServiceTest {
     @Mock
     private UserRepository userRepository;
     @Mock
-    private CustomerRoleDefRepository customerRoleDefRepository;
+    private CustomerAuthorityRepository customerAuthorityRepository;
     @Mock
-    private ModeratorRoleDefRepository moderatorRoleDefRepository;
+    private ModeratorAuthorityRepository moderatorAuthorityRepository;
     @Mock
-    private AdminRoleDefRepository adminRoleDefRepository;
+    private AdminAuthorityRepository adminAuthorityRepository;
 
     /**
      * Sets up.
@@ -68,16 +62,16 @@ class UserServiceTest {
                 couponRepository, null, null);
         paymentCardService = new PaymentCardServiceImpl(
                 paymentCardRepository, null, null);
-        adminRoleDefService = new AdminRoleDefServiceImpl(adminRoleDefRepository);
-        customerRoleDefService = new CustomerRoleDefServiceImpl(
-                customerRoleDefRepository, reviewService, ticketService,
+        adminAuthorityService = new AdminAuthorityServiceImpl(adminAuthorityRepository);
+        customerAuthorityService = new CustomerAuthorityServiceImpl(
+                customerAuthorityRepository, reviewService, ticketService,
                 paymentCardService, couponService);
-        moderatorRoleDefService = new ModeratorRoleDefServiceImpl(
-                moderatorRoleDefRepository, customerRoleDefService);
+        moderatorAuthorityService = new ModeratorAuthorityServiceImpl(
+                moderatorAuthorityRepository, customerAuthorityService);
         userService = new UserServiceImpl(
-                userRepository, customerRoleDefService,
-                moderatorRoleDefService,
-                adminRoleDefService, null);
+                userRepository, customerAuthorityService,
+                moderatorAuthorityService,
+                adminAuthorityService, null);
     }
 
     /**
@@ -107,19 +101,19 @@ class UserServiceTest {
         // given
         User user = new User();
         userService.save(user);
-        CustomerRoleDef customerRoleDef = new CustomerRoleDef();
-        customerRoleDef.setUser(user);
-        user.getUserRoleDefs().put(UserRole.CUSTOMER, customerRoleDef);
-        customerRoleDefService.save(customerRoleDef);
-        given(customerRoleDefRepository.findByUser(user))
-                .willReturn(Optional.of(customerRoleDef));
+        CustomerAuthority customerAuthority = new CustomerAuthority();
+        customerAuthority.setUser(user);
+        user.getUserAuthorities().put(UserAuthority.CUSTOMER, customerAuthority);
+        customerAuthorityService.save(customerAuthority);
+        given(customerAuthorityRepository.findByUser(user))
+                .willReturn(Optional.of(customerAuthority));
         // when
-        Optional<CustomerRoleDef> testCustomerRoleDefOptional
-                = customerRoleDefService.findByUser(user);
+        Optional<CustomerAuthority> testCustomerRoleDefOptional
+                = customerAuthorityService.findByUser(user);
         // then
         assertTrue(testCustomerRoleDefOptional.isPresent() &&
-                           customerRoleDef.equals(testCustomerRoleDefOptional.get()) &&
-                           user.getUserRoleDefs().get(UserRole.CUSTOMER).equals(testCustomerRoleDefOptional.get()));
+                           customerAuthority.equals(testCustomerRoleDefOptional.get()) &&
+                           user.getUserAuthorities().get(UserAuthority.CUSTOMER).equals(testCustomerRoleDefOptional.get()));
     }
 
     /**
@@ -130,19 +124,19 @@ class UserServiceTest {
         // given
         User user = new User();
         userService.save(user);
-        CustomerRoleDef customerRoleDef = new CustomerRoleDef();
-        customerRoleDef.setUser(user);
-        user.getUserRoleDefs().put(UserRole.CUSTOMER, customerRoleDef);
-        customerRoleDefService.save(customerRoleDef);
-        user.getUserRoleDefs().remove(UserRole.CUSTOMER);
-        customerRoleDef.setUser(null);
-        customerRoleDefRepository.delete(customerRoleDef);
+        CustomerAuthority customerAuthority = new CustomerAuthority();
+        customerAuthority.setUser(user);
+        user.getUserAuthorities().put(UserAuthority.CUSTOMER, customerAuthority);
+        customerAuthorityService.save(customerAuthority);
+        user.getUserAuthorities().remove(UserAuthority.CUSTOMER);
+        customerAuthority.setUser(null);
+        customerAuthorityRepository.delete(customerAuthority);
         userService.save(user);
         // when
-        when(customerRoleDefRepository.findByUser(user))
-                .thenReturn(Optional.ofNullable((CustomerRoleDef) user.getUserRoleDefs().get(UserRole.CUSTOMER)));
+        when(customerAuthorityRepository.findByUser(user))
+                .thenReturn(Optional.ofNullable((CustomerAuthority) user.getUserAuthorities().get(UserAuthority.CUSTOMER)));
         // then
-        assertTrue(customerRoleDefService.findByUser(user).isEmpty());
+        assertTrue(customerAuthorityService.findByUser(user).isEmpty());
     }
 
     /**
@@ -157,15 +151,15 @@ class UserServiceTest {
         when(userRepository.findById(1L))
                 .thenReturn(Optional.of(user));
         // when
-        userService.addUserRoleDefToUser(
-                user, UserRole.CUSTOMER, UserRole.ADMIN, UserRole.MODERATOR);
+        userService.addUserAuthorityToUser(
+                user, UserAuthority.CUSTOMER, UserAuthority.ADMIN, UserAuthority.MODERATOR);
         // then
-        assertTrue(user.getUserRoleDefs().containsKey(UserRole.CUSTOMER));
-        assertTrue(user.getUserRoleDefs().get(UserRole.CUSTOMER) instanceof CustomerRoleDef);
-        assertTrue(user.getUserRoleDefs().containsKey(UserRole.ADMIN));
-        assertTrue(user.getUserRoleDefs().get(UserRole.ADMIN) instanceof AdminRoleDef);
-        assertTrue(user.getUserRoleDefs().containsKey(UserRole.MODERATOR));
-        assertTrue(user.getUserRoleDefs().get(UserRole.MODERATOR) instanceof ModeratorRoleDef);
+        assertTrue(user.getUserAuthorities().containsKey(UserAuthority.CUSTOMER));
+        assertTrue(user.getUserAuthorities().get(UserAuthority.CUSTOMER) instanceof CustomerAuthority);
+        assertTrue(user.getUserAuthorities().containsKey(UserAuthority.ADMIN));
+        assertTrue(user.getUserAuthorities().get(UserAuthority.ADMIN) instanceof AdminAuthority);
+        assertTrue(user.getUserAuthorities().containsKey(UserAuthority.MODERATOR));
+        assertTrue(user.getUserAuthorities().get(UserAuthority.MODERATOR) instanceof ModeratorAuthority);
     }
 
     /**
@@ -179,10 +173,10 @@ class UserServiceTest {
         userService.save(user);
         when(userRepository.findById(1L))
                 .thenReturn(Optional.of(user));
-        userService.addUserRoleDefToUser(user, UserRole.CUSTOMER);
+        userService.addUserAuthorityToUser(user, UserAuthority.CUSTOMER);
         // then
         assertThrows(ClashException.class,
-                     () -> userService.addUserRoleDefToUser(user, UserRole.CUSTOMER));
+                     () -> userService.addUserAuthorityToUser(user, UserAuthority.CUSTOMER));
     }
 
     /**
@@ -196,41 +190,41 @@ class UserServiceTest {
         given(userRepository.findById(1L))
                 .willReturn(Optional.of(user));
         userService.save(user);
-        AdminRoleDef adminRoleDef = new AdminRoleDef();
-        adminRoleDef.setId(2L);
-        adminRoleDef.setUser(user);
-        user.getUserRoleDefs().put(UserRole.ADMIN, adminRoleDef);
-        given(adminRoleDefRepository.findById(2L))
-                .willReturn(Optional.of(adminRoleDef));
-        adminRoleDefService.save(adminRoleDef);
-        CustomerRoleDef customerRoleDef = new CustomerRoleDef();
-        customerRoleDef.setId(3L);
-        customerRoleDef.setUser(user);
-        user.getUserRoleDefs().put(UserRole.CUSTOMER, customerRoleDef);
-        given(customerRoleDefRepository.findById(3L))
-                .willReturn(Optional.of(customerRoleDef));
-        customerRoleDefService.save(customerRoleDef);
+        AdminAuthority adminAuthority = new AdminAuthority();
+        adminAuthority.setId(2L);
+        adminAuthority.setUser(user);
+        user.getUserAuthorities().put(UserAuthority.ADMIN, adminAuthority);
+        given(adminAuthorityRepository.findById(2L))
+                .willReturn(Optional.of(adminAuthority));
+        adminAuthorityService.save(adminAuthority);
+        CustomerAuthority customerAuthority = new CustomerAuthority();
+        customerAuthority.setId(3L);
+        customerAuthority.setUser(user);
+        user.getUserAuthorities().put(UserAuthority.CUSTOMER, customerAuthority);
+        given(customerAuthorityRepository.findById(3L))
+                .willReturn(Optional.of(customerAuthority));
+        customerAuthorityService.save(customerAuthority);
         PaymentCard paymentCard = new PaymentCard();
         paymentCard.setId(4L);
-        paymentCard.setCustomerRoleDef(customerRoleDef);
-        customerRoleDef.getPaymentCards().add(paymentCard);
+        paymentCard.setCardOwner(customerAuthority);
+        customerAuthority.getPaymentCards().add(paymentCard);
         given(paymentCardRepository.findById(4L))
                 .willReturn(Optional.of(paymentCard));
         paymentCardService.save(paymentCard);
         // then
-        assertNotNull(user.getUserRoleDefs().get(UserRole.ADMIN));
-        assertNotNull(user.getUserRoleDefs().get(UserRole.CUSTOMER));
-        assertNotNull(adminRoleDef.getUser());
-        assertNotNull(customerRoleDef.getUser());
-        assertNotNull(paymentCard.getCustomerRoleDef());
+        assertNotNull(user.getUserAuthorities().get(UserAuthority.ADMIN));
+        assertNotNull(user.getUserAuthorities().get(UserAuthority.CUSTOMER));
+        assertNotNull(adminAuthority.getUser());
+        assertNotNull(customerAuthority.getUser());
+        assertNotNull(paymentCard.getCardOwner());
         // when
         userService.delete(user);
         // then
-        assertNull(user.getUserRoleDefs().get(UserRole.ADMIN));
-        assertNull(user.getUserRoleDefs().get(UserRole.CUSTOMER));
-        assertNull(adminRoleDef.getUser());
-        assertNull(customerRoleDef.getUser());
-        assertNull(paymentCard.getCustomerRoleDef());
+        assertNull(user.getUserAuthorities().get(UserAuthority.ADMIN));
+        assertNull(user.getUserAuthorities().get(UserAuthority.CUSTOMER));
+        assertNull(adminAuthority.getUser());
+        assertNull(customerAuthority.getUser());
+        assertNull(paymentCard.getCardOwner());
     }
 
     /**
@@ -245,19 +239,19 @@ class UserServiceTest {
         user.setUsername("test");
         user.setFirstName("John");
         user.setLastName("Lavender");
-        user.getUserRoleDefs().put(UserRole.CUSTOMER, null);
+        user.getUserAuthorities().put(UserAuthority.CUSTOMER, null);
         userService.save(user);
         given(userRepository.findById(1L))
                 .willReturn(Optional.of(user));
         // when
-        UserDto userDto = userService.convertToDto(1L);
+        UserDto userDto = userService.convertIdToDto(1L);
         // then
         assertEquals(user.getId(), userDto.getId());
         assertEquals(user.getEmail(), userDto.getEmail());
         assertEquals(user.getUsername(), userDto.getUsername());
         assertEquals(user.getFirstName(), userDto.getFirstName());
         assertEquals(user.getLastName(), userDto.getLastName());
-        assertTrue(userDto.getUserRoles().contains(UserRole.CUSTOMER));
+        assertTrue(userDto.getUserAuthorities().contains(UserAuthority.CUSTOMER));
     }
 
     @Test

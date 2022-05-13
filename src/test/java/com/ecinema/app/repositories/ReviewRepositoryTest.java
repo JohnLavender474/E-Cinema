@@ -1,17 +1,16 @@
 package com.ecinema.app.repositories;
 
-import com.ecinema.app.domain.entities.CustomerRoleDef;
+import com.ecinema.app.domain.entities.CustomerAuthority;
 import com.ecinema.app.domain.entities.Movie;
 import com.ecinema.app.domain.entities.Review;
 import com.ecinema.app.domain.entities.User;
-import com.ecinema.app.domain.enums.UserRole;
+import com.ecinema.app.domain.enums.UserAuthority;
 import com.ecinema.app.utils.UtilMethods;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 
-import javax.sql.CommonDataSource;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -22,7 +21,7 @@ import static org.junit.jupiter.api.Assertions.*;
 class ReviewRepositoryTest {
 
     @Autowired
-    private CustomerRoleDefRepository customerRoleDefRepository;
+    private CustomerAuthorityRepository customerAuthorityRepository;
 
     @Autowired
     private ReviewRepository reviewRepository;
@@ -121,17 +120,17 @@ class ReviewRepositoryTest {
         // given
         User user = new User();
         userRepository.save(user);
-        CustomerRoleDef customerRoleDef = new CustomerRoleDef();
-        customerRoleDef.setUser(user);
-        user.getUserRoleDefs().put(UserRole.CUSTOMER, customerRoleDef);
-        customerRoleDefRepository.save(customerRoleDef);
+        CustomerAuthority customerAuthority = new CustomerAuthority();
+        customerAuthority.setUser(user);
+        user.getUserAuthorities().put(UserAuthority.CUSTOMER, customerAuthority);
+        customerAuthorityRepository.save(customerAuthority);
         Movie movie = new Movie();
         movieRepository.save(movie);
         Review review = new Review();
         review.setMovie(movie);
         movie.getReviews().add(review);
-        review.setWriter(customerRoleDef);
-        customerRoleDef.getReviews().add(review);
+        review.setWriter(customerAuthority);
+        customerAuthority.getReviews().add(review);
         reviewRepository.save(review);
         // when
         boolean test = reviewRepository.existsByUserIdAndMovieId(user.getId(), movie.getId());

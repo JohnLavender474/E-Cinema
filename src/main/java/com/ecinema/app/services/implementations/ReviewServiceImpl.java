@@ -1,7 +1,7 @@
 package com.ecinema.app.services.implementations;
 
 import com.ecinema.app.domain.dtos.ReviewDto;
-import com.ecinema.app.domain.entities.CustomerRoleDef;
+import com.ecinema.app.domain.entities.CustomerAuthority;
 import com.ecinema.app.domain.entities.Movie;
 import com.ecinema.app.domain.entities.Review;
 import com.ecinema.app.domain.forms.ReviewForm;
@@ -9,7 +9,7 @@ import com.ecinema.app.domain.validators.ReviewValidator;
 import com.ecinema.app.exceptions.ClashException;
 import com.ecinema.app.exceptions.InvalidArgsException;
 import com.ecinema.app.exceptions.NoEntityFoundException;
-import com.ecinema.app.repositories.CustomerRoleDefRepository;
+import com.ecinema.app.repositories.CustomerAuthorityRepository;
 import com.ecinema.app.repositories.MovieRepository;
 import com.ecinema.app.repositories.ReviewRepository;
 import com.ecinema.app.services.ReviewService;
@@ -33,7 +33,7 @@ import java.util.stream.Collectors;
 public class ReviewServiceImpl extends AbstractServiceImpl<Review, ReviewRepository>
         implements ReviewService {
 
-    private final CustomerRoleDefRepository customerRoleDefRepository;
+    private final CustomerAuthorityRepository customerAuthorityRepository;
     private final MovieRepository movieRepository;
     private final ReviewValidator reviewValidator;
 
@@ -42,14 +42,14 @@ public class ReviewServiceImpl extends AbstractServiceImpl<Review, ReviewReposit
      *
      * @param repository                the repository
      * @param movieRepository           the movie repository
-     * @param customerRoleDefRepository the customer role def repository
+     * @param customerAuthorityRepository the customer role def repository
      * @param reviewValidator           the review validator
      */
     public ReviewServiceImpl(ReviewRepository repository, MovieRepository movieRepository,
-                             CustomerRoleDefRepository customerRoleDefRepository, ReviewValidator reviewValidator) {
+                             CustomerAuthorityRepository customerAuthorityRepository, ReviewValidator reviewValidator) {
         super(repository);
         this.movieRepository = movieRepository;
-        this.customerRoleDefRepository = customerRoleDefRepository;
+        this.customerAuthorityRepository = customerAuthorityRepository;
         this.reviewValidator = reviewValidator;
     }
 
@@ -57,10 +57,10 @@ public class ReviewServiceImpl extends AbstractServiceImpl<Review, ReviewReposit
     protected void onDelete(Review review) {
         logger.debug("Review on delete");
         // detach Customer
-        CustomerRoleDef customerRoleDef = review.getWriter();
-        if (customerRoleDef != null) {
-            logger.debug("Detach customer role def: " + customerRoleDef);
-            customerRoleDef.getReviews().remove(review);
+        CustomerAuthority customerAuthority = review.getWriter();
+        if (customerAuthority != null) {
+            logger.debug("Detach customer role def: " + customerAuthority);
+            customerAuthority.getReviews().remove(review);
             review.setWriter(null);
         }
         // detatch Movie
@@ -82,7 +82,8 @@ public class ReviewServiceImpl extends AbstractServiceImpl<Review, ReviewReposit
 
     @Override
     public void onDeleteInfo(Review review, Collection<String> info) {
-        info.add("Review written by " + review.getWriter().getUser().getUsername() + " will be deleted");
+        info.add("Review for \"" + review.getMovie().getTitle() + "\" written by " +
+                         review.getWriter().getUser().getUsername() + " will be deleted");
     }
 
     @Override
@@ -96,13 +97,13 @@ public class ReviewServiceImpl extends AbstractServiceImpl<Review, ReviewReposit
             throws NoEntityFoundException, InvalidArgsException, ClashException {
         logger.debug(UtilMethods.getDelimiterLine());
         logger.debug("Submit review form");
-        CustomerRoleDef customerRoleDef = customerRoleDefRepository.findByUserWithId(reviewForm.getUserId())
-                .orElseThrow(() -> new NoEntityFoundException(
+        CustomerAuthority customerAuthority = customerAuthorityRepository.findByUserWithId(reviewForm.getUserId())
+                                                                         .orElseThrow(() -> new NoEntityFoundException(
                         "customer role def", "user id", reviewForm.getUserId()));
         Movie movie = movieRepository.findById(reviewForm.getMovieId()).orElseThrow(
                 () -> new NoEntityFoundException("movie", "id", reviewForm.getMovieId()));
-        if (repository.existsByWriterAndMovie(customerRoleDef, movie)) {
-            throw new ClashException(customerRoleDef.getUser().getUsername() + " has already written " +
+        if (repository.existsByWriterAndMovie(customerAuthority, movie)) {
+            throw new ClashException(customerAuthority.getUser().getUsername() + " has already written " +
                                              "a review for " + movie.getTitle());
         }
         List<String> errors = new ArrayList<>();
@@ -114,15 +115,15 @@ public class ReviewServiceImpl extends AbstractServiceImpl<Review, ReviewReposit
         Review review = new Review();
         review.setMovie(movie);
         movie.getReviews().add(review);
-        review.setWriter(customerRoleDef);
-        customerRoleDef.getReviews().add(review);
+        review.setWriter(customerAuthority);
+        customerAuthority.getReviews().add(review);
         review.setRating(reviewForm.getRating());
         review.setReview(reviewForm.getReview());
         review.setCreationDateTime(LocalDateTime.now());
         review.setIsCensored(false);
         save(review);
         logger.debug("Instantiated and saved review for " + movie.getTitle() +
-                             " by " + customerRoleDef.getUser().getUsername());
+                             " by " + customerAuthority.getUser().getUsername());
     }
 
     @Override
@@ -158,7 +159,7 @@ public class ReviewServiceImpl extends AbstractServiceImpl<Review, ReviewReposit
     }
 
     @Override
-    public ReviewDto convertToDto(Long id)
+    public ReviewDto convertIdToDto(Long id)
             throws NoEntityFoundException {
         Review review = findById(id).orElseThrow(
                 () -> new NoEntityFoundException("review", "id", id));

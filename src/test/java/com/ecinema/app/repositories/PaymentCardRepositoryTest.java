@@ -1,6 +1,6 @@
 package com.ecinema.app.repositories;
 
-import com.ecinema.app.domain.entities.CustomerRoleDef;
+import com.ecinema.app.domain.entities.CustomerAuthority;
 import com.ecinema.app.domain.entities.PaymentCard;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
@@ -18,13 +18,13 @@ class PaymentCardRepositoryTest {
     private PaymentCardRepository paymentCardRepository;
 
     @Autowired
-    private CustomerRoleDefRepository customerRoleDefRepository;
+    private CustomerAuthorityRepository customerAuthorityRepository;
 
     @AfterEach
     void tearDown() {
         for (PaymentCard paymentCard : paymentCardRepository.findAll()) {
-            paymentCard.getCustomerRoleDef().getPaymentCards().remove(paymentCard);
-            paymentCard.setCustomerRoleDef(null);
+            paymentCard.getCardOwner().getPaymentCards().remove(paymentCard);
+            paymentCard.setCardOwner(null);
         }
         paymentCardRepository.deleteAll();
     }
@@ -34,13 +34,13 @@ class PaymentCardRepositoryTest {
         // given
         PaymentCard paymentCard = new PaymentCard();
         paymentCardRepository.save(paymentCard);
-        CustomerRoleDef customerRoleDef = new CustomerRoleDef();
-        customerRoleDef.getPaymentCards().add(paymentCard);
-        paymentCard.setCustomerRoleDef(customerRoleDef);
-        customerRoleDefRepository.save(customerRoleDef);
+        CustomerAuthority customerAuthority = new CustomerAuthority();
+        customerAuthority.getPaymentCards().add(paymentCard);
+        paymentCard.setCardOwner(customerAuthority);
+        customerAuthorityRepository.save(customerAuthority);
         // when
         List<PaymentCard> paymentCards = paymentCardRepository
-                .findDistinctByCustomerRoleDef(customerRoleDef);
+                .findDistinctByCardOwner(customerAuthority);
         // then
         assertEquals(1, paymentCards.size());
         assertEquals(paymentCard, paymentCards.get(0));
@@ -49,15 +49,15 @@ class PaymentCardRepositoryTest {
     @Test
     void findAllByCustomerRoleDefWithId() {
         // given
-        CustomerRoleDef customerRoleDef = new CustomerRoleDef();
-        customerRoleDefRepository.save(customerRoleDef);
+        CustomerAuthority customerAuthority = new CustomerAuthority();
+        customerAuthorityRepository.save(customerAuthority);
         PaymentCard paymentCard = new PaymentCard();
-        customerRoleDef.getPaymentCards().add(paymentCard);
-        paymentCard.setCustomerRoleDef(customerRoleDef);
+        customerAuthority.getPaymentCards().add(paymentCard);
+        paymentCard.setCardOwner(customerAuthority);
         paymentCardRepository.save(paymentCard);
         // when
         List<PaymentCard> paymentCards = paymentCardRepository
-                .findDistinctByCustomerRoleDefWithId(customerRoleDef.getId());
+                .findDistinctByCardOwnerWithId(customerAuthority.getId());
         // then
         assertEquals(1, paymentCards.size());
         assertEquals(paymentCard, paymentCards.get(0));

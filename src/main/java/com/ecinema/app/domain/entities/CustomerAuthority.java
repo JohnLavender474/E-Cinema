@@ -1,6 +1,6 @@
 package com.ecinema.app.domain.entities;
 
-import com.ecinema.app.domain.enums.UserRole;
+import com.ecinema.app.domain.enums.UserAuthority;
 import lombok.*;
 
 import javax.persistence.*;
@@ -19,32 +19,32 @@ import java.util.Set;
 @Entity
 @ToString
 @NoArgsConstructor
-public class CustomerRoleDef extends UserRoleDef {
+public class CustomerAuthority extends AbstractUserAuthority {
 
     @ToString.Exclude
     @OneToMany(mappedBy = "writer", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private Set<Review> reviews = new HashSet<>();
 
     @ToString.Exclude
-    @OneToMany(mappedBy = "customerRoleDef", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "ticketOwner", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private Set<Ticket> tickets = new HashSet<>();
 
     @ToString.Exclude
-    @OneToMany(mappedBy = "customerRoleDef", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "cardOwner", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private Set<PaymentCard> paymentCards = new HashSet<>();
 
     @ToString.Exclude
-    @OneToMany(mappedBy = "customerRoleDef", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "couponOwner", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private Set<Coupon> coupons = new HashSet<>();
 
     @JoinColumn
     @ToString.Exclude
     @ManyToOne(fetch = FetchType.LAZY)
-    private ModeratorRoleDef censoredBy;
+    private ModeratorAuthority censoredBy;
 
     @Override
-    protected UserRole defineUserRole() {
-        return UserRole.CUSTOMER;
+    protected UserAuthority defineUserRole() {
+        return UserAuthority.CUSTOMER;
     }
 
 }

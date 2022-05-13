@@ -1,15 +1,12 @@
 package com.ecinema.app.services.implementations;
 
 import com.ecinema.app.domain.dtos.CouponDto;
-import com.ecinema.app.domain.entities.Coupon;
-import com.ecinema.app.domain.entities.CustomerRoleDef;
-import com.ecinema.app.domain.entities.Ticket;
-import com.ecinema.app.domain.entities.User;
-import com.ecinema.app.domain.enums.UserRole;
+import com.ecinema.app.domain.entities.*;
+import com.ecinema.app.domain.enums.UserAuthority;
 import com.ecinema.app.exceptions.InvalidAssociationException;
 import com.ecinema.app.exceptions.NoEntityFoundException;
 import com.ecinema.app.repositories.CouponRepository;
-import com.ecinema.app.repositories.CustomerRoleDefRepository;
+import com.ecinema.app.repositories.CustomerAuthorityRepository;
 import com.ecinema.app.repositories.UserRepository;
 import com.ecinema.app.services.CouponService;
 import com.ecinema.app.domain.enums.CouponType;
@@ -27,24 +24,24 @@ public class CouponServiceImpl extends AbstractServiceImpl<Coupon, CouponReposit
         implements CouponService {
 
     private final UserRepository userRepository;
-    private final CustomerRoleDefRepository customerRoleDefRepository;
+    private final CustomerAuthorityRepository customerAuthorityRepository;
 
     public CouponServiceImpl(CouponRepository repository, UserRepository userRepository,
-                             CustomerRoleDefRepository customerRoleDefRepository) {
+                             CustomerAuthorityRepository customerAuthorityRepository) {
         super(repository);
         this.userRepository = userRepository;
-        this.customerRoleDefRepository = customerRoleDefRepository;
+        this.customerAuthorityRepository = customerAuthorityRepository;
     }
 
     @Override
     protected void onDelete(Coupon coupon) {
         // detach Customer
         logger.debug("Coupon on delete");
-        CustomerRoleDef customerRoleDef = coupon.getCustomerRoleDef();
-        logger.debug("Detaching " + customerRoleDef + " from " + coupon);
-        if (customerRoleDef != null) {
-            customerRoleDef.getCoupons().remove(coupon);
-            coupon.setCustomerRoleDef(null);
+        CustomerAuthority customerAuthority = coupon.getCouponOwner();
+        logger.debug("Detaching " + customerAuthority + " from " + coupon);
+        if (customerAuthority != null) {
+            customerAuthority.getCoupons().remove(coupon);
+            coupon.setCouponOwner(null);
         }
         // detach Ticket
         Ticket ticket = coupon.getTicket();
@@ -65,10 +62,15 @@ public class CouponServiceImpl extends AbstractServiceImpl<Coupon, CouponReposit
 
     @Override
     public void onDeleteInfo(Coupon coupon, Collection<String> info) {
-        String username = coupon.getCustomerRoleDef().getUser().getUsername();
-        info.add(username + " will lose coupon: " + coupon.getCouponType() + ", " + coupon.getDiscountType());
+        String username = coupon.getCouponOwner().getUser().getUsername();
+        info.add(coupon.getCouponType() + " will be deleted and no longer usable by " + username);
         if (coupon.getTicket() != null) {
-            info.add(coupon.getTicket() + " will lose coupon");
+            Screening screening = coupon.getTicket().getScreeningSeat().getScreening();
+            String movieTitle = screening.getMovie().getTitle();
+            info.add("Ticket for seat " + coupon.getTicket().getScreeningSeat().seatDesignation() +
+                             " in screening for " + movieTitle + " at " + screening.showtimeFormatted() +
+                             " in showroom " + screening.getShowroom().getShowroomLetter() +
+                             " purchased by " + username + " will lose coupon discount");
         }
     }
 
@@ -80,28 +82,28 @@ public class CouponServiceImpl extends AbstractServiceImpl<Coupon, CouponReposit
         User user = userRepository.findById(userId).orElseThrow(
                 () -> new NoEntityFoundException("user", "id", userId));
         logger.debug("Found " + user + " by id");
-        CustomerRoleDef customerRoleDef = (CustomerRoleDef) user.getUserRoleDefs().get(UserRole.CUSTOMER);
-        if (customerRoleDef == null) {
+        CustomerAuthority customerAuthority = (CustomerAuthority) user.getUserAuthorities().get(UserAuthority.CUSTOMER);
+        if (customerAuthority == null) {
             throw new InvalidAssociationException("User does not have CUSTOMER role def");
         }
-        logger.debug("Customer role def found by user: " + customerRoleDef);
-        return findAllByCustomerRoleDef(customerRoleDef);
+        logger.debug("Customer role def found by user: " + customerAuthority);
+        return findAllByCustomerRoleDef(customerAuthority);
     }
 
     @Override
-    public List<CouponDto> findAllByCustomerRoleDefWithId(Long customerRoleDefId)
+    public List<CouponDto> findAllByCouponOwnerWithId(Long customerRoleDefId)
             throws NoEntityFoundException {
         logger.debug(UtilMethods.getDelimiterLine());
         logger.debug("Find coupons by customer role def id: " + customerRoleDefId);
-        CustomerRoleDef customerRoleDef = customerRoleDefRepository.findById(customerRoleDefId)
-                .orElseThrow(() -> new NoEntityFoundException(
+        CustomerAuthority customerAuthority = customerAuthorityRepository.findById(customerRoleDefId)
+                                                                         .orElseThrow(() -> new NoEntityFoundException(
                         "customer role def", "id", customerRoleDefId));
-        logger.debug("Found customer role def by id: " + customerRoleDef);
-        return findAllByCustomerRoleDef(customerRoleDef);
+        logger.debug("Found customer role def by id: " + customerAuthority);
+        return findAllByCustomerRoleDef(customerAuthority);
     }
 
-    private List<CouponDto> findAllByCustomerRoleDef(CustomerRoleDef customerRoleDef) {
-        return convertToDto(customerRoleDef.getCoupons());
+    private List<CouponDto> findAllByCustomerRoleDef(CustomerAuthority customerAuthority) {
+        return convertToDto(customerAuthority.getCoupons());
     }
 
     @Override
@@ -115,7 +117,7 @@ public class CouponServiceImpl extends AbstractServiceImpl<Coupon, CouponReposit
     }
 
     @Override
-    public CouponDto convertToDto(Long id)
+    public CouponDto convertIdToDto(Long id)
             throws NoEntityFoundException {
         Coupon coupon = findById(id).orElseThrow(
                 () -> new NoEntityFoundException("coupon", "id", id));

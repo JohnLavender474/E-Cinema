@@ -47,7 +47,7 @@ public class MovieInfoController {
     public String moviedebugPage(final Model model, final RedirectAttributes redirectAttributes,
                                  @PathVariable("id") final Long movieId) {
         try {
-            MovieDto movieDto = movieService.convertToDto(movieId);
+            MovieDto movieDto = movieService.convertIdToDto(movieId);
             model.addAttribute("movie", movieDto);
             Integer avgRating = reviewService.findAverageRatingOfMovieWithId(movieId);
             model.addAttribute("avgRating", avgRating);

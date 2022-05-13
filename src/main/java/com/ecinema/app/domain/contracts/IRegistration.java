@@ -1,13 +1,13 @@
 package com.ecinema.app.domain.contracts;
 
-import com.ecinema.app.domain.enums.UserRole;
+import com.ecinema.app.domain.enums.UserAuthority;
 
 import java.time.LocalDate;
 import java.util.Set;
 
 public interface IRegistration extends IPassword {
-    Set<UserRole> getUserRoles();
-    void setUserRoles(Set<UserRole> userRoles);
+    Set<UserAuthority> getUserAuthorities();
+    void setUserAuthorities(Set<UserAuthority> userAuthorities);
     String getUsername();
     void setUsername(String username);
     String getEmail();

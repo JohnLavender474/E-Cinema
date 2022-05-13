@@ -1,23 +1,18 @@
 package com.ecinema.app.services;
 
 import com.ecinema.app.domain.EntityDtoConverter;
-import com.ecinema.app.domain.dtos.CustomerRoleDefDto;
-import com.ecinema.app.domain.entities.CustomerRoleDef;
+import com.ecinema.app.domain.dtos.CustomerAuthorityDto;
+import com.ecinema.app.domain.entities.CustomerAuthority;
 import com.ecinema.app.domain.entities.PaymentCard;
 import com.ecinema.app.domain.entities.Review;
 import com.ecinema.app.domain.entities.Ticket;
-import com.ecinema.app.domain.forms.PaymentCardForm;
-import com.ecinema.app.exceptions.InvalidArgsException;
 import com.ecinema.app.exceptions.NoEntityFoundException;
-import org.modelmapper.internal.asm.tree.ModuleExportNode;
-
-import java.util.Optional;
 
 /**
  * The interface Customer role def service.
  */
-public interface CustomerRoleDefService extends UserRoleDefService<CustomerRoleDef>,
-                                                EntityDtoConverter<CustomerRoleDef, CustomerRoleDefDto> {
+public interface CustomerAuthorityService extends AbstractUserAuthorityService<CustomerAuthority>,
+                                                  EntityDtoConverter<CustomerAuthority, CustomerAuthorityDto> {
 
     /**
      * Find by payment cards contains optional.
@@ -26,7 +21,7 @@ public interface CustomerRoleDefService extends UserRoleDefService<CustomerRoleD
      * @return the optional
      * @throws NoEntityFoundException the no entity found exception
      */
-    CustomerRoleDefDto findByPaymentCardsContains(PaymentCard paymentCard)
+    CustomerAuthorityDto findByPaymentCardsContains(PaymentCard paymentCard)
             throws NoEntityFoundException;
 
     /**
@@ -36,7 +31,7 @@ public interface CustomerRoleDefService extends UserRoleDefService<CustomerRoleD
      * @return the optional
      * @throws NoEntityFoundException the no entity found exception
      */
-    CustomerRoleDefDto findByPaymentCardsContainsWithId(Long paymentCardId)
+    CustomerAuthorityDto findByPaymentCardsContainsWithId(Long paymentCardId)
             throws NoEntityFoundException;
 
     /**
@@ -46,7 +41,7 @@ public interface CustomerRoleDefService extends UserRoleDefService<CustomerRoleD
      * @return the optional
      * @throws NoEntityFoundException the no entity found exception
      */
-    CustomerRoleDefDto findByTicketsContains(Ticket ticket)
+    CustomerAuthorityDto findByTicketsContains(Ticket ticket)
             throws NoEntityFoundException;
 
     /**
@@ -56,7 +51,7 @@ public interface CustomerRoleDefService extends UserRoleDefService<CustomerRoleD
      * @return the optional
      * @throws NoEntityFoundException the no entity found exception
      */
-    CustomerRoleDefDto findByTicketsContainsWithId(Long ticketId)
+    CustomerAuthorityDto findByTicketsContainsWithId(Long ticketId)
             throws NoEntityFoundException;
 
     /**
@@ -66,7 +61,7 @@ public interface CustomerRoleDefService extends UserRoleDefService<CustomerRoleD
      * @return the optional
      * @throws NoEntityFoundException the no entity found exception
      */
-    CustomerRoleDefDto findByReviewsContains(Review review)
+    CustomerAuthorityDto findByReviewsContains(Review review)
             throws NoEntityFoundException;
 
     /**
@@ -76,7 +71,7 @@ public interface CustomerRoleDefService extends UserRoleDefService<CustomerRoleD
      * @return the optional
      * @throws NoEntityFoundException the no entity found exception
      */
-    CustomerRoleDefDto findByReviewsContainsWithId(Long reviewId)
+    CustomerAuthorityDto findByReviewsContainsWithId(Long reviewId)
             throws NoEntityFoundException;
 
 }

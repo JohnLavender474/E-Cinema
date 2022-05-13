@@ -1,6 +1,6 @@
 package com.ecinema.app.repositories;
 
-import com.ecinema.app.domain.entities.CustomerRoleDef;
+import com.ecinema.app.domain.entities.CustomerAuthority;
 import com.ecinema.app.domain.entities.Screening;
 import com.ecinema.app.domain.entities.ScreeningSeat;
 import com.ecinema.app.domain.entities.Ticket;
@@ -90,10 +90,10 @@ public interface TicketRepository extends JpaRepository<Ticket, Long>, AbstractR
     /**
      * Find all by customer role def list.
      *
-     * @param customerRoleDef the customer role def
+     * @param customerAuthority the customer role def
      * @return the list
      */
-    List<Ticket> findAllByCustomerRoleDef(CustomerRoleDef customerRoleDef);
+    List<Ticket> findAllByTicketOwner(CustomerAuthority customerAuthority);
 
     /**
      * Find all by customer role def with id list.
@@ -101,7 +101,7 @@ public interface TicketRepository extends JpaRepository<Ticket, Long>, AbstractR
      * @param customerRoleDefId the customer role def id
      * @return the list
      */
-    @Query("SELECT t FROM Ticket t WHERE t.customerRoleDef.id = ?1")
-    List<Ticket> findAllByCustomerRoleDefWithId(Long customerRoleDefId);
+    @Query("SELECT t FROM Ticket t WHERE t.ticketOwner.id = ?1")
+    List<Ticket> findAllByTicketOwnerWithId(Long customerRoleDefId);
 
 }

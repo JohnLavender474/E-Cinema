@@ -8,6 +8,11 @@ table {
     align-self: center;
 }
 
+.bold-white-text {
+    font-weight: bold;
+    color: white;
+}
+
 .highlight {
     background:red;
 }

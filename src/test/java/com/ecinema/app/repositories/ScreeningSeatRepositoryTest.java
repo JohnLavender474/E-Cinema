@@ -1,9 +1,8 @@
 package com.ecinema.app.repositories;
 
-import com.ecinema.app.domain.entities.Screening;
-import com.ecinema.app.domain.entities.ScreeningSeat;
-import com.ecinema.app.domain.entities.ShowroomSeat;
-import com.ecinema.app.domain.entities.Ticket;
+import com.ecinema.app.domain.entities.*;
+import com.ecinema.app.domain.enums.Letter;
+import com.ecinema.app.exceptions.NoEntityFoundException;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
@@ -16,6 +15,9 @@ import static org.junit.jupiter.api.Assertions.*;
 
 @DataJpaTest
 class ScreeningSeatRepositoryTest {
+
+    @Autowired
+    private ShowroomRepository showroomRepository;
 
     @Autowired
     private ScreeningRepository screeningRepository;
@@ -32,11 +34,32 @@ class ScreeningSeatRepositoryTest {
     @Test
     void findAllByScreening() {
         // given
+        Showroom showroom = new Showroom();
+        showroom.setShowroomLetter(Letter.A);
+        showroomRepository.save(showroom);
+        for (int i = 0; i < 20; i++) {
+            ShowroomSeat showroomSeat = new ShowroomSeat();
+            showroomSeat.setRowLetter(Letter.A);
+            showroomSeat.setSeatNumber(i);
+            showroomSeat.setShowroom(showroom);
+            showroom.getShowroomSeats().add(showroomSeat);
+            showroomSeatRepository.save(showroomSeat);
+        }
         Screening screening = new Screening();
+        screening.setShowroom(showroom);
+        showroom.getScreenings().add(screening);
         screeningRepository.save(screening);
         List<ScreeningSeat> screeningSeats = new ArrayList<>();
         for (int i = 0; i < 20; i++) {
+            final Integer j = i;
+            ShowroomSeat showroomSeat = showroomSeatRepository
+                    .findByShowroomAndRowLetterAndSeatNumber(showroom, Letter.A, i)
+                    .orElseThrow(() -> new NoEntityFoundException(
+                            "showroom seat", "showroom, row letter, and seat number",
+                            List.of(showroom, Letter.A, j)));
             ScreeningSeat screeningSeat = new ScreeningSeat();
+            screeningSeat.setShowroomSeat(showroomSeat);
+            showroomSeat.getScreeningSeats().add(screeningSeat);
             screeningSeat.setScreening(screening);
             screening.getScreeningSeats().add(screeningSeat);
             screeningSeatRepository.save(screeningSeat);
@@ -78,9 +101,19 @@ class ScreeningSeatRepositoryTest {
     @Test
     void findByTicket() {
         // given
+        Showroom showroom = new Showroom();
+        showroom.setShowroomLetter(Letter.A);
+        showroomRepository.save(showroom);
+        ShowroomSeat showroomSeat = new ShowroomSeat();
+        showroomSeat.setRowLetter(Letter.A);
+        showroomSeat.setSeatNumber(1);
+        showroomSeat.setShowroom(showroom);
+        showroomSeatRepository.save(showroomSeat);
         Ticket ticket = new Ticket();
         ticketRepository.save(ticket);
         ScreeningSeat screeningSeat = new ScreeningSeat();
+        screeningSeat.setShowroomSeat(showroomSeat);
+        showroomSeat.getScreeningSeats().add(screeningSeat);
         screeningSeat.setTicket(ticket);
         ticket.setScreeningSeat(screeningSeat);
         screeningSeatRepository.save(screeningSeat);

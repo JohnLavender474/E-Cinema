@@ -6,11 +6,9 @@ import com.ecinema.app.domain.enums.PaymentCardType;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
-import org.springframework.lang.Nullable;
 
 import javax.persistence.*;
 import java.time.LocalDate;
-import java.time.Month;
 
 @Getter
 @Setter
@@ -37,7 +35,7 @@ public class PaymentCard extends AbstractEntity implements IPaymentCard {
     @JoinColumn
     @ToString.Exclude
     @ManyToOne(fetch = FetchType.LAZY)
-    private CustomerRoleDef customerRoleDef;
+    private CustomerAuthority cardOwner;
 
     @Embedded
     @ToString.Exclude

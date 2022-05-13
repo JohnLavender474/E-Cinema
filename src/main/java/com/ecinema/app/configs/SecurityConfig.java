@@ -8,7 +8,7 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 
-import static com.ecinema.app.domain.enums.UserRole.*;
+import static com.ecinema.app.domain.enums.UserAuthority.*;
 
 /**
  * https://www.baeldung.com/spring-security-login
@@ -19,43 +19,42 @@ import static com.ecinema.app.domain.enums.UserRole.*;
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     private static final String[] ANY_PERMITTED = new String[]{
-            "/",
-            "/about",
-            "/change-password",
+            "/about/**",
+            "/change-password/**",
             "/change-password-confirm/**",
-            "/error",
-            "/index",
-            "/login",
-            "/login-error",
-            "/message-page",
+            "/error/**",
+            "/index/**",
+            "/login/**",
+            "/login-error/**",
+            "/message-page/**",
             "/movie-info/**",
             "/movie-reviews/**",
             "/movie-screenings/**",
-            "/movies",
-            "/register",
+            "/movies/**",
+            "/register/**",
             "/screening/**",
-            "/perform-login"
+            "/perform-login/**"
     };
     private static final String[] AUTHENTICATED_PERMITTED = new String[]{
-            "/account",
-            "/logout",
-            "/logout-success"
+            "/account/**",
+            "/logout/**",
+            "/logout-success/**"
     };
     private static final String[] CUSTOMERS_PERMITTED = new String[]{
-            "/customer",
+            "/customer/**",
             "/write-review/**"
     };
     private static final String[] MODERATORS_PERMITTED = new String[]{
-            "/moderator"
+            "/moderator/**"
     };
     private static final String[] ADMINS_PERMITTED = new String[]{
-            "/add-movie",
-            "/add-screening",
-            "/add-showroom",
-            "/admin",
-            "/admin-movie-choose",
+            "/add-movie/**",
+            "/add-screening/**",
+            "/add-showroom/**",
+            "/admin/**",
+            "/admin-movie-choose/**",
             "/edit-movie/**",
-            "/edit-movie-search",
+            "/edit-movie-search/**",
             "/edit-screening/**",
             "/edit-showroom/**",
             "/delete-movie/**",

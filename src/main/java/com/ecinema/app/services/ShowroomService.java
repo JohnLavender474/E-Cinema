@@ -10,6 +10,7 @@ import com.ecinema.app.domain.forms.ShowroomForm;
 import com.ecinema.app.exceptions.InvalidArgsException;
 import com.ecinema.app.domain.enums.Letter;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -74,5 +75,12 @@ public interface ShowroomService extends AbstractService<Showroom>, EntityDtoCon
      * @return the optional
      */
     ShowroomDto findByScreeningsContainsWithId(Long screeningId);
+
+    /**
+     * Find all dtos list.
+     *
+     * @return the list
+     */
+    List<ShowroomDto> findAllDtos();
 
 }

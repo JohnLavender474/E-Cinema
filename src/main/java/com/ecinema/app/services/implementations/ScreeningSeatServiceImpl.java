@@ -75,10 +75,10 @@ public class ScreeningSeatServiceImpl extends AbstractServiceImpl<ScreeningSeat,
 
     @Override
     public void onDeleteInfo(ScreeningSeat screeningSeat, Collection<String> info) {
+        info.add("Screening seat " + screeningSeat.seatDesignation() + " will be deleted from screening");
         if (screeningSeat.getTicket() != null) {
             ticketService.onDeleteInfo(screeningSeat.getTicket(), info);
         }
-        info.add(screeningSeat + " will be deleted from " + screeningSeat.getScreening());
     }
 
     @Override
@@ -90,7 +90,8 @@ public class ScreeningSeatServiceImpl extends AbstractServiceImpl<ScreeningSeat,
         }
         Map<Letter, Set<ScreeningSeatDto>> mapOfScreeningSeats = new TreeMap<>();
         for (ScreeningSeatDto screeningSeatDto : screeningSeatDtos) {
-            mapOfScreeningSeats.putIfAbsent(screeningSeatDto.getRowLetter(), new TreeSet<>(ISeat.comparator));
+            mapOfScreeningSeats.putIfAbsent(screeningSeatDto.getRowLetter(),
+                                            new TreeSet<>(ISeat.SeatComparator.getInstance()));
             mapOfScreeningSeats.get(screeningSeatDto.getRowLetter()).add(screeningSeatDto);
         }
         logger.debug(UtilMethods.getDelimiterLine());
@@ -132,7 +133,7 @@ public class ScreeningSeatServiceImpl extends AbstractServiceImpl<ScreeningSeat,
     }
 
     @Override
-    public ScreeningSeatDto convertToDto(Long id)
+    public ScreeningSeatDto convertIdToDto(Long id)
             throws NoEntityFoundException {
         ScreeningSeat screeningSeat = findById(id).orElseThrow(
                 () -> new NoEntityFoundException("screening seat", "id", id));
@@ -148,7 +149,7 @@ public class ScreeningSeatServiceImpl extends AbstractServiceImpl<ScreeningSeat,
     }
 
     private List<ScreeningSeatDto> sortAndConvert(List<ScreeningSeat> screeningSeats) {
-        screeningSeats.sort(ISeat.comparator);
+        screeningSeats.sort(ISeat.SeatComparator.getInstance());
         return convertToDto(screeningSeats);
     }
 

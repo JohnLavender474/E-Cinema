@@ -72,6 +72,7 @@ public class MovieServiceImpl extends AbstractServiceImpl<Movie, MovieRepository
 
     @Override
     public void onDeleteInfo(Movie movie, Collection<String> info) {
+        info.add("Movie \"" + movie.getTitle() + "\" will be deleted");
         movie.getReviews().forEach(review -> reviewService.onDeleteInfo(review, info));
         movie.getScreenings().forEach(screening -> screeningService.onDeleteInfo(screening, info));
     }
@@ -238,7 +239,7 @@ public class MovieServiceImpl extends AbstractServiceImpl<Movie, MovieRepository
     }
 
     @Override
-    public MovieDto convertToDto(Long id)
+    public MovieDto convertIdToDto(Long id)
             throws NoEntityFoundException {
         Movie movie = findById(id).orElseThrow(
                 () -> new NoEntityFoundException("movie", "id", id));

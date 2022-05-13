@@ -26,7 +26,7 @@ public interface SecurityService {
     UserDto findLoggedInUserDTO();
 
     /**
-     * Find id of logged in user long.
+     * Find id of logged-in user long.
      *
      * @return the long
      */

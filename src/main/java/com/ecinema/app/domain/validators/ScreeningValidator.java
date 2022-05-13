@@ -11,13 +11,13 @@ public class ScreeningValidator implements AbstractValidator<IScreening> {
     
     @Override
     public void validate(IScreening iScreening, Collection<String> errors) {
-        if (iScreening.getShowtime().getYear() < LocalDate.now().getYear()) {
+        if (iScreening.getShowDateTime().getYear() < LocalDate.now().getYear()) {
             errors.add("Showtime year cannot be before current year");
         }
-        if (iScreening.getShowtime().getMonth() == null) {
+        if (iScreening.getShowDateTime().getMonth() == null) {
             errors.add("Showtime month cannot be null");
         }
-        if (iScreening.getShowtime().getDayOfMonth() > iScreening.getShowtime().getMonth().maxLength()) {
+        if (iScreening.getShowDateTime().getDayOfMonth() > iScreening.getShowDateTime().getMonth().maxLength()) {
             errors.add("Showtime day cannot exceed max day value of month");
         }
     }

@@ -1,9 +1,8 @@
 package com.ecinema.app.controllers;
 
 import com.ecinema.app.domain.dtos.UserDto;
-import com.ecinema.app.domain.enums.UserRole;
+import com.ecinema.app.domain.enums.UserAuthority;
 import com.ecinema.app.services.SecurityService;
-import org.atteo.evo.inflector.English.MODE;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,7 +17,6 @@ import org.springframework.web.context.WebApplicationContext;
 
 import java.util.Arrays;
 
-import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.BDDMockito.given;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -78,7 +76,7 @@ class AccountControllerTest {
     void accessAccountPage3()
             throws Exception {
         UserDto userDto = new UserDto();
-        userDto.getUserRoles().add(UserRole.CUSTOMER);
+        userDto.getUserAuthorities().add(UserAuthority.CUSTOMER);
         given(securityService.findLoggedInUserDTO()).willReturn(userDto);
         mockMvc.perform(get("/account"))
                 .andExpect(redirectedUrl("/customer"));
@@ -89,7 +87,7 @@ class AccountControllerTest {
     void accessAccountPage4()
             throws Exception {
         UserDto userDto = new UserDto();
-        userDto.getUserRoles().addAll(Arrays.asList(UserRole.ADMIN, UserRole.MODERATOR));
+        userDto.getUserAuthorities().addAll(Arrays.asList(UserAuthority.ADMIN, UserAuthority.MODERATOR));
         given(securityService.findLoggedInUserDTO()).willReturn(userDto);
         mockMvc.perform(get("/account"))
                 .andExpect(redirectedUrl("/admin"));

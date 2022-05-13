@@ -10,7 +10,7 @@ import java.util.Optional;
  * The interface Customer role def repository.
  */
 @Repository
-public interface CustomerRoleDefRepository extends UserRoleDefRepository<CustomerRoleDef> {
+public interface CustomerAuthorityRepository extends AbstractUserAuthorityRepository<CustomerAuthority> {
 
     /**
      * Find all by payment cards contains optional.
@@ -18,8 +18,8 @@ public interface CustomerRoleDefRepository extends UserRoleDefRepository<Custome
      * @param paymentCard the payment card
      * @return the optional
      */
-    @Query("SELECT c FROM CustomerRoleDef c JOIN c.paymentCards p WHERE p = ?1")
-    Optional<CustomerRoleDef> findByPaymentCardsContains(PaymentCard paymentCard);
+    @Query("SELECT c FROM CustomerAuthority c JOIN c.paymentCards p WHERE p = ?1")
+    Optional<CustomerAuthority> findByPaymentCardsContains(PaymentCard paymentCard);
 
     /**
      * Find all by payment cards contains with id optional.
@@ -27,8 +27,8 @@ public interface CustomerRoleDefRepository extends UserRoleDefRepository<Custome
      * @param paymentCardId the payment card id
      * @return the optional
      */
-    @Query("SELECT c FROM CustomerRoleDef c JOIN c.paymentCards p WHERE p.id = ?1")
-    Optional<CustomerRoleDef> findByPaymentCardsContainsWithId(Long paymentCardId);
+    @Query("SELECT c FROM CustomerAuthority c JOIN c.paymentCards p WHERE p.id = ?1")
+    Optional<CustomerAuthority> findByPaymentCardsContainsWithId(Long paymentCardId);
 
     /**
      * Find all by tickets contains optional.
@@ -36,8 +36,8 @@ public interface CustomerRoleDefRepository extends UserRoleDefRepository<Custome
      * @param ticket the ticket
      * @return the optional
      */
-    @Query("SELECT c FROM CustomerRoleDef c JOIN c.tickets t WHERE t = ?1")
-    Optional<CustomerRoleDef> findByTicketsContains(Ticket ticket);
+    @Query("SELECT c FROM CustomerAuthority c JOIN c.tickets t WHERE t = ?1")
+    Optional<CustomerAuthority> findByTicketsContains(Ticket ticket);
 
     /**
      * Find all by tickets contains with id optional.
@@ -45,8 +45,8 @@ public interface CustomerRoleDefRepository extends UserRoleDefRepository<Custome
      * @param ticketId the ticket id
      * @return the optional
      */
-    @Query("SELECT c FROM CustomerRoleDef c JOIN c.tickets t WHERE t.id = ?1")
-    Optional<CustomerRoleDef> findByTicketsContainsWithId(Long ticketId);
+    @Query("SELECT c FROM CustomerAuthority c JOIN c.tickets t WHERE t.id = ?1")
+    Optional<CustomerAuthority> findByTicketsContainsWithId(Long ticketId);
 
     /**
      * Find all by reviews contains optional.
@@ -54,8 +54,8 @@ public interface CustomerRoleDefRepository extends UserRoleDefRepository<Custome
      * @param review the review
      * @return the optional
      */
-    @Query("SELECT c FROM CustomerRoleDef c JOIN c.reviews r WHERE r = ?1")
-    Optional<CustomerRoleDef> findByReviewsContains(Review review);
+    @Query("SELECT c FROM CustomerAuthority c JOIN c.reviews r WHERE r = ?1")
+    Optional<CustomerAuthority> findByReviewsContains(Review review);
 
     /**
      * Find all by reviews contains with id optional.
@@ -63,8 +63,8 @@ public interface CustomerRoleDefRepository extends UserRoleDefRepository<Custome
      * @param reviewId the review id
      * @return the optional
      */
-    @Query("SELECT c FROM CustomerRoleDef c JOIN c.reviews r WHERE r.id = ?1")
-    Optional<CustomerRoleDef> findByReviewsContainsWithId(Long reviewId);
+    @Query("SELECT c FROM CustomerAuthority c JOIN c.reviews r WHERE r.id = ?1")
+    Optional<CustomerAuthority> findByReviewsContainsWithId(Long reviewId);
 
     /**
      * Find by coupons contains optional.
@@ -72,8 +72,8 @@ public interface CustomerRoleDefRepository extends UserRoleDefRepository<Custome
      * @param coupon the coupon
      * @return the optional
      */
-    @Query("SELECT c FROM CustomerRoleDef c JOIN c.coupons co WHERE co = ?1")
-    Optional<CustomerRoleDef> findByCouponsContains(Coupon coupon);
+    @Query("SELECT c FROM CustomerAuthority c JOIN c.coupons co WHERE co = ?1")
+    Optional<CustomerAuthority> findByCouponsContains(Coupon coupon);
 
     /**
      * Find by coupons contains with id optional.
@@ -81,7 +81,7 @@ public interface CustomerRoleDefRepository extends UserRoleDefRepository<Custome
      * @param couponId the coupon id
      * @return the optional
      */
-    @Query("SELECT c FROM CustomerRoleDef c JOIN c.coupons co WHERE co.id = ?1")
-    Optional<CustomerRoleDef> findByCouponsContainsWithId(Long couponId);
+    @Query("SELECT c FROM CustomerAuthority c JOIN c.coupons co WHERE co.id = ?1")
+    Optional<CustomerAuthority> findByCouponsContainsWithId(Long couponId);
 
 }

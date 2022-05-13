@@ -3,7 +3,7 @@ package com.ecinema.app.controllers;
 import com.ecinema.app.domain.dtos.UserDto;
 import com.ecinema.app.services.SecurityService;
 import com.ecinema.app.services.UserService;
-import com.ecinema.app.domain.enums.UserRole;
+import com.ecinema.app.domain.enums.UserAuthority;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -20,12 +20,12 @@ public class ModeratorController {
     @GetMapping("/moderator")
     public String showModeratorPage(final Model model, final RedirectAttributes redirectAttributes) {
         UserDto userDto = securityService.findLoggedInUserDTO();
-        if (userDto == null || !userDto.getUserRoles().contains(UserRole.MODERATOR)) {
+        if (userDto == null || !userDto.getUserAuthorities().contains(UserAuthority.MODERATOR)) {
             redirectAttributes.addAttribute("failed", "Not authorized to view that page!");
             return "redirect:/error";
         }
         model.addAttribute("userRoles",
-                           userService.userRolesAsListOfStrings(userDto.getId()));
+                           userService.userAuthoritiesAsListOfStrings(userDto.getId()));
         return "moderator";
     }
 

@@ -5,14 +5,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 
 @DataJpaTest
-class ModeratorRoleDefRepositoryTest {
+class ModeratorAuthorityRepositoryTest {
 
     @Autowired
-    private ModeratorRoleDefRepository moderatorRoleDefRepository;
+    private ModeratorAuthorityRepository moderatorAuthorityRepository;
 
     @AfterEach
     void tearDown() {
-        moderatorRoleDefRepository.deleteAll();
+        moderatorAuthorityRepository.deleteAll();
     }
 
 }

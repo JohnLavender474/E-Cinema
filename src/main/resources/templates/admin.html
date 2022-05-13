@@ -3,7 +3,6 @@
 <head th:insert="fragments/header :: header"></head>
 <body>
 <nav th:insert="fragments/webpage-top :: webpage-top"></nav>
-<div th:insert="fragments/account-roles :: account-roles(${userRoles})"></div>
 <div class="moviesContainer" style="position: center">
     <table class="table table-bordered table-striped">
         <tr>
@@ -35,21 +34,21 @@
             <td>
                 <label>
                     <button class="btn btn-primary">
-                        <a th:href="@{/add-showrooms}">Add Showrooms</a>
+                        <a th:href="@{/add-showrooms}">Add Showroom</a>
                     </button>
                 </label>
             </td>
             <td>
                 <label>
                     <button class="btn btn-primary">
-                        <a th:href="@{/edit-showrooms}">Edit Showrooms</a>
+                        <a th:href="@{/edit-showrooms}">Edit Showroom</a>
                     </button>
                 </label>
             </td>
             <td>
                 <label>
                     <button class="btn btn-primary">
-                        <a th:href="@{/delete-showrooms}">Delete Showrooms</a>
+                        <a th:href="@{/delete-showrooms}">Delete Showroom</a>
                     </button>
                 </label>
             </td>
@@ -59,21 +58,21 @@
             <td>
                 <label>
                     <button class="btn btn-primary">
-                        <a th:href="@{/add-screenings}">Add Screenings</a>
+                        <a th:href="@{/add-screening-search}">Add Screening</a>
                     </button>
                 </label>
             </td>
             <td>
                 <label>
                     <button class="btn btn-primary">
-                        <a th:href="@{/edit-screenings}">Edit Screenings</a>
+                        <a th:href="@{/edit-screening-search}">Edit Screening</a>
                     </button>
                 </label>
             </td>
             <td>
                 <label>
                     <button class="btn btn-primary">
-                        <a th:href="@{/delete-screenings}">Delete Screenings</a>
+                        <a th:href="@{/delete-screening-search}">Delete Screening</a>
                     </button>
                 </label>
             </td>
