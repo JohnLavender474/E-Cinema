@@ -3,9 +3,13 @@ body {
     background-color: black;
 }
 
-table {
+.table {
     align-content: center;
     align-self: center;
+    border-radius: 5px;
+    width: fit-content;
+    margin: 0 auto;
+    float: none;
 }
 
 .bold-white-text {
@@ -21,6 +25,10 @@ td, tr {
     font-size: 1em;
     padding: 5px;
     color: white;
+}
+
+td img {
+    vertical-align: middle;
 }
 
 .image-hover {
@@ -67,7 +75,6 @@ table .boldtext {
 
 /* Navbar container */
 .navbar {
-    overflow: hidden;
     background-color: #333;
     font-family: Arial, serif;
 }
@@ -110,61 +117,6 @@ and when you move the mouse over it (hover) */
     color: white;
 }
 
-/* The dropdown container */
-.dropdown {
-    float: left;
-    overflow: auto;
-    z-index: 1;
-}
-
-/* Dropdown button */
-.dropdown .dropbtn {
-    font-size: 16px;
-    border: none;
-    outline: none;
-    color: white;
-    padding: 14px 16px;
-    background-color: inherit;
-    font-family: inherit; /* Important for vertical align on mobile phones */
-    margin: 0; /* Important for vertical align on mobile phones */
-    z-index: 2;
-}
-
-/* Add a red background color to navbar links on hover */
-.navbar a:hover, .dropdown:hover .dropbtn {
-    background-color: red;
-}
-
-/* Dropdown content (hidden by default) */
-.dropdown-content {
-    display: none;
-    position: absolute;
-    background-color: #f9f9f9;
-    min-width: 160px;
-    box-shadow: 0 8px 16px 0 rgba(0,0,0,0.2);
-    z-index: 2;
-}
-
-/* Links inside the dropdown */
-.dropdown-content a {
-    float: none;
-    color: black;
-    padding: 12px 16px;
-    text-decoration: none;
-    display: block;
-    text-align: left;
-}
-
-/* Add a grey background color to dropdown links on hover */
-.dropdown-content a:hover {
-    background-color: #ddd;
-}
-
-/* Show the dropdown menu on hover */
-.dropdown:hover .dropdown-content {
-    display: block;
-}
-
 .naviBar {
     font-size: larger;
     padding: 30px 50px;
@@ -174,99 +126,6 @@ and when you move the mouse over it (hover) */
     align-items: center;
     margin: auto;
     width: 100%;
-}
-
-.naviBar .menuIcon {
-    cursor: pointer;
-    padding: 18px 8px;
-    z-index: 100;
-}
-
-.naviBar .menuIcon .navIcon {
-    position: relative;
-    transition: background 0.5s ease-out;
-    background-color: white;
-    display: block;
-    height: 3px;
-    width: 30px;
-}
-
-.naviBar .menuIcon .navIcon::before,
-.naviBar .menuIcon .navIcon::after {
-    width: 100%;
-    height: 100%;
-    transition: all ease-out 0.5s;
-    background-color: white;
-    content: '';
-    position: absolute;
-    display: block;
-}
-
-.naviBar .menuIcon .navIcon::before {
-    top: 10px;
-}
-
-.naviBar .menuIcon .navIcon::after {
-    top: -10px;
-}
-
-.naviBar .menuBtn:checked~.menuIcon .navIcon {
-    background-color: transparent;
-}
-
-.naviBar .menuBtn:checked~.menuIcon .navIcon::after {
-    transform: rotate(45deg);
-    top: 0;
-}
-
-.naviBar .menuBtn:checked~.menuIcon .navIcon::before {
-    transform: rotate(-45deg);
-    top: 0;
-}
-
-.menuBtn {
-    display: none;
-}
-
-.menu {
-    position: fixed;
-    left: 0;
-    top: 0;
-    width: 100%;
-    height: 100%;
-    background-color: black;
-    z-index: 102;
-    display: none;
-    justify-content: center;
-    align-items: center;
-    animation: fade 0.3s;
-}
-
-.menu li a {
-    color: white;
-    margin: 0 40px;
-    font-size: 36px;
-    font-family: sans-serif;
-    transition: all ease 0.3s;
-}
-
-.menu li a:hover {
-    font-size: 36px;
-    color: orangered;
-    transition: all ease 0.3s;
-}
-
-.naviBar .menuBtn:checked~.menu {
-    display: flex;
-}
-
-@keyframes fade {
-    0% {
-        opacity: 0;
-    }
-    100% {
-        opacity: 1;
-    }
 }
 
 .notification span {
@@ -532,6 +391,14 @@ form .inputField {
 
 .forgot:hover {
     text-decoration: underline;
+}
+
+#pageNumbers ul {
+    list-style: none;
+}
+
+#pageNumbers li {
+    display: inline;
 }
 
 button[type="submit"] {
@@ -933,7 +800,8 @@ input[type="submit"]:hover {
     padding: 0 10px;
 }
 
-/* On smaller screens, where height is less than 450px, change the style of the sidebar (less padding and a smaller font size) */
+/* On smaller screens, where height is less than 450px, change the style of the sidebar
+(less padding and a smaller font size) */
 @media screen and (max-height: 450px) {
     .sidenav {padding-top: 15px;}
     .sidenav a {font-size: 18px;}

@@ -8,7 +8,7 @@
 <nav th:insert="fragments/webpage-top :: webpage-top"></nav>
 <div th:insert="fragments/back-to-admin-page :: back-to-admin-page"></div>
 <div th:insert="fragments/errors :: errors"></div>
-<div class="form-group">
+<div class="container">
     <form id="cascading-form" method="post" th:action="@{/add-screening}" th:object="${screeningForm}">
         <div class="cascade-field">
             <label for="field1">
@@ -65,9 +65,7 @@
         <br/>
         <div class="cascade-field">
             <label for="field5">
-                <button class="button">
-                    <input id="field5" type="submit" value="submit"/>
-                </button>
+                <input id="field5" type="submit" value="submit"/>
             </label>
         </div>
     </form>

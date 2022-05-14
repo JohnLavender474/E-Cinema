@@ -6,23 +6,24 @@
         <a class="logo" th:href="@{/index}">
             ECinema<span> Entertainment</span>
         </a>
-        <a th:href="@{/index}">Home</a>
+        <a class="btn btn-primary" th:href="@{/index}">Home</a>
         &nbsp;
         &nbsp;
         &nbsp;
-        <a th:href="@{/movies}">Movies</a>
+        <a class="btn btn-primary" th:href="@{/movies}">Movies</a>
         &nbsp;
         &nbsp;
         &nbsp;
-        <a th:href="@{/about}">About</a>
+        <a class="btn btn-primary" th:href="@{/about}">About</a>
         &nbsp;
         &nbsp;
         &nbsp;
-        <div class="dropdown">
-            <button class="dropbtn" style="color: red; font-size: xx-large; alignment: center">Account</button>
-            <div class="dropdown-content" style="background: red; color: white">
-                <a th:each="option:${dropdownMenu}" th:text="${option.first}"
-                   th:href="@{${option.second}}"></a>
+        <div class="dropdown show">
+            <a class="btn btn-primary dropdown-toggle" data-toggle="dropdown"
+               aria-haspopup="true" aria-expanded="false">Account</a>
+            <div class="dropdown-menu">
+                <a class="dropdown-item-text" th:each="option:${dropdownMenu}"
+                   th:text="${option.first}" th:href="@{${option.second}}"></a>
             </div>
         </div>
         &nbsp;

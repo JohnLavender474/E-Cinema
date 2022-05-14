@@ -661,13 +661,15 @@ public class InitializationConfig {
         screeningForm1.setShowroomId(showrooms.get(Letter.D).getId());
         LocalDateTime bondShowtime1 = LocalDateTime.now().plusMinutes(45);
         screeningForm1.setShowDateTime(bondShowtime1);
+        logger.debug("007 Screening form 1: " + screeningForm1);
         screeningService.submitScreeningForm(screeningForm1);
         // Screening 2
         ScreeningForm screeningForm2 = new ScreeningForm();
         screeningForm2.setMovieId(bond.getId());
         screeningForm2.setShowroomId(showrooms.get(Letter.D).getId());
-        LocalDateTime bondShowtime2 = LocalDateTime.now().plusDays(1);
-        screeningForm1.setShowDateTime(bondShowtime2);
+        LocalDateTime bondShowtime2 = LocalDateTime.now().plusHours(24);
+        screeningForm2.setShowDateTime(bondShowtime2);
+        logger.debug("007 Screening form 2: " + screeningForm2);
         screeningService.submitScreeningForm(screeningForm2);
     }
 

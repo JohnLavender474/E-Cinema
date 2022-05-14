@@ -3,7 +3,6 @@ package com.ecinema.app.controllers;
 import com.ecinema.app.configs.InitializationConfig;
 import com.ecinema.app.domain.contracts.IMovie;
 import com.ecinema.app.domain.contracts.IScreening;
-import com.ecinema.app.domain.contracts.IShowroom;
 import com.ecinema.app.domain.dtos.MovieDto;
 import com.ecinema.app.domain.dtos.UserDto;
 import com.ecinema.app.domain.entities.Movie;
@@ -351,8 +350,26 @@ class AdminControllerTest {
 
     @Test
     @WithMockUser(username = "user", authorities = {"ADMIN"})
-    void failToPostAddScreening() {
-
+    void failToPostAddScreening()
+            throws Exception {
+        ScreeningForm screeningForm = new ScreeningForm();
+        screeningForm.setMovieId(1L);
+        screeningForm.setShowroomId(2L);
+        screeningForm.setShowDateTime(LocalDateTime.now().plusHours(8));
+        Movie movie = new Movie();
+        movie.setTitle("Test Movie");
+        given(movieRepository.findById(1L))
+                .willReturn(Optional.of(movie));
+        Showroom showroom = new Showroom();
+        showroom.setShowroomLetter(Letter.A);
+        given(showroomRepository.findById(2L))
+                .willReturn(Optional.of(showroom));
+        doThrow(InvalidArgsException.class)
+                .when(screeningService)
+                .submitScreeningForm(any(ScreeningForm.class));
+        mockMvc.perform(post("/add-screening/" + 1L))
+                .andExpect(redirectedUrl("/add-screening/" + 1L))
+                .andExpect(result -> model().attributeExists("errors"));
     }
 
     void setUpAdminUserDto() {

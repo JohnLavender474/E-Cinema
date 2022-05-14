@@ -3,7 +3,6 @@ package com.ecinema.app.controllers;
 import com.ecinema.app.domain.dtos.MovieDto;
 import com.ecinema.app.domain.dtos.ShowroomDto;
 import com.ecinema.app.domain.dtos.UserDto;
-import com.ecinema.app.domain.entities.Screening;
 import com.ecinema.app.domain.enums.UserAuthority;
 import com.ecinema.app.domain.forms.MovieForm;
 import com.ecinema.app.domain.forms.ScreeningForm;
@@ -11,7 +10,10 @@ import com.ecinema.app.exceptions.ClashException;
 import com.ecinema.app.exceptions.InvalidArgsException;
 import com.ecinema.app.exceptions.NoEntityFoundException;
 import com.ecinema.app.services.*;
+import com.ecinema.app.utils.UtilMethods;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -29,6 +31,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class AdminController {
 
+    private final Logger logger = LoggerFactory.getLogger(AdminController.class);
     private final ScreeningService screeningService;
     private final ShowroomService showroomService;
     private final SecurityService securityService;
@@ -44,14 +47,17 @@ public class AdminController {
      */
     @GetMapping("/admin")
     public String showAdminPage(final Model model, final RedirectAttributes redirectAttributes) {
+        logger.debug(UtilMethods.getDelimiterLine());
+        logger.debug("Get mapping: Admin page");
         UserDto userDto = securityService.findLoggedInUserDTO();
+        logger.debug("User DTO: " + userDto);
         if (userDto == null || !userDto.getUserAuthorities().contains(UserAuthority.ADMIN)) {
             redirectAttributes.addAttribute("failed", "Not authorized to view that page!");
             return "redirect:/error";
         }
-        model.addAttribute(
-                "userAuthorities", userService.userAuthoritiesAsListOfStrings(
-                        userDto.getId()));
+        List<String> userAuthorities = userService.userAuthoritiesAsListOfStrings(userDto.getId());
+        logger.debug("User authorities: " + userAuthorities);
+        model.addAttribute("userAuthorities", userAuthorities);
         return "admin";
     }
 
@@ -63,6 +69,8 @@ public class AdminController {
      */
     @GetMapping("/add-movie")
     public String showAddMoviePage(final Model model) {
+        logger.debug(UtilMethods.getDelimiterLine());
+        logger.debug("Get mapping: add movie page");
         model.addAttribute("action", "/add-movie");
         model.addAttribute("movieForm", new MovieForm());
         return "add-movie";
@@ -79,6 +87,9 @@ public class AdminController {
     @PostMapping("/add-movie")
     public String addMovie(final Model model,final RedirectAttributes redirectAttributes,
                            @ModelAttribute("movieForm") final MovieForm movieForm) {
+        logger.debug(UtilMethods.getDelimiterLine());
+        logger.debug("Post mapping: add movie");
+        logger.debug("Movie form: " + movieForm);
         try {
             movieService.submitMovieForm(movieForm);
             redirectAttributes.addFlashAttribute("message", "Successfully added movie");
@@ -97,8 +108,12 @@ public class AdminController {
      */
     @GetMapping("/edit-movie-search")
     public String showEditMovieSearchPage(final Model model) {
+        logger.debug(UtilMethods.getDelimiterLine());
+        logger.debug("Get mapping: edit movie search");
         model.addAttribute("href", "/edit-movie/{id}");
-        model.addAttribute("movies", movieService.findAllDtos());
+        List<MovieDto> movies = movieService.findAllDtos();
+        logger.debug("Movies: " + movies);
+        model.addAttribute("movies", movies);
         return "admin-movie-choose";
     }
 
@@ -106,13 +121,16 @@ public class AdminController {
      * Show edit movie page string.
      *
      * @param model the model
-     * @param id    the id
+     * @param movieId the id of the movie to be edited
      * @return the string
      */
     @GetMapping("/edit-movie/{id}")
-    public String showEditMoviePage(final Model model, @PathVariable("id") final Long id) {
+    public String showEditMoviePage(final Model model, @PathVariable("id") final Long movieId) {
+        logger.debug(UtilMethods.getDelimiterLine());
+        logger.debug("Get mapping: edit movie with id " + movieId);
         model.addAttribute("action", "/edit-movie/{id}");
-        MovieForm movieForm = movieService.fetchAsForm(id);
+        MovieForm movieForm = movieService.fetchAsForm(movieId);
+        logger.debug("Movie form: " + movieForm);
         model.addAttribute("movieForm", movieForm);
         return "edit-movie";
     }
@@ -129,8 +147,11 @@ public class AdminController {
     public String editMovie(final RedirectAttributes redirectAttributes,
                             @ModelAttribute("movieForm") final MovieForm movieForm,
                             @PathVariable("id") final Long movieId) {
+        logger.debug(UtilMethods.getDelimiterLine());
+        logger.debug("Post mapping: edit movie with id " + movieId);
         try {
             movieForm.setId(movieId);
+            logger.debug("Movie form: " + movieForm);
             movieService.submitMovieForm(movieForm);
             redirectAttributes.addFlashAttribute("success", "Successfully edited movie!");
             return "redirect:/edit-movie-search";
@@ -148,8 +169,12 @@ public class AdminController {
      */
     @GetMapping("/delete-movie-search")
     public String showDeleteMovieSearchPage(final Model model) {
+        logger.debug(UtilMethods.getDelimiterLine());
+        logger.debug("Get mapping: delete movie search");
         model.addAttribute("href", "/delete-movie/{id}");
-        model.addAttribute("movies", movieService.findAllDtos());
+        List<MovieDto> movies = movieService.findAllDtos();
+        logger.debug("Movies: " + movies);
+        model.addAttribute("movies", movies);
         return "admin-movie-choose";
     }
 
@@ -164,6 +189,7 @@ public class AdminController {
     @GetMapping("/delete-movie/{id}")
     public String showDeleteMoviePage(final Model model, final RedirectAttributes redirectAttributes,
                               @PathVariable("id") final Long id) {
+        logger.debug(UtilMethods.getDelimiterLine());
         try {
             MovieDto movieDto = movieService.findDtoById(id).orElseThrow(
                     () -> new NoEntityFoundException("movie", "id", id));
@@ -189,6 +215,8 @@ public class AdminController {
     @PostMapping("/delete-movie/{id}")
     public String deleteMovie(final RedirectAttributes redirectAttributes,
                               @PathVariable("id") final Long movieId) {
+        logger.debug(UtilMethods.getDelimiterLine());
+        logger.debug("Post mapping: delete movie");
         movieService.deleteById(movieId);
         redirectAttributes.addFlashAttribute("success", "Successfully deleted movie");
         return "redirect:/delete-movie-search";
@@ -202,6 +230,8 @@ public class AdminController {
      */
     @GetMapping("/add-screening-search")
     public String showAddScreeningSearchPage(final Model model) {
+        logger.debug(UtilMethods.getDelimiterLine());
+        logger.debug("Get mapping: add screening search");
         model.addAttribute("href", "/add-screening/{id}");
         model.addAttribute("movies", movieService.findAllDtos());
         return "admin-movie-choose";
@@ -216,16 +246,23 @@ public class AdminController {
      */
     @GetMapping("/add-screening/{id}")
     public String showAddScreeningPage(final Model model, @PathVariable("id") final Long movieId) {
+        logger.debug(UtilMethods.getDelimiterLine());
+        logger.debug("Get mapping: add screening");
         MovieDto movieDto = movieService.findDtoById(movieId).orElseThrow(
                 () -> new NoEntityFoundException("movie", "id", movieId));
+        logger.debug("Movie DTO: " + movieDto);
         model.addAttribute("movie", movieDto);
-        model.addAttribute("showrooms", showroomService.findAllDtos());
+        List<ShowroomDto> showrooms = showroomService.findAllDtos();
+        logger.debug("Showrooms: " + showrooms);
+        model.addAttribute("showrooms", showrooms);
         model.addAttribute("action", "/add-screening/{id}");
         model.addAttribute("screeningForm", new ScreeningForm());
         String minDate = LocalDateTime.now().toLocalDate().format(
                 DateTimeFormatter.ofPattern("yyyy-MM-dd"));
         String maxDate = LocalDateTime.now().plusYears(2).format(
                 DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+        logger.debug("Min date: " + minDate);
+        logger.debug("Max date: " + maxDate);
         model.addAttribute("minDate", minDate);
         model.addAttribute("maxDate", maxDate);
         return "add-screening";
@@ -243,12 +280,17 @@ public class AdminController {
     public String addScreening(final RedirectAttributes redirectAttributes,
                                @PathVariable("id") final Long movieId,
                                @ModelAttribute("screeningForm") final ScreeningForm screeningForm) {
+        logger.debug(UtilMethods.getDelimiterLine());
+        logger.debug("Post mapping: add screening");
         try {
             screeningForm.setMovieId(movieId);
+            logger.debug("Screening form: " + screeningForm);
             screeningService.submitScreeningForm(screeningForm);
             redirectAttributes.addFlashAttribute("success", "Successfully added screening");
+            logger.debug("Success!");
             return "redirect:/add-screening-search";
         } catch (NoEntityFoundException | InvalidArgsException | ClashException e) {
+            logger.debug("ERROR!");
             redirectAttributes.addAttribute("errors", e.getErrors());
             return "redirect:/add-screening/" + movieId;
         }

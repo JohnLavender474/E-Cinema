@@ -107,7 +107,7 @@ public class ScreeningServiceImpl extends AbstractServiceImpl<Screening, Screeni
     public void submitScreeningForm(ScreeningForm screeningForm)
             throws NoEntityFoundException, InvalidArgsException, ClashException {
         logger.debug(UtilMethods.getDelimiterLine());
-        logger.debug("Submit screening form");
+        logger.debug("Add new screening");
         List<String> errors = new ArrayList<>();
         screeningValidator.validate(screeningForm, errors);
         if (!errors.isEmpty()) {
@@ -122,18 +122,21 @@ public class ScreeningServiceImpl extends AbstractServiceImpl<Screening, Screeni
                 .orElseThrow(() -> new NoEntityFoundException(
                         "movie", "movie id", screeningForm.getMovieId()));
         LocalDateTime endDateTime = screeningForm.getShowDateTime()
-                .plusHours(movie.getDuration().getHours())
-                .plusMinutes(movie.getDuration().getMinutes());
+                                                 .plusHours(movie.getDuration().getHours())
+                                                 .plusMinutes(movie.getDuration().getMinutes());
         Optional<ScreeningDto> optionalOverlap = findScreeningByShowroomAndInBetweenStartTimeAndEndTime(
                 showroom, screeningForm.getShowDateTime(), endDateTime);
         if (optionalOverlap.isPresent()) {
             ScreeningDto overlap = optionalOverlap.get();
             throw new ClashException("Screening for " + movie.getTitle() +
                                              " in showroom " + showroom.getShowroomLetter() +
-                                             " at " + screeningForm.getShowDateTime() +
-                                             " overlaps screening for " +  overlap.getMovieTitle() +
+                                             " at " + UtilMethods.localDateTimeFormatted(
+                                                     screeningForm.getShowDateTime()) +
+                                             " cannot be created because it overlaps" +
+                                             " screening for " + overlap.getMovieTitle() +
                                              " in showroom " + overlap.getShowroomLetter() +
-                                             " at " + overlap.getShowDateTime());
+                                             " at " + UtilMethods.localDateTimeFormatted(
+                                                     overlap.getShowDateTime()));
         }
         Screening screening = new Screening();
         screening.setShowDateTime(screeningForm.getShowDateTime());

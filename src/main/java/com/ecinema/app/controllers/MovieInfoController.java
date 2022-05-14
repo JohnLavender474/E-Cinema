@@ -15,6 +15,9 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.util.List;
+import java.util.Map;
+
 import static com.ecinema.app.utils.UtilMethods.addPageNumbersAttribute;
 
 @Controller
@@ -30,13 +33,15 @@ public class MovieInfoController {
                              @RequestParam(value = "page", required = false, defaultValue = "1") Integer page,
                              @RequestParam(value = "search", required = false, defaultValue = "") String search) {
         PageRequest pageRequest = PageRequest.of(page - 1, 6);
-        logger.debug(UtilMethods.getDelimiterLine());
         Page<MovieDto> pageOfDtos = (search == null || search.isBlank()) ?
                 movieService.pageOfDtos(pageRequest) :
                 movieService.findAllByLikeTitle(search, pageRequest);
         addPageNumbersAttribute(model, pageOfDtos);
-        model.addAttribute("movies", pageOfDtos.getContent().toArray());
+        Map<Integer, List<MovieDto>> movies = UtilMethods.get2dMapOf(pageOfDtos, 3);
+        model.addAttribute("movies", movies);
         model.addAttribute("search", search);
+        model.addAttribute("page", page);
+        logger.debug(UtilMethods.getDelimiterLine());
         logger.debug("Page: " + page);
         logger.debug("Search: " + search);
         logger.debug("Page of movies: " + pageOfDtos);

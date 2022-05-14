@@ -40,13 +40,13 @@ public class ViewInterceptor implements HandlerInterceptor {
             dropdownMenu.add(new Pair<>("Login", "/login"));
         } else {
             if (userDto.getUserAuthorities().contains(UserAuthority.CUSTOMER)) {
-                dropdownMenu.add(new Pair<>("Customer Account", "/customer"));
+                dropdownMenu.add(new Pair<>("Customer", "/customer"));
             }
             if (userDto.getUserAuthorities().contains(UserAuthority.MODERATOR)) {
-                dropdownMenu.add(new Pair<>("Moderator Account", "/moderator"));
+                dropdownMenu.add(new Pair<>("Moderator", "/moderator"));
             }
             if (userDto.getUserAuthorities().contains(UserAuthority.ADMIN)) {
-                dropdownMenu.add(new Pair<>("Admin Account", "/admin"));
+                dropdownMenu.add(new Pair<>("Admin", "/admin"));
             }
             dropdownMenu.add(new Pair<>("Logout", "/logout"));
         }

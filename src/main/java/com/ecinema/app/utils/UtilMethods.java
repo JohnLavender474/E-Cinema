@@ -11,6 +11,7 @@ import java.time.LocalTime;
 import java.time.Month;
 import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -85,6 +86,31 @@ public class UtilMethods {
                                                  .boxed().collect(Collectors.toList());
             model.addAttribute("pageNumbers", pageNumbers);
         }
+    }
+
+    /**
+     * Gets 2 d map of.
+     *
+     * @param <T>             the type parameter
+     * @param iterable        the iterable
+     * @param elementsPerList the elements per list
+     * @return the 2d map of
+     */
+    public static <T> Map<Integer, List<T>> get2dMapOf(Iterable<T> iterable, int elementsPerList) {
+        Map<Integer, List<T>> map = new HashMap<>();
+        map.put(0, new ArrayList<>());
+        int i = 0;
+        int j = 0;
+        for (T t : iterable) {
+            if (j >= elementsPerList) {
+                j = 0;
+                i++;
+                map.put(i, new ArrayList<>());
+            }
+            map.get(i).add(j, t);
+            j++;
+        }
+        return map;
     }
 
     /**
