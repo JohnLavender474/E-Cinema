@@ -1,7 +1,9 @@
 package com.ecinema.app.configs;
 
+import com.ecinema.app.configs.interceptors.UserActivityInterceptor;
 import com.ecinema.app.configs.interceptors.ViewInterceptor;
 import com.ecinema.app.services.SecurityService;
+import com.ecinema.app.services.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
@@ -17,6 +19,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 @RequiredArgsConstructor
 public class WebConfig implements WebMvcConfigurer {
 
+    private final UserService userService;
     private final SecurityService securityService;
 
     @Override
@@ -47,6 +50,8 @@ public class WebConfig implements WebMvcConfigurer {
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
         registry.addInterceptor(new ViewInterceptor(securityService));
+        registry.addInterceptor(new UserActivityInterceptor(
+                userService, securityService));
     }
 
 }

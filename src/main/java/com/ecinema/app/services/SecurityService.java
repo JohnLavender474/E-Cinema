@@ -19,6 +19,13 @@ public interface SecurityService {
             throws NoEntityFoundException;
 
     /**
+     * User is logged in boolean.
+     *
+     * @return the boolean
+     */
+    boolean userIsLoggedIn();
+
+    /**
      * Find logged in user email string.
      *
      * @return the string

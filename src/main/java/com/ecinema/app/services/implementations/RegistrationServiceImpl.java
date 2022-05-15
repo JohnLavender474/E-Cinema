@@ -17,7 +17,6 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
 
@@ -104,26 +103,28 @@ public class RegistrationServiceImpl extends AbstractServiceImpl<Registration,
         }
         logger.debug("Registration form passed validation checks");
         String token = UUID.randomUUID().toString();
-        emailService.sendFromBusinessEmail(registrationForm.getEmail(),
-                                           buildEmail(token), "Confirm Account");
+        emailService.sendFromBusinessEmail(
+                registrationForm.getEmail(), buildEmail(token), "Confirm Account");
         Registration registration = new Registration();
-        registration.setToken(token);
+        registration.setToIRegistration(registrationForm);
         registration.setUserAuthorities(registrationForm.getUserAuthorities());
-        String encodedPassword = passwordEncoder.encode(registrationForm.getPassword());
-        registration.setPassword(encodedPassword);
-        registration.setConfirmPassword(encodedPassword);
-        registration.setEmail(registrationForm.getEmail());
-        registration.setUsername(registrationForm.getUsername());
-        registration.setFirstName(registrationForm.getFirstName());
-        registration.setLastName(registrationForm.getLastName());
-        LocalDate birthDate = LocalDate.of(registrationForm.getBirthYear(),
-                                           registrationForm.getBirthMonth(),
-                                           registrationForm.getBirthDay());
-        registration.setBirthDate(birthDate);
-        registration.setSecurityQuestion1(registrationForm.getSecurityQuestion1());
-        registration.setSecurityAnswer1(registrationForm.getSecurityAnswer1());
-        registration.setSecurityQuestion2(registrationForm.getSecurityQuestion2());
-        registration.setSecurityAnswer2(registrationForm.getSecurityAnswer2());
+        if (!registration.getIsPasswordEncoded()) {
+            String encodedPassword = passwordEncoder.encode(registration.getPassword());
+            registration.setPassword(encodedPassword);
+            registration.setConfirmPassword(encodedPassword);
+            registration.setIsPasswordEncoded(true);
+        }
+        if (!registration.getIsSecurityAnswer1Encoded()) {
+            String encodedAnswer = passwordEncoder.encode(registration.getSecurityAnswer1());
+            registration.setSecurityAnswer1(encodedAnswer);
+            registration.setIsSecurityAnswer1Encoded(true);
+        }
+        if (!registration.getIsSecurityAnswer2Encoded()) {
+            String encodedAnswer = passwordEncoder.encode(registration.getSecurityAnswer2());
+            registration.setSecurityAnswer2(encodedAnswer);
+            registration.setIsSecurityAnswer2Encoded(true);
+        }
+        registration.setToken(token);
         save(registration);
         logger.debug("Instantiated and saved new registration: " + registration);
         logger.debug("Registration form: " + registrationForm);
@@ -145,7 +146,10 @@ public class RegistrationServiceImpl extends AbstractServiceImpl<Registration,
             throw new ClashException("Someone else has already claimed the username you provided in the time " +
                                              "between now and when you requested registration.");
         }
-        UserDto userDTO = userService.register(registration);
+        UserDto userDTO = userService.register(registration,
+                                               registration.getIsPasswordEncoded(),
+                                               registration.getIsSecurityAnswer1Encoded(),
+                                               registration.getIsSecurityAnswer2Encoded());
         deleteAllByEmail(registration.getEmail());
         logger.debug("Registered new user and returned user dto: " + userDTO);
         return userDTO;

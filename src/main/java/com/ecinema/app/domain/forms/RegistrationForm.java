@@ -14,9 +14,9 @@ import java.util.Set;
 @Getter
 @Setter
 public class RegistrationForm implements IRegistration, Serializable {
-
-    private Set<UserAuthority> userAuthorities =
-            EnumSet.noneOf(UserAuthority.class);
+    private Boolean isPasswordEncoded = false;
+    private Boolean isSecurityAnswer1Encoded = false;
+    private Boolean isSecurityAnswer2Encoded = false;
     private String username = "";
     private String email = "";
     private String password = "";
@@ -27,20 +27,6 @@ public class RegistrationForm implements IRegistration, Serializable {
     private String securityAnswer1 = "";
     private String securityQuestion2 = "";
     private String securityAnswer2 = "";
-    private Integer birthYear = 2020;
-    private Integer birthDay = 1;
-    private Month birthMonth = Month.JANUARY;
-
-    @Override
-    public LocalDate getBirthDate() {
-        return LocalDate.of(birthYear, birthMonth, birthDay);
-    }
-
-    @Override
-    public void setBirthDate(LocalDate birthDate) {
-        setBirthYear(birthDate.getYear());
-        setBirthMonth(birthDate.getMonth());
-        setBirthDay(birthDate.getDayOfMonth());
-    }
-
+    private LocalDate birthDate = LocalDate.of(2000, Month.JANUARY, 1);
+    private Set<UserAuthority> userAuthorities = EnumSet.noneOf(UserAuthority.class);
 }

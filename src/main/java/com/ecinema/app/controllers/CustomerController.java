@@ -16,16 +16,4 @@ public class CustomerController {
     private final SecurityService securityService;
     private final UserService userService;
 
-    @GetMapping("/customer")
-    public String showCustomerPage(final Model model, final RedirectAttributes redirectAttributes) {
-        UserDto userDto = securityService.findLoggedInUserDTO();
-        if (userDto == null || !userDto.getUserAuthorities().contains(UserAuthority.CUSTOMER)) {
-            redirectAttributes.addAttribute("failed", "Not authorized to view that page!");
-            return "redirect:/error";
-        }
-        model.addAttribute("userRoles",
-                           userService.userAuthoritiesAsListOfStrings(userDto.getId()));
-        return "customer";
-    }
-
 }

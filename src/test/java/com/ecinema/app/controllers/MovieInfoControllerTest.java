@@ -19,6 +19,11 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
+import static org.assertj.core.internal.bytebuddy.matcher.ElementMatchers.is;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -69,10 +74,8 @@ class MovieInfoControllerTest {
                                 .param("search", "dune"))
                .andDo(print())
                .andExpect(status().isOk())
-               .andExpect(model().attribute(
-                       "movies", Matchers.hasItemInArray(
-                               Matchers.<MovieDto>hasProperty(
-                                       "id", Matchers.equalTo(movieDto.getId())))));
+               .andExpect(result -> model().attribute(
+                       "movies", is(Map.of(0, List.of(movieDto)))));
     }
 
     @Test

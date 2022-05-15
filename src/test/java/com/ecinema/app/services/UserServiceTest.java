@@ -2,6 +2,8 @@ package com.ecinema.app.services;
 
 import com.ecinema.app.domain.entities.*;
 import com.ecinema.app.domain.enums.UserAuthority;
+import com.ecinema.app.domain.forms.RegistrationForm;
+import com.ecinema.app.domain.validators.*;
 import com.ecinema.app.repositories.*;
 import com.ecinema.app.services.implementations.*;
 import com.ecinema.app.domain.dtos.UserDto;
@@ -11,6 +13,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.boot.autoconfigure.security.saml2.Saml2RelyingPartyProperties;
 
 import java.util.*;
 
@@ -32,6 +35,11 @@ class UserServiceTest {
     private CustomerAuthorityService customerAuthorityService;
     private ModeratorAuthorityService moderatorAuthorityService;
     private AdminAuthorityService adminAuthorityService;
+    private EmailValidator emailValidator;
+    private UsernameValidator usernameValidator;
+    private PasswordValidator passwordValidator;
+    private UserProfileValidator userProfileValidator;
+    private RegistrationValidator registrationValidator;
     @Mock
     private ReviewRepository reviewRepository;
     @Mock
@@ -54,6 +62,13 @@ class UserServiceTest {
      */
     @BeforeEach
     void setUp() {
+        emailValidator = new EmailValidator();
+        usernameValidator = new UsernameValidator();
+        passwordValidator = new PasswordValidator();
+        userProfileValidator = new UserProfileValidator();
+        registrationValidator = new RegistrationValidator(
+                emailValidator, userProfileValidator,
+                usernameValidator, passwordValidator);
         reviewService = new ReviewServiceImpl(
                 reviewRepository, null, null, null);
         ticketService = new TicketServiceImpl(
@@ -70,8 +85,9 @@ class UserServiceTest {
                 moderatorAuthorityRepository, customerAuthorityService);
         userService = new UserServiceImpl(
                 userRepository, customerAuthorityService,
-                moderatorAuthorityService,
-                adminAuthorityService, null);
+                moderatorAuthorityService, adminAuthorityService,
+                null, passwordValidator, userProfileValidator,
+                registrationValidator);
     }
 
     /**
@@ -252,11 +268,6 @@ class UserServiceTest {
         assertEquals(user.getFirstName(), userDto.getFirstName());
         assertEquals(user.getLastName(), userDto.getLastName());
         assertTrue(userDto.getUserAuthorities().contains(UserAuthority.CUSTOMER));
-    }
-
-    @Test
-    void onDeleteInfo() {
-
     }
 
 }

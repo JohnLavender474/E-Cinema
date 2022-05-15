@@ -1,12 +1,10 @@
 package com.ecinema.app.controllers;
 
-import com.ecinema.app.services.SecurityService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
@@ -39,41 +37,37 @@ class LoginControllerTest {
     @Test
     void loginAvailable()
             throws Exception {
-        mockMvc
-                .perform(get("/login"))
-                .andExpect(status().isOk());
+        mockMvc.perform(get("/login"))
+               .andExpect(status().isOk());
     }
 
     @Test
     void successLogin()
             throws Exception {
-        mockMvc
-                .perform(post("/perform-login")
-                                 .param("username", "ROOT")
-                                 .param("password", "password123!"))
-                .andDo(print())
-                .andExpect(redirectedUrl("/login-success"));
+        mockMvc.perform(post("/perform-login")
+                                .param("username", "RootUser123")
+                                .param("password", "password123?!"))
+               .andDo(print())
+               .andExpect(redirectedUrl("/login-success"));
     }
 
     @Test
     void failLogin()
             throws Exception {
-        mockMvc
-                .perform(post("/perform-login")
-                                 .param("username", "dummy")
-                                 .param("password", "dummy"))
-                .andDo(print())
-                .andExpect(redirectedUrl("/login-error"));
+        mockMvc.perform(post("/perform-login")
+                                .param("username", "dummy")
+                                .param("password", "dummy"))
+               .andDo(print())
+               .andExpect(redirectedUrl("/login-error"));
     }
 
     @Test
     @WithMockUser
     void loggedInUserCannotAccessLoginPage()
             throws Exception {
-        mockMvc
-                .perform(get("/login"))
-                .andDo(print())
-                .andExpect(redirectedUrl("/index"));
+        mockMvc.perform(get("/login"))
+               .andDo(print())
+               .andExpect(redirectedUrl("/index"));
     }
 
 }

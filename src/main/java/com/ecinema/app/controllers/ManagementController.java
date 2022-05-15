@@ -29,9 +29,9 @@ import java.util.List;
  */
 @Controller
 @RequiredArgsConstructor
-public class AdminController {
+public class ManagementController {
 
-    private final Logger logger = LoggerFactory.getLogger(AdminController.class);
+    private final Logger logger = LoggerFactory.getLogger(ManagementController.class);
     private final ScreeningService screeningService;
     private final ShowroomService showroomService;
     private final SecurityService securityService;
@@ -41,24 +41,24 @@ public class AdminController {
     /**
      * Show admin page string.
      *
-     * @param model              the model
-     * @param redirectAttributes the redirect attributes
+     * @param model the model
      * @return the string
      */
-    @GetMapping("/admin")
-    public String showAdminPage(final Model model, final RedirectAttributes redirectAttributes) {
+    @GetMapping("/management")
+    public String showAdminPage(final Model model) {
+        UserDto userDto = securityService.findLoggedInUserDTO();
+        List<String> userAuthorities = userService.userAuthoritiesAsListOfStrings(userDto.getId());
+        if (userDto.getUserAuthorities().contains(UserAuthority.MODERATOR)) {
+            model.addAttribute("moderator", true);
+        }
+        if (userDto.getUserAuthorities().contains(UserAuthority.ADMIN)) {
+            model.addAttribute("admin", true);
+        }
+        model.addAttribute("userAuthorities", userAuthorities);
         logger.debug(UtilMethods.getDelimiterLine());
         logger.debug("Get mapping: Admin page");
-        UserDto userDto = securityService.findLoggedInUserDTO();
-        logger.debug("User DTO: " + userDto);
-        if (userDto == null || !userDto.getUserAuthorities().contains(UserAuthority.ADMIN)) {
-            redirectAttributes.addAttribute("failed", "Not authorized to view that page!");
-            return "redirect:/error";
-        }
-        List<String> userAuthorities = userService.userAuthoritiesAsListOfStrings(userDto.getId());
         logger.debug("User authorities: " + userAuthorities);
-        model.addAttribute("userAuthorities", userAuthorities);
-        return "admin";
+        return "management";
     }
 
     /**
@@ -120,7 +120,7 @@ public class AdminController {
     /**
      * Show edit movie page string.
      *
-     * @param model the model
+     * @param model   the model
      * @param movieId the id of the movie to be edited
      * @return the string
      */
@@ -295,5 +295,7 @@ public class AdminController {
             return "redirect:/add-screening/" + movieId;
         }
     }
+
+
 
 }

@@ -43,6 +43,43 @@ public class UtilMethods {
     }
 
     /**
+     * Local date formatted string.
+     *
+     * @param localDate the local date
+     * @return the string
+     */
+    public static String localDateFormatted(LocalDate localDate) {
+        if (localDate == null) {
+            return null;
+        }
+        return localDate.getMonth() + " " + localDate.getDayOfMonth() + ", " + localDate.getYear();
+    }
+
+    /**
+     * Local time formatted string.
+     *
+     * @param localTime the local time
+     * @return the string
+     */
+    public static String localTimeFormatted(LocalTime localTime) {
+        StringBuilder sb = new StringBuilder();
+        String append = "am";
+        int hour = localTime.getHour();
+        if (hour >= 12) {
+            append = "pm";
+        }
+        if (hour > 12) {
+            hour -= 12;
+        } else if (hour == 0) {
+            hour = 12;
+        }
+        String minute = localTime.getMinute() < 10 ? "0" + localTime.getMinute() :
+                String.valueOf(localTime.getMinute());
+        sb.append(hour).append(":").append(minute).append(append);
+        return sb.toString();
+    }
+
+    /**
      * Local date time formatted string.
      *
      * @param localDateTime the local date time
@@ -52,24 +89,8 @@ public class UtilMethods {
         if (localDateTime == null) {
             return null;
         }
-        StringBuilder sb = new StringBuilder();
-        sb.append(localDateTime.getMonth()).append(" ")
-          .append(localDateTime.getDayOfMonth()).append(", ")
-          .append(localDateTime.getYear()).append(", ");
-        String append = "am";
-        int hour = localDateTime.getHour();
-        if (hour >= 12) {
-            append = "pm";
-        }
-        if (hour > 12) {
-            hour -= 12;
-        } else if (hour == 0) {
-            hour = 12;
-        }
-        String minute = localDateTime.getMinute() < 10 ? "0" + localDateTime.getMinute() :
-                String.valueOf(localDateTime.getMinute());
-        sb.append(hour).append(":").append(minute).append(append);
-        return sb.toString();
+        return localDateFormatted(localDateTime.toLocalDate()) + ", " +
+                localTimeFormatted(localDateTime.toLocalTime());
     }
 
     /**

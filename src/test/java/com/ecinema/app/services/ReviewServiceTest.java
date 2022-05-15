@@ -85,6 +85,7 @@ class ReviewServiceTest {
                 screeningService, movieValidator);
         userService = new UserServiceImpl(
                 userRepository, customerAuthorityService,
+                null, null, null,
                 null, null, null);
     }
 

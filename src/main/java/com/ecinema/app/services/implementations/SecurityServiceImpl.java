@@ -55,20 +55,30 @@ public class SecurityServiceImpl implements SecurityService {
         }
     }
 
-    @Override
-    public UserDto findLoggedInUserDTO() {
+    private User findLoggedInUser() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication == null) {
             return null;
         }
         Object o = authentication.getPrincipal();
-        return o instanceof User user ? userService.convertToDto(user) : null;
+        return o instanceof User user ? user : null;
+    }
+
+    @Override
+    public boolean userIsLoggedIn() {
+        return findLoggedInUser() != null;
+    }
+
+    @Override
+    public UserDto findLoggedInUserDTO() {
+        User user = findLoggedInUser();
+        return user != null ? userService.convertToDto(user) : null;
     }
 
     @Override
     public Long findIdOfLoggedInUser() {
-        UserDto userDto = findLoggedInUserDTO();
-        return userDto != null ? userDto.getId() : null;
+        User user = findLoggedInUser();
+        return user != null ? user.getId() : null;
     }
 
 }

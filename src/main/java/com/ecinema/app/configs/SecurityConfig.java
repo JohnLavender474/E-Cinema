@@ -36,22 +36,25 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
             "/perform-login/**"
     };
     private static final String[] AUTHENTICATED_PERMITTED = new String[]{
-            "/account/**",
             "/logout/**",
-            "/logout-success/**"
+            "/logout-success/**",
+            "/user-profile/**",
+            "/edit-user-profile/**"
     };
     private static final String[] CUSTOMERS_PERMITTED = new String[]{
             "/customer/**",
             "/write-review/**"
     };
+    private static final String[] MODERATORS_AND_ADMINS_PERMITTED = new String[]{
+            "/management/**"
+    };
     private static final String[] MODERATORS_PERMITTED = new String[]{
-            "/moderator/**"
+
     };
     private static final String[] ADMINS_PERMITTED = new String[]{
             "/add-movie/**",
             "/add-screening/**",
             "/add-showroom/**",
-            "/admin/**",
             "/admin-movie-choose/**",
             "/edit-movie/**",
             "/edit-movie-search/**",
@@ -60,7 +63,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
             "/delete-movie/**",
             "/delete-movie-search",
             "/delete-screening/**",
-            "/delete-showroom/**"
+            "/delete-showroom/**",
+            "/manage-user-accounts/**"
     };
 
     private final AuthenticationProvider authenticationProvider;
@@ -83,6 +87,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .authorizeRequests()
                 .antMatchers(ADMINS_PERMITTED).hasAuthority(ADMIN.getAuthority())
                 .antMatchers(MODERATORS_PERMITTED).hasAuthority(MODERATOR.getAuthority())
+                .antMatchers(MODERATORS_AND_ADMINS_PERMITTED).hasAnyAuthority(
+                        MODERATOR.getAuthority(), ADMIN.getAuthority())
                 .antMatchers(CUSTOMERS_PERMITTED).hasAuthority(CUSTOMER.getAuthority())
                 .antMatchers(AUTHENTICATED_PERMITTED).authenticated()
                 .antMatchers(ANY_PERMITTED).permitAll()

@@ -9,6 +9,9 @@ import java.util.Collection;
 import static com.ecinema.app.domain.validators.criteria.PasswordCriteria.MIN_LENGTH;
 import static com.ecinema.app.domain.validators.criteria.PasswordCriteria.MIN_SPECIAL_CHARS;
 
+/**
+ * The type Password validator.
+ */
 @Component
 public class PasswordValidator implements AbstractValidator<IPassword> {
 

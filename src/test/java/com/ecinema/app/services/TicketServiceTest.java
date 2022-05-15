@@ -81,6 +81,7 @@ class TicketServiceTest {
                 ticketService, paymentCardService, couponService);
         userService = new UserServiceImpl(
                 userRepository, customerAuthorityService,
+                null, null, null,
                 null, null, null);
         showroomService = new ShowroomServiceImpl(
                 showroomRepository, showroomSeatService,

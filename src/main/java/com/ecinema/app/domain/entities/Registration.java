@@ -12,11 +12,23 @@ import java.time.LocalDateTime;
 import java.util.EnumSet;
 import java.util.Set;
 
+/**
+ * The type Registration.
+ */
 @Getter
 @Setter
 @Entity
 @ToString
 public class Registration extends AbstractEntity implements IRegistration {
+
+    /**
+     * Instantiates a new Registration.
+     */
+    public Registration() {
+        setIsPasswordEncoded(false);
+        setIsSecurityAnswer1Encoded(false);
+        setIsSecurityAnswer2Encoded(false);
+    }
 
     @Column
     private LocalDateTime creationDateTime;
@@ -41,6 +53,9 @@ public class Registration extends AbstractEntity implements IRegistration {
     private String confirmPassword;
 
     @Column
+    private Boolean isPasswordEncoded;
+
+    @Column
     private String firstName;
 
     @Column
@@ -56,9 +71,15 @@ public class Registration extends AbstractEntity implements IRegistration {
     private String securityAnswer1;
 
     @Column
+    private Boolean isSecurityAnswer1Encoded;
+
+    @Column
     private String securityQuestion2;
 
     @Column
     private String securityAnswer2;
+
+    @Column
+    private Boolean isSecurityAnswer2Encoded;
 
 }

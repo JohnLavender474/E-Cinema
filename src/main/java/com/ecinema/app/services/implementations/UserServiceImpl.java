@@ -4,6 +4,9 @@ import com.ecinema.app.domain.dtos.UserDto;
 import com.ecinema.app.domain.entities.User;
 import com.ecinema.app.domain.entities.AbstractUserAuthority;
 import com.ecinema.app.domain.enums.UserAuthority;
+import com.ecinema.app.domain.forms.UserProfileForm;
+import com.ecinema.app.domain.validators.RegistrationValidator;
+import com.ecinema.app.domain.validators.UserProfileValidator;
 import com.ecinema.app.exceptions.ClashException;
 import com.ecinema.app.exceptions.InvalidArgsException;
 import com.ecinema.app.exceptions.NoEntityFoundException;
@@ -15,6 +18,7 @@ import com.ecinema.app.utils.UtilMethods;
 import com.ecinema.app.domain.validators.PasswordValidator;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -32,7 +36,10 @@ public class UserServiceImpl extends AbstractServiceImpl<User, UserRepository> i
 
     private final Map<UserAuthority, AbstractUserAuthorityService<? extends AbstractUserAuthority>>
             userAuthorityServices = new EnumMap<>(UserAuthority.class);
+    private final BCryptPasswordEncoder passwordEncoder;
     private final PasswordValidator passwordValidator;
+    private final UserProfileValidator userProfileValidator;
+    private final RegistrationValidator registrationValidator;
 
     /**
      * Instantiates a new User service.
@@ -47,9 +54,15 @@ public class UserServiceImpl extends AbstractServiceImpl<User, UserRepository> i
                            CustomerAuthorityService customerAuthorityService,
                            ModeratorAuthorityService moderatorAuthorityService,
                            AdminAuthorityService adminAuthorityService,
-                           PasswordValidator passwordValidator) {
+                           BCryptPasswordEncoder passwordEncoder,
+                           PasswordValidator passwordValidator,
+                           UserProfileValidator userProfileValidator,
+                           RegistrationValidator registrationValidator) {
         super(repository);
+        this.passwordEncoder = passwordEncoder;
         this.passwordValidator = passwordValidator;
+        this.userProfileValidator = userProfileValidator;
+        this.registrationValidator = registrationValidator;
         userAuthorityServices.put(UserAuthority.CUSTOMER, customerAuthorityService);
         userAuthorityServices.put(UserAuthority.MODERATOR, moderatorAuthorityService);
         userAuthorityServices.put(UserAuthority.ADMIN, adminAuthorityService);
@@ -87,6 +100,22 @@ public class UserServiceImpl extends AbstractServiceImpl<User, UserRepository> i
     }
 
     @Override
+    public void editUserProfile(UserProfileForm userProfileForm)
+            throws NoEntityFoundException, InvalidArgsException {
+        User user = findById(userProfileForm.getUserId()).orElseThrow(
+                () -> new NoEntityFoundException("user", "id", userProfileForm.getUserId()));
+        List<String> errors = new ArrayList<>();
+        userProfileValidator.validate(userProfileForm, errors);
+        if (!errors.isEmpty()) {
+            throw new InvalidArgsException(errors);
+        }
+        user.setFirstName(userProfileForm.getFirstName());
+        user.setLastName(userProfileForm.getLastName());
+        user.setBirthDate(userProfileForm.getBirthDate());
+        save(user);
+    }
+
+    @Override
     public UserDetails loadUserByUsername(String s)
             throws UsernameNotFoundException {
         return repository.findByUsernameOrEmail(s).orElseThrow(
@@ -94,20 +123,45 @@ public class UserServiceImpl extends AbstractServiceImpl<User, UserRepository> i
     }
 
     @Override
-    public UserDto register(IRegistration registration) {
+    public void updateLastActivityDateTimeOfUserWithId(Long userId)
+            throws NoEntityFoundException {
+        User user = findById(userId).orElseThrow(
+                () -> new NoEntityFoundException("user", "id", userId));
+        user.setLastActivityDateTime(LocalDateTime.now());
+        save(user);
+    }
+
+    @Override
+    public UserDto register(IRegistration registration, boolean passwordEncoded,
+                            boolean securityAnswer1Encoded, boolean securityAnswer2Encoded)
+            throws InvalidArgsException, ClashException {
         logger.debug(UtilMethods.getDelimiterLine());
         logger.debug("User registration");
+        List<String> errors = new ArrayList<>();
+        registrationValidator.validate(registration, errors);
+        if (!errors.isEmpty()) {
+            throw new InvalidArgsException(errors);
+        }
+        if (existsByEmail(registration.getEmail())) {
+            throw new ClashException("User with email " + registration.getEmail() + " already exists");
+        }
+        if (existsByUsername(registration.getUsername())) {
+            throw new ClashException("User with username " + registration.getUsername() + " already exists");
+        }
         User user = new User();
         user.setUsername(registration.getUsername());
         user.setEmail(registration.getEmail());
-        user.setPassword(registration.getPassword());
+        user.setPassword(passwordEncoded ? registration.getPassword() :
+                                 passwordEncoder.encode(registration.getPassword()));
         user.setFirstName(registration.getFirstName());
         user.setLastName(registration.getLastName());
         user.setBirthDate(registration.getBirthDate());
         user.setSecurityQuestion1(registration.getSecurityQuestion1());
-        user.setSecurityAnswer1(registration.getSecurityAnswer1());
+        user.setSecurityAnswer1(securityAnswer1Encoded ? registration.getSecurityAnswer1() :
+                                        passwordEncoder.encode(registration.getSecurityAnswer1()));
         user.setSecurityQuestion2(registration.getSecurityQuestion2());
-        user.setSecurityAnswer2(registration.getSecurityAnswer2());
+        user.setSecurityAnswer2(securityAnswer2Encoded ? registration.getSecurityAnswer2() :
+                                        passwordEncoder.encode(registration.getSecurityAnswer2()));
         user.setCreationDateTime(LocalDateTime.now());
         user.setLastActivityDateTime(LocalDateTime.now());
         user.setIsAccountEnabled(true);
@@ -115,7 +169,9 @@ public class UserServiceImpl extends AbstractServiceImpl<User, UserRepository> i
         user.setIsAccountExpired(false);
         user.setIsCredentialsExpired(false);
         save(user);
-        addUserAuthorityToUser(user, registration.getUserAuthorities());
+        if (!registration.getUserAuthorities().isEmpty()) {
+            addUserAuthorityToUser(user, registration.getUserAuthorities());
+        }
         logger.debug("Instantiated and saved new user: " + user);
         UserDto userDto = convertToDto(user);
         logger.debug("Returning new user DTO: " + userDto);
@@ -341,6 +397,9 @@ public class UserServiceImpl extends AbstractServiceImpl<User, UserRepository> i
         userDto.setUsername(user.getUsername());
         userDto.setFirstName(user.getFirstName());
         userDto.setLastName(user.getLastName());
+        userDto.setBirthDate(user.getBirthDate());
+        userDto.setCreationDateTime(user.getCreationDateTime());
+        userDto.setLastActivityDateTime(user.getLastActivityDateTime());
         userDto.getUserAuthorities().addAll(user.getUserAuthorities().keySet());
         logger.debug("Converting user to DTO: " + userDto);
         logger.debug("User: " + user);

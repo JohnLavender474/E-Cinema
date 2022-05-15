@@ -36,7 +36,6 @@ public class InitializationConfig {
     private final ScreeningService screeningService;
     private final PaymentCardService paymentCardService;
     private final CustomerAuthorityService customerAuthorityService;
-    private final BCryptPasswordEncoder passwordEncoder;
     private final Logger logger = LoggerFactory.getLogger(InitializationConfig.class);
 
     /**
@@ -60,48 +59,38 @@ public class InitializationConfig {
 
     private void defineRootAdmin() {
         RegistrationForm rootUserForm = new RegistrationForm();
-        rootUserForm.setUsername("ROOT");
+        rootUserForm.setUsername("RootUser123");
         rootUserForm.setEmail(emailService.getBusinessEmail());
-        String encodedPassword = passwordEncoder.encode("password123!");
-        rootUserForm.setPassword(encodedPassword);
+        rootUserForm.setPassword("password123?!");
+        rootUserForm.setConfirmPassword("password123?!");
         rootUserForm.setFirstName("Jim");
         rootUserForm.setLastName("Montgomery");
         rootUserForm.setBirthDate(LocalDate.of(1998, Month.JULY, 9));
         rootUserForm.setSecurityQuestion1(SecurityQuestions.SQ1);
-        String answer1 = "Bowser";
-        String answer1Formatted = UtilMethods.removeWhitespace(answer1.toLowerCase());
-        String encodedAnswer1 = passwordEncoder.encode(answer1Formatted);
-        rootUserForm.setSecurityAnswer1(encodedAnswer1);
+        rootUserForm.setSecurityAnswer1("Bowser");
         rootUserForm.setSecurityQuestion2(SecurityQuestions.SQ5);
-        String answer2 = "root beer";
-        String answer2Formatted = UtilMethods.removeWhitespace(answer2.toLowerCase());
-        String encodedAnswer2 = passwordEncoder.encode(answer2Formatted);
-        rootUserForm.setSecurityAnswer2(encodedAnswer2);
+        rootUserForm.setSecurityAnswer2("root beer");
         rootUserForm.setUserAuthorities(EnumSet.of(UserAuthority.ADMIN, UserAuthority.MODERATOR));
-        userService.register(rootUserForm);
+        userService.register(rootUserForm, false,
+                             false, false);
     }
 
     private void defineCustomer() {
         RegistrationForm customerForm = new RegistrationForm();
-        customerForm.setUsername("Customer1");
+        customerForm.setUsername("Customer123");
         customerForm.setEmail("ecinema.app.customer1@gmail.com");
-        String encodedPassword = passwordEncoder.encode("cheeseburger474?");
-        customerForm.setPassword(encodedPassword);
+        customerForm.setPassword("cheeseburger123?!");
+        customerForm.setConfirmPassword("cheeseburger123?!");
         customerForm.setFirstName("Johnny");
         customerForm.setLastName("Bravo");
         customerForm.setBirthDate(LocalDate.of(1990, Month.JANUARY, 1));
         customerForm.setSecurityQuestion1(SecurityQuestions.SQ4);
-        String answer1 = "Ernest";
-        String answer1Formatted = UtilMethods.removeWhitespace(answer1.toLowerCase());
-        String encodedAnswer1 = passwordEncoder.encode(answer1Formatted);
-        customerForm.setSecurityAnswer1(encodedAnswer1);
+        customerForm.setSecurityAnswer1("Ernest");
         customerForm.setSecurityQuestion2(SecurityQuestions.SQ3);
-        String answer2 = "Handsome";
-        String answer2Formatted = UtilMethods.removeWhitespace(answer2.toLowerCase());
-        String encodedAnswer2 = passwordEncoder.encode(answer2Formatted);
-        customerForm.setSecurityAnswer2(encodedAnswer2);
+        customerForm.setSecurityAnswer2("Handsome");
         customerForm.setUserAuthorities(EnumSet.of(UserAuthority.CUSTOMER));
-        userService.register(customerForm);
+        userService.register(customerForm, false,
+                             false, false);
     }
 
     private void defineMovies() {
@@ -695,7 +684,7 @@ public class InitializationConfig {
 
     private void definePaymentCards() {
         paymentCardService.deleteAll();
-        UserDto customer = userService.findByUsername("Customer1");
+        UserDto customer = userService.findByUsername("Customer123");
         Long customerRoleDefId = customerAuthorityService.findIdByUserWithId(customer.getId())
                                                          .orElseThrow(IllegalStateException::new);
         // Paymentcard 1

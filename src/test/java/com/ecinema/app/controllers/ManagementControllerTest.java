@@ -46,7 +46,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
-class AdminControllerTest {
+class ManagementControllerTest {
 
     @Autowired
     private WebApplicationContext context;
@@ -93,25 +93,50 @@ class AdminControllerTest {
     }
 
     @Test
-    @WithMockUser(username = "user", authorities = {"ADMIN"})
-    void successfullyAccessAdminPage()
+    @WithMockUser(username = "user", authorities = {"ADMIN", "MODERATOR"})
+    void successfullyAccessAdminPage1()
             throws Exception {
         setUpAdminUserDto();
-        mockMvc.perform(get("/admin")).andExpect(status().isOk());
+        mockMvc.perform(get("/management"))
+               .andExpect(status().isOk())
+               .andExpect(result -> model().attributeExists("admin"))
+               .andExpect(result -> model().attributeExists("moderator"));
     }
 
     @Test
-    @WithMockUser(username = "user", authorities = {"MODERATOR", "CUSTOMER"})
+    @WithMockUser(username = "user", authorities = {"ADMIN"})
+    void successfullyAccessAdminPage2()
+            throws Exception {
+        setUpAdminUserDto();
+        mockMvc.perform(get("/management"))
+               .andExpect(status().isOk())
+               .andExpect(result -> model().attributeExists("admin"))
+               .andExpect(result -> model().attributeDoesNotExist("moderator"));
+    }
+
+    @Test
+    @WithMockUser(username = "user", authorities = {"MODERATOR"})
+    void successfullyAccessAdminPage3()
+            throws Exception {
+        setUpAdminUserDto();
+        mockMvc.perform(get("/management"))
+               .andExpect(status().isOk())
+               .andExpect(result -> model().attributeDoesNotExist("admin"))
+               .andExpect(result -> model().attributeExists("moderator"));
+    }
+
+    @Test
+    @WithMockUser(username = "user", authorities = {"CUSTOMER"})
     void failToAccessAdminPage1()
             throws Exception {
-        expectGetForbidden("/admin");
+        expectGetForbidden("/management");
     }
 
     @Test
     @WithAnonymousUser
     void failToAccessAdminPage2()
             throws Exception {
-        expectGetRedirectToLogin("/admin");
+        expectGetRedirectToLogin("/management");
     }
 
     @Test

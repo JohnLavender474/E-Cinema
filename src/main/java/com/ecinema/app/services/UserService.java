@@ -5,11 +5,13 @@ import com.ecinema.app.domain.dtos.UserDto;
 import com.ecinema.app.domain.entities.User;
 import com.ecinema.app.domain.entities.AbstractUserAuthority;
 import com.ecinema.app.domain.enums.UserAuthority;
+import com.ecinema.app.domain.forms.UserProfileForm;
 import com.ecinema.app.exceptions.ClashException;
 import com.ecinema.app.exceptions.InvalidArgsException;
 import com.ecinema.app.exceptions.NoEntityFoundException;
 import com.ecinema.app.domain.contracts.IPassword;
 import com.ecinema.app.domain.contracts.IRegistration;
+import org.modelmapper.internal.asm.tree.ModuleExportNode;
 import org.springframework.data.repository.query.Param;
 import org.springframework.security.core.userdetails.UserDetailsService;
 
@@ -28,15 +30,37 @@ public interface UserService extends UserDetailsService,
                                      EntityDtoConverter<User, UserDto> {
 
     /**
-     * Registers a new {@link User}. The {@link IRegistration} being passed into this method must
-     * already have {@link IRegistration#getPassword()}, {@link IRegistration#getConfirmPassword()},
-     * {@link IRegistration#getSecurityAnswer1()}, and {@link IRegistration#getSecurityAnswer2()}
-     * encoded using {@link org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder}.
+     * Update last activity time of user with id.
      *
-     * @param registration the registration details used to instantiate a new User.
+     * @param userId the user id
+     * @throws NoEntityFoundException thrown if no {@link User} with id is found
+     */
+    void updateLastActivityDateTimeOfUserWithId(Long userId)
+        throws NoEntityFoundException;
+
+    /**
+     * Registers a new {@link User}. If the password or security answer fields of the {@link IRegistration}
+     * are not already encoded, then the corresponding boolean params should be marked as false so that
+     * they will be encoded before the User entity is instantiated and persisted.
+     *
+     * @param registration           the registration details used to instantiate a new User.
+     * @param passwordEncoded        if the password is encoded
+     * @param securityAnswer1Encoded if the security answer 1 is encoded
+     * @param securityAnswer2Encoded if the security answer 2 is encoded
      * @return the user dto
      */
-    UserDto register(IRegistration registration);
+    UserDto register(IRegistration registration, boolean passwordEncoded,
+                     boolean securityAnswer1Encoded, boolean securityAnswer2Encoded);
+
+    /**
+     * Edit profile.
+     *
+     * @param userProfileForm the profile form
+     * @throws NoEntityFoundException the no entity found exception
+     * @throws InvalidArgsException   the invalid args exception
+     */
+    void editUserProfile(UserProfileForm userProfileForm)
+        throws NoEntityFoundException, InvalidArgsException;
 
     /**
      * Find all by {@link User#getIsAccountLocked()} equal to isAccountLocked and return as list.
@@ -146,14 +170,14 @@ public interface UserService extends UserDetailsService,
      * Class<? extends AbstractUserAuthority> clazz =
      * UserAuthority.defClassToUserRole(UserAuthority.CUSTOMERS_PERMITTED);
      * CustomerAuthority customerRoleDef = userService.getUserAuthorityOf(user, clazz);
-     * }****************
+     * }*******************
      * <p>
      * or
      * <p>
      * {@code
      * CustomerAuthority customerAuthority = userService.getUserAuthorityOf(user,
      * UserAuthority.classToEnum(UserAuthority.CUSTOMER));
-     * }****************
+     * }*******************
      *
      * @param <T>    the type parameter, class must extend {@link AbstractUserAuthority}.
      * @param userId the id of the User to fetch the AbstractUserAuthority instance from.
@@ -218,7 +242,7 @@ public interface UserService extends UserDetailsService,
     /**
      * See {@link #addUserAuthorityToUser(Long, Set)} @param user the user
      *
-     * @param user      the user
+     * @param user            the user
      * @param userAuthorities the user roles
      * @throws NoEntityFoundException the no entity found exception
      * @throws InvalidArgsException   the invalid arg exception
@@ -230,7 +254,7 @@ public interface UserService extends UserDetailsService,
     /**
      * See {@link #addUserAuthorityToUser(Long, Set)} @param user the user
      *
-     * @param user      the user
+     * @param user            the user
      * @param userAuthorities the user roles
      * @throws NoEntityFoundException the no entity found exception
      * @throws InvalidArgsException   the invalid arg exception
@@ -242,7 +266,7 @@ public interface UserService extends UserDetailsService,
     /**
      * See {@link #addUserAuthorityToUser(Long, Set)} @param userId the user id
      *
-     * @param userId    the user id
+     * @param userId          the user id
      * @param userAuthorities the user roles
      * @throws NoEntityFoundException the no entity found exception
      * @throws InvalidArgsException   the invalid arg exception
@@ -252,13 +276,15 @@ public interface UserService extends UserDetailsService,
             throws NoEntityFoundException, InvalidArgsException, ClashException;
 
     /**
-     * Instantiates a new {@link AbstractUserAuthority} instance and maps it to the {@link User} with id equal to userId.
-     * The User instance internally contains an enum map for AbstractUserAuthority instances with {@link UserAuthority} as the key.
+     * Instantiates a new {@link AbstractUserAuthority} instance and maps it to the {@link User} with id equal to
+     * userId.
+     * The User instance internally contains an enum map for AbstractUserAuthority instances with
+     * {@link UserAuthority} as the key.
      * Each class extending AbstractUserAuthority has a one-to-one mapping with a UserAuthority value. See {@link
-     * AbstractUserAuthority#getUserAuthority()}***********.
+     * AbstractUserAuthority#getUserAuthority()}**************.
      * User instances can only be mapped to one instance of each child class of AbstractUserAuthority.
      *
-     * @param userId    the user id of the User
+     * @param userId          the user id of the User
      * @param userAuthorities the user roles corresponding to the AbstractUserAuthority entities to map to the User
      * @throws NoEntityFoundException thrown if no User instance is found with id equal to userId.
      * @throws InvalidArgsException   thrown if the provided value for userRole is invalid.
@@ -271,7 +297,7 @@ public interface UserService extends UserDetailsService,
     /**
      * See {@link #removeUserAuthorityFromUser(Long, Set)} @param user the user
      *
-     * @param user      the user
+     * @param user            the user
      * @param userAuthorities the user roles
      * @throws NoEntityFoundException the no entity found exception
      * @throws InvalidArgsException   the invalid arg exception
@@ -282,7 +308,7 @@ public interface UserService extends UserDetailsService,
     /**
      * See {@link #removeUserAuthorityFromUser(Long, Set)} @param user the user
      *
-     * @param user      the user
+     * @param user            the user
      * @param userAuthorities the user roles
      * @throws NoEntityFoundException the no entity found exception
      * @throws InvalidArgsException   the invalid arg exception
@@ -293,7 +319,7 @@ public interface UserService extends UserDetailsService,
     /**
      * See {@link #removeUserAuthorityFromUser(Long, Set)} @param userId the user id
      *
-     * @param userId    the user id
+     * @param userId          the user id
      * @param userAuthorities the user roles
      * @throws NoEntityFoundException the no entity found exception
      * @throws InvalidArgsException   the invalid arg exception
@@ -305,7 +331,7 @@ public interface UserService extends UserDetailsService,
      * Removes the {@link AbstractUserAuthority} instance that is mapped with the provided {@link UserAuthority} (see
      * {@link AbstractUserAuthority#getUserAuthority()}) value from the {@link User} with id equal to userId.
      *
-     * @param userId    the id of the User
+     * @param userId          the id of the User
      * @param userAuthorities the UserAuthority values that the AbstractUserAuthority instance is mapped to.
      * @throws NoEntityFoundException thrown if no User instance is found with id equal to userId.
      * @throws InvalidArgsException   thrown if the provided value of userRole is invalid.

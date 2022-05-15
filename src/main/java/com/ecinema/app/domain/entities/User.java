@@ -1,5 +1,7 @@
 package com.ecinema.app.domain.entities;
 
+import com.ecinema.app.domain.contracts.IPassword;
+import com.ecinema.app.domain.contracts.IProfile;
 import com.ecinema.app.domain.enums.UserAuthority;
 import lombok.Getter;
 import lombok.Setter;

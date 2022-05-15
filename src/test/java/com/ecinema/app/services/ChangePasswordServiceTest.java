@@ -46,7 +46,8 @@ class ChangePasswordServiceTest {
     void setUp() {
         userService = new UserServiceImpl(
                 userRepository, null, null,
-                null, null);
+                null, null,
+                null, null, null);
         passwordValidator = new PasswordValidator();
         passwordEncoder = new BCryptPasswordEncoder();
         changePasswordService = new ChangePasswordServiceImpl(

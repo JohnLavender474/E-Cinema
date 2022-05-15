@@ -71,7 +71,8 @@ class AdminAuthorityServiceTest {
         adminAuthorityService = new AdminAuthorityServiceImpl(adminAuthorityRepository);
         userService = new UserServiceImpl(
                 userRepository, customerAuthorityService,
-                moderatorAuthorityService, adminAuthorityService, null);
+                moderatorAuthorityService, adminAuthorityService, null, null, null, null);
+
     }
 
     /**

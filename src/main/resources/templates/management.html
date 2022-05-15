@@ -3,7 +3,22 @@
 <head th:insert="fragments/header :: header"></head>
 <body>
 <nav th:insert="fragments/webpage-top :: webpage-top"></nav>
-<div>
+<div th:if="${moderator == true}">
+    <h1 class="bold-white-text">Moderator Management</h1>
+    <table class="table table-bordered table-striped">
+        <tbody>
+        <tr>
+            <td>Moderator Management:</td>
+            <td><a class="btn btn-primary" th:href="@{/censor-reviews-comments}">
+                Censor/Uncensor Reviews and Comments</a></td>
+            <td><a class="btn btn-primary" th:href="@{/censor-customers}">
+                Censor/Uncensor Accounts</a></td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+<div th:if="${admin == true}">
+    <h1 class="bold-white-text">Admin Management</h1>
     <table class="table table-bordered table-striped">
         <tbody>
         <tr>
@@ -25,8 +40,10 @@
             <td><a class="btn btn-primary" th:href="@{/delete-screening-search}">Delete Screening</a></td>
         </tr>
         <tr>
-            <td>Manage Users:</td>
-            <td><a class="btn btn-primary" th:href="@{/manage-user-accounts}">Manage User Accounts</a></td>
+            <td>Admin Management:</td>
+            <td><a class="btn btn-primary" th:href="@{/manage-users}">Manage Users</a></td>
+            <td><a class="btn btn-primary" th:href="@{/manage-tickets}">Manage Tickets</a></td>
+            <td><a class="btn btn-primary" th:href="@{/manage-reports}">Manage Reports</a></td>
         </tr>
         </tbody>
     </table>
