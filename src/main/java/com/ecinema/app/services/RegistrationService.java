@@ -27,6 +27,17 @@ public interface RegistrationService extends AbstractService<Registration> {
     Optional<Registration> findByToken(String token);
 
     /**
+     * Submit registration form.
+     *
+     * @param registrationForm the registration form
+     * @throws ClashException       the clash exception
+     * @throws InvalidArgsException the invalid args exception
+     * @throws EmailException       the email exception
+     */
+    void submitRegistrationForm(RegistrationForm registrationForm)
+        throws ClashException, InvalidArgsException, EmailException;
+
+    /**
      * Submit registration request and get token string.
      *
      * @param registrationForm the registration form
@@ -35,7 +46,7 @@ public interface RegistrationService extends AbstractService<Registration> {
      * @throws InvalidArgsException the invalid arg exception
      * @throws EmailException       the email exception
      */
-    String submitRegistrationRequestAndGetToken(RegistrationForm registrationForm)
+    String submitRegistrationFormAndGetToken(RegistrationForm registrationForm)
             throws ClashException, InvalidArgsException, EmailException;
 
     /**
@@ -57,6 +68,7 @@ public interface RegistrationService extends AbstractService<Registration> {
      * Confirm registration request.
      *
      * @param token the token
+     * @return the user dto
      * @throws NoEntityFoundException the no entity found exception
      */
     UserDto confirmRegistrationRequest(String token)

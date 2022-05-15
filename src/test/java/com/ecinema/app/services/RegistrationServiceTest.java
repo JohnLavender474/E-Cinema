@@ -26,7 +26,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 
-@SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
+@SpringBootTest(webEnvironment = WebEnvironment.NONE)
 @ExtendWith(MockitoExtension.class)
 class RegistrationServiceTest {
 
@@ -64,7 +64,7 @@ class RegistrationServiceTest {
         registrationForm.setSecurityAnswer2("Answer 2");
         registrationForm.setBirthDate(LocalDate.of(2000, Month.JANUARY, 1));
         registrationForm.getUserAuthorities().add(UserAuthority.CUSTOMER);
-        String token = registrationService.submitRegistrationRequestAndGetToken(registrationForm);
+        String token = registrationService.submitRegistrationFormAndGetToken(registrationForm);
         registrationService.confirmRegistrationRequest(token);
         // when
         UserDto userDto = userService.findByUsername("TestUser123");

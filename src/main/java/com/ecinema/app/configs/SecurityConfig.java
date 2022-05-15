@@ -22,6 +22,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
             "/about/**",
             "/change-password/**",
             "/change-password-confirm/**",
+            "/confirm-registration/**",
             "/error/**",
             "/index/**",
             "/login/**",
@@ -31,7 +32,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
             "/movie-reviews/**",
             "/movie-screenings/**",
             "/movies/**",
-            "/register/**",
+            "/submit-registration/**",
             "/screening/**",
             "/perform-login/**"
     };

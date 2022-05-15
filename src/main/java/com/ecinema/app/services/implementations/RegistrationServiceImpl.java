@@ -84,7 +84,13 @@ public class RegistrationServiceImpl extends AbstractServiceImpl<Registration,
     }
 
     @Override
-    public String submitRegistrationRequestAndGetToken(RegistrationForm registrationForm)
+    public void submitRegistrationForm(RegistrationForm registrationForm)
+            throws ClashException, InvalidArgsException, EmailException {
+        submitRegistrationFormAndGetToken(registrationForm);
+    }
+
+    @Override
+    public String submitRegistrationFormAndGetToken(RegistrationForm registrationForm)
             throws ClashException, InvalidArgsException, EmailException {
         logger.debug(UtilMethods.getDelimiterLine());
         logger.debug("Submit registration request and get token");
@@ -103,8 +109,6 @@ public class RegistrationServiceImpl extends AbstractServiceImpl<Registration,
         }
         logger.debug("Registration form passed validation checks");
         String token = UUID.randomUUID().toString();
-        emailService.sendFromBusinessEmail(
-                registrationForm.getEmail(), buildEmail(token), "Confirm Account");
         Registration registration = new Registration();
         registration.setToIRegistration(registrationForm);
         registration.setUserAuthorities(registrationForm.getUserAuthorities());
@@ -125,6 +129,8 @@ public class RegistrationServiceImpl extends AbstractServiceImpl<Registration,
             registration.setIsSecurityAnswer2Encoded(true);
         }
         registration.setToken(token);
+        emailService.sendFromBusinessEmail(
+                registrationForm.getEmail(), buildEmail(token), "Confirm Account");
         save(registration);
         logger.debug("Instantiated and saved new registration: " + registration);
         logger.debug("Registration form: " + registrationForm);
