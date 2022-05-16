@@ -6,6 +6,7 @@ import com.ecinema.app.domain.forms.ChangePasswordForm;
 import com.ecinema.app.repositories.ChangePasswordRepository;
 import com.ecinema.app.repositories.UserRepository;
 import com.ecinema.app.services.implementations.ChangePasswordServiceImpl;
+import com.ecinema.app.services.implementations.EncoderServiceImpl;
 import com.ecinema.app.services.implementations.UserServiceImpl;
 import com.ecinema.app.domain.validators.PasswordValidator;
 import org.junit.jupiter.api.BeforeEach;
@@ -29,6 +30,7 @@ import static org.mockito.BDDMockito.given;
 class ChangePasswordServiceTest {
 
     private UserService userService;
+    private EncoderService encoderService;
     private ChangePasswordService changePasswordService;
     private PasswordValidator passwordValidator;
     private BCryptPasswordEncoder passwordEncoder;
@@ -44,15 +46,16 @@ class ChangePasswordServiceTest {
      */
     @BeforeEach
     void setUp() {
-        userService = new UserServiceImpl(
-                userRepository, null, null,
-                null, null,
-                null, null, null);
         passwordValidator = new PasswordValidator();
         passwordEncoder = new BCryptPasswordEncoder();
+        encoderService = new EncoderServiceImpl(passwordEncoder);
+        userService = new UserServiceImpl(
+                userRepository, null, null,
+                null, encoderService,
+                passwordValidator, null, null);
         changePasswordService = new ChangePasswordServiceImpl(
                 changePasswordRepository, userService,
-                emailService, passwordValidator, passwordEncoder);
+                emailService, encoderService, passwordValidator);
     }
 
     /**

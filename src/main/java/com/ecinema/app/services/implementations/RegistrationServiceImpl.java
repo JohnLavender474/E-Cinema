@@ -9,11 +9,11 @@ import com.ecinema.app.exceptions.InvalidArgsException;
 import com.ecinema.app.exceptions.NoEntityFoundException;
 import com.ecinema.app.repositories.RegistrationRepository;
 import com.ecinema.app.services.EmailService;
+import com.ecinema.app.services.EncoderService;
 import com.ecinema.app.services.RegistrationService;
 import com.ecinema.app.services.UserService;
 import com.ecinema.app.domain.validators.RegistrationValidator;
 import com.ecinema.app.utils.UtilMethods;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -31,7 +31,7 @@ public class RegistrationServiceImpl extends AbstractServiceImpl<Registration,
 
     private final UserService userService;
     private final EmailService emailService;
-    private final BCryptPasswordEncoder passwordEncoder;
+    private final EncoderService encoderService;
     private final RegistrationValidator registrationValidator;
 
     /**
@@ -40,16 +40,15 @@ public class RegistrationServiceImpl extends AbstractServiceImpl<Registration,
      * @param repository            the repository
      * @param userService           the user service
      * @param emailService          the email sender service
-     * @param passwordEncoder       the password encoder
      * @param registrationValidator the registration form validator
      */
     public RegistrationServiceImpl(RegistrationRepository repository, UserService userService,
-                                   EmailService emailService, BCryptPasswordEncoder passwordEncoder,
+                                   EmailService emailService, EncoderService encoderService,
                                    RegistrationValidator registrationValidator) {
         super(repository);
         this.userService = userService;
         this.emailService = emailService;
-        this.passwordEncoder = passwordEncoder;
+        this.encoderService = encoderService;
         this.registrationValidator = registrationValidator;
     }
 
@@ -57,8 +56,7 @@ public class RegistrationServiceImpl extends AbstractServiceImpl<Registration,
     protected void onDelete(Registration registration) {}
 
     @Override
-    public void onDeleteInfo(Long id, Collection<String> info)
-            throws NoEntityFoundException {}
+    public void onDeleteInfo(Long id, Collection<String> info) {}
 
     @Override
     public void onDeleteInfo(Registration entity, Collection<String> info) {}
@@ -108,26 +106,24 @@ public class RegistrationServiceImpl extends AbstractServiceImpl<Registration,
             throw new InvalidArgsException(errors);
         }
         logger.debug("Registration form passed validation checks");
-        String token = UUID.randomUUID().toString();
         Registration registration = new Registration();
+        registration.setCreationDateTime(LocalDateTime.now());
         registration.setToIRegistration(registrationForm);
         registration.setUserAuthorities(registrationForm.getUserAuthorities());
-        if (!registration.getIsPasswordEncoded()) {
-            String encodedPassword = passwordEncoder.encode(registration.getPassword());
-            registration.setPassword(encodedPassword);
-            registration.setConfirmPassword(encodedPassword);
-            registration.setIsPasswordEncoded(true);
-        }
-        if (!registration.getIsSecurityAnswer1Encoded()) {
-            String encodedAnswer = passwordEncoder.encode(registration.getSecurityAnswer1());
-            registration.setSecurityAnswer1(encodedAnswer);
-            registration.setIsSecurityAnswer1Encoded(true);
-        }
-        if (!registration.getIsSecurityAnswer2Encoded()) {
-            String encodedAnswer = passwordEncoder.encode(registration.getSecurityAnswer2());
-            registration.setSecurityAnswer2(encodedAnswer);
-            registration.setIsSecurityAnswer2Encoded(true);
-        }
+        String encodedPassword = registration.getIsPasswordEncoded() ? registration.getPassword() :
+                encoderService.encode(registration.getPassword());
+        registration.setPassword(encodedPassword);
+        registration.setConfirmPassword(encodedPassword);
+        registration.setIsPasswordEncoded(true);
+        String encodedAnswer1 = registration.getIsSecurityAnswer1Encoded() ? registration.getSecurityAnswer1() :
+                encoderService.removeWhiteSpace_SetToAllUpperCase_AndThenEncode(registration.getSecurityAnswer1());
+        registration.setSecurityAnswer1(encodedAnswer1);
+        registration.setIsSecurityAnswer1Encoded(true);
+        String encodedAnswer2 = registration.getIsSecurityAnswer2Encoded() ? registration.getSecurityAnswer2() :
+                encoderService.removeWhiteSpace_SetToAllUpperCase_AndThenEncode(registration.getSecurityAnswer2());
+        registration.setSecurityAnswer2(encodedAnswer2);
+        registration.setIsSecurityAnswer2Encoded(true);
+        String token = UUID.randomUUID().toString();
         registration.setToken(token);
         emailService.sendFromBusinessEmail(
                 registrationForm.getEmail(), buildEmail(token), "Confirm Account");
@@ -163,7 +159,7 @@ public class RegistrationServiceImpl extends AbstractServiceImpl<Registration,
 
     private String buildEmail(String token) {
         return "To confirm your account, please click here: " +
-                "http://localhost:8080/confirmRegistration?token=" + token;
+                "http://localhost:8080/confirm-registration?token=" + token;
     }
 
 }

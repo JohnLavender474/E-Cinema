@@ -17,31 +17,31 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import java.time.LocalDate;
 import java.time.Month;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.*;
 
-@SpringBootTest(webEnvironment = WebEnvironment.NONE)
 @ExtendWith(MockitoExtension.class)
+@SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
 class RegistrationServiceTest {
 
+    @Autowired
+    private UserRepository userRepository;
     @Autowired
     @InjectMocks
     private UserServiceImpl userService;
     @Autowired
     @InjectMocks
     private RegistrationServiceImpl registrationService;
-    @Autowired
-    private BCryptPasswordEncoder passwordEncoder;
-    @Autowired
-    private UserRepository userRepository;
     @MockBean
     private CustomerAuthorityService customerAuthorityService;
+    @MockBean
+    private EncoderService encoderService;
     @MockBean
     private EmailService emailService;
     @MockBean
@@ -51,6 +51,9 @@ class RegistrationServiceTest {
     void registerNewUser() {
         // given
         doNothing().when(emailService).sendFromBusinessEmail(anyString(), anyString(), anyString());
+        given(encoderService.encode(anyString())).willReturn("ENCODED_PASSWORD123?!");
+        given(encoderService.removeWhiteSpace_SetToAllUpperCase_AndThenEncode(
+                anyString())).willReturn("ENCODED_OTHER123?!");
         RegistrationForm registrationForm = new RegistrationForm();
         registrationForm.setEmail("test@gmail.com");
         registrationForm.setUsername("TestUser123");
@@ -74,10 +77,10 @@ class RegistrationServiceTest {
         assertEquals(registrationForm.getUsername(), userDto.getUsername());
         assertEquals(registrationForm.getFirstName(), userDto.getFirstName());
         assertEquals(registrationForm.getLastName(), userDto.getLastName());
+        assertEquals("ENCODED_PASSWORD123?!", user.getPassword());
+        assertEquals("ENCODED_OTHER123?!", user.getSecurityAnswer1());
+        assertEquals("ENCODED_OTHER123?!", user.getSecurityAnswer2());
         assertTrue(userDto.getUserAuthorities().contains(UserAuthority.CUSTOMER));
-        assertTrue(passwordEncoder.matches("password123?!", user.getPassword()));
-        assertTrue(passwordEncoder.matches("Answer 1", user.getSecurityAnswer1()));
-        assertTrue(passwordEncoder.matches("Answer 2", user.getSecurityAnswer2()));
     }
 
 }

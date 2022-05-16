@@ -18,7 +18,6 @@ import com.ecinema.app.utils.UtilMethods;
 import com.ecinema.app.domain.validators.PasswordValidator;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -36,7 +35,7 @@ public class UserServiceImpl extends AbstractServiceImpl<User, UserRepository> i
 
     private final Map<UserAuthority, AbstractUserAuthorityService<? extends AbstractUserAuthority>>
             userAuthorityServices = new EnumMap<>(UserAuthority.class);
-    private final BCryptPasswordEncoder passwordEncoder;
+    private final EncoderService encoderService;
     private final PasswordValidator passwordValidator;
     private final UserProfileValidator userProfileValidator;
     private final RegistrationValidator registrationValidator;
@@ -54,12 +53,12 @@ public class UserServiceImpl extends AbstractServiceImpl<User, UserRepository> i
                            CustomerAuthorityService customerAuthorityService,
                            ModeratorAuthorityService moderatorAuthorityService,
                            AdminAuthorityService adminAuthorityService,
-                           BCryptPasswordEncoder passwordEncoder,
+                           EncoderService encoderService,
                            PasswordValidator passwordValidator,
                            UserProfileValidator userProfileValidator,
                            RegistrationValidator registrationValidator) {
         super(repository);
-        this.passwordEncoder = passwordEncoder;
+        this.encoderService = encoderService;
         this.passwordValidator = passwordValidator;
         this.userProfileValidator = userProfileValidator;
         this.registrationValidator = registrationValidator;
@@ -152,16 +151,18 @@ public class UserServiceImpl extends AbstractServiceImpl<User, UserRepository> i
         user.setUsername(registration.getUsername());
         user.setEmail(registration.getEmail());
         user.setPassword(passwordEncoded ? registration.getPassword() :
-                                 passwordEncoder.encode(registration.getPassword()));
+                                 encoderService.encode(registration.getPassword()));
         user.setFirstName(registration.getFirstName());
         user.setLastName(registration.getLastName());
         user.setBirthDate(registration.getBirthDate());
         user.setSecurityQuestion1(registration.getSecurityQuestion1());
         user.setSecurityAnswer1(securityAnswer1Encoded ? registration.getSecurityAnswer1() :
-                                        passwordEncoder.encode(registration.getSecurityAnswer1()));
+                                        encoderService.removeWhiteSpace_SetToAllUpperCase_AndThenEncode(
+                                                registration.getSecurityAnswer1()));
         user.setSecurityQuestion2(registration.getSecurityQuestion2());
         user.setSecurityAnswer2(securityAnswer2Encoded ? registration.getSecurityAnswer2() :
-                                        passwordEncoder.encode(registration.getSecurityAnswer2()));
+                                        encoderService.removeWhiteSpace_SetToAllUpperCase_AndThenEncode(
+                                                registration.getSecurityAnswer2()));
         user.setCreationDateTime(LocalDateTime.now());
         user.setLastActivityDateTime(LocalDateTime.now());
         user.setIsAccountEnabled(true);

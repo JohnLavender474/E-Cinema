@@ -33,13 +33,14 @@
             </tr>
             <tr>
                 <td>Birth Date:</td>
-                <td><label><input th:field="*{birthDate}" type="date" required></label></td>
+                <td><label><input th:field="*{birthDate}" th:value="*{birthDate}" type="date"
+                                  th:min="${minDate}" th:max="${maxDate}" required></label></td>
             </tr>
             <tr>
                 <td>Security Question 1:</td>
                 <td><label><select id="SQ1" th:field="*{securityQuestion1}" onchange="checkDropDowns(this)" required>
-                    <option>Select Question</option>
-                    <option th:each="sq : ${securityQuestions}" th:value="${sq}"></option>
+                    <option value="" selected disabled>Choose Security Question 1</option>
+                    <option th:each="sq : ${securityQuestions}" th:value="${sq}" th:text="${sq}"></option>
                 </select></label></td>
             </tr>
             <tr>
@@ -49,8 +50,8 @@
             <tr>
                 <td>Security Question 2:</td>
                 <td><label><select id="SQ2" th:field="*{securityQuestion2}" onchange="checkDropDowns(this)" required>
-                    <option>Select Question</option>
-                    <option th:each="sq : ${securityQuestions}" th:value="${sq}"></option>
+                    <option value="" selected disabled>Choose Security Question 2</option>
+                    <option th:each="sq : ${securityQuestions}" th:value="${sq}" th:text="${sq}"></option>
                 </select></label></td>
             </tr>
             <tr>
@@ -64,7 +65,7 @@
     </form>
 </div>
 <script>
-    window.checkDropDowns = function(thisSelect) {
+    window.checkDropDowns = function (thisSelect) {
         let otherSelectId = ("SQ1" === thisSelect.id) ? "SQ2" : "SQ1";
         let otherSelect = document.getElementById(otherSelectId);
         for (let i = 0; i < otherSelect.options.length; i++) {

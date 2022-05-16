@@ -11,13 +11,13 @@ import org.springframework.stereotype.Component;
 public class AuthenticationProvider {
 
     private final UserService userService;
-    private final PasswordEncryptor passwordEncryptor;
+    private final PasswordEncoder passwordEncoder;
 
     @Bean
     public DaoAuthenticationProvider daoAuthenticationProvider() {
         DaoAuthenticationProvider authenticationProvider = new DaoAuthenticationProvider();
         authenticationProvider.setUserDetailsService(userService);
-        authenticationProvider.setPasswordEncoder(passwordEncryptor.bCryptPasswordEncoder());
+        authenticationProvider.setPasswordEncoder(passwordEncoder.bCryptPasswordEncoder());
         return authenticationProvider;
     }
 

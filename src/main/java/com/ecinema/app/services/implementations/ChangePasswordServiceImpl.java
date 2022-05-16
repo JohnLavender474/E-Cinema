@@ -7,10 +7,10 @@ import com.ecinema.app.exceptions.*;
 import com.ecinema.app.repositories.ChangePasswordRepository;
 import com.ecinema.app.services.ChangePasswordService;
 import com.ecinema.app.services.EmailService;
+import com.ecinema.app.services.EncoderService;
 import com.ecinema.app.services.UserService;
 import com.ecinema.app.domain.validators.PasswordValidator;
 import com.ecinema.app.utils.UtilMethods;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -28,8 +28,8 @@ public class ChangePasswordServiceImpl extends AbstractServiceImpl<ChangePasswor
 
     private final UserService userService;
     private final EmailService emailService;
+    private final EncoderService encoderService;
     private final PasswordValidator passwordValidator;
-    private final BCryptPasswordEncoder passwordEncoder;
 
     /**
      * Instantiates a new Abstract service.
@@ -39,13 +39,13 @@ public class ChangePasswordServiceImpl extends AbstractServiceImpl<ChangePasswor
     public ChangePasswordServiceImpl(ChangePasswordRepository repository,
                                      UserService userService,
                                      EmailService emailService,
-                                     PasswordValidator passwordValidator,
-                                     BCryptPasswordEncoder passwordEncoder) {
+                                     EncoderService encoderService,
+                                     PasswordValidator passwordValidator) {
         super(repository);
         this.userService = userService;
         this.emailService = emailService;
+        this.encoderService = encoderService;
         this.passwordValidator = passwordValidator;
-        this.passwordEncoder = passwordEncoder;
     }
 
     @Override
@@ -72,7 +72,7 @@ public class ChangePasswordServiceImpl extends AbstractServiceImpl<ChangePasswor
         Long userId = userService.findIdByEmail(changePasswordForm.getEmail()).orElseThrow(
                 () -> new NoEntityFoundException("user", "email", changePasswordForm.getEmail()));
         logger.debug("Found user id by email: " + changePasswordForm.getEmail());
-        String encryptedPassword = passwordEncoder.encode(changePasswordForm.getPassword());
+        String encryptedPassword = encoderService.encode(changePasswordForm.getPassword());
         LocalDateTime creationDateTime = LocalDateTime.now();
         LocalDateTime expirationDateTime = creationDateTime.plusMinutes(EXPIRATION_MINUTES);
         ChangePassword changePassword = new ChangePassword();

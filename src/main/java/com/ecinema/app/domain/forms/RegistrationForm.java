@@ -2,8 +2,10 @@ package com.ecinema.app.domain.forms;
 
 import com.ecinema.app.domain.contracts.IRegistration;
 import com.ecinema.app.domain.enums.UserAuthority;
+import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
+import org.springframework.format.annotation.DateTimeFormat;
 
 import java.io.Serializable;
 import java.time.LocalDate;
@@ -11,8 +13,10 @@ import java.time.Month;
 import java.util.EnumSet;
 import java.util.Set;
 
-@Getter
-@Setter
+/**
+ * The type Registration form.
+ */
+@Data
 public class RegistrationForm implements IRegistration, Serializable {
     private Boolean isPasswordEncoded = false;
     private Boolean isSecurityAnswer1Encoded = false;
@@ -27,6 +31,7 @@ public class RegistrationForm implements IRegistration, Serializable {
     private String securityAnswer1 = "";
     private String securityQuestion2 = "";
     private String securityAnswer2 = "";
-    private LocalDate birthDate = LocalDate.of(2000, Month.JANUARY, 1);
     private Set<UserAuthority> userAuthorities = EnumSet.noneOf(UserAuthority.class);
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
+    private LocalDate birthDate = LocalDate.of(2000, Month.JANUARY, 1);
 }
