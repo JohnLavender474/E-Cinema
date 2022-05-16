@@ -1,5 +1,6 @@
 package com.ecinema.app.controllers;
 
+import com.ecinema.app.domain.enums.SecurityQuestions;
 import com.ecinema.app.domain.forms.RegistrationForm;
 import com.ecinema.app.exceptions.*;
 import com.ecinema.app.services.RegistrationService;
@@ -30,6 +31,7 @@ public class RegistrationController {
     @GetMapping("/submit-registration")
     public String showRegistrationPage(final Model model) {
         model.addAttribute("registrationForm", new RegistrationForm());
+        model.addAttribute("securityQuestions", SecurityQuestions.getList());
         return "submit-registration";
     }
 
@@ -74,7 +76,5 @@ public class RegistrationController {
         }
         return "confirm-registration";
     }
-
-
 
 }

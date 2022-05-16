@@ -21,11 +21,11 @@
         <label><input type="submit" th:value="login"/></label>
     </form>
     <label>
-        <button class="btn btn-primary"><a th:href="@{/register}">Register</a></button>
+        <button class="btn btn-primary"><a th:href="@{/submit-registration}">Register</a></button>
     </label>
     <br/>
     <label>
-        <button class="btn btn-primary"><a th:href="@{/forgotPassword}">Forgot Password</a></button>
+        <button class="btn btn-primary"><a th:href="@{/forgot-password}">Forgot Password</a></button>
     </label>
     <span class="text" th:if="${error} != null" th:text="${error}"></span>
 </div>
