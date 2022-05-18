@@ -5,10 +5,14 @@ import com.ecinema.app.domain.entities.*;
 import com.ecinema.app.exceptions.NoEntityFoundException;
 import com.ecinema.app.repositories.CustomerAuthorityRepository;
 import com.ecinema.app.services.*;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collection;
+import java.util.Iterator;
+import java.util.List;
 
 @Service
 @Transactional
@@ -53,6 +57,13 @@ public class CustomerAuthorityServiceImpl extends AbstractUserAuthorityServiceIm
         if (moderatorAuthority != null) {
             customerAuthority.setCensoredBy(null);
             moderatorAuthority.getCensoredCustomers().remove(customerAuthority);
+        }
+        // detach reported Reviews
+        Iterator<Review> reviewIterator = customerAuthority.getReportedReviews().iterator();
+        while (reviewIterator.hasNext()) {
+            Review review = reviewIterator.next();
+            review.getReportedBy().remove(customerAuthority);
+            reviewIterator.remove();
         }
     }
 
@@ -126,14 +137,34 @@ public class CustomerAuthorityServiceImpl extends AbstractUserAuthorityServiceIm
     }
 
     @Override
+    public List<CustomerAuthorityDto> findAllByIsCensored(boolean isCensored) {
+        return convertToDto(isCensored ? repository.findAllByCensoredByNotNull() :
+                                    repository.findAllByCensoredByNull());
+    }
+
+    @Override
+    public List<CustomerAuthorityDto> findAllDtos() {
+        return convertToDto(findAll());
+    }
+
+    @Override
+    public Page<CustomerAuthorityDto> findAllDtos(Pageable pageable) {
+        return findAll(pageable).map(this::convertToDto);
+    }
+
+    @Override
     public CustomerAuthorityDto convertIdToDto(Long id)
             throws NoEntityFoundException {
         CustomerAuthority customerAuthority = findById(id).orElseThrow(
                 () -> new NoEntityFoundException("customer role def", "id", id));
         CustomerAuthorityDto customerAuthorityDto = new CustomerAuthorityDto();
-        customerAuthorityDto.setId(customerAuthority.getId());
+        customerAuthorityDto.setAuthorityId(customerAuthority.getId());
         customerAuthorityDto.setUserId(customerAuthority.getUser().getId());
+        customerAuthorityDto.setEmail(customerAuthority.getUser().getEmail());
+        customerAuthorityDto.setUsername(customerAuthority.getUser().getUsername());
         customerAuthorityDto.setIsCensored(customerAuthority.getCensoredBy() != null);
+        customerAuthorityDto.setCensorId(customerAuthority.getCensoredBy() != null ?
+                                                 customerAuthority.getCensoredBy().getId() : null);
         logger.debug("Converted " + customerAuthority + " to DTO: " + customerAuthorityDto);
         return customerAuthorityDto;
     }

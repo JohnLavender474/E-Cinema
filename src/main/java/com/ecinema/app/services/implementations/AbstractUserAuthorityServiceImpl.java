@@ -67,8 +67,10 @@ public abstract class AbstractUserAuthorityServiceImpl<T extends AbstractUserAut
     }
 
     @Override
-    public Optional<Long> findIdByUserWithId(Long userId) {
-        return repository.findIdByUserWithId(userId);
+    public Long findIdByUserWithId(Long userId)
+            throws NoEntityFoundException {
+        return repository.findIdByUserWithId(userId).orElseThrow(
+                () -> new NoEntityFoundException("user authority", "user id", userId));
     }
 
 }

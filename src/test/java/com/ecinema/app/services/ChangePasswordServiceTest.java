@@ -54,8 +54,8 @@ class ChangePasswordServiceTest {
                 null, encoderService,
                 passwordValidator, null, null);
         changePasswordService = new ChangePasswordServiceImpl(
-                changePasswordRepository, userService,
-                emailService, encoderService, passwordValidator);
+                changePasswordRepository, emailService,
+                encoderService, userRepository, passwordValidator);
     }
 
     /**
@@ -68,14 +68,22 @@ class ChangePasswordServiceTest {
         user.setId(1L);
         user.setEmail("test@gmail.com");
         user.setUsername("Test_Username");
-        user.setPassword(passwordEncoder.encode("password123!"));
+        user.setPassword(encoderService.encode("password123!"));
+        user.setSecurityQuestion1("Question1");
+        user.setSecurityAnswer1(encoderService.encode("Answer1"));
+        user.setSecurityQuestion2("Question2");
+        user.setSecurityAnswer2(encoderService.encode("Answer2"));
         given(userRepository.findById(1L)).willReturn(Optional.of(user));
-        given(userRepository.findIdByEmail("test@gmail.com")).willReturn(Optional.of(1L));
+        given(userRepository.findByEmail("test@gmail.com")).willReturn(Optional.of(user));
         userService.save(user);
         ChangePasswordForm changePasswordForm = new ChangePasswordForm();
         changePasswordForm.setEmail("test@gmail.com");
         changePasswordForm.setPassword("new_password123!?");
         changePasswordForm.setConfirmPassword("new_password123!?");
+        changePasswordForm.setQuestion1("Question1");
+        changePasswordForm.setAnswer1("Answer1");
+        changePasswordForm.setQuestion2("Question2");
+        changePasswordForm.setAnswer2("Answer2");
         ChangePassword changePassword = new ChangePassword();
         changePassword.setUserId(1L);
         changePassword.setToken("123");

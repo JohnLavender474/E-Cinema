@@ -51,9 +51,7 @@ class RegistrationServiceTest {
     void registerNewUser() {
         // given
         doNothing().when(emailService).sendFromBusinessEmail(anyString(), anyString(), anyString());
-        given(encoderService.encode(anyString())).willReturn("ENCODED_PASSWORD123?!");
-        given(encoderService.removeWhiteSpace_SetToAllUpperCase_AndThenEncode(
-                anyString())).willReturn("ENCODED_OTHER123?!");
+        given(encoderService.encode(anyString())).willReturn("ENCODED123?!");
         RegistrationForm registrationForm = new RegistrationForm();
         registrationForm.setEmail("test@gmail.com");
         registrationForm.setUsername("TestUser123");
@@ -77,9 +75,9 @@ class RegistrationServiceTest {
         assertEquals(registrationForm.getUsername(), userDto.getUsername());
         assertEquals(registrationForm.getFirstName(), userDto.getFirstName());
         assertEquals(registrationForm.getLastName(), userDto.getLastName());
-        assertEquals("ENCODED_PASSWORD123?!", user.getPassword());
-        assertEquals("ENCODED_OTHER123?!", user.getSecurityAnswer1());
-        assertEquals("ENCODED_OTHER123?!", user.getSecurityAnswer2());
+        assertEquals("ENCODED123?!", user.getPassword());
+        assertEquals("ENCODED123?!", user.getSecurityAnswer1());
+        assertEquals("ENCODED123?!", user.getSecurityAnswer2());
         assertTrue(userDto.getUserAuthorities().contains(UserAuthority.CUSTOMER));
     }
 

@@ -11,7 +11,6 @@ import com.ecinema.app.exceptions.InvalidArgsException;
 import com.ecinema.app.exceptions.NoEntityFoundException;
 import com.ecinema.app.domain.contracts.IPassword;
 import com.ecinema.app.domain.contracts.IRegistration;
-import org.modelmapper.internal.asm.tree.ModuleExportNode;
 import org.springframework.data.repository.query.Param;
 import org.springframework.security.core.userdetails.UserDetailsService;
 
@@ -170,14 +169,14 @@ public interface UserService extends UserDetailsService,
      * Class<? extends AbstractUserAuthority> clazz =
      * UserAuthority.defClassToUserRole(UserAuthority.CUSTOMERS_PERMITTED);
      * CustomerAuthority customerRoleDef = userService.getUserAuthorityOf(user, clazz);
-     * }*******************
+     * }*********************
      * <p>
      * or
      * <p>
      * {@code
      * CustomerAuthority customerAuthority = userService.getUserAuthorityOf(user,
      * UserAuthority.classToEnum(UserAuthority.CUSTOMER));
-     * }*******************
+     * }*********************
      *
      * @param <T>    the type parameter, class must extend {@link AbstractUserAuthority}.
      * @param userId the id of the User to fetch the AbstractUserAuthority instance from.
@@ -281,7 +280,7 @@ public interface UserService extends UserDetailsService,
      * The User instance internally contains an enum map for AbstractUserAuthority instances with
      * {@link UserAuthority} as the key.
      * Each class extending AbstractUserAuthority has a one-to-one mapping with a UserAuthority value. See {@link
-     * AbstractUserAuthority#getUserAuthority()}**************.
+     * AbstractUserAuthority#getUserAuthority()}****************.
      * User instances can only be mapped to one instance of each child class of AbstractUserAuthority.
      *
      * @param userId          the user id of the User

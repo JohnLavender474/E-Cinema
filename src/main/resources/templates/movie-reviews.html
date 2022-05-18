@@ -7,7 +7,7 @@
     <div th:if="${success != null}">
         <span th:text="${success}"></span>
     </div>
-    <div th:if="${canWriteReview}">
+    <div th:if="${isCustomer}">
         <span>
             <label>
                 <button class="button">
@@ -41,6 +41,11 @@
             </td>
             <td>
                 <span th:text="${review.review}" style="max-width: 150px; word-wrap: break-word"></span>
+            </td>
+            <td th:if="${isCustomer}">
+                <form method="get" th:action="@{/report-review{id}(id=${review.id})}">
+                    <button class="btn btn-primary">Report Review</button>
+                </form>
             </td>
         </tr>
         </tbody>

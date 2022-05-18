@@ -21,7 +21,8 @@ public class PasswordValidator implements AbstractValidator<IPassword> {
             errors.add("Password length must be at least " + MIN_LENGTH);
         }
         if (UtilMethods.numSpecialChars(iPassword.getPassword()) < MIN_SPECIAL_CHARS) {
-            errors.add("Password must contain at least " + MIN_SPECIAL_CHARS + " special chars");
+            errors.add("Password must contain at least " + MIN_SPECIAL_CHARS +
+                               " non-alphanumeric chars (!, ?, &, etc.");
         }
         if (!iPassword.getPassword().equals(iPassword.getConfirmPassword())) {
             errors.add("Password must match confirm password");

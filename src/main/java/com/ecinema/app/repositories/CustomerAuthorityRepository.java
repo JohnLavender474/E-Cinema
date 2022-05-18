@@ -4,6 +4,7 @@ import com.ecinema.app.domain.entities.*;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -83,5 +84,19 @@ public interface CustomerAuthorityRepository extends AbstractUserAuthorityReposi
      */
     @Query("SELECT c FROM CustomerAuthority c JOIN c.coupons co WHERE co.id = ?1")
     Optional<CustomerAuthority> findByCouponsContainsWithId(Long couponId);
+
+    /**
+     * Find all by censored by not null list.
+     *
+     * @return the list
+     */
+    List<CustomerAuthority> findAllByCensoredByNotNull();
+
+    /**
+     * Find all by censored by null list.
+     *
+     * @return the list
+     */
+    List<CustomerAuthority> findAllByCensoredByNull();
 
 }

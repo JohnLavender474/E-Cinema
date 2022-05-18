@@ -33,7 +33,7 @@ public class AdminAuthorityServiceImpl extends AbstractUserAuthorityServiceImpl<
         AdminAuthority adminAuthority = findById(id).orElseThrow(
                 () -> new NoEntityFoundException("admin role def", "id", id));
         AdminAuthorityDto adminAuthorityDto = new AdminAuthorityDto();
-        adminAuthorityDto.setId(adminAuthority.getId());
+        adminAuthorityDto.setAuthorityId(adminAuthority.getId());
         logger.debug("Converted " + adminAuthority + " to DTO: " + adminAuthorityDto);
         return adminAuthorityDto;
     }

@@ -7,6 +7,4 @@ import lombok.ToString;
 @Getter
 @Setter
 @ToString
-public class AdminAuthorityDto implements AbstractDto {
-    private Long id;
-}
+public class AdminAuthorityDto extends UserAuthorityDto {}

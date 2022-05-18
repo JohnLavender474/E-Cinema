@@ -22,6 +22,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -40,13 +41,14 @@ public class ReviewServiceImpl extends AbstractServiceImpl<Review, ReviewReposit
     /**
      * Instantiates a new Review service.
      *
-     * @param repository                the repository
-     * @param movieRepository           the movie repository
+     * @param repository                  the repository
+     * @param movieRepository             the movie repository
      * @param customerAuthorityRepository the customer role def repository
-     * @param reviewValidator           the review validator
+     * @param reviewValidator             the review validator
      */
     public ReviewServiceImpl(ReviewRepository repository, MovieRepository movieRepository,
-                             CustomerAuthorityRepository customerAuthorityRepository, ReviewValidator reviewValidator) {
+                             CustomerAuthorityRepository customerAuthorityRepository,
+                             ReviewValidator reviewValidator) {
         super(repository);
         this.movieRepository = movieRepository;
         this.customerAuthorityRepository = customerAuthorityRepository;
@@ -57,10 +59,10 @@ public class ReviewServiceImpl extends AbstractServiceImpl<Review, ReviewReposit
     protected void onDelete(Review review) {
         logger.debug("Review on delete");
         // detach Customer
-        CustomerAuthority customerAuthority = review.getWriter();
-        if (customerAuthority != null) {
-            logger.debug("Detach customer role def: " + customerAuthority);
-            customerAuthority.getReviews().remove(review);
+        CustomerAuthority writer = review.getWriter();
+        if (writer != null) {
+            logger.debug("Detach customer role def: " + writer);
+            writer.getReviews().remove(review);
             review.setWriter(null);
         }
         // detatch Movie
@@ -69,6 +71,13 @@ public class ReviewServiceImpl extends AbstractServiceImpl<Review, ReviewReposit
             logger.debug("Detach movie: " + movie);
             movie.getReviews().remove(review);
             review.setMovie(null);
+        }
+        // detach reporters
+        Iterator<CustomerAuthority> customerAuthorityIterator = review.getReportedBy().iterator();
+        while (customerAuthorityIterator.hasNext()) {
+            CustomerAuthority reporter = customerAuthorityIterator.next();
+            reporter.getReportedReviews().remove(review);
+            customerAuthorityIterator.remove();
         }
     }
 
@@ -87,6 +96,19 @@ public class ReviewServiceImpl extends AbstractServiceImpl<Review, ReviewReposit
     }
 
     @Override
+    public void reportReview(Long customerId, Long reviewId)
+            throws NoEntityFoundException, ClashException {
+        CustomerAuthority customerAuthority = customerAuthorityRepository.findById(customerId)
+                .orElseThrow(() -> new NoEntityFoundException("customer", "id", customerId));
+        Review review = findById(reviewId).orElseThrow(
+                () -> new NoEntityFoundException("review", "id", reviewId));
+        if (review.getReportedBy().contains(customerAuthority)) {
+            throw new ClashException("Review has already been reported by customer");
+        }
+
+    }
+
+    @Override
     public boolean existsByUserIdAndMovieId(Long userId, Long movieId)
             throws NoEntityFoundException {
         return repository.existsByUserIdAndMovieId(userId, movieId);
@@ -97,8 +119,9 @@ public class ReviewServiceImpl extends AbstractServiceImpl<Review, ReviewReposit
             throws NoEntityFoundException, InvalidArgsException, ClashException {
         logger.debug(UtilMethods.getDelimiterLine());
         logger.debug("Submit review form");
-        CustomerAuthority customerAuthority = customerAuthorityRepository.findByUserWithId(reviewForm.getUserId())
-                                                                         .orElseThrow(() -> new NoEntityFoundException(
+        CustomerAuthority customerAuthority = customerAuthorityRepository
+                .findByUserWithId(reviewForm.getUserId())
+                .orElseThrow(() -> new NoEntityFoundException(
                         "customer role def", "user id", reviewForm.getUserId()));
         Movie movie = movieRepository.findById(reviewForm.getMovieId()).orElseThrow(
                 () -> new NoEntityFoundException("movie", "id", reviewForm.getMovieId()));

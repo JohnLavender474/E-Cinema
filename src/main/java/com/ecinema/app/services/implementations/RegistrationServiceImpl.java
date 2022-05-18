@@ -116,11 +116,11 @@ public class RegistrationServiceImpl extends AbstractServiceImpl<Registration,
         registration.setConfirmPassword(encodedPassword);
         registration.setIsPasswordEncoded(true);
         String encodedAnswer1 = registration.getIsSecurityAnswer1Encoded() ? registration.getSecurityAnswer1() :
-                encoderService.removeWhiteSpace_SetToAllUpperCase_AndThenEncode(registration.getSecurityAnswer1());
+                encoderService.encode(registration.getSecurityAnswer1());
         registration.setSecurityAnswer1(encodedAnswer1);
         registration.setIsSecurityAnswer1Encoded(true);
         String encodedAnswer2 = registration.getIsSecurityAnswer2Encoded() ? registration.getSecurityAnswer2() :
-                encoderService.removeWhiteSpace_SetToAllUpperCase_AndThenEncode(registration.getSecurityAnswer2());
+                encoderService.encode(registration.getSecurityAnswer2());
         registration.setSecurityAnswer2(encodedAnswer2);
         registration.setIsSecurityAnswer2Encoded(true);
         String token = UUID.randomUUID().toString();
@@ -158,8 +158,8 @@ public class RegistrationServiceImpl extends AbstractServiceImpl<Registration,
     }
 
     private String buildEmail(String token) {
-        return "To confirm your account, please click here: " +
-                "http://localhost:8080/confirm-registration?token=" + token;
+        return "To confirm your ECinema registration, please click here: " +
+                "http://localhost:8080/confirm-registration/" + token;
     }
 
 }

@@ -7,6 +7,8 @@ import lombok.ToString;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * {@inheritDoc}
@@ -32,6 +34,15 @@ public class Review extends AbstractEntity implements IReview {
     private Boolean isCensored;
 
     @Column
+    private Integer upvotes;
+
+    @Column
+    private Integer downvotes;
+
+    @Column
+    private Integer numberOfReports;
+
+    @Column
     private LocalDateTime creationDateTime;
 
     @JoinColumn
@@ -43,5 +54,8 @@ public class Review extends AbstractEntity implements IReview {
     @ToString.Exclude
     @ManyToOne(fetch = FetchType.LAZY)
     private CustomerAuthority writer;
+
+    @ManyToMany(mappedBy = "reportedReviews")
+    private Set<CustomerAuthority> reportedBy = new HashSet<>();
 
 }

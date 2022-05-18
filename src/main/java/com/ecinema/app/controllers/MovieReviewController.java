@@ -23,6 +23,9 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import static com.ecinema.app.utils.UtilMethods.addPageNumbersAttribute;
 
+/**
+ * The type Movie review controller.
+ */
 @Controller
 @RequiredArgsConstructor
 public class MovieReviewController {
@@ -32,6 +35,15 @@ public class MovieReviewController {
     private final SecurityService securityService;
     private final Logger logger = LoggerFactory.getLogger(MovieReviewController.class);
 
+    /**
+     * Movie reviews page string.
+     *
+     * @param model              the model
+     * @param redirectAttributes the redirect attributes
+     * @param page               the page
+     * @param movieId            the movie id
+     * @return the string
+     */
     @GetMapping("/movie-reviews/{id}")
     public String movieReviewsPage(
             final Model model, final RedirectAttributes redirectAttributes,
@@ -40,8 +52,11 @@ public class MovieReviewController {
         try {
             model.addAttribute("movieId", movieId);
             UserDto userDto = securityService.findLoggedInUserDTO();
-            boolean canWriteReview = userDto != null && userDto.getUserAuthorities().contains(UserAuthority.CUSTOMER);
+            boolean isCustomer = userDto != null && userDto.getUserAuthorities().contains(UserAuthority.CUSTOMER);
+            boolean canWriteReview = isCustomer && !reviewService.existsByUserIdAndMovieId(
+                    userDto.getId(), movieId);
             model.addAttribute("canWriteReview", canWriteReview);
+
             PageRequest pageRequest = PageRequest.of(page - 1, 6);
             Page<ReviewDto> pageOfDtos = reviewService.findPageByMovieId(movieId, pageRequest);
             model.addAttribute("reviews", pageOfDtos.getContent().toArray());
@@ -54,7 +69,27 @@ public class MovieReviewController {
             return "redirect:/error";
         }
     }
-    
+
+    /**
+     * Show report review page string.
+     *
+     * @param reviewId the review id
+     * @return the string
+     */
+    @PostMapping("/report-review/{id}")
+    public String showReportReviewPage(final RedirectAttributes redirectAttributes,
+                                       @PathVariable("id") final Long reviewId) {
+        return null;
+    }
+
+    /**
+     * Show write review page string.
+     *
+     * @param model              the model
+     * @param redirectAttributes the redirect attributes
+     * @param movieId            the movie id
+     * @return the string
+     */
     @GetMapping("/write-review/{id}")
     public String showWriteReviewPage(final Model model, final RedirectAttributes redirectAttributes,
                                       @PathVariable("id") final Long movieId) {
@@ -89,6 +124,15 @@ public class MovieReviewController {
         return "write-review";
     }
 
+    /**
+     * Write review string.
+     *
+     * @param model              the model
+     * @param redirectAttributes the redirect attributes
+     * @param reviewForm         the review form
+     * @param movieId            the movie id
+     * @return the string
+     */
     @PostMapping("/write-review/{id}")
     public String writeReview(final Model model, final RedirectAttributes redirectAttributes,
                               @ModelAttribute("reviewForm") final ReviewForm reviewForm,

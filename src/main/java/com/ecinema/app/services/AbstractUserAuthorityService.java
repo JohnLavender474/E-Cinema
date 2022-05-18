@@ -2,6 +2,7 @@ package com.ecinema.app.services;
 
 import com.ecinema.app.domain.entities.User;
 import com.ecinema.app.domain.entities.AbstractUserAuthority;
+import com.ecinema.app.exceptions.NoEntityFoundException;
 
 import java.util.Optional;
 
@@ -42,6 +43,7 @@ public interface AbstractUserAuthorityService<T extends AbstractUserAuthority> e
      * @param userId the user id
      * @return the optional
      */
-    Optional<Long> findIdByUserWithId(Long userId);
+    Long findIdByUserWithId(Long userId)
+            throws NoEntityFoundException;
 
 }

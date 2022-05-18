@@ -30,8 +30,8 @@ public class MovieInfoController {
 
     @GetMapping("/movies")
     public String moviesPage(final Model model,
-                             @RequestParam(value = "page", required = false, defaultValue = "1") Integer page,
-                             @RequestParam(value = "search", required = false, defaultValue = "") String search) {
+                             @RequestParam(value = "page", required = false, defaultValue = "1") final Integer page,
+                             @RequestParam(value = "search", required = false, defaultValue = "") final String search) {
         PageRequest pageRequest = PageRequest.of(page - 1, 6);
         Page<MovieDto> pageOfDtos = (search == null || search.isBlank()) ?
                 movieService.pageOfDtos(pageRequest) :

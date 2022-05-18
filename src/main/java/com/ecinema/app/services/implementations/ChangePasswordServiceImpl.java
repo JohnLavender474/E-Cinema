@@ -1,14 +1,15 @@
 package com.ecinema.app.services.implementations;
 
+import com.ecinema.app.domain.dtos.UserDto;
 import com.ecinema.app.domain.entities.ChangePassword;
 import com.ecinema.app.domain.entities.User;
 import com.ecinema.app.domain.forms.ChangePasswordForm;
 import com.ecinema.app.exceptions.*;
 import com.ecinema.app.repositories.ChangePasswordRepository;
+import com.ecinema.app.repositories.UserRepository;
 import com.ecinema.app.services.ChangePasswordService;
 import com.ecinema.app.services.EmailService;
 import com.ecinema.app.services.EncoderService;
-import com.ecinema.app.services.UserService;
 import com.ecinema.app.domain.validators.PasswordValidator;
 import com.ecinema.app.utils.UtilMethods;
 import org.springframework.stereotype.Service;
@@ -26,9 +27,9 @@ public class ChangePasswordServiceImpl extends AbstractServiceImpl<ChangePasswor
     public static final long EXPIRATION_MINUTES = 30L;
     public static final int MAX_TOKEN_INSTANTATIONS = 5;
 
-    private final UserService userService;
     private final EmailService emailService;
     private final EncoderService encoderService;
+    private final UserRepository userRepository;
     private final PasswordValidator passwordValidator;
 
     /**
@@ -37,14 +38,14 @@ public class ChangePasswordServiceImpl extends AbstractServiceImpl<ChangePasswor
      * @param repository the repository
      */
     public ChangePasswordServiceImpl(ChangePasswordRepository repository,
-                                     UserService userService,
                                      EmailService emailService,
                                      EncoderService encoderService,
+                                     UserRepository userRepository,
                                      PasswordValidator passwordValidator) {
         super(repository);
-        this.userService = userService;
         this.emailService = emailService;
         this.encoderService = encoderService;
+        this.userRepository = userRepository;
         this.passwordValidator = passwordValidator;
     }
 
@@ -52,11 +53,22 @@ public class ChangePasswordServiceImpl extends AbstractServiceImpl<ChangePasswor
     protected void onDelete(ChangePassword entity) {}
 
     @Override
-    public void onDeleteInfo(Long id, Collection<String> info)
-            throws NoEntityFoundException {}
+    public void onDeleteInfo(Long id, Collection<String> info) {}
 
     @Override
     public void onDeleteInfo(ChangePassword entity, Collection<String> info) {}
+
+    @Override
+    public ChangePasswordForm getChangePasswordForm(String email)
+            throws NoEntityFoundException {
+        User user = userRepository.findByEmail(email).orElseThrow(
+                () -> new NoEntityFoundException("user", "email", email));
+        ChangePasswordForm changePasswordForm = new ChangePasswordForm();
+        changePasswordForm.setEmail(email);
+        changePasswordForm.setQuestion1(user.getSecurityQuestion1());
+        changePasswordForm.setQuestion2(user.getSecurityQuestion2());
+        return changePasswordForm;
+    }
 
     @Override
     public void submitChangePasswordForm(ChangePasswordForm changePasswordForm)
@@ -65,20 +77,30 @@ public class ChangePasswordServiceImpl extends AbstractServiceImpl<ChangePasswor
         logger.debug("Submit change password form");
         List<String> errors = new ArrayList<>();
         passwordValidator.validate(changePasswordForm, errors);
+        logger.debug("Change password form passed validation checks");
+        User user = userRepository.findByEmail(changePasswordForm.getEmail()).orElseThrow(
+                () -> new NoEntityFoundException("user", "email", changePasswordForm.getEmail()));
+        logger.debug("Found user id by email: " + changePasswordForm.getEmail());
+        if (!encoderService.matches(changePasswordForm.getAnswer1(), user.getSecurityAnswer1())) {
+            errors.add("Answer to security question 1 is incorrect");
+        }
+        if (!encoderService.matches(changePasswordForm.getAnswer2(), user.getSecurityAnswer2())) {
+            errors.add("Answer to security question 2 is incorrect");
+        }
+        if (encoderService.matches(
+                UtilMethods.removeWhitespace(changePasswordForm.getPassword()), user.getPassword())) {
+            errors.add("New password cannot match old password");
+        }
         if (!errors.isEmpty()) {
             throw new InvalidArgsException(errors);
         }
-        logger.debug("Change password form passed validation checks");
-        Long userId = userService.findIdByEmail(changePasswordForm.getEmail()).orElseThrow(
-                () -> new NoEntityFoundException("user", "email", changePasswordForm.getEmail()));
-        logger.debug("Found user id by email: " + changePasswordForm.getEmail());
-        String encryptedPassword = encoderService.encode(changePasswordForm.getPassword());
-        LocalDateTime creationDateTime = LocalDateTime.now();
-        LocalDateTime expirationDateTime = creationDateTime.plusMinutes(EXPIRATION_MINUTES);
         ChangePassword changePassword = new ChangePassword();
-        changePassword.setPassword(encryptedPassword);
-        changePassword.setUserId(userId);
+        String encodedPassword = encoderService.encode(changePasswordForm.getPassword());
+        changePassword.setPassword(encodedPassword);
+        changePassword.setUserId(user.getId());
+        LocalDateTime creationDateTime = LocalDateTime.now();
         changePassword.setCreationDateTime(creationDateTime);
+        LocalDateTime expirationDateTime = creationDateTime.plusMinutes(EXPIRATION_MINUTES);
         changePassword.setExpirationDateTime(expirationDateTime);
         String token;
         int tokenInstantiationAttempts = 0;
@@ -111,14 +133,14 @@ public class ChangePasswordServiceImpl extends AbstractServiceImpl<ChangePasswor
                 () -> new NoEntityFoundException("change password request", "token", token));
         logger.debug("Found change password by token: " + changePassword);
         if (changePassword.getExpirationDateTime().isBefore(LocalDateTime.now())) {
-            throw new ExpirationException("The token you have request has already expired");
+            throw new ExpirationException("The request for password change has already expired");
         }
-        User user = userService.findById(changePassword.getUserId()).orElseThrow(
+        User user = userRepository.findById(changePassword.getUserId()).orElseThrow(
                 () -> new NoEntityFoundException("user", "id", changePassword.getUserId()));
         logger.debug("Found user by id: " + user);
         logger.debug("Changing user password from " + user.getPassword() + " to " + changePassword.getPassword());
         user.setPassword(changePassword.getPassword());
-        userService.save(user);
+        userRepository.save(user);
         repository.deleteAllByUserId(user.getId());
         sendConfirmationEmail(user.getEmail());
         logger.debug("Deleted all change password requests associated with user id: " + user.getId());
@@ -136,8 +158,8 @@ public class ChangePasswordServiceImpl extends AbstractServiceImpl<ChangePasswor
         String emailBody = "A request has been made to change your password.\n" +
                 "If you would like to confirm this request, then click the link below:\n" +
                 "https//:localhost:8080/change-password-confirm/" + token + "\n\n" +
-                "This request was made at " + creationDateTime.toString() + "\n" +
-                "and expires at " + expirationDateTime.toString();
+                "This request was made at " + UtilMethods.localDateTimeFormatted(creationDateTime) + "\n" +
+                "and expires at " + UtilMethods.localDateTimeFormatted(expirationDateTime);
         emailService.sendFromBusinessEmail(email, emailBody, "Change Password Request");
     }
 

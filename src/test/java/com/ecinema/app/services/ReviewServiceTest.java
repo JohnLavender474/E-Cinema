@@ -102,6 +102,12 @@ class ReviewServiceTest {
         customerAuthority.getReviews().add(review);
         review.setMovie(movie);
         movie.getReviews().add(review);
+        CustomerAuthority reporter1 = new CustomerAuthority();
+        customerAuthorityService.save(reporter1);
+
+        CustomerAuthority reporter2 = new CustomerAuthority();
+        customerAuthorityService.save(reporter2);
+
         given(reviewRepository.findById(1L))
                 .willReturn(Optional.of(review));
         reviewService.save(review);

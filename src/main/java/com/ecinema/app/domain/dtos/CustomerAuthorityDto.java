@@ -7,8 +7,7 @@ import lombok.ToString;
 @Getter
 @Setter
 @ToString
-public class CustomerAuthorityDto implements AbstractDto {
-    private Long id;
-    private Long userId;
-    private Boolean isCensored;
+public class CustomerAuthorityDto extends UserAuthorityDto {
+    private Long censorId = 0L;
+    private Boolean isCensored = false;
 }

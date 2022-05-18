@@ -19,11 +19,23 @@ import java.util.List;
 public interface ReviewService extends AbstractService<Review>, EntityDtoConverter<Review, ReviewDto> {
 
     /**
+     * Report review.
+     *
+     * @param customerId the customer id
+     * @param reviewId   the review id
+     * @throws NoEntityFoundException the no entity found exception
+     * @throws ClashException         the clash exception
+     */
+    void reportReview(Long customerId, Long reviewId)
+        throws NoEntityFoundException, ClashException;
+
+    /**
      * Exists by user id and movie id boolean.
      *
      * @param userId  the user id
      * @param movieId the movie id
      * @return the boolean
+     * @throws NoEntityFoundException the no entity found exception
      */
     boolean existsByUserIdAndMovieId(Long userId, Long movieId)
             throws NoEntityFoundException;

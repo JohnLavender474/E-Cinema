@@ -132,7 +132,7 @@ class AdminAuthorityServiceTest {
         // when
         AdminAuthorityDto adminAuthorityDto = adminAuthorityService.convertIdToDto(1L);
         // then
-        assertEquals(adminAuthority.getId(), adminAuthorityDto.getId());
+        assertEquals(adminAuthority.getId(), adminAuthorityDto.getAuthorityId());
     }
 
 }

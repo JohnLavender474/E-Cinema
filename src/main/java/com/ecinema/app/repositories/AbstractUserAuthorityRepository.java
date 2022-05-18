@@ -23,7 +23,7 @@ public interface AbstractUserAuthorityRepository<T extends AbstractUserAuthority
      * @param user the user
      * @return the optional
      */
-    @Query("SELECT u FROM AbstractUserAuthority u WHERE u.user = ?1")
+    @Query("SELECT u FROM #{#entityName} u WHERE u.user = ?1")
     Optional<T> findByUser(User user);
 
     /**
@@ -32,7 +32,7 @@ public interface AbstractUserAuthorityRepository<T extends AbstractUserAuthority
      * @param userId the user id
      * @return the optional
      */
-    @Query("SELECT u FROM AbstractUserAuthority u WHERE u.user.id = ?1")
+    @Query("SELECT u FROM #{#entityName} u WHERE u.user.id = ?1")
     Optional<T> findByUserWithId(Long userId);
 
     /**
@@ -41,7 +41,7 @@ public interface AbstractUserAuthorityRepository<T extends AbstractUserAuthority
      * @param user the user
      * @return the optional
      */
-    @Query("SELECT u.id FROM AbstractUserAuthority u WHERE u.user = ?1")
+    @Query("SELECT u.id FROM #{#entityName} u WHERE u.user = ?1")
     Optional<Long> findIdByUser(User user);
 
     /**
@@ -50,7 +50,7 @@ public interface AbstractUserAuthorityRepository<T extends AbstractUserAuthority
      * @param userId the user id
      * @return the optional
      */
-    @Query("SELECT u.id FROM AbstractUserAuthority u WHERE u.user.id = ?1")
+    @Query("SELECT u.id FROM #{#entityName} u WHERE u.user.id = ?1")
     Optional<Long> findIdByUserWithId(Long userId);
 
 }

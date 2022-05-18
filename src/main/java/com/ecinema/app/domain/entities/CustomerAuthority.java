@@ -37,6 +37,10 @@ public class CustomerAuthority extends AbstractUserAuthority {
     @OneToMany(mappedBy = "couponOwner", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private Set<Coupon> coupons = new HashSet<>();
 
+    @ManyToMany
+    @ToString.Exclude
+    private Set<Review> reportedReviews = new HashSet<>();
+
     @JoinColumn
     @ToString.Exclude
     @ManyToOne(fetch = FetchType.LAZY)

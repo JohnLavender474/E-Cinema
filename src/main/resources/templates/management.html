@@ -3,50 +3,51 @@
 <head th:insert="fragments/header :: header"></head>
 <body>
 <nav th:insert="fragments/webpage-top :: webpage-top"></nav>
-<div th:if="${moderator == true}">
-    <h1 class="bold-white-text">Moderator Management</h1>
-    <table class="table table-bordered table-striped">
-        <tbody>
-        <tr>
-            <td>Moderator Management:</td>
-            <td><a class="btn btn-primary" th:href="@{/censor-reviews-comments}">
-                Censor/Uncensor Reviews and Comments</a></td>
-            <td><a class="btn btn-primary" th:href="@{/censor-customers}">
-                Censor/Uncensor Accounts</a></td>
-        </tr>
-        </tbody>
-    </table>
-</div>
-<div th:if="${admin == true}">
-    <h1 class="bold-white-text">Admin Management</h1>
-    <table class="table table-bordered table-striped">
-        <tbody>
-        <tr>
-            <td>Manage Movies:</td>
-            <td><a class="btn btn-primary" th:href="@{/add-movie}">Add New Movie</a></td>
-            <td><a class="btn btn-primary" th:href="@{/edit-movie-search}">Edit Movie</a></td>
-            <td><a class="btn btn-primary" th:href="@{/delete-movie-search}">Delete Movie</a></td>
-        </tr>
-        <tr>
-            <td>Manage Showrooms:</td>
-            <td><a class="btn btn-primary" th:href="@{/add-showroom}">Add New Showroom</a></td>
-            <td><a class="btn btn-primary" th:href="@{/edit-showroom}">Edit Showroom</a></td>
-            <td><a class="btn btn-primary" th:href="@{/delete-showroom}">Delete Showroom</a></td>
-        </tr>
-        <tr>
-            <td>Manage Screenings:</td>
-            <td><a class="btn btn-primary" th:href="@{/add-screening-search}">Add New Screening</a></td>
-            <td><a class="btn btn-primary" th:href="@{/edit-screening-search}">Edit Screening</a></td>
-            <td><a class="btn btn-primary" th:href="@{/delete-screening-search}">Delete Screening</a></td>
-        </tr>
-        <tr>
-            <td>Admin Management:</td>
-            <td><a class="btn btn-primary" th:href="@{/manage-users}">Manage Users</a></td>
-            <td><a class="btn btn-primary" th:href="@{/manage-tickets}">Manage Tickets</a></td>
-            <td><a class="btn btn-primary" th:href="@{/manage-reports}">Manage Reports</a></td>
-        </tr>
-        </tbody>
-    </table>
+<div th:insert="fragments/errors :: errors"></div>
+<div class="container">
+    <div th:if="${moderator == true}">
+        <h1 class="bold-white-text center-text">Moderator Management</h1>
+        <table class="table table-bordered table-striped">
+            <tbody>
+            <tr>
+                <td>Manage Censorship:</td>
+                <td><a class="btn btn-primary" th:href="@{/moderator-reports}">Reports of Policy Violation</a></td>
+                <td><a class="btn btn-primary" th:href="@{/moderator-censorship}">Censorship of Customers</a></td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+    <div th:if="${admin == true}">
+        <h1 class="bold-white-text center-text">Admin Management</h1>
+        <table class="table table-bordered table-striped">
+            <tbody>
+            <tr>
+                <td>Manage Movies:</td>
+                <td><a class="btn btn-primary" th:href="@{/add-movie}">Add New Movie</a></td>
+                <td><a class="btn btn-primary" th:href="@{/edit-movie-search}">Edit Movie</a></td>
+                <td><a class="btn btn-primary" th:href="@{/delete-movie-search}">Delete Movie</a></td>
+            </tr>
+            <tr>
+                <td>Manage Showrooms:</td>
+                <td><a class="btn btn-primary" th:href="@{/add-showroom}">Add New Showroom</a></td>
+                <td><a class="btn btn-primary" th:href="@{/edit-showroom}">Edit Showroom</a></td>
+                <td><a class="btn btn-primary" th:href="@{/delete-showroom}">Delete Showroom</a></td>
+            </tr>
+            <tr>
+                <td>Manage Screenings:</td>
+                <td><a class="btn btn-primary" th:href="@{/add-screening-search}">Add New Screening</a></td>
+                <td><a class="btn btn-primary" th:href="@{/edit-screening-search}">Edit Screening</a></td>
+                <td><a class="btn btn-primary" th:href="@{/delete-screening-search}">Delete Screening</a></td>
+            </tr>
+            <tr>
+                <td>Admin Management:</td>
+                <td><a class="btn btn-primary" th:href="@{/manage-users}">Manage Users</a></td>
+                <td><a class="btn btn-primary" th:href="@{/manage-tickets}">Manage Tickets</a></td>
+                <td><a class="btn btn-primary" th:href="@{/manage-reports}">Manage Reports</a></td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
 </div>
 </body>
 </html>

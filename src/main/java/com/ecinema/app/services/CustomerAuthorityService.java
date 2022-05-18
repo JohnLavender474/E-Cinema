@@ -7,6 +7,10 @@ import com.ecinema.app.domain.entities.PaymentCard;
 import com.ecinema.app.domain.entities.Review;
 import com.ecinema.app.domain.entities.Ticket;
 import com.ecinema.app.exceptions.NoEntityFoundException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+
+import java.util.List;
 
 /**
  * The interface Customer role def service.
@@ -73,5 +77,28 @@ public interface CustomerAuthorityService extends AbstractUserAuthorityService<C
      */
     CustomerAuthorityDto findByReviewsContainsWithId(Long reviewId)
             throws NoEntityFoundException;
+
+    /**
+     * Find all by is censored list.
+     *
+     * @param isCensored the is censored
+     * @return the list
+     */
+    List<CustomerAuthorityDto> findAllByIsCensored(boolean isCensored);
+
+    /**
+     * Find all dtos list.
+     *
+     * @return the list
+     */
+    List<CustomerAuthorityDto> findAllDtos();
+
+    /**
+     * Find all dtos page.
+     *
+     * @param pageable the pageable
+     * @return the page
+     */
+    Page<CustomerAuthorityDto> findAllDtos(Pageable pageable);
 
 }

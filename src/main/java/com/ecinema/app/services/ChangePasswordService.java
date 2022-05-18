@@ -13,15 +13,33 @@ import com.ecinema.app.exceptions.NoEntityFoundException;
 public interface ChangePasswordService extends AbstractService<ChangePassword> {
 
     /**
+     * Gets change password form.
+     *
+     * @param email the email
+     * @return the change password form
+     * @throws NoEntityFoundException the no entity found exception
+     */
+    ChangePasswordForm getChangePasswordForm(String email)
+            throws NoEntityFoundException;
+
+    /**
      * Submit change password form.
      *
      * @param changePasswordForm the change password form
      * @throws NoEntityFoundException the no entity found exception
      * @throws InvalidArgsException   the invalid args exception
+     * @throws EmailException         the email exception
      */
     void submitChangePasswordForm(ChangePasswordForm changePasswordForm)
             throws NoEntityFoundException, InvalidArgsException, EmailException;
 
+    /**
+     * Confirm change password.
+     *
+     * @param token the token
+     * @throws NoEntityFoundException the no entity found exception
+     * @throws ExpirationException    the expiration exception
+     */
     void confirmChangePassword(String token)
             throws NoEntityFoundException, ExpirationException;
 

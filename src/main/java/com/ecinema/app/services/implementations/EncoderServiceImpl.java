@@ -27,27 +27,16 @@ public class EncoderServiceImpl implements EncoderService {
 
     @Override
     public String encode(String s) {
-        logger.debug(UtilMethods.getDelimiterLine());
         logger.debug("Encoder Service: encode s");
         logger.debug("First 3 chars of s before encryption: " + s.subSequence(0, 3));
-        String encoded = passwordEncoder.encode(s);
+        String encoded = passwordEncoder.encode(UtilMethods.removeWhitespace(s));
         logger.debug("First 3 chars of encrypted s: " + encoded.subSequence(0, 3));
         return encoded;
     }
 
     @Override
-    public String removeWhiteSpace_SetToAllUpperCase_AndThenEncode(String s) {
-        logger.debug(UtilMethods.getDelimiterLine());
-        logger.debug("Encoder Service: remove white space, set to all upper case, and then encode s");
-        logger.debug("First 3 chars of s before formatted: " + s.subSequence(0, 3));
-        String formatted = UtilMethods.removeWhitespace(s).toUpperCase();
-        logger.debug("First 3 chars of s after formatted: " + formatted.subSequence(0, 3));
-        return encode(formatted);
-    }
-
-    @Override
     public boolean matches(String raw, String encoded) {
-        return passwordEncoder.matches(raw, encoded);
+        return passwordEncoder.matches(UtilMethods.removeWhitespace(raw), encoded);
     }
 
 }

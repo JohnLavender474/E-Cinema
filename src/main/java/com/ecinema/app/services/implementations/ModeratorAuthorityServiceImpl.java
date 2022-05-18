@@ -1,5 +1,6 @@
 package com.ecinema.app.services.implementations;
 
+import com.ecinema.app.domain.dtos.CustomerAuthorityDto;
 import com.ecinema.app.domain.entities.CustomerAuthority;
 import com.ecinema.app.domain.entities.ModeratorAuthority;
 import com.ecinema.app.exceptions.ClashException;
@@ -8,19 +9,33 @@ import com.ecinema.app.repositories.ModeratorAuthorityRepository;
 import com.ecinema.app.services.CustomerAuthorityService;
 import com.ecinema.app.services.ModeratorAuthorityService;
 import com.ecinema.app.utils.UtilMethods;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.List;
+import java.util.Set;
 
+/**
+ * The type Moderator authority service.
+ */
 @Service
 @Transactional
 public class ModeratorAuthorityServiceImpl extends AbstractUserAuthorityServiceImpl<ModeratorAuthority,
         ModeratorAuthorityRepository> implements ModeratorAuthorityService {
 
     private final CustomerAuthorityService customerAuthorityService;
+    private final Logger logger = LoggerFactory.getLogger(ModeratorAuthorityService.class);
 
+    /**
+     * Instantiates a new Moderator authority service.
+     *
+     * @param repository               the repository
+     * @param customerAuthorityService the customer authority service
+     */
     public ModeratorAuthorityServiceImpl(ModeratorAuthorityRepository repository,
                                          CustomerAuthorityService customerAuthorityService) {
         super(repository);
@@ -32,10 +47,12 @@ public class ModeratorAuthorityServiceImpl extends AbstractUserAuthorityServiceI
         // detach User
         super.onDelete(AbstractUserAuthority);
         // uncensor and detach censored Customers
-        Iterator<CustomerAuthority> customerRoleDefIterator = AbstractUserAuthority.getCensoredCustomers().iterator();
+        logger.debug("Detach moderator from customers censored by moderator");
+        Iterator<CustomerAuthority> customerRoleDefIterator =
+                AbstractUserAuthority.getCensoredCustomers().iterator();
         while (customerRoleDefIterator.hasNext()) {
             CustomerAuthority customerAuthority = customerRoleDefIterator.next();
-            logger.debug("Detaching customer role def: " + customerAuthority);
+            logger.debug("Detaching: " + customerAuthority);
             customerAuthority.setCensoredBy(null);
             customerRoleDefIterator.remove();
         }
@@ -58,25 +75,33 @@ public class ModeratorAuthorityServiceImpl extends AbstractUserAuthorityServiceI
     }
 
     @Override
-    public void censorCustomerWithId(Long moderatorRoleDefId, Long customerRoleDefId)
+    public void setCustomerCensoredStatus(Long moderatorRoleDefId, Long customerRoleDefId, boolean censor)
             throws NoEntityFoundException, ClashException {
         logger.debug(UtilMethods.getDelimiterLine());
-        logger.debug("Moderator with id: " + moderatorRoleDefId);
-        logger.debug("Censoring customer with id: " + customerRoleDefId);
+        logger.debug("Set customer censored status");
         ModeratorAuthority moderatorAuthority = findById(moderatorRoleDefId).orElseThrow(
-                () -> new NoEntityFoundException(
-                        "moderator role def", "id", moderatorRoleDefId));
+                () -> new NoEntityFoundException("moderator", "id", moderatorRoleDefId));
+        logger.debug("Found moderator by id: " + moderatorAuthority);
         CustomerAuthority customerAuthority = customerAuthorityService.findById(customerRoleDefId)
-                                                                      .orElseThrow(() -> new NoEntityFoundException(
-                        "customer role def", "id", customerRoleDefId));
-        if (customerAuthority.getCensoredBy() != null) {
-            throw new ClashException("This customer has already been censored, action cannot be duplicated");
-        }
-        customerAuthority.setCensoredBy(moderatorAuthority);
-        moderatorAuthority.getCensoredCustomers().add(customerAuthority);
-        logger.debug("Customer role def is now censored: " + customerAuthority);
-        logger.debug("Moderator role def: " + moderatorAuthority);
-        save(moderatorAuthority);
+                .orElseThrow(() -> new NoEntityFoundException("customer", "id", customerRoleDefId));
+        logger.debug("Found customer by id: " + customerAuthority);
+        logger.debug("Setting censored status to " + censor);
+        customerAuthority.setCensoredBy(censor ? moderatorAuthority : null);
+        logger.debug("Saved customer: " + customerAuthority);
+        customerAuthorityService.save(customerAuthority);
+    }
+
+    @Override
+    public List<CustomerAuthorityDto> censoredCustomerDtosOfUserWithId(Long userId)
+            throws NoEntityFoundException {
+        logger.debug(UtilMethods.getDelimiterLine());
+        logger.debug("Find censored customer dtos of user with id " + userId);
+        ModeratorAuthority moderatorAuthority = findByUserWithId(userId).orElseThrow(
+                () -> new NoEntityFoundException("moderator", "user id", userId));
+        logger.debug("Found moderator by id: " + moderatorAuthority);
+        Set<CustomerAuthority> censoredCustomers = moderatorAuthority.getCensoredCustomers();
+        logger.debug("Found censored customers: " + censoredCustomers);
+        return customerAuthorityService.convertToDto(censoredCustomers);
     }
 
 }

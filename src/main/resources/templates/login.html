@@ -9,7 +9,7 @@
         <table>
             <tbody>
             <tr>
-                <td><label for="username">Username:</label></td>
+                <td><label for="username">Email/Username:</label></td>
                 <td><input type="text" id="username" name="username" autofocus="autofocus" required/></td>
             </tr>
             <tr>
@@ -25,7 +25,7 @@
     </label>
     <br/>
     <label>
-        <button class="btn btn-primary"><a th:href="@{/forgot-password}">Forgot Password</a></button>
+        <button class="btn btn-primary"><a th:href="@{/get-email-for-change-password}">Forgot Password</a></button>
     </label>
     <span class="text" th:if="${error} != null" th:text="${error}"></span>
 </div>

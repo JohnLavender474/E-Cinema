@@ -157,11 +157,11 @@ public class UserServiceImpl extends AbstractServiceImpl<User, UserRepository> i
         user.setBirthDate(registration.getBirthDate());
         user.setSecurityQuestion1(registration.getSecurityQuestion1());
         user.setSecurityAnswer1(securityAnswer1Encoded ? registration.getSecurityAnswer1() :
-                                        encoderService.removeWhiteSpace_SetToAllUpperCase_AndThenEncode(
+                                        encoderService.encode(
                                                 registration.getSecurityAnswer1()));
         user.setSecurityQuestion2(registration.getSecurityQuestion2());
         user.setSecurityAnswer2(securityAnswer2Encoded ? registration.getSecurityAnswer2() :
-                                        encoderService.removeWhiteSpace_SetToAllUpperCase_AndThenEncode(
+                                        encoderService.encode(
                                                 registration.getSecurityAnswer2()));
         user.setCreationDateTime(LocalDateTime.now());
         user.setLastActivityDateTime(LocalDateTime.now());

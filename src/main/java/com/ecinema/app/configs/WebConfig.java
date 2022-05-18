@@ -1,7 +1,8 @@
 package com.ecinema.app.configs;
 
+import com.ecinema.app.configs.interceptors.DropdownMenuInterceptor;
 import com.ecinema.app.configs.interceptors.UserActivityInterceptor;
-import com.ecinema.app.configs.interceptors.ViewInterceptor;
+import com.ecinema.app.configs.interceptors.UserDtoInterceptor;
 import com.ecinema.app.services.SecurityService;
 import com.ecinema.app.services.UserService;
 import lombok.RequiredArgsConstructor;
@@ -38,7 +39,6 @@ public class WebConfig implements WebMvcConfigurer {
         registry.addViewController("/index").setViewName("index");
         registry.addViewController("/login-success").setViewName("login-success");
         registry.addViewController("/logout-success").setViewName("logout-success");
-        registry.addViewController("/manage-user-accounts").setViewName("manage-user-accounts");
         registry.addViewController("/message-page").setViewName("message-page");
     }
 
@@ -49,9 +49,9 @@ public class WebConfig implements WebMvcConfigurer {
 
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
-        registry.addInterceptor(new ViewInterceptor(securityService));
-        registry.addInterceptor(new UserActivityInterceptor(
-                userService, securityService));
+        registry.addInterceptor(new DropdownMenuInterceptor(securityService));
+        registry.addInterceptor(new UserDtoInterceptor(securityService));
+        registry.addInterceptor(new UserActivityInterceptor(userService, securityService));
     }
 
 }

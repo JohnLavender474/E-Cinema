@@ -20,24 +20,26 @@ import java.util.List;
  * The type View interceptor.
  */
 @RequiredArgsConstructor
-public class ViewInterceptor implements HandlerInterceptor {
+public class DropdownMenuInterceptor implements HandlerInterceptor {
 
     private final SecurityService securityService;
-    private final Logger logger = LoggerFactory.getLogger(ViewInterceptor.class);
+    private final Logger logger = LoggerFactory.getLogger(DropdownMenuInterceptor.class);
 
     @Override
     public void postHandle(HttpServletRequest request, HttpServletResponse response,
                            Object handler, ModelAndView modelAndView) {
         if (modelAndView != null) {
-            addAccountDropdownMenu(modelAndView);
+            addDropdownMenu(modelAndView);
         }
     }
 
-    private void addAccountDropdownMenu(final ModelAndView modelAndView) {
+    private void addDropdownMenu(final ModelAndView modelAndView) {
         List<Pair<String, String>> dropdownMenu = new ArrayList<>();
         UserDto userDto = securityService.findLoggedInUserDTO();
         if (userDto == null) {
             dropdownMenu.add(new Pair<>("Login", "/login"));
+            dropdownMenu.add(new Pair<>("Register", "/submit-registration"));
+            dropdownMenu.add(new Pair<>("Forgot Password", "/change-password"));
         } else {
             if (userDto.getUserAuthorities().contains(UserAuthority.CUSTOMER)) {
                 dropdownMenu.add(new Pair<>("Profile", "/profile"));

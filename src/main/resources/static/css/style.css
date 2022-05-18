@@ -3,6 +3,10 @@ body {
     background-color: black;
 }
 
+.line-breaks {
+    white-space: pre-wrap;
+}
+
 .table {
     align-content: center;
     align-self: center;
@@ -12,13 +16,25 @@ body {
     float: none;
 }
 
+.bold-text {
+    font-weight: bold;
+}
+
+.white-text {
+    color: white;
+}
+
+.center-text {
+    text-align: center;
+}
+
 .bold-white-text {
     font-weight: bold;
     color: white;
 }
 
 .highlight {
-    background:red;
+    background: red;
 }
 
 td, tr {
@@ -48,10 +64,6 @@ table.table-hover td:hover {
 .moviesContainer .table-bordered {
     border-color: red;
     text-align: left;
-}
-
-table .boldtext {
-    font-weight: bold;
 }
 
 .logo {

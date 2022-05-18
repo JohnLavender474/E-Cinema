@@ -14,14 +14,6 @@ public interface EncoderService {
     String encode(String s);
 
     /**
-     * Remove white space set to all upper case and then encode string.
-     *
-     * @param s the s
-     * @return the string
-     */
-    String removeWhiteSpace_SetToAllUpperCase_AndThenEncode(String s);
-
-    /**
      * Matches boolean.
      *
      * @param raw     the raw

@@ -66,7 +66,7 @@ public class RegistrationController {
         try {
             registrationService.submitRegistrationForm(registrationForm);
             redirectAttributes.addFlashAttribute(
-                    "message", "Registration request has been processed. Please see " +
+                    "message", "Registration request has been processed. \n Please see " +
                             "the email sent to your email address with a link to confirm your registration.");
             logger.debug("Successfully submitted registration form");
             return "redirect:/message-page";
@@ -95,8 +95,9 @@ public class RegistrationController {
             }
             registrationService.confirmRegistrationRequest(token);
             logger.debug("Successfully confirmed registration token");
-            model.addAttribute("message",
-                               "Successfully confirmed registration! You may now login.");
+            model.addAttribute(
+                    "message", "Successfully confirmed registration! " +
+                            "You may now login.");
             return "message-page";
         } catch (NoEntityFoundException | BadRuntimeVarException e) {
             model.addAttribute("errors", e.getErrors());

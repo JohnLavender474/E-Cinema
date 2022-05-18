@@ -683,8 +683,7 @@ public class InitializationConfig {
     private void definePaymentCards() {
         paymentCardService.deleteAll();
         UserDto customer = userService.findByUsername("Customer123");
-        Long customerRoleDefId = customerAuthorityService.findIdByUserWithId(customer.getId())
-                                                         .orElseThrow(IllegalStateException::new);
+        Long customerRoleDefId = customerAuthorityService.findIdByUserWithId(customer.getId());
         // Paymentcard 1
         PaymentCardForm paymentCardForm1 = new PaymentCardForm();
         paymentCardForm1.setCustomerRoleDefId(customerRoleDefId);

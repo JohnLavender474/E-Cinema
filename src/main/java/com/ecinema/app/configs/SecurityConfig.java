@@ -24,17 +24,20 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
             "/change-password-confirm/**",
             "/confirm-registration/**",
             "/error/**",
+            "/get-email-for-change-password/**",
             "/index/**",
             "/login/**",
             "/login-error/**",
+            "/post-email/**",
             "/message-page/**",
             "/movie-info/**",
             "/movie-reviews/**",
             "/movie-screenings/**",
             "/movies/**",
+            "/perform-login/**",
+            "/post-email/**",
             "/submit-registration/**",
-            "/screening/**",
-            "/perform-login/**"
+            "/screening/**"
     };
     private static final String[] AUTHENTICATED_PERMITTED = new String[]{
             "/logout/**",
