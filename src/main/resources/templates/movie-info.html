@@ -3,7 +3,10 @@
 <head th:insert="fragments/header :: header"></head>
 <body>
 <nav th:insert="fragments/webpage-top :: webpage-top"></nav>
-<div class="moviesContainer">
+<div class="container">
+    <form method="get" th:action="@{/movies}">
+        <button class="btn btn-primary">Go Back to Movies page</button>
+    </form>
     <div class="row">
         <h1 th:text="${movie.title}"></h1>
     </div>

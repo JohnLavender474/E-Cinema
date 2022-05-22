@@ -56,7 +56,7 @@ public class ModelAttributesInterceptor implements HandlerInterceptor {
         if (userId == null) {
             dropdownMenu.add(new Pair<>("Login", "/login"));
             dropdownMenu.add(new Pair<>("Register", "/submit-registration"));
-            dropdownMenu.add(new Pair<>("Forgot Password", "/change-password"));
+            dropdownMenu.add(new Pair<>("Forgot Password", "/get-email-for-change-password"));
         } else {
             UserDto userDto = userService.findById(userId);
             logger.debug("User DTO: " + userDto);
