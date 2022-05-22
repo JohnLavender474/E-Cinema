@@ -2,7 +2,7 @@ package com.ecinema.app.repositories;
 
 import com.ecinema.app.domain.entities.*;
 import com.ecinema.app.domain.enums.Letter;
-import com.ecinema.app.utils.UtilMethods;
+import com.ecinema.app.util.UtilMethods;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;

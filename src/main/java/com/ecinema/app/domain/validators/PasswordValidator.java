@@ -1,7 +1,7 @@
 package com.ecinema.app.domain.validators;
 
 import com.ecinema.app.domain.contracts.IPassword;
-import com.ecinema.app.utils.UtilMethods;
+import com.ecinema.app.util.UtilMethods;
 import org.springframework.stereotype.Component;
 
 import java.util.Collection;
@@ -9,9 +9,6 @@ import java.util.Collection;
 import static com.ecinema.app.domain.validators.criteria.PasswordCriteria.MIN_LENGTH;
 import static com.ecinema.app.domain.validators.criteria.PasswordCriteria.MIN_SPECIAL_CHARS;
 
-/**
- * The type Password validator.
- */
 @Component
 public class PasswordValidator implements AbstractValidator<IPassword> {
 
@@ -25,7 +22,7 @@ public class PasswordValidator implements AbstractValidator<IPassword> {
                                " non-alphanumeric chars (!, ?, &, etc.");
         }
         if (!iPassword.getPassword().equals(iPassword.getConfirmPassword())) {
-            errors.add("Password must match confirm password");
+            errors.add("Password must equal password confirmation");
         }
     }
 

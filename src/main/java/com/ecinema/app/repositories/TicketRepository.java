@@ -1,9 +1,7 @@
 package com.ecinema.app.repositories;
 
-import com.ecinema.app.domain.entities.CustomerAuthority;
-import com.ecinema.app.domain.entities.Screening;
-import com.ecinema.app.domain.entities.ScreeningSeat;
-import com.ecinema.app.domain.entities.Ticket;
+import com.ecinema.app.domain.entities.*;
+import com.ecinema.app.domain.enums.Letter;
 import com.ecinema.app.domain.enums.TicketStatus;
 import com.ecinema.app.domain.enums.TicketType;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -18,7 +16,7 @@ import java.util.Optional;
  * The interface Ticket repository.
  */
 @Repository
-public interface TicketRepository extends JpaRepository<Ticket, Long>, AbstractRepository {
+public interface TicketRepository extends JpaRepository<Ticket, Long> {
 
     /**
      * Find all by screening list.
@@ -90,10 +88,10 @@ public interface TicketRepository extends JpaRepository<Ticket, Long>, AbstractR
     /**
      * Find all by customer role def list.
      *
-     * @param customerAuthority the customer role def
+     * @param customer the customer role def
      * @return the list
      */
-    List<Ticket> findAllByTicketOwner(CustomerAuthority customerAuthority);
+    List<Ticket> findAllByTicketOwner(Customer customer);
 
     /**
      * Find all by customer role def with id list.
@@ -103,5 +101,23 @@ public interface TicketRepository extends JpaRepository<Ticket, Long>, AbstractR
      */
     @Query("SELECT t FROM Ticket t WHERE t.ticketOwner.id = ?1")
     List<Ticket> findAllByTicketOwnerWithId(Long customerRoleDefId);
+
+    @Query("SELECT t.ticketOwner.user.username FROM Ticket t WHERE t.id = ?1")
+    Optional<String> findUsernameOfTicketUserOwner(Long ticketId);
+
+    @Query("SELECT t.screeningSeat.screening.movie.title FROM Ticket t WHERE t.id = ?1")
+    Optional<String> findMovieTitleAssociatedWithTicket(Long ticketId);
+
+    @Query("SELECT t.screeningSeat.screening.showroom.showroomLetter FROM Ticket t WHERE t.id = ?1")
+    Optional<Letter> findShowroomLetterAssociatedWithTicket(Long ticketId);
+
+    @Query("SELECT t.screeningSeat.screening.showDateTime FROM Ticket t WHERE t.id = ?1")
+    Optional<LocalDateTime> findShowtimeOfScreeningAssociatedWithTicket(Long ticketId);
+
+    @Query("SELECT t.screeningSeat.screening.endDateTime FROM Ticket t WHERE t.id = ?1")
+    Optional<LocalDateTime> findEndtimeOfScreeningAssociatedWithTicket(Long ticketId);
+
+    @Query("SELECT t.screeningSeat.showroomSeat FROM Ticket t WHERE t.id = ?1")
+    Optional<ShowroomSeat> findShowroomSeatAssociatedWithTicket(Long ticketId);
 
 }

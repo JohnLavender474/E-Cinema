@@ -1,5 +1,6 @@
 package com.ecinema.app.controllers;
 
+import com.ecinema.app.beans.SecurityContext;
 import com.ecinema.app.domain.dtos.UserDto;
 import com.ecinema.app.domain.forms.ChangePasswordForm;
 import com.ecinema.app.exceptions.EmailException;
@@ -7,9 +8,8 @@ import com.ecinema.app.exceptions.ExpirationException;
 import com.ecinema.app.exceptions.InvalidArgsException;
 import com.ecinema.app.exceptions.NoEntityFoundException;
 import com.ecinema.app.services.ChangePasswordService;
-import com.ecinema.app.services.SecurityService;
 import com.ecinema.app.services.UserService;
-import com.ecinema.app.utils.UtilMethods;
+import com.ecinema.app.util.UtilMethods;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,7 +28,7 @@ public class PasswordController {
             + "Your password will not be changed until you click on the token link in the email";
 
     private final UserService userService;
-    private final SecurityService securityService;
+    private final SecurityContext securityContext;
     private final ChangePasswordService changePasswordService;
     private final Logger logger = LoggerFactory.getLogger(PasswordController.class);
 
@@ -36,13 +36,14 @@ public class PasswordController {
     public String showGetEmailChangePassword(final Model model) {
         logger.debug(UtilMethods.getDelimiterLine());
         logger.debug("Get mapping: get email for change password");
-        UserDto userDto = securityService.findLoggedInUserDTO();
-        logger.debug("User DTO: " + userDto);
-        if (userDto != null) {
-            return "redirect:/change-password?email=" + userDto.getEmail();
+        Long userId = securityContext.findIdOfLoggedInUser();
+        if (userId == null) {
+            model.addAttribute("action", "/get-email-for-change-password");
+            return "get-email";
         }
-        model.addAttribute("action", "/get-email-for-change-password");
-        return "get-email";
+        UserDto userDto = userService.findById(userId);
+        logger.debug("User DTO: " + userDto);
+        return "redirect:/change-password?email=" + userDto.getEmail();
     }
 
     @PostMapping("/get-email-for-change-password")

@@ -2,6 +2,7 @@ package com.ecinema.app.domain.entities;
 
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 
 import javax.persistence.*;
 
@@ -10,6 +11,7 @@ import javax.persistence.*;
  */
 @Getter
 @Setter
+@ToString
 @MappedSuperclass
 public abstract class AbstractEntity {
 

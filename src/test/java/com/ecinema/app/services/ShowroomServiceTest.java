@@ -2,40 +2,30 @@ package com.ecinema.app.services;
 
 import com.ecinema.app.domain.dtos.ShowroomDto;
 import com.ecinema.app.domain.entities.*;
-import com.ecinema.app.repositories.*;
-import com.ecinema.app.services.implementations.*;
-import com.ecinema.app.domain.enums.Letter;
 import com.ecinema.app.domain.validators.ScreeningValidator;
 import com.ecinema.app.domain.validators.ShowroomValidator;
+import com.ecinema.app.repositories.*;
+import com.ecinema.app.domain.enums.Letter;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-import java.time.LocalDateTime;
 import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 
-/**
- * The type Showroom service test.
- */
 @ExtendWith(MockitoExtension.class)
 class ShowroomServiceTest {
-
-    private final Logger logger = LoggerFactory.getLogger(ShowroomServiceTest.class);
 
     private ShowroomService showroomService;
     private ShowroomSeatService showroomSeatService;
     private ScreeningService screeningService;
     private ScreeningSeatService screeningSeatService;
     private TicketService ticketService;
-    private MovieService movieService;
     private ShowroomValidator showroomValidator;
     private ScreeningValidator screeningValidator;
     @Mock
@@ -47,37 +37,32 @@ class ShowroomServiceTest {
     @Mock
     private ScreeningSeatRepository screeningSeatRepository;
     @Mock
+    private CustomerRepository customerRepository;
+    @Mock
     private TicketRepository ticketRepository;
     @Mock
     private MovieRepository movieRepository;
+    @Mock
+    private UserRepository userRepository;
 
-    /**
-     * Sets up.
-     */
     @BeforeEach
     void setUp() {
         showroomValidator = new ShowroomValidator();
         screeningValidator = new ScreeningValidator();
-        ticketService = new TicketServiceImpl(
-                ticketRepository, null, null, null);
-        screeningSeatService = new ScreeningSeatServiceImpl(
+        ticketService = new TicketService(ticketRepository);
+        screeningSeatService = new ScreeningSeatService(
                 screeningSeatRepository, ticketService);
-        screeningService = new ScreeningServiceImpl(
+        screeningService = new ScreeningService(
                 screeningRepository, movieRepository,
                 showroomRepository,  screeningSeatService,
                 screeningValidator);
-        showroomSeatService = new ShowroomSeatServiceImpl(
+        showroomSeatService = new ShowroomSeatService(
                 showroomSeatRepository, screeningSeatService);
-        showroomService = new ShowroomServiceImpl(
+        showroomService = new ShowroomService(
                 showroomRepository, showroomSeatService,
                 screeningService, showroomValidator);
-        movieService = new MovieServiceImpl(
-                movieRepository, null, screeningService, null);
     }
 
-    /**
-     * Find by showroom letter.
-     */
     @Test
     void findByShowroomLetter() {
         // given
@@ -99,16 +84,11 @@ class ShowroomServiceTest {
         assertEquals(control, test.get());
     }
 
-    /**
-     * Find by showroom seats contains.
-     */
     @Test
     void findByShowroomSeatsContains() {
         // given
         Showroom showroom = new Showroom();
         showroom.setId(1000L);
-        given(showroomRepository.findById(1000L))
-                .willReturn(Optional.of(showroom));
         List<ShowroomSeat> showroomSeats = new ArrayList<>();
         for (int i = 0; i < 5; i++) {
             Letter rowLetter = Letter.values()[i];
@@ -136,8 +116,6 @@ class ShowroomServiceTest {
         Showroom showroom = new Showroom();
         showroom.setId(1L);
         showroom.setShowroomLetter(Letter.A);
-        given(showroomRepository.findById(1L))
-                .willReturn(Optional.of(showroom));
         showroomService.save(showroom);
         List<ShowroomSeat> showroomSeats = new ArrayList<>();
         for (int i = 0; i < 3; i++) {
@@ -147,8 +125,6 @@ class ShowroomServiceTest {
             showroomSeat.setSeatNumber(i);
             showroomSeat.setShowroom(showroom);
             showroom.getShowroomSeats().add(showroomSeat);
-            given(showroomSeatRepository.findById(3L + i))
-                    .willReturn(Optional.of(showroomSeat));
             showroomSeatService.save(showroomSeat);
             showroomSeats.add(showroomSeat);
         }
@@ -158,8 +134,6 @@ class ShowroomServiceTest {
             screening.setId(6L + i);
             screening.setShowroom(showroom);
             showroom.getScreenings().add(screening);
-            given(screeningRepository.findById(6L + i))
-                    .willReturn(Optional.of(screening));
             screeningService.save(screening);
             screenings.add(screening);
         }
@@ -178,43 +152,6 @@ class ShowroomServiceTest {
         for (Screening screening : screenings) {
             assertNull(screening.getShowroom());
         }
-    }
-
-    @Test
-    void onDeleteInfo() {
-        // given
-        Showroom showroom = new Showroom();
-        showroom.setShowroomLetter(Letter.A);
-        showroomService.save(showroom);
-        Movie movie = new Movie();
-        movie.setTitle("Test");
-        movieService.save(movie);
-        Screening screening = new Screening();
-        screening.setMovie(movie);
-        screening.setShowDateTime(LocalDateTime.now());
-        movie.getScreenings().add(screening);
-        screening.setShowroom(showroom);
-        showroom.getScreenings().add(screening);
-        screeningService.save(screening);
-        for (int i = 1; i <= 3; i++) {
-            ShowroomSeat showroomSeat = new ShowroomSeat();
-            showroomSeat.setRowLetter(Letter.A);
-            showroomSeat.setSeatNumber(i);
-            showroomSeat.setShowroom(showroom);
-            showroom.getShowroomSeats().add(showroomSeat);
-            showroomSeatService.save(showroomSeat);
-            ScreeningSeat screeningSeat = new ScreeningSeat();
-            screeningSeat.setShowroomSeat(showroomSeat);
-            showroomSeat.getScreeningSeats().add(screeningSeat);
-            screeningSeat.setScreening(screening);
-            screening.getScreeningSeats().add(screeningSeat);
-            screeningSeatService.save(screeningSeat);
-        }
-        // when
-        List<String> info = new ArrayList<>();
-        showroomService.onDeleteInfo(showroom, info);
-        // then look at logger
-        info.forEach(logger::debug);
     }
 
 }

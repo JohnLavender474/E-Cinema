@@ -4,13 +4,13 @@ import com.ecinema.app.domain.dtos.ScreeningDto;
 import com.ecinema.app.domain.entities.*;
 import com.ecinema.app.domain.forms.ScreeningForm;
 import com.ecinema.app.repositories.*;
-import com.ecinema.app.services.implementations.*;
-import com.ecinema.app.utils.Duration;
+import com.ecinema.app.domain.objects.Duration;
 import com.ecinema.app.domain.enums.Letter;
 import com.ecinema.app.domain.validators.ScreeningValidator;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.junit.jupiter.MockitoSettings;
@@ -25,6 +25,7 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.verify;
 
 @ExtendWith(MockitoExtension.class)
 class ScreeningServiceTest {
@@ -36,7 +37,6 @@ class ScreeningServiceTest {
     private ShowroomSeatService showroomSeatService;
     private ShowroomService showroomService;
     private ReviewService reviewService;
-    @MockBean
     private ScreeningValidator screeningValidator;
     @Mock
     private ReviewRepository reviewRepository;
@@ -55,22 +55,25 @@ class ScreeningServiceTest {
 
     @BeforeEach
     void setUp() {
-        ticketService = new TicketServiceImpl(
-                ticketRepository, null, null, null);
-        screeningSeatService = new ScreeningSeatServiceImpl(
+        screeningValidator = new ScreeningValidator();
+        ticketService = new TicketService(ticketRepository);
+        screeningSeatService = new ScreeningSeatService(
                 screeningSeatRepository, ticketService);
-        screeningService = new ScreeningServiceImpl(
-                screeningRepository, movieRepository, showroomRepository,
-                screeningSeatService, screeningValidator);
-        showroomSeatService = new ShowroomSeatServiceImpl(
+        screeningService = new ScreeningService(
+                screeningRepository, movieRepository,
+                showroomRepository, screeningSeatService,
+                screeningValidator);
+        showroomSeatService = new ShowroomSeatService(
                 showroomSeatRepository, screeningSeatService);
-        showroomService = new ShowroomServiceImpl(
+        showroomService = new ShowroomService(
                 showroomRepository, showroomSeatService,
                 screeningService, null);
-        reviewService = new ReviewServiceImpl(reviewRepository, movieRepository,
-                                              null, null);
-        movieService = new MovieServiceImpl(movieRepository, reviewService,
-                                            screeningService, null);
+        reviewService = new ReviewService(
+                reviewRepository, movieRepository,
+                null, null);
+        movieService = new MovieService(
+                movieRepository, reviewService,
+                screeningService, null);
     }
 
     @Test
@@ -78,8 +81,6 @@ class ScreeningServiceTest {
         // given
         Screening screening = new Screening();
         screening.setId(1L);
-        given(screeningRepository.findById(1L))
-                .willReturn(Optional.of(screening));
         Movie movie = new Movie();
         movie.getScreenings().add(screening);
         screening.setMovie(movie);
@@ -103,15 +104,11 @@ class ScreeningServiceTest {
         screeningSeat.setShowroomSeat(showroomSeat);
         showroomSeat.getScreeningSeats().add(screeningSeat);
         screening.getScreeningSeats().add(screeningSeat);
-        given(screeningSeatRepository.findById(2L))
-                .willReturn(Optional.of(screeningSeat));
         screeningSeatService.save(screeningSeat);
         Ticket ticket = new Ticket();
         ticket.setId(3L);
         ticket.setScreeningSeat(screeningSeat);
         screeningSeat.setTicket(ticket);
-        given(ticketRepository.findById(3L))
-                .willReturn(Optional.of(ticket));
         ticketService.save(ticket);
         assertEquals(movie, screening.getMovie());
         assertTrue(movie.getScreenings().contains(screening));
@@ -183,7 +180,7 @@ class ScreeningServiceTest {
                 .willReturn(screeningSeat);
         screeningSeatService.save(screeningSeat);
         // when
-        ScreeningDto screeningDto = screeningService.convertIdToDto(screening.getId());
+        ScreeningDto screeningDto = screeningService.convertToDto(screening.getId());
         // then
         assertEquals(screening.getId(), screeningDto.getId());
         assertEquals("test", screeningDto.getMovieTitle());
@@ -194,66 +191,40 @@ class ScreeningServiceTest {
     }
 
     @Test
-    void submitSubmitScreeningForm() {
+    void submitScreeningForm() {
         // given
         Movie movie = new Movie();
         movie.setId(1L);
         movie.setDuration(new Duration(1, 30));
-        given(movieRepository.save(movie))
-                .willReturn(movie);
-        movieService.save(movie);
+        given(movieRepository.findById(1L)).willReturn(Optional.of(movie));
         Showroom showroom = new Showroom();
         showroom.setShowroomLetter(Letter.A);
         showroom.setId(2L);
-        given(showroomRepository.save(showroom))
-                .willReturn(showroom);
-        showroomService.save(showroom);
-        for (int i = 0; i < 5; i++) {
+        given(showroomRepository.findById(2L)).willReturn(Optional.of(showroom));
+        for (int i = 3; i < 6; i++) {
             ShowroomSeat showroomSeat = new ShowroomSeat();
             showroomSeat.setRowLetter(Letter.A);
             showroomSeat.setSeatNumber(i);
             showroomSeat.setShowroom(showroom);
             showroom.getShowroomSeats().add(showroomSeat);
-            given(showroomSeatRepository.save(showroomSeat))
-                    .willReturn(showroomSeat);
-            showroomSeatService.save(showroomSeat);
         }
         // when
         ScreeningForm screeningForm = new ScreeningForm();
         screeningForm.setMovieId(1L);
         screeningForm.setShowroomId(2L);
-        screeningForm.setShowdate(LocalDate.of(2023, Month.JANUARY, 1));
         screeningForm.setShowtimeHour(1);
         screeningForm.setShowtimeMinute(0);
-        LocalDateTime showDateTime = LocalDateTime.of(
-                screeningForm.getShowdate(), LocalTime.of(screeningForm.getShowtimeHour(),
-                                                          screeningForm.getShowtimeMinute()));
-        LocalDateTime endDateTime = showDateTime
-                .plusHours(movie.getDuration().getHours())
-                .plusMinutes(movie.getDuration().getMinutes());
-        Screening screening = new Screening();
-        screening.setId(3L);
-        screening.setShowDateTime(showDateTime);
-        screening.setEndDateTime(endDateTime);
-        screening.setShowroom(showroom);
-        showroom.getScreenings().add(screening);
-        screening.setMovie(movie);
-        movie.getScreenings().add(screening);
-        given(screeningRepository.findById(3L))
-                .willReturn(Optional.of(screening));
-        ScreeningDto screeningDto = screeningService.convertIdToDto(3L);
+        screeningForm.setShowdate(LocalDate.of(2023, Month.JANUARY, 1));
+        screeningService.submitScreeningForm(screeningForm);
         // then
-        assertEquals(movie.getId(), screeningDto.getMovieId());
-        assertEquals(showroom.getId(), screeningDto.getShowroomId());
-        assertEquals(movie.getTitle(), screeningDto.getMovieTitle());
-        assertEquals(showroom.getShowroomLetter(), screeningDto.getShowroomLetter());
-        assertEquals(LocalDateTime.of(2023, Month.JANUARY, 1, 1, 0),
-                     screeningDto.getShowDateTime());
-        assertEquals(LocalDateTime.of(2023, Month.JANUARY, 1, 2, 30),
-                     screeningDto.getEndDateTime());
-        assertEquals(showroom.getShowroomSeats().size(), screeningDto.getSeatsAvailable());
-        assertEquals(screeningDto.getSeatsAvailable(), screeningDto.getTotalSeatsInRoom());
-        assertEquals(0, screeningDto.getSeatsBooked());
+        ArgumentCaptor<Screening> screeningArgumentCaptor = ArgumentCaptor.forClass(Screening.class);
+        verify(screeningRepository).save(screeningArgumentCaptor.capture());
+        Screening screening = screeningArgumentCaptor.getValue();
+        assertEquals(movie, screening.getMovie());
+        assertEquals(showroom, screening.getShowroom());
+        assertTrue(screening.getScreeningSeats().stream().allMatch(
+                screeningSeat -> screeningSeat != null &&
+                        showroom.getShowroomSeats().contains(screeningSeat.getShowroomSeat())));
     }
 
 }

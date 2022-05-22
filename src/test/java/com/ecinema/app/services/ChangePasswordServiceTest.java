@@ -3,12 +3,9 @@ package com.ecinema.app.services;
 import com.ecinema.app.domain.entities.ChangePassword;
 import com.ecinema.app.domain.entities.User;
 import com.ecinema.app.domain.forms.ChangePasswordForm;
+import com.ecinema.app.domain.validators.PasswordValidator;
 import com.ecinema.app.repositories.ChangePasswordRepository;
 import com.ecinema.app.repositories.UserRepository;
-import com.ecinema.app.services.implementations.ChangePasswordServiceImpl;
-import com.ecinema.app.services.implementations.EncoderServiceImpl;
-import com.ecinema.app.services.implementations.UserServiceImpl;
-import com.ecinema.app.domain.validators.PasswordValidator;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -23,9 +20,6 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.BDDMockito.given;
 
-/**
- * The type Change password service test.
- */
 @ExtendWith(MockitoExtension.class)
 class ChangePasswordServiceTest {
 
@@ -41,26 +35,20 @@ class ChangePasswordServiceTest {
     @Mock
     private ChangePasswordRepository changePasswordRepository;
 
-    /**
-     * Sets up.
-     */
     @BeforeEach
     void setUp() {
         passwordValidator = new PasswordValidator();
         passwordEncoder = new BCryptPasswordEncoder();
-        encoderService = new EncoderServiceImpl(passwordEncoder);
-        userService = new UserServiceImpl(
+        encoderService = new EncoderService(passwordEncoder);
+        userService = new UserService(
                 userRepository, null, null,
                 null, encoderService,
-                passwordValidator, null, null);
-        changePasswordService = new ChangePasswordServiceImpl(
+                null, null);
+        changePasswordService = new ChangePasswordService(
                 changePasswordRepository, emailService,
                 encoderService, userRepository, passwordValidator);
     }
 
-    /**
-     * Submit change password form.
-     */
     @Test
     void submitChangePasswordForm() {
         // when
@@ -75,7 +63,7 @@ class ChangePasswordServiceTest {
         user.setSecurityAnswer2(encoderService.encode("Answer2"));
         given(userRepository.findById(1L)).willReturn(Optional.of(user));
         given(userRepository.findByEmail("test@gmail.com")).willReturn(Optional.of(user));
-        userService.save(user);
+        userRepository.save(user);
         ChangePasswordForm changePasswordForm = new ChangePasswordForm();
         changePasswordForm.setEmail("test@gmail.com");
         changePasswordForm.setPassword("new_password123!?");

@@ -1,11 +1,11 @@
 package com.ecinema.app.repositories;
 
-import com.ecinema.app.domain.entities.CustomerAuthority;
+import com.ecinema.app.domain.entities.Customer;
 import com.ecinema.app.domain.entities.Movie;
 import com.ecinema.app.domain.entities.Review;
 import com.ecinema.app.domain.entities.User;
 import com.ecinema.app.domain.enums.UserAuthority;
-import com.ecinema.app.utils.UtilMethods;
+import com.ecinema.app.util.UtilMethods;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,7 +21,7 @@ import static org.junit.jupiter.api.Assertions.*;
 class ReviewRepositoryTest {
 
     @Autowired
-    private CustomerAuthorityRepository customerAuthorityRepository;
+    private CustomerRepository customerRepository;
 
     @Autowired
     private ReviewRepository reviewRepository;
@@ -120,17 +120,17 @@ class ReviewRepositoryTest {
         // given
         User user = new User();
         userRepository.save(user);
-        CustomerAuthority customerAuthority = new CustomerAuthority();
-        customerAuthority.setUser(user);
-        user.getUserAuthorities().put(UserAuthority.CUSTOMER, customerAuthority);
-        customerAuthorityRepository.save(customerAuthority);
+        Customer customer = new Customer();
+        customer.setUser(user);
+        user.getUserAuthorities().put(UserAuthority.CUSTOMER, customer);
+        customerRepository.save(customer);
         Movie movie = new Movie();
         movieRepository.save(movie);
         Review review = new Review();
         review.setMovie(movie);
         movie.getReviews().add(review);
-        review.setWriter(customerAuthority);
-        customerAuthority.getReviews().add(review);
+        review.setWriter(customer);
+        customer.getReviews().add(review);
         reviewRepository.save(review);
         // when
         boolean test = reviewRepository.existsByUserIdAndMovieId(user.getId(), movie.getId());

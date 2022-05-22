@@ -1,9 +1,8 @@
 package com.ecinema.app.configs;
 
-import com.ecinema.app.configs.interceptors.DropdownMenuInterceptor;
+import com.ecinema.app.beans.SecurityContext;
+import com.ecinema.app.configs.interceptors.ModelAttributesInterceptor;
 import com.ecinema.app.configs.interceptors.UserActivityInterceptor;
-import com.ecinema.app.configs.interceptors.UserDtoInterceptor;
-import com.ecinema.app.services.SecurityService;
 import com.ecinema.app.services.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Configuration;
@@ -21,7 +20,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 public class WebConfig implements WebMvcConfigurer {
 
     private final UserService userService;
-    private final SecurityService securityService;
+    private final SecurityContext securityContext;
 
     @Override
     public void addViewControllers(ViewControllerRegistry registry) {
@@ -40,18 +39,21 @@ public class WebConfig implements WebMvcConfigurer {
         registry.addViewController("/login-success").setViewName("login-success");
         registry.addViewController("/logout-success").setViewName("logout-success");
         registry.addViewController("/message-page").setViewName("message-page");
+        registry.addViewController("/test").setViewName("test");
     }
 
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
-        registry.addResourceHandler("/static/**").addResourceLocations("classpath:/static/");
+        registry.addResourceHandler("/static/**")
+                .addResourceLocations("classpath:/static/");
     }
 
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
-        registry.addInterceptor(new DropdownMenuInterceptor(securityService));
-        registry.addInterceptor(new UserDtoInterceptor(securityService));
-        registry.addInterceptor(new UserActivityInterceptor(userService, securityService));
+        registry.addInterceptor(new ModelAttributesInterceptor(
+                userService, securityContext));
+        registry.addInterceptor(new UserActivityInterceptor(
+                userService, securityContext));
     }
 
 }

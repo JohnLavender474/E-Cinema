@@ -1,23 +1,22 @@
 package com.ecinema.app.controllers;
 
+import com.ecinema.app.beans.SecurityContext;
 import com.ecinema.app.configs.InitializationConfig;
 import com.ecinema.app.domain.dtos.UserDto;
 import com.ecinema.app.domain.entities.User;
 import com.ecinema.app.domain.forms.ChangePasswordForm;
 import com.ecinema.app.repositories.UserRepository;
 import com.ecinema.app.services.EncoderService;
-import com.ecinema.app.services.SecurityService;
+import com.ecinema.app.services.LoginService;
 import com.ecinema.app.services.UserService;
 import lombok.RequiredArgsConstructor;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.security.test.context.support.WithAnonymousUser;
-import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
@@ -27,7 +26,6 @@ import java.util.Optional;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasProperty;
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -55,10 +53,13 @@ class PasswordControllerTest {
     private UserRepository userRepository;
 
     @MockBean
-    private SecurityService securityService;
+    private LoginService loginService;
 
     @MockBean
     private InitializationConfig config;
+
+    @MockBean
+    private SecurityContext securityContext;
 
     @BeforeEach
     void setUp() {
@@ -72,7 +73,7 @@ class PasswordControllerTest {
     @Test
     void showGetEmailForChangePassword1()
             throws Exception {
-        given(securityService.findLoggedInUserDTO()).willReturn(null);
+        given(securityContext.findIdOfLoggedInUser()).willReturn(null);
         mockMvc.perform(get("/get-email-for-change-password"))
                 .andExpect(status().isOk())
                 .andExpect(result -> model().attribute(
@@ -84,23 +85,16 @@ class PasswordControllerTest {
             throws Exception {
         UserDto userDto = new UserDto();
         userDto.setEmail("test@gmail.com");
-        given(securityService.findLoggedInUserDTO()).willReturn(userDto);
+        given(securityContext.findIdOfLoggedInUser()).willReturn(1L);
+        given(userService.findById(1L)).willReturn(userDto);
         mockMvc.perform(get("/get-email-for-change-password"))
-                .andExpect(redirectedUrl("/change-password?email=test@gmail.com"));
-    }
-
-    @Test
-    void postGetEmailForChangePassword()
-            throws Exception {
-        given(userService.existsByEmail(anyString())).willReturn(true);
-        mockMvc.perform(post("/get-email-for-change-password")
-                                .param("email", "test@gmail.com"))
-                .andExpect(redirectedUrl("/change-password?email=test@gmail.com"));
+                .andExpect(redirectedUrlPattern("/change-password?email=test@gmail.com**"));
     }
 
     @Test
     void failToPostGetEmailForChangePassword()
             throws Exception {
+        given(securityContext.findIdOfLoggedInUser()).willReturn(null);
         given(userService.existsByEmail(anyString())).willReturn(false);
         mockMvc.perform(post("/get-email-for-change-password")
                                 .param("email", "test@gmail.com"))
@@ -116,6 +110,7 @@ class PasswordControllerTest {
         user.setSecurityQuestion1("Question1");
         user.setSecurityQuestion2("Question2");
         user.setEmail("test@gmail.com");
+        given(securityContext.findIdOfLoggedInUser()).willReturn(null);
         given(userRepository.findByEmail("test@gmail.com")).willReturn(Optional.of(user));
         mockMvc.perform(get("/change-password").param("email", "test@gmail.com"))
                .andExpect(status().isOk())
@@ -147,9 +142,10 @@ class PasswordControllerTest {
         changePasswordForm.setAnswer2("Answer2");
         changePasswordForm.setPassword("new_password123?!");
         changePasswordForm.setConfirmPassword("new_password123?!");
+        given(securityContext.findIdOfLoggedInUser()).willReturn(null);
         mockMvc.perform(post("/change-password")
                                 .flashAttr("changePasswordForm", changePasswordForm))
-               .andExpect(redirectedUrl("/message-page"))
+               .andExpect(redirectedUrlPattern("/message-page**"))
                .andExpect(result -> model().attribute("MESSAGE", PasswordController.MESSAGE));
     }
 

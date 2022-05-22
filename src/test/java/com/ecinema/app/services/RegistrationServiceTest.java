@@ -2,24 +2,29 @@ package com.ecinema.app.services;
 
 import com.ecinema.app.configs.InitializationConfig;
 import com.ecinema.app.domain.dtos.UserDto;
+import com.ecinema.app.domain.entities.Customer;
+import com.ecinema.app.domain.entities.Registration;
 import com.ecinema.app.domain.entities.User;
 import com.ecinema.app.domain.enums.SecurityQuestions;
 import com.ecinema.app.domain.enums.UserAuthority;
 import com.ecinema.app.domain.forms.RegistrationForm;
-import com.ecinema.app.repositories.UserRepository;
-import com.ecinema.app.services.implementations.RegistrationServiceImpl;
-import com.ecinema.app.services.implementations.UserServiceImpl;
+import com.ecinema.app.domain.validators.PasswordValidator;
+import com.ecinema.app.domain.validators.RegistrationValidator;
+import com.ecinema.app.domain.validators.UserProfileValidator;
+import com.ecinema.app.repositories.*;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.boot.test.mock.mockito.MockBean;
 
 import java.time.LocalDate;
 import java.time.Month;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -30,27 +35,47 @@ import static org.mockito.Mockito.*;
 @SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
 class RegistrationServiceTest {
 
-    @Autowired
+    private UserService userService;
+    private CustomerService customerService;
+    private RegistrationService registrationService;
+    @Mock
     private UserRepository userRepository;
-    @Autowired
-    @InjectMocks
-    private UserServiceImpl userService;
-    @Autowired
-    @InjectMocks
-    private RegistrationServiceImpl registrationService;
-    @MockBean
-    private CustomerAuthorityService customerAuthorityService;
+    @Mock
+    private CustomerRepository customerRepository;
+    @Mock
+    private RegistrationRepository registrationRepository;
     @MockBean
     private EncoderService encoderService;
+    @MockBean
+    private PasswordValidator passwordValidator;
+    @MockBean
+    private UserProfileValidator userProfileValidator;
+    @MockBean
+    private RegistrationValidator registrationValidator;
     @MockBean
     private EmailService emailService;
     @MockBean
     private InitializationConfig config;
 
+    @BeforeEach
+    void setUp() {
+        customerService = new CustomerService(
+                customerRepository, null, null,
+                null, null, null, null);
+        userService = new UserService(
+                userRepository, customerService, null, null,
+                encoderService, userProfileValidator,
+                registrationValidator);
+        registrationService = new RegistrationService(
+                registrationRepository, userService, emailService,
+                encoderService, registrationValidator);
+    }
+
     @Test
-    void registerNewUser() {
+    void register() {
         // given
-        doNothing().when(emailService).sendFromBusinessEmail(anyString(), anyString(), anyString());
+        doNothing().when(emailService).sendFromBusinessEmail(
+                anyString(), anyString(), anyString());
         given(encoderService.encode(anyString())).willReturn("ENCODED123?!");
         RegistrationForm registrationForm = new RegistrationForm();
         registrationForm.setEmail("test@gmail.com");
@@ -64,21 +89,40 @@ class RegistrationServiceTest {
         registrationForm.setSecurityQuestion2(SecurityQuestions.SQ2);
         registrationForm.setSecurityAnswer2("Answer 2");
         registrationForm.setBirthDate(LocalDate.of(2000, Month.JANUARY, 1));
-        registrationForm.getUserAuthorities().add(UserAuthority.CUSTOMER);
-        String token = registrationService.submitRegistrationFormAndGetToken(registrationForm);
-        registrationService.confirmRegistrationRequest(token);
+        registrationForm.getAuthorities().add(UserAuthority.CUSTOMER);
         // when
-        UserDto userDto = userService.findByUsername("TestUser123");
-        User user = userRepository.findById(userDto.getId()).orElseThrow(IllegalStateException::new);
+        String token = registrationService.submitRegistrationFormAndGetToken(registrationForm);
         // then
-        assertEquals(registrationForm.getEmail(), userDto.getEmail());
-        assertEquals(registrationForm.getUsername(), userDto.getUsername());
-        assertEquals(registrationForm.getFirstName(), userDto.getFirstName());
-        assertEquals(registrationForm.getLastName(), userDto.getLastName());
+        assertNotNull(token);
+        ArgumentCaptor<Registration> registrationArgumentCaptor = ArgumentCaptor.forClass(Registration.class);
+        verify(registrationRepository).save(registrationArgumentCaptor.capture());
+        Registration registration = registrationArgumentCaptor.getValue();
+        assertTrue(registration.registrationEquals(registrationForm));
+        // given
+        given(registrationRepository.findByToken(token)).willReturn(
+                Optional.of(registration));
+        given(userRepository.existsByEmail(anyString())).willReturn(false);
+        given(userRepository.existsByUsername(anyString())).willReturn(false);
+        // when
+        UserDto userDto = registrationService.confirmRegistrationRequest(token);
+        // then
+        assertNotNull(userDto);
+        ArgumentCaptor<User> userArgumentCaptor = ArgumentCaptor.forClass(User.class);
+        verify(userRepository).save(userArgumentCaptor.capture());
+        User user = userArgumentCaptor.getValue();
+        assertEquals("test@gmail.com", user.getEmail());
+        assertEquals("TestUser123", user.getUsername());
+        assertEquals("First", user.getFirstName());
+        assertEquals("Last", user.getLastName());
         assertEquals("ENCODED123?!", user.getPassword());
         assertEquals("ENCODED123?!", user.getSecurityAnswer1());
         assertEquals("ENCODED123?!", user.getSecurityAnswer2());
-        assertTrue(userDto.getUserAuthorities().contains(UserAuthority.CUSTOMER));
+        assertEquals(SecurityQuestions.SQ1, user.getSecurityQuestion1());
+        assertEquals(SecurityQuestions.SQ2, user.getSecurityQuestion2());
+        assertEquals(LocalDate.of(
+                2000, Month.JANUARY, 1), user.getBirthDate());
+        assertTrue(user.getUserAuthorities().containsKey(UserAuthority.CUSTOMER));
+        assertInstanceOf(Customer.class, user.getUserAuthorities().get(UserAuthority.CUSTOMER));
     }
 
 }

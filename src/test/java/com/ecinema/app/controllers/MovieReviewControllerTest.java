@@ -1,22 +1,23 @@
 package com.ecinema.app.controllers;
 
+import com.ecinema.app.beans.SecurityContext;
 import com.ecinema.app.configs.InitializationConfig;
 import com.ecinema.app.domain.contracts.IReview;
 import com.ecinema.app.domain.dtos.MovieDto;
 import com.ecinema.app.domain.dtos.ReviewDto;
 import com.ecinema.app.domain.dtos.UserDto;
-import com.ecinema.app.domain.entities.CustomerAuthority;
+import com.ecinema.app.domain.entities.Customer;
 import com.ecinema.app.domain.entities.Movie;
 import com.ecinema.app.domain.enums.UserAuthority;
 import com.ecinema.app.domain.forms.ReviewForm;
 import com.ecinema.app.domain.validators.ReviewValidator;
-import com.ecinema.app.repositories.CustomerAuthorityRepository;
+import com.ecinema.app.repositories.CustomerRepository;
 import com.ecinema.app.repositories.MovieRepository;
 import com.ecinema.app.repositories.ReviewRepository;
 import com.ecinema.app.services.MovieService;
 import com.ecinema.app.services.ReviewService;
-import com.ecinema.app.services.SecurityService;
-import com.ecinema.app.utils.UtilMethods;
+import com.ecinema.app.services.UserService;
+import com.ecinema.app.util.UtilMethods;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
@@ -53,13 +54,13 @@ class MovieReviewControllerTest {
     private MockMvc mockMvc;
 
     @MockBean
+    private UserService userService;
+
+    @MockBean
     private MovieService movieService;
 
     @MockBean
     private ReviewService reviewService;
-
-    @MockBean
-    private SecurityService securityService;
 
     @MockBean
     private ReviewValidator reviewValidator;
@@ -71,10 +72,13 @@ class MovieReviewControllerTest {
     private ReviewRepository reviewRepository;
 
     @Mock
-    private CustomerAuthorityRepository customerAuthorityRepository;
+    private CustomerRepository customerRepository;
 
     @MockBean
     InitializationConfig initializationConfig;
+
+    @MockBean
+    private SecurityContext securityContext;
 
     @BeforeEach
     void setUp() {
@@ -83,6 +87,7 @@ class MovieReviewControllerTest {
                 .apply(springSecurity())
                 .alwaysDo(print())
                 .build();
+        given(securityContext.findIdOfLoggedInUser()).willReturn(null);
     }
 
     @Test
@@ -103,8 +108,9 @@ class MovieReviewControllerTest {
         UserDto userDto = new UserDto();
         userDto.setId(1L);
         userDto.getUserAuthorities().add(UserAuthority.CUSTOMER);
-        given(securityService.findLoggedInUserDTO()).willReturn(userDto);
-        given(movieService.findDtoById(anyLong())).willReturn(Optional.of(new MovieDto()));
+        given(securityContext.findIdOfLoggedInUser()).willReturn(1L);
+        given(userService.findById(1L)).willReturn(userDto);
+        given(movieService.findById(anyLong())).willReturn(new MovieDto());
         given(reviewService.existsByUserIdAndMovieId(1L, 2L)).willReturn(false);
         mockMvc.perform(get("/write-review/" + 2L))
                .andExpect(status().isOk())
@@ -119,8 +125,9 @@ class MovieReviewControllerTest {
         UserDto userDto = new UserDto();
         userDto.setId(1L);
         userDto.getUserAuthorities().add(UserAuthority.CUSTOMER);
-        given(securityService.findLoggedInUserDTO()).willReturn(userDto);
-        given(movieService.findDtoById(anyLong())).willReturn(Optional.of(new MovieDto()));
+        given(securityContext.findIdOfLoggedInUser()).willReturn(1L);
+        given(userService.findById(1L)).willReturn(userDto);
+        given(movieService.findById(anyLong())).willReturn(new MovieDto());
         given(reviewService.existsByUserIdAndMovieId(1L, 2L)).willReturn(false);
         mockMvc.perform(get("/write-review/" + 2L))
                .andExpect(status().isOk())
@@ -148,13 +155,13 @@ class MovieReviewControllerTest {
     @WithMockUser(username = "username", authorities = {"CUSTOMER"})
     void successfullyWriteReview1()
             throws Exception {
-        CustomerAuthority customerAuthority = new CustomerAuthority();
-        given(customerAuthorityRepository.findByUserWithId(1L))
-                .willReturn(Optional.of(customerAuthority));
+        Customer customer = new Customer();
+        given(customerRepository.findByUserWithId(1L))
+                .willReturn(Optional.of(customer));
         Movie movie = new Movie();
         movie.setId(2L);
         given(movieRepository.findById(2L)).willReturn(Optional.of(movie));
-        given(reviewRepository.existsByWriterAndMovie(customerAuthority, movie))
+        given(reviewRepository.existsByWriterAndMovie(customer, movie))
                 .willReturn(false);
         doNothing().when(reviewValidator).validate(any(IReview.class), anyCollection());
         ReviewForm reviewForm = new ReviewForm();
@@ -162,23 +169,27 @@ class MovieReviewControllerTest {
         reviewForm.setMovieId(2L);
         reviewForm.setRating(10);
         reviewForm.setReview("This movie is absolutely garbage, jeez why did I ever pay to see this?!");
+        UserDto userDto = new UserDto();
+        userDto.getUserAuthorities().add(UserAuthority.CUSTOMER);
+        given(securityContext.findIdOfLoggedInUser()).willReturn(1L);
+        given(userService.findById(1L)).willReturn(userDto);
         mockMvc.perform(post(("/write-review/" + 2L))
                                  .flashAttr("reviewForm", reviewForm))
                 .andExpect(result -> model().attributeExists("success"))
-                .andExpect(redirectedUrl("/movie-reviews/" + reviewForm.getMovieId()));
+                .andExpect(redirectedUrlPattern("/movie-reviews/" + reviewForm.getMovieId() + "**"));
     }
 
     @Test
     @WithMockUser(username = "username", authorities = {"CUSTOMER", "MODERATOR"})
     void successfullyWriteReview2()
             throws Exception {
-        CustomerAuthority customerAuthority = new CustomerAuthority();
-        given(customerAuthorityRepository.findByUserWithId(1L))
-                .willReturn(Optional.of(customerAuthority));
+        Customer customer = new Customer();
+        given(customerRepository.findByUserWithId(1L))
+                .willReturn(Optional.of(customer));
         Movie movie = new Movie();
         movie.setId(2L);
         given(movieRepository.findById(2L)).willReturn(Optional.of(movie));
-        given(reviewRepository.existsByWriterAndMovie(customerAuthority, movie))
+        given(reviewRepository.existsByWriterAndMovie(customer, movie))
                 .willReturn(false);
         doNothing().when(reviewValidator).validate(any(IReview.class), anyCollection());
         ReviewForm reviewForm = new ReviewForm();
@@ -186,10 +197,14 @@ class MovieReviewControllerTest {
         reviewForm.setMovieId(2L);
         reviewForm.setRating(10);
         reviewForm.setReview("This movie is absolutely garbage, jeez why did I ever pay to see this?!");
+        UserDto userDto = new UserDto();
+        userDto.getUserAuthorities().add(UserAuthority.CUSTOMER);
+        given(securityContext.findIdOfLoggedInUser()).willReturn(1L);
+        given(userService.findById(1L)).willReturn(userDto);
         mockMvc.perform(post("/write-review/" + 2L)
                                  .flashAttr("reviewForm", reviewForm))
                 .andExpect(result -> model().attributeExists("success"))
-                .andExpect(redirectedUrl("/movie-reviews/" + reviewForm.getMovieId()));
+                .andExpect(redirectedUrlPattern("/movie-reviews/" + reviewForm.getMovieId() + "**"));
     }
 
     @Test

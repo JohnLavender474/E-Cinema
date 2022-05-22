@@ -3,7 +3,10 @@
 <head th:insert="fragments/header :: header"></head>
 <body>
 <nav th:insert="fragments/webpage-top :: webpage-top"></nav>
-<div class="moviesContainer">
+<div class="container">
+    <form method="get" th:action="@{/movie-info/{id}(id=${movieId})}">
+        <button class="btn btn-primary">Go Back to Movie Info Page</button>
+    </form>
     <div th:if="${success != null}">
         <span th:text="${success}"></span>
     </div>
@@ -42,9 +45,14 @@
             <td>
                 <span th:text="${review.review}" style="max-width: 150px; word-wrap: break-word"></span>
             </td>
-            <td th:if="${isCustomer}">
+            <td th:if="${isCustomer} and ${review.isReportedByCurrentLoggedInUser == false}">
                 <form method="get" th:action="@{/report-review{id}(id=${review.id})}">
                     <button class="btn btn-primary">Report Review</button>
+                </form>
+            </td>
+            <td th:if="${isCustomer} and ${review.isReportedByCurrentLoggedInUser == true}">
+                <form method="get" th:action="@{/unreport-review{id}(id=${review.id})}">
+                    <button class="btn btn-primary">Unreport Review</button>
                 </form>
             </td>
         </tr>

@@ -1,7 +1,5 @@
 package com.ecinema.app.domain.entities;
 
-import com.ecinema.app.domain.contracts.IPassword;
-import com.ecinema.app.domain.contracts.IProfile;
 import com.ecinema.app.domain.enums.UserAuthority;
 import lombok.Getter;
 import lombok.Setter;
@@ -11,10 +9,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import javax.persistence.*;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.EnumMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 /**
  * {@inheritDoc}
@@ -75,7 +70,6 @@ public class User extends AbstractEntity implements UserDetails {
     @Column
     private Boolean isCredentialsExpired;
 
-    @ToString.Exclude
     @MapKey(name = "userAuthority")
     @MapKeyEnumerated(EnumType.ORDINAL)
     @OneToMany(targetEntity = AbstractUserAuthority.class, mappedBy = "user",

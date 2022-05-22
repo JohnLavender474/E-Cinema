@@ -6,9 +6,6 @@ import lombok.Data;
 import java.io.Serializable;
 import java.time.LocalDate;
 
-/**
- * The type Profile form.
- */
 @Data
 public class UserProfileForm implements IProfile, Serializable {
     private Long userId = 0L;

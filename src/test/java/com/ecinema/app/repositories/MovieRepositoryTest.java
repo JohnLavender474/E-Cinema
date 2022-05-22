@@ -2,12 +2,10 @@ package com.ecinema.app.repositories;
 
 import com.ecinema.app.domain.entities.Movie;
 import com.ecinema.app.services.MovieService;
-import com.ecinema.app.services.implementations.MovieServiceImpl;
-import com.ecinema.app.utils.UtilMethods;
+import com.ecinema.app.util.UtilMethods;
 import com.ecinema.app.domain.enums.MovieCategory;
 import com.ecinema.app.domain.enums.MsrbRating;
-import com.ecinema.app.utils.Duration;
-import org.junit.jupiter.api.AfterEach;
+import com.ecinema.app.domain.objects.Duration;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
@@ -26,11 +24,6 @@ class MovieRepositoryTest {
 
     @Autowired
     private MovieRepository movieRepository;
-
-    @AfterEach
-    void tearDown() {
-        movieRepository.deleteAll();
-    }
 
     @Test
     void findAllPagination() {
@@ -260,13 +253,11 @@ class MovieRepositoryTest {
         movie.setSearchTitle("TESTMOVIE");
         movieRepository.save(movie);
         // when
-        MovieService movieService = new MovieServiceImpl(
-                null, null, null, null);
-        String test1Str = movieService.convertTitleToSearchTitle("Test Movie");
-        String test2Str = movieService.convertTitleToSearchTitle("Test movie");
-        String test3Str = movieService.convertTitleToSearchTitle("teStM oVi E");
-        String test4Str = movieService.convertTitleToSearchTitle("   t E sT M   O vI e");
-        String test5Str = movieService.convertTitleToSearchTitle("false");
+        String test1Str = MovieService.convertTitleToSearchTitle("Test Movie");
+        String test2Str = MovieService.convertTitleToSearchTitle("Test movie");
+        String test3Str = MovieService.convertTitleToSearchTitle("teStM oVi E");
+        String test4Str = MovieService.convertTitleToSearchTitle("   t E sT M   O vI e");
+        String test5Str = MovieService.convertTitleToSearchTitle("false");
         boolean test1 = movieRepository.existsBySearchTitle(test1Str);
         boolean test2 = movieRepository.existsBySearchTitle(test2Str);
         boolean test3 = movieRepository.existsBySearchTitle(test3Str);

@@ -1,6 +1,6 @@
 package com.ecinema.app.services;
 
-import com.ecinema.app.domain.EntityDtoConverter;
+import com.ecinema.app.domain.contracts.ISeat;
 import com.ecinema.app.domain.dtos.ScreeningSeatDto;
 import com.ecinema.app.domain.entities.Screening;
 import com.ecinema.app.domain.entities.ScreeningSeat;
@@ -8,72 +8,99 @@ import com.ecinema.app.domain.entities.ShowroomSeat;
 import com.ecinema.app.domain.entities.Ticket;
 import com.ecinema.app.exceptions.InvalidAssociationException;
 import com.ecinema.app.domain.enums.Letter;
+import com.ecinema.app.exceptions.NoEntityFoundException;
+import com.ecinema.app.repositories.ScreeningSeatRepository;
+import com.ecinema.app.util.UtilMethods;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
-/**
- * The interface Screening seat service.
- */
-public interface ScreeningSeatService extends AbstractService<ScreeningSeat>,
-                                              EntityDtoConverter<ScreeningSeat, ScreeningSeatDto> {
+@Service
+@Transactional
+public class ScreeningSeatService extends AbstractEntityService<
+        ScreeningSeat, ScreeningSeatRepository, ScreeningSeatDto> {
 
-    /**
-     * Gets map of screening seats for screening with id.
-     *
-     * @param screeningId the screening id
-     * @return the map of screening seats for screening with id
-     */
-    Map<Letter, Set<ScreeningSeatDto>> findScreeningSeatMapByScreeningWithId(Long screeningId)
-            throws InvalidAssociationException;
+    private final TicketService ticketService;
 
-    /**
-     * Find all by screening list.
-     *
-     * @param screening the screening
-     * @return the list
-     */
-    List<ScreeningSeatDto> findAllByScreening(Screening screening);
+    public ScreeningSeatService(ScreeningSeatRepository repository, TicketService ticketService) {
+        super(repository);
+        this.ticketService = ticketService;
+    }
 
-    /**
-     * Find all by screening with id list.
-     *
-     * @param screeningId the screening id
-     * @return the list
-     */
-    List<ScreeningSeatDto> findAllByScreeningWithId(Long screeningId);
+    @Override
+    public void onDelete(ScreeningSeat screeningSeat) {
+        logger.debug("Screening seat on delete");
+        // cascade delete Ticket
+        Ticket ticket = screeningSeat.getTicket();
+        if (ticket != null) {
+            logger.debug("Detach ticket: " + ticket);
+            screeningSeat.setTicket(null);
+            ticket.setScreeningSeat(null);
+            ticketService.delete(ticket);
+        }
+        // detach Screening
+        Screening screening = screeningSeat.getScreening();
+        if (screening != null) {
+            logger.debug("Detach screening " + screening);
+            screening.getScreeningSeats().remove(screeningSeat);
+            screeningSeat.setScreening(null);
+        }
+        // detach ShowroomSeat
+        ShowroomSeat showroomSeat = screeningSeat.getShowroomSeat();
+        if (showroomSeat != null) {
+            logger.debug("Detach showroom seat: " + showroomSeat);
+            showroomSeat.getScreeningSeats().remove(screeningSeat);
+            screeningSeat.setShowroomSeat(null);
+        }
+    }
 
-    /**
-     * Find all by showroom seat list.
-     *
-     * @param showroomSeat the showroom seat
-     * @return the list
-     */
-    List<ScreeningSeatDto> findAllByShowroomSeat(ShowroomSeat showroomSeat);
+    @Override
+    public ScreeningSeatDto convertToDto(ScreeningSeat screeningSeat) {
+        ScreeningSeatDto screeningSeatDTO = new ScreeningSeatDto();
+        screeningSeatDTO.setId(screeningSeat.getId());
+        screeningSeatDTO.setRowLetter(screeningSeat.getShowroomSeat().getRowLetter());
+        screeningSeatDTO.setSeatNumber(screeningSeat.getShowroomSeat().getSeatNumber());
+        screeningSeatDTO.setIsBooked(screeningSeat.getTicket() != null);
+        screeningSeatDTO.setScreeningId(screeningSeat.getScreening().getId());
+        logger.debug("Convert screening seat to DTO: " + screeningSeatDTO);
+        logger.debug("Screening seat: " + screeningSeat);
+        return screeningSeatDTO;
+    }
 
-    /**
-     * Find all by showroom seat with id list.
-     *
-     * @param showroomSeatId the showroom seat id
-     * @return the list
-     */
-    List<ScreeningSeatDto> findAllByShowroomSeatWithId(Long showroomSeatId);
+    public Map<Letter, Set<ScreeningSeatDto>> findScreeningSeatMapByScreeningWithId(Long screeningId)
+            throws InvalidAssociationException {
+        List<ScreeningSeatDto> screeningSeatDtos = findAllByScreeningWithId(screeningId);
+        if (screeningSeatDtos.isEmpty()) {
+            throw new InvalidAssociationException("No screening seats mapped to screening with id " + screeningId);
+        }
+        Map<Letter, Set<ScreeningSeatDto>> mapOfScreeningSeats = new TreeMap<>();
+        for (ScreeningSeatDto screeningSeatDto : screeningSeatDtos) {
+            mapOfScreeningSeats.putIfAbsent(screeningSeatDto.getRowLetter(),
+                                            new TreeSet<>(ISeat.SeatComparator.getInstance()));
+            mapOfScreeningSeats.get(screeningSeatDto.getRowLetter()).add(screeningSeatDto);
+        }
+        logger.debug(UtilMethods.getDelimiterLine());
+        logger.debug("Find screening seat map by screening with id: " + screeningId);
+        logger.debug("Screening seat map: " + screeningSeatDtos);
+        return mapOfScreeningSeats;
+    }
 
-    /**
-     * Find by ticket optional.
-     *
-     * @param ticket the ticket
-     * @return the optional
-     */
-    ScreeningSeatDto findByTicket(Ticket ticket);
+    public List<ScreeningSeatDto> findAllByScreeningWithId(Long screeningId) {
+        return sortAndConvert(repository.findAllByScreeningWithId(screeningId));
+    }
 
-    /**
-     * Find by ticket with id optional.
-     *
-     * @param ticketId the ticket id
-     * @return the optional
-     */
-    ScreeningSeatDto findByTicketWithId(Long ticketId);
+    public boolean screeningSeatIsBooked(Long screeningSeatId)
+            throws NoEntityFoundException {
+        ScreeningSeat screeningSeat = repository.findById(screeningSeatId).orElseThrow(
+                () -> new NoEntityFoundException("screening seat", "id", screeningSeatId));
+        return screeningSeat.getTicket() != null;
+    }
+
+    private List<ScreeningSeatDto> sortAndConvert(List<ScreeningSeat> screeningSeats) {
+        screeningSeats.sort(ISeat.SeatComparator.getInstance());
+        return convertToDto(screeningSeats);
+    }
+
 
 }

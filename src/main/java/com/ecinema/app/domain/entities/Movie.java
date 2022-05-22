@@ -1,8 +1,8 @@
 package com.ecinema.app.domain.entities;
 
 import com.ecinema.app.domain.contracts.IMovie;
-import com.ecinema.app.utils.Duration;
-import com.ecinema.app.utils.DurationConverter;
+import com.ecinema.app.domain.objects.Duration;
+import com.ecinema.app.domain.objects.DurationConverter;
 import com.ecinema.app.domain.enums.MovieCategory;
 import com.ecinema.app.domain.enums.MsrbRating;
 import lombok.Getter;

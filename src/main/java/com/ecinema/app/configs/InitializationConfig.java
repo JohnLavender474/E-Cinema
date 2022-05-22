@@ -3,7 +3,6 @@ package com.ecinema.app.configs;
 import com.ecinema.app.domain.dtos.MovieDto;
 import com.ecinema.app.domain.dtos.ShowroomDto;
 import com.ecinema.app.domain.dtos.UserDto;
-import com.ecinema.app.domain.entities.Movie;
 import com.ecinema.app.domain.enums.*;
 import com.ecinema.app.domain.forms.*;
 import com.ecinema.app.services.*;
@@ -19,9 +18,6 @@ import java.time.LocalDateTime;
 import java.time.Month;
 import java.util.*;
 
-/**
- * Initializes persistence on app start.
- */
 @Component
 @RequiredArgsConstructor
 public class InitializationConfig {
@@ -31,14 +27,11 @@ public class InitializationConfig {
     private final MovieService movieService;
     private final ReviewService reviewService;
     private final ShowroomService showroomService;
+    private final CustomerService customerService;
     private final ScreeningService screeningService;
     private final PaymentCardService paymentCardService;
-    private final CustomerAuthorityService customerAuthorityService;
     private final Logger logger = LoggerFactory.getLogger(InitializationConfig.class);
 
-    /**
-     * Called on app ready.
-     */
     @EventListener(ApplicationReadyEvent.class)
     public void appReady() {
         defineUsers();
@@ -68,7 +61,7 @@ public class InitializationConfig {
         rootUserForm.setSecurityAnswer1("Bowser");
         rootUserForm.setSecurityQuestion2(SecurityQuestions.SQ5);
         rootUserForm.setSecurityAnswer2("root beer");
-        rootUserForm.setUserAuthorities(EnumSet.of(UserAuthority.ADMIN, UserAuthority.MODERATOR));
+        rootUserForm.setAuthorities(EnumSet.of(UserAuthority.ADMIN, UserAuthority.MODERATOR));
         userService.register(rootUserForm, false,
                              false, false);
     }
@@ -86,7 +79,7 @@ public class InitializationConfig {
         customerForm.setSecurityAnswer1("Ernest");
         customerForm.setSecurityQuestion2(SecurityQuestions.SQ3);
         customerForm.setSecurityAnswer2("Handsome");
-        customerForm.setUserAuthorities(EnumSet.of(UserAuthority.CUSTOMER));
+        customerForm.setAuthorities(EnumSet.of(UserAuthority.CUSTOMER));
         userService.register(customerForm, false,
                              false, false);
     }
@@ -125,11 +118,11 @@ public class InitializationConfig {
             add("David Giler");
             add("Walter Hill");
         }});
-        aliens.setMovieCategories(List.of(MovieCategory.ACTION.name(),
-                                          MovieCategory.ADVENTURE.name(),
-                                          MovieCategory.SCI_FI.name(),
-                                          MovieCategory.HORROR.name(),
-                                          MovieCategory.CLASSIC.name()));
+        aliens.setMovieCategories(List.of(MovieCategory.ACTION,
+                                          MovieCategory.ADVENTURE,
+                                          MovieCategory.SCI_FI,
+                                          MovieCategory.HORROR,
+                                          MovieCategory.CLASSIC));
         movieService.submitMovieForm(aliens);
         // Darkest Hour
         MovieForm darkestHour = new MovieForm();
@@ -159,9 +152,9 @@ public class InitializationConfig {
         darkestHour.setWriters(new ArrayList<>() {{
             add("Anthony McCarten");
         }});
-        darkestHour.setMovieCategories(List.of(MovieCategory.BIOGRAPHY.name(),
-                                               MovieCategory.DRAMA.name(),
-                                               MovieCategory.WAR.name()));
+        darkestHour.setMovieCategories(List.of(MovieCategory.BIOGRAPHY,
+                                               MovieCategory.DRAMA,
+                                               MovieCategory.WAR));
         movieService.submitMovieForm(darkestHour);
         // Dune
         MovieForm dune = new MovieForm();
@@ -192,10 +185,10 @@ public class InitializationConfig {
             add("Denis Villeneuve");
             add("Eric Roth");
         }});
-        dune.setMovieCategories(List.of(MovieCategory.SCI_FI.name(),
-                                        MovieCategory.DRAMA.name(),
-                                        MovieCategory.ACTION.name(),
-                                        MovieCategory.ADVENTURE.name()));
+        dune.setMovieCategories(List.of(MovieCategory.SCI_FI,
+                                        MovieCategory.DRAMA,
+                                        MovieCategory.ACTION,
+                                        MovieCategory.ADVENTURE));
         movieService.submitMovieForm(dune);
         // Empire Strikes Back
         MovieForm empireStrikesBack = new MovieForm();
@@ -226,10 +219,10 @@ public class InitializationConfig {
             add("George Lucas");
         }});
         empireStrikesBack.setDirector("Irvin Kershner");
-        empireStrikesBack.setMovieCategories(List.of(MovieCategory.ACTION.name(),
-                                                     MovieCategory.ADVENTURE.name(),
-                                                     MovieCategory.FANTASY.name(),
-                                                     MovieCategory.CLASSIC.name()));
+        empireStrikesBack.setMovieCategories(List.of(MovieCategory.ACTION,
+                                                     MovieCategory.ADVENTURE,
+                                                     MovieCategory.FANTASY,
+                                                     MovieCategory.CLASSIC));
         movieService.submitMovieForm(empireStrikesBack);
         // Interstellar
         MovieForm interstellar = new MovieForm();
@@ -257,9 +250,9 @@ public class InitializationConfig {
             add("Jonathan Nolan");
             add("Christopher Nolan");
         }});
-        interstellar.setMovieCategories(List.of(MovieCategory.ADVENTURE.name(),
-                                                MovieCategory.DRAMA.name(),
-                                                MovieCategory.SCI_FI.name()));
+        interstellar.setMovieCategories(List.of(MovieCategory.ADVENTURE,
+                                                MovieCategory.DRAMA,
+                                                MovieCategory.SCI_FI));
         movieService.submitMovieForm(interstellar);
         // 007: No Time to Die
         MovieForm noTimeToDie = new MovieForm();
@@ -289,9 +282,9 @@ public class InitializationConfig {
             add("Cary Joji Fukunaga");
         }});
         noTimeToDie.setDirector("Cary Joji Fukunaga");
-        noTimeToDie.setMovieCategories(List.of(MovieCategory.ACTION.name(),
-                                               MovieCategory.ADVENTURE.name(),
-                                               MovieCategory.THRILLER.name()));
+        noTimeToDie.setMovieCategories(List.of(MovieCategory.ACTION,
+                                               MovieCategory.ADVENTURE,
+                                               MovieCategory.THRILLER));
         movieService.submitMovieForm(noTimeToDie);
         // Pig
         MovieForm pig = new MovieForm();
@@ -324,10 +317,10 @@ public class InitializationConfig {
             add("Vanessa Block");
             add("Michael Sarnoski");
         }});
-        pig.setMovieCategories(List.of(MovieCategory.DRAMA.name(),
-                                       MovieCategory.DARK.name(),
-                                       MovieCategory.MYSTERY.name(),
-                                       MovieCategory.THRILLER.name()));
+        pig.setMovieCategories(List.of(MovieCategory.DRAMA,
+                                       MovieCategory.DARK,
+                                       MovieCategory.MYSTERY,
+                                       MovieCategory.THRILLER));
         movieService.submitMovieForm(pig);
         // The Batman
         MovieForm batman = new MovieForm();
@@ -354,9 +347,9 @@ public class InitializationConfig {
             add("Peter Craig");
             add("Bill Finger");
         }});
-        batman.setMovieCategories(List.of(MovieCategory.ACTION.name(),
-                                          MovieCategory.CRIME.name(),
-                                          MovieCategory.DRAMA.name()));
+        batman.setMovieCategories(List.of(MovieCategory.ACTION,
+                                          MovieCategory.CRIME,
+                                          MovieCategory.DRAMA));
         movieService.submitMovieForm(batman);
         // The Good, The Bad, And The Ugly
         MovieForm goodBadUgly = new MovieForm();
@@ -396,8 +389,8 @@ public class InitializationConfig {
             add("Sergio Leone");
             add("Agenore Incrocci");
         }});
-        goodBadUgly.setMovieCategories(List.of(MovieCategory.ADVENTURE.name(),
-                                               MovieCategory.WESTERN.name()));
+        goodBadUgly.setMovieCategories(List.of(MovieCategory.ADVENTURE,
+                                               MovieCategory.WESTERN));
         movieService.submitMovieForm(goodBadUgly);
         // The Northman
         MovieForm theNorthman = new MovieForm();
@@ -423,11 +416,11 @@ public class InitializationConfig {
             add("Sjon");
             add("Robert Eggers");
         }});
-        theNorthman.setMovieCategories(List.of(MovieCategory.ACTION.name(),
-                                               MovieCategory.ADVENTURE.name(),
-                                               MovieCategory.DRAMA.name()));
+        theNorthman.setMovieCategories(List.of(MovieCategory.ACTION,
+                                               MovieCategory.ADVENTURE,
+                                               MovieCategory.DRAMA));
         movieService.submitMovieForm(theNorthman);
-        for (Movie movie : movieService.findAll()) {
+        for (MovieDto movie : movieService.findAll()) {
             logger.debug("Movie added: " + movie.getTitle());
         }
     }
@@ -483,31 +476,31 @@ public class InitializationConfig {
         ShowroomForm showroomFormA = new ShowroomForm();
         showroomFormA.setShowroomLetter(Letter.A);
         showroomFormA.setNumberOfRows(4);
-        showroomFormA.setNumberOfSeatsPerRow(25);
+        showroomFormA.setNumberOfSeatsPerRow(15);
         showroomService.submitShowroomForm(showroomFormA);
         // Showroom B
         ShowroomForm showroomFormB = new ShowroomForm();
         showroomFormB.setShowroomLetter(Letter.B);
         showroomFormB.setNumberOfRows(5);
-        showroomFormB.setNumberOfSeatsPerRow(20);
+        showroomFormB.setNumberOfSeatsPerRow(12);
         showroomService.submitShowroomForm(showroomFormB);
         // Showroom C
         ShowroomForm showroomFormC = new ShowroomForm();
         showroomFormC.setShowroomLetter(Letter.C);
         showroomFormC.setNumberOfRows(4);
-        showroomFormC.setNumberOfSeatsPerRow(20);
+        showroomFormC.setNumberOfSeatsPerRow(15);
         showroomService.submitShowroomForm(showroomFormC);
         // Showroom D
         ShowroomForm showroomFormD = new ShowroomForm();
         showroomFormD.setShowroomLetter(Letter.D);
         showroomFormD.setNumberOfRows(5);
-        showroomFormD.setNumberOfSeatsPerRow(25);
+        showroomFormD.setNumberOfSeatsPerRow(12);
         showroomService.submitShowroomForm(showroomFormD);
         // Showroom E
         ShowroomForm showroomFormE = new ShowroomForm();
         showroomFormE.setShowroomLetter(Letter.E);
         showroomFormE.setNumberOfRows(4);
-        showroomFormE.setNumberOfSeatsPerRow(25);
+        showroomFormE.setNumberOfSeatsPerRow(10);
         showroomService.submitShowroomForm(showroomFormE);
     }
 
@@ -681,9 +674,8 @@ public class InitializationConfig {
     }
 
     private void definePaymentCards() {
-        paymentCardService.deleteAll();
         UserDto customer = userService.findByUsername("Customer123");
-        Long customerRoleDefId = customerAuthorityService.findIdByUserWithId(customer.getId());
+        Long customerRoleDefId = customerService.findIdByUserWithId(customer.getId());
         // Paymentcard 1
         PaymentCardForm paymentCardForm1 = new PaymentCardForm();
         paymentCardForm1.setCustomerRoleDefId(customerRoleDefId);

@@ -7,15 +7,13 @@ import lombok.ToString;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
-import java.util.HashSet;
-import java.util.Set;
 
 /**
  * {@inheritDoc}
  * This class represents a review that a user has written and posted for a particular {@link Movie}.
  * This class is mapped to {@link #writer} which owns this instance. {@link User} instances
  * with a customer role def are allowed to write and post reviews and post a single like or dislike
- * for any other review instance. A review can optionally be censored by a {@link ModeratorAuthority}
+ * for any other review instance. A review can optionally be censored by a {@link Moderator}
  * which means that the review has been removed from public viewing until the moderator unlocks it.
  */
 @Getter
@@ -34,15 +32,6 @@ public class Review extends AbstractEntity implements IReview {
     private Boolean isCensored;
 
     @Column
-    private Integer upvotes;
-
-    @Column
-    private Integer downvotes;
-
-    @Column
-    private Integer numberOfReports;
-
-    @Column
     private LocalDateTime creationDateTime;
 
     @JoinColumn
@@ -53,9 +42,6 @@ public class Review extends AbstractEntity implements IReview {
     @JoinColumn
     @ToString.Exclude
     @ManyToOne(fetch = FetchType.LAZY)
-    private CustomerAuthority writer;
-
-    @ManyToMany(mappedBy = "reportedReviews")
-    private Set<CustomerAuthority> reportedBy = new HashSet<>();
+    private Customer writer;
 
 }

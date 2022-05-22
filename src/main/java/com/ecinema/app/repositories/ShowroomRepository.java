@@ -14,7 +14,7 @@ import java.util.Optional;
  * The interface Showroom repository.
  */
 @Repository
-public interface ShowroomRepository extends JpaRepository<Showroom, Long>, AbstractRepository {
+public interface ShowroomRepository extends JpaRepository<Showroom, Long> {
 
     /**
      * Find by showroom letter optional.

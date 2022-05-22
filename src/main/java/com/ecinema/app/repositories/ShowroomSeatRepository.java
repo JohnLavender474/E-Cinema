@@ -15,7 +15,7 @@ import java.util.Optional;
  * The interface Showroom seat repository.
  */
 @Repository
-public interface ShowroomSeatRepository extends JpaRepository<ShowroomSeat, Long>, AbstractRepository {
+public interface ShowroomSeatRepository extends JpaRepository<ShowroomSeat, Long> {
 
     /**
      * Find all by showroom list.

@@ -13,9 +13,6 @@ import java.time.Month;
 import java.util.EnumSet;
 import java.util.Set;
 
-/**
- * The type Registration form.
- */
 @Data
 public class RegistrationForm implements IRegistration, Serializable {
     private Boolean isPasswordEncoded = false;
@@ -31,7 +28,7 @@ public class RegistrationForm implements IRegistration, Serializable {
     private String securityAnswer1 = "";
     private String securityQuestion2 = "";
     private String securityAnswer2 = "";
-    private Set<UserAuthority> userAuthorities = EnumSet.noneOf(UserAuthority.class);
+    private Set<UserAuthority> authorities = EnumSet.noneOf(UserAuthority.class);
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     private LocalDate birthDate = LocalDate.of(2000, Month.JANUARY, 1);
 }

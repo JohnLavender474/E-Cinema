@@ -10,7 +10,7 @@ import com.ecinema.app.exceptions.NoEntityFoundException;
 import com.ecinema.app.services.MovieService;
 import com.ecinema.app.services.ScreeningService;
 import com.ecinema.app.services.ShowroomService;
-import com.ecinema.app.utils.UtilMethods;
+import com.ecinema.app.util.UtilMethods;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -86,7 +86,7 @@ public class AdminController {
         logger.debug(UtilMethods.getDelimiterLine());
         logger.debug("Get mapping: edit movie search");
         model.addAttribute("href", "/edit-movie/{id}");
-        List<MovieDto> movies = movieService.findAllDtos();
+        List<MovieDto> movies = movieService.findAll();
         logger.debug("Movies: " + movies);
         model.addAttribute("movies", movies);
         return "admin-movie-choose";
@@ -147,7 +147,7 @@ public class AdminController {
         logger.debug(UtilMethods.getDelimiterLine());
         logger.debug("Get mapping: delete movie search");
         model.addAttribute("href", "/delete-movie/{id}");
-        List<MovieDto> movies = movieService.findAllDtos();
+        List<MovieDto> movies = movieService.findAll();
         logger.debug("Movies: " + movies);
         model.addAttribute("movies", movies);
         return "admin-movie-choose";
@@ -166,12 +166,10 @@ public class AdminController {
                                       @PathVariable("id") final Long id) {
         logger.debug(UtilMethods.getDelimiterLine());
         try {
-            MovieDto movieDto = movieService.findDtoById(id).orElseThrow(
-                    () -> new NoEntityFoundException("movie", "id", id));
+            MovieDto movieDto = movieService.findById(id);
             model.addAttribute("movie", movieDto);
             model.addAttribute("movieId", id);
             List<String> info = new ArrayList<>();
-            movieService.onDeleteInfo(id, info);
             model.addAttribute("onDeleteInfo", info);
             return "delete-movie";
         } catch (NoEntityFoundException e) {
@@ -192,7 +190,7 @@ public class AdminController {
                               @PathVariable("id") final Long movieId) {
         logger.debug(UtilMethods.getDelimiterLine());
         logger.debug("Post mapping: delete movie");
-        movieService.deleteById(movieId);
+        movieService.delete(movieId);
         redirectAttributes.addFlashAttribute("success", "Successfully deleted movie");
         return "redirect:/delete-movie-search";
     }
@@ -208,7 +206,7 @@ public class AdminController {
         logger.debug(UtilMethods.getDelimiterLine());
         logger.debug("Get mapping: add screening search");
         model.addAttribute("href", "/add-screening/{id}");
-        model.addAttribute("movies", movieService.findAllDtos());
+        model.addAttribute("movies", movieService.findAll());
         return "admin-movie-choose";
     }
 
@@ -223,11 +221,10 @@ public class AdminController {
     public String showAddScreeningPage(final Model model, @PathVariable("id") final Long movieId) {
         logger.debug(UtilMethods.getDelimiterLine());
         logger.debug("Get mapping: add screening");
-        MovieDto movieDto = movieService.findDtoById(movieId).orElseThrow(
-                () -> new NoEntityFoundException("movie", "id", movieId));
+        MovieDto movieDto = movieService.findById(movieId);
         logger.debug("Movie DTO: " + movieDto);
         model.addAttribute("movie", movieDto);
-        List<ShowroomDto> showrooms = showroomService.findAllDtos();
+        List<ShowroomDto> showrooms = showroomService.findAll();
         logger.debug("Showrooms: " + showrooms);
         model.addAttribute("showrooms", showrooms);
         model.addAttribute("action", "/add-screening/{id}");

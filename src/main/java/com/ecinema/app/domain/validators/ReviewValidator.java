@@ -1,8 +1,7 @@
 package com.ecinema.app.domain.validators;
 
 import com.ecinema.app.domain.contracts.IReview;
-import com.ecinema.app.domain.forms.ReviewForm;
-import com.ecinema.app.utils.UtilMethods;
+import com.ecinema.app.util.UtilMethods;
 import org.springframework.stereotype.Component;
 
 import java.util.Collection;

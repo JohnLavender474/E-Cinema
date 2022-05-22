@@ -35,7 +35,7 @@ public class PaymentCard extends AbstractEntity implements IPaymentCard {
     @JoinColumn
     @ToString.Exclude
     @ManyToOne(fetch = FetchType.LAZY)
-    private CustomerAuthority cardOwner;
+    private Customer cardOwner;
 
     @Embedded
     @ToString.Exclude
@@ -43,10 +43,7 @@ public class PaymentCard extends AbstractEntity implements IPaymentCard {
 
     @Override
     public void setBillingAddress(IAddress billingAddress) {
-        this.billingAddress.setCity(billingAddress.getCity());
-        this.billingAddress.setStreet(billingAddress.getStreet());
-        this.billingAddress.setUsState(billingAddress.getUsState());
-        this.billingAddress.setZipcode(billingAddress.getZipcode());
+        this.billingAddress.set(billingAddress);
     }
 
 }

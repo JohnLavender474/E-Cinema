@@ -10,14 +10,10 @@ import javax.persistence.Column;
 import javax.persistence.Embeddable;
 import javax.persistence.Entity;
 
-/**
- * {@inheritDoc}
- * Specifies the details of an address. Has no bidirectional mapping with any entity.
- */
 @Getter
 @Setter
-@ToString
 @Embeddable
+@ToString(callSuper = true)
 public class Address implements IAddress {
     private String street;
     private String city;

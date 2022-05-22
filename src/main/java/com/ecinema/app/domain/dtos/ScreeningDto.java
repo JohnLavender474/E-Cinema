@@ -1,8 +1,10 @@
 package com.ecinema.app.domain.dtos;
 
+import com.ecinema.app.domain.contracts.AbstractDto;
 import com.ecinema.app.domain.contracts.IScreening;
 import com.ecinema.app.domain.enums.Letter;
-import com.ecinema.app.utils.UtilMethods;
+import com.ecinema.app.util.UtilMethods;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -11,10 +13,10 @@ import java.time.LocalDateTime;
 
 @Getter
 @Setter
-@ToString
-public class ScreeningDto implements AbstractDto, IScreening {
+@ToString(callSuper = true)
+@EqualsAndHashCode(callSuper = true)
+public class ScreeningDto extends AbstractDto implements IScreening {
 
-    private Long id;
     private Long movieId;
     private Long showroomId;
     private String movieTitle;

@@ -1,7 +1,7 @@
 package com.ecinema.app.domain.validators;
 
 import com.ecinema.app.domain.contracts.IProfile;
-import com.ecinema.app.utils.UtilMethods;
+import com.ecinema.app.util.UtilMethods;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;

@@ -139,36 +139,16 @@
                     </td>
                 </tr>
                 <tr>
-                    <td>Category 1:</td>
+                    <td>Movie Categories:</td>
                     <td>
-                        <label>
-                            <select th:field="*{movieCategories[0]}">
-                                <option th:each="movieCategory:${T(com.ecinema.app.domain.enums.MovieCategory).values()}"
-                                        th:text="${movieCategory}" th:value="${movieCategory.name()}"></option>
-                            </select>
-                        </label>
-                    </td>
-                </tr>
-                <tr>
-                    <td>Category 2:</td>
-                    <td>
-                        <label>
-                            <select th:field="*{movieCategories[1]}">
-                                <option th:each="movieCategory:${T(com.ecinema.app.domain.enums.MovieCategory).values()}"
-                                        th:text="${movieCategory}" th:value="${movieCategory.name()}"></option>
-                            </select>
-                        </label>
-                    </td>
-                </tr>
-                <tr>
-                    <td>Category 3:</td>
-                    <td>
-                        <label>
-                            <select th:field="*{movieCategories[2]}">
-                                <option th:each="movieCategory:${T(com.ecinema.app.domain.enums.MovieCategory).values()}"
-                                        th:text="${movieCategory}" th:value="${movieCategory.name()}"></option>
-                            </select>
-                        </label>
+                        <ul>
+                            <li th:each="movieCategory:${T(com.ecinema.app.domain.enums.MovieCategory).values()}">
+                                <label>
+                                    <input type="checkbox" th:field="*{movieCategories}"
+                                           th:value="${movieCategory}" th:text="${movieCategory}">
+                                </label>
+                            </li>
+                        </ul>
                     </td>
                 </tr>
                 <tr>

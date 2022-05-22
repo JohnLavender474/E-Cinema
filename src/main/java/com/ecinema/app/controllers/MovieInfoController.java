@@ -4,7 +4,7 @@ import com.ecinema.app.domain.dtos.MovieDto;
 import com.ecinema.app.exceptions.NoEntityFoundException;
 import com.ecinema.app.services.MovieService;
 import com.ecinema.app.services.ReviewService;
-import com.ecinema.app.utils.UtilMethods;
+import com.ecinema.app.util.UtilMethods;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,7 +18,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import java.util.List;
 import java.util.Map;
 
-import static com.ecinema.app.utils.UtilMethods.addPageNumbersAttribute;
+import static com.ecinema.app.util.UtilMethods.addPageNumbersAttribute;
 
 @Controller
 @RequiredArgsConstructor
@@ -34,7 +34,7 @@ public class MovieInfoController {
                              @RequestParam(value = "search", required = false, defaultValue = "") final String search) {
         PageRequest pageRequest = PageRequest.of(page - 1, 6);
         Page<MovieDto> pageOfDtos = (search == null || search.isBlank()) ?
-                movieService.pageOfDtos(pageRequest) :
+                movieService.findAll(pageRequest) :
                 movieService.findAllByLikeTitle(search, pageRequest);
         addPageNumbersAttribute(model, pageOfDtos);
         Map<Integer, List<MovieDto>> movies = UtilMethods.get2dMapOf(pageOfDtos, 3);
@@ -49,10 +49,10 @@ public class MovieInfoController {
     }
 
     @GetMapping("/movie-info/{id}")
-    public String moviedebugPage(final Model model, final RedirectAttributes redirectAttributes,
+    public String movieInfoPage(final Model model, final RedirectAttributes redirectAttributes,
                                  @PathVariable("id") final Long movieId) {
         try {
-            MovieDto movieDto = movieService.convertIdToDto(movieId);
+            MovieDto movieDto = movieService.findById(movieId);
             model.addAttribute("movie", movieDto);
             Integer avgRating = reviewService.findAverageRatingOfMovieWithId(movieId);
             model.addAttribute("avgRating", avgRating);

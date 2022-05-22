@@ -2,8 +2,8 @@ package com.ecinema.app.controllers;
 
 import com.ecinema.app.exceptions.NoEntityFoundException;
 import com.ecinema.app.exceptions.PasswordMismatchException;
-import com.ecinema.app.services.SecurityService;
-import com.ecinema.app.utils.UtilMethods;
+import com.ecinema.app.services.LoginService;
+import com.ecinema.app.util.UtilMethods;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
@@ -23,10 +23,10 @@ import org.springframework.web.bind.annotation.RequestParam;
 public class LoginController {
 
     private final Logger logger = LoggerFactory.getLogger(LoginController.class);
-    private final SecurityService securityService;
+    private final LoginService loginService;
 
-    public LoginController(SecurityService securityService) {
-        this.securityService = securityService;
+    public LoginController(LoginService loginService) {
+        this.loginService = loginService;
     }
 
     @GetMapping("/login")
@@ -45,7 +45,7 @@ public class LoginController {
         logger.debug(UtilMethods.getDelimiterLine());
         logger.debug("Perform login post mapping");
         try {
-            securityService.login(username, password);
+            loginService.login(username, password);
             return "redirect:/index";
         } catch (NoEntityFoundException | PasswordMismatchException e) {
             logger.debug(e.toString());

@@ -1,6 +1,6 @@
 package com.ecinema.app.domain.contracts;
 
-import com.ecinema.app.utils.UtilMethods;
+import com.ecinema.app.util.UtilMethods;
 
 import java.time.LocalDateTime;
 

@@ -37,7 +37,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
             "/perform-login/**",
             "/post-email/**",
             "/submit-registration/**",
-            "/screening/**"
+            "/test"
     };
     private static final String[] AUTHENTICATED_PERMITTED = new String[]{
             "/logout/**",
@@ -46,6 +46,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
             "/edit-user-profile/**"
     };
     private static final String[] CUSTOMERS_PERMITTED = new String[]{
+            "/book-seats/**",
+            "/choose-seats-to-book/**",
             "/customer/**",
             "/write-review/**"
     };

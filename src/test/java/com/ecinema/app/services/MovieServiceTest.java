@@ -1,12 +1,12 @@
 package com.ecinema.app.services;
 
+import com.ecinema.app.beans.SecurityContext;
 import com.ecinema.app.domain.dtos.*;
 import com.ecinema.app.domain.entities.*;
 import com.ecinema.app.domain.enums.*;
 import com.ecinema.app.domain.forms.ReviewForm;
+import com.ecinema.app.domain.objects.Duration;
 import com.ecinema.app.repositories.*;
-import com.ecinema.app.services.implementations.*;
-import com.ecinema.app.utils.*;
 import com.ecinema.app.domain.validators.MovieValidator;
 import com.ecinema.app.domain.validators.ReviewValidator;
 import org.junit.jupiter.api.BeforeEach;
@@ -16,8 +16,6 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -27,35 +25,28 @@ import java.util.*;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.BDDMockito.given;
 
-/**
- * The type Movie service test.
- */
 @ExtendWith(MockitoExtension.class)
 class MovieServiceTest {
-
-    private final Logger logger = LoggerFactory.getLogger(MovieServiceTest.class);
 
     private MovieService movieService;
     private ReviewService reviewService;
     private TicketService ticketService;
-    private CouponService couponService;
     private PaymentCardService paymentCardService;
     private ShowroomService showroomService;
     private ShowroomSeatService showroomSeatService;
     private ScreeningSeatService screeningSeatService;
     private ScreeningService screeningService;
-    private CustomerAuthorityService customerAuthorityService;
+    private CustomerService customerService;
     private UserService userService;
     private MovieValidator movieValidator;
     private ReviewValidator reviewValidator;
+    private SecurityContext securityContext;
     @Mock
     private MovieRepository movieRepository;
     @Mock
     private ReviewRepository reviewRepository;
     @Mock
     private TicketRepository ticketRepository;
-    @Mock
-    private CouponRepository couponRepository;
     @Mock
     private PaymentCardRepository paymentCardRepository;
     @Mock
@@ -67,85 +58,72 @@ class MovieServiceTest {
     @Mock
     private ScreeningRepository screeningRepository;
     @Mock
-    private CustomerAuthorityRepository customerAuthorityRepository;
+    private CustomerRepository customerRepository;
     @Mock
     private UserRepository userRepository;
 
-    /**
-     * Sets up.
-     */
     @BeforeEach
     void setUp() {
+        securityContext = new SecurityContext();
         reviewValidator = new ReviewValidator();
         movieValidator = new MovieValidator();
-        reviewService = new ReviewServiceImpl(
+        reviewService = new ReviewService(
                 reviewRepository, movieRepository,
-                customerAuthorityRepository, reviewValidator);
-        ticketService = new TicketServiceImpl(
-                ticketRepository, null, null, null);
-        couponService = new CouponServiceImpl(
-                couponRepository, null, null);
-        paymentCardService = new PaymentCardServiceImpl(
+                customerRepository, reviewValidator);
+        ticketService = new TicketService(ticketRepository);
+        paymentCardService = new PaymentCardService(
                 paymentCardRepository, null, null);
-        screeningSeatService = new ScreeningSeatServiceImpl(
+        screeningSeatService = new ScreeningSeatService(
                 screeningSeatRepository, ticketService);
-        screeningService = new ScreeningServiceImpl(
+        screeningService = new ScreeningService(
                 screeningRepository, movieRepository, showroomRepository,
                 screeningSeatService, null);
-        customerAuthorityService = new CustomerAuthorityServiceImpl(
-                customerAuthorityRepository, reviewService,
-                ticketService, paymentCardService, couponService);
-        movieService = new MovieServiceImpl(
+        customerService = new CustomerService(
+                customerRepository, screeningSeatRepository,
+                null, reviewService, ticketService,
+                paymentCardService, securityContext);
+        movieService = new MovieService(
                 movieRepository, reviewService,
                 screeningService, movieValidator);
-        showroomSeatService = new ShowroomSeatServiceImpl(
+        showroomSeatService = new ShowroomSeatService(
                 showroomSeatRepository, screeningSeatService);
-        showroomService = new ShowroomServiceImpl(
+        showroomService = new ShowroomService(
                 showroomRepository, showroomSeatService,
                 screeningService, null);
-        userService = new UserServiceImpl(
-                userRepository, customerAuthorityService,
+        userService = new UserService(
+                userRepository, customerService,
                 null, null, null,
-                null, null, null);
+                null, null);
     }
 
-    /**
-     * Delete movie cascade.
-     */
     @Test
     void deleteMovieCascade() {
         // given
         Movie movie = new Movie();
         movie.setId(1L);
-        given(movieRepository.findById(1L))
-                .willReturn(Optional.of(movie));
         movieService.save(movie);
-        CustomerAuthority customerAuthority = new CustomerAuthority();
-        customerAuthorityService.save(customerAuthority);
+        Customer customer = new Customer();
+        customerService.save(customer);
         Review review = new Review();
         review.setId(2L);
-        review.setWriter(customerAuthority);
-        customerAuthority.getReviews().add(review);
+        review.setWriter(customer);
+        customer.getReviews().add(review);
         review.setMovie(movie);
         movie.getReviews().add(review);
-        given(reviewRepository.findById(2L))
-                .willReturn(Optional.of(review));
         reviewService.save(review);
         Screening screening = new Screening();
         screening.setId(3L);
         screening.setMovie(movie);
         movie.getScreenings().add(screening);
-        given(screeningRepository.findById(3L))
-                .willReturn(Optional.of(screening));
         screeningService.save(screening);
-        assertTrue(customerAuthority.getReviews().contains(review));
+        assertTrue(customer.getReviews().contains(review));
         assertEquals(movie, review.getMovie());
         assertTrue(movie.getScreenings().contains(screening));
         assertEquals(movie, screening.getMovie());
         // when
         movieService.delete(movie);
         // then
-        assertFalse(customerAuthority.getReviews().contains(review));
+        assertFalse(customer.getReviews().contains(review));
         assertNull(review.getMovie());
         assertFalse(movie.getScreenings().contains(screening));
         assertNull(screening.getMovie());
@@ -178,15 +156,15 @@ class MovieServiceTest {
         User user = new User();
         user.setUsername("test username");
         userService.save(user);
-        CustomerAuthority customerAuthority = new CustomerAuthority();
-        customerAuthority.setUser(user);
-        user.getUserAuthorities().put(UserAuthority.CUSTOMER, customerAuthority);
-        customerAuthorityService.save(customerAuthority);
+        Customer customer = new Customer();
+        customer.setUser(user);
+        user.getUserAuthorities().put(UserAuthority.CUSTOMER, customer);
+        customerService.save(customer);
         Review review = new Review();
         review.setId(1L);
         review.setRating(7);
-        review.setWriter(customerAuthority);
-        customerAuthority.getReviews().add(review);
+        review.setWriter(customer);
+        customer.getReviews().add(review);
         review.setReview("meh, it's okay");
         review.setMovie(movie);
         movie.getReviews().add(review);
@@ -236,7 +214,7 @@ class MovieServiceTest {
                 .willReturn(Optional.of(ticket));
         ticketService.save(ticket);
         // when
-        MovieDto movieDto = movieService.convertIdToDto(1L);
+        MovieDto movieDto = movieService.convertToDto(1L);
         // then
         assertEquals(movie.getId(), movieDto.getId());
         assertEquals(movie.getTitle(), movieDto.getTitle());
@@ -262,13 +240,13 @@ class MovieServiceTest {
         User user = new User();
         user.setId(2L);
         userService.save(user);
-        CustomerAuthority customerAuthority = new CustomerAuthority();
-        customerAuthority.setId(3L);
-        customerAuthority.setUser(user);
-        user.getUserAuthorities().put(UserAuthority.CUSTOMER, customerAuthority);
-        given(customerAuthorityRepository.findByUserWithId(2L))
-                .willReturn(Optional.of(customerAuthority));
-        customerAuthorityService.save(customerAuthority);
+        Customer customer = new Customer();
+        customer.setId(3L);
+        customer.setUser(user);
+        user.getUserAuthorities().put(UserAuthority.CUSTOMER, customer);
+        given(customerRepository.findByUserWithId(2L))
+                .willReturn(Optional.of(customer));
+        customerService.save(customer);
         // when
         ReviewForm reviewForm = new ReviewForm();
         reviewForm.setMovieId(1L);
@@ -284,68 +262,8 @@ class MovieServiceTest {
         assertEquals(movie, review.getMovie());
         assertEquals(reviewForm.getReview(), review.getReview());
         assertEquals(reviewForm.getRating(), review.getRating());
-        assertEquals(customerAuthority, review.getWriter());
+        assertEquals(customer, review.getWriter());
         assertEquals(user, review.getWriter().getUser());
-    }
-
-    @Test
-    void onDeleteInfo() {
-        // given
-        Movie movie = new Movie();
-        movie.setTitle("Test Movie");
-        movieService.save(movie);
-        Showroom showroom = new Showroom();
-        showroom.setShowroomLetter(Letter.A);
-        showroomService.save(showroom);
-        ShowroomSeat showroomSeat = new ShowroomSeat();
-        showroomSeat.setRowLetter(Letter.A);
-        showroomSeat.setSeatNumber(1);
-        showroomSeatService.save(showroomSeat);
-        Screening screening = new Screening();
-        screening.setMovie(movie);
-        screening.setShowDateTime(LocalDateTime.now());
-        movie.getScreenings().add(screening);
-        screening.setShowroom(showroom);
-        showroom.getScreenings().add(screening);
-        screeningService.save(screening);
-        ScreeningSeat screeningSeat = new ScreeningSeat();
-        screeningSeat.setShowroomSeat(showroomSeat);
-        showroomSeat.getScreeningSeats().add(screeningSeat);
-        screeningSeat.setScreening(screening);
-        screening.getScreeningSeats().add(screeningSeat);
-        screeningSeatService.save(screeningSeat);
-        User user = new User();
-        user.setUsername("TestUser123");
-        user.setId(1L);
-        given(userRepository.findById(1L)).willReturn(Optional.of(user));
-        userService.save(user);
-        userService.addUserAuthorityToUser(user, UserAuthority.CUSTOMER);
-        CustomerAuthority customerAuthority = (CustomerAuthority) user.getUserAuthorities().get(UserAuthority.CUSTOMER);
-        Review review = new Review();
-        review.setMovie(movie);
-        movie.getReviews().add(review);
-        review.setWriter(customerAuthority);
-        customerAuthority.getReviews().add(review);
-        review.setReview("This is a movie review");
-        reviewService.save(review);
-        Ticket ticket = new Ticket();
-        ticket.setScreeningSeat(screeningSeat);
-        screeningSeat.setTicket(ticket);
-        ticket.setTicketOwner(customerAuthority);
-        customerAuthority.getTickets().add(ticket);
-        ticketService.save(ticket);
-        Coupon coupon = new Coupon();
-        coupon.setCouponType(CouponType.FOOD_DRINK_COUPON);
-        coupon.setCouponOwner(customerAuthority);
-        customerAuthority.getCoupons().add(coupon);
-        coupon.setTicket(ticket);
-        ticket.getCoupons().add(coupon);
-        couponService.save(coupon);
-        // when
-        List<String> info = new ArrayList<>();
-        movieService.onDeleteInfo(movie, info);
-        // then look at logger debug messages
-        info.forEach(logger::debug);
     }
 
 }

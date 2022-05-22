@@ -1,13 +1,14 @@
 package com.ecinema.app.controllers;
 
-import com.ecinema.app.domain.dtos.CustomerAuthorityDto;
+import com.ecinema.app.beans.SecurityContext;
+import com.ecinema.app.domain.dtos.CustomerDto;
 import com.ecinema.app.domain.dtos.UserDto;
 import com.ecinema.app.domain.enums.UserAuthority;
 import com.ecinema.app.exceptions.NoEntityFoundException;
-import com.ecinema.app.services.CustomerAuthorityService;
-import com.ecinema.app.services.ModeratorAuthorityService;
-import com.ecinema.app.services.SecurityService;
-import com.ecinema.app.utils.UtilMethods;
+import com.ecinema.app.services.CustomerService;
+import com.ecinema.app.services.ModeratorService;
+import com.ecinema.app.services.UserService;
+import com.ecinema.app.util.UtilMethods;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,36 +23,54 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.util.List;
 
-import static com.ecinema.app.utils.UtilMethods.addPageNumbersAttribute;
+import static com.ecinema.app.util.UtilMethods.addPageNumbersAttribute;
 
+/**
+ * The type Moderator controller.
+ */
 @Controller
 @RequiredArgsConstructor
 public class ModeratorController {
 
-    private final SecurityService securityService;
-    private final CustomerAuthorityService customerAuthorityService;
-    private final ModeratorAuthorityService moderatorAuthorityService;
+    private final UserService userService;
+    private final CustomerService customerService;
+    private final ModeratorService moderatorService;
+    private final SecurityContext securityContext;
     private final Logger logger = LoggerFactory.getLogger(ModeratorController.class);
 
+    /**
+     * Show moderator censorship page string.
+     *
+     * @param model              the model
+     * @param redirectAttributes the redirect attributes
+     * @param page               the page
+     * @return the string
+     */
     @GetMapping("/moderator-censorship")
     public String showModeratorCensorshipPage(final Model model, final RedirectAttributes redirectAttributes,
                                               @RequestParam(value = "page", required = false, defaultValue = "1")
                                               final Integer page) {
         logger.debug(UtilMethods.getDelimiterLine());
         logger.debug("Get mapping: moderator censorship");
-        UserDto userDto = securityService.findLoggedInUserDTO();
+        Long userId = securityContext.findIdOfLoggedInUser();
+        if (userId == null) {
+            redirectAttributes.addFlashAttribute(
+                    "errors", List.of("FATAL ERROR: Forced to logout"));
+            return "redirect:/logout";
+        }
+        UserDto userDto = userService.convertToDto(userId);
         logger.debug("User DTO: " + userDto);
-        if (userDto == null || !userDto.getUserAuthorities().contains(UserAuthority.MODERATOR)) {
+        if (!userDto.getUserAuthorities().contains(UserAuthority.MODERATOR)) {
             logger.debug("ERROR: user does not have moderator authority");
             redirectAttributes.addFlashAttribute(
                     "errors", List.of("User does not have moderator authority"));
             return "redirect:/error";
         }
-        Long moderatorId = moderatorAuthorityService.findIdByUserWithId(userDto.getId());
+        Long moderatorId = moderatorService.findIdByUserWithId(userDto.getId());
         logger.debug("Moderator id: " + moderatorId);
         model.addAttribute("moderatorId", moderatorId);
         PageRequest pageRequest = PageRequest.of(page - 1, 10);
-        Page<CustomerAuthorityDto> pageOfDtos = customerAuthorityService.findAllDtos(pageRequest);
+        Page<CustomerDto> pageOfDtos = customerService.findAll(pageRequest);
         model.addAttribute("censoredCustomers", pageOfDtos);
         addPageNumbersAttribute(model, pageOfDtos);
         logger.debug("Page number: " + page);
@@ -59,6 +78,17 @@ public class ModeratorController {
         return "moderator-censorship";
     }
 
+    /**
+     * Sets customer censor status.
+     *
+     * @param model              the model
+     * @param redirectAttributes the redirect attributes
+     * @param page               the page
+     * @param moderatorId        the moderator id
+     * @param customerId         the customer id
+     * @param currentStatus      the current status
+     * @return the customer censor status
+     */
     @PostMapping("/set-customer-censor-status")
     public String setCustomerCensorStatus(final Model model, final RedirectAttributes redirectAttributes,
                                           @RequestParam("page") final Integer page,
@@ -72,7 +102,7 @@ public class ModeratorController {
         logger.debug("Customer id: " + customerId);
         logger.debug("Current status: " + currentStatus);
         try {
-            moderatorAuthorityService.setCustomerCensoredStatus(
+            moderatorService.setCustomerCensoredStatus(
                     moderatorId, customerId, !currentStatus);
             logger.debug("Successfully changed customer censor status from " + currentStatus + " to " + !currentStatus);
             redirectAttributes.addFlashAttribute("success", "Successfully changed " +
@@ -86,6 +116,11 @@ public class ModeratorController {
         }
     }
 
+    /**
+     * Show moderator reports page string.
+     *
+     * @return the string
+     */
     @GetMapping("/moderator-reports")
     public String showModeratorReportsPage() {
         return null;

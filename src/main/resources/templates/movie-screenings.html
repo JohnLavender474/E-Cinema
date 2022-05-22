@@ -3,7 +3,10 @@
 <head th:insert="fragments/header :: header"></head>
 <body>
 <nav th:insert="fragments/webpage-top :: webpage-top"></nav>
-<div class="moviesContainer">
+<div class="container">
+    <form method="get" th:action="@{/movie-info/{id}(id=${movieId})}">
+        <button class="btn btn-primary">Go Back to Movie Info Page</button>
+    </form>
     <table class="table-hover">
         <tr>
             <td th:if="${totalPages > 0}" th:each="pageNumber:${pageNumbers}">
@@ -29,9 +32,9 @@
             <td th:text="${screening.endDateTimeFormatted()}"></td>
             <td th:text="${screening.seatsAvailable} + '/' + ${screening.totalSeatsInRoom}"></td>
             <td>
-                <button class="button">
-                    <a th:href="@{/screening/{id}(id=${screening.id})}">See the screening!</a>
-                </button>
+                <form method="get" th:action="@{/choose-seats-to-book(id=${screening.id})}">
+                    <button class="button" style="font-size: xx-large">Book Seats</button>
+                </form>
             </td>
         </tr>
         </tbody>

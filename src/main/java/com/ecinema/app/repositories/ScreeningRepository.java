@@ -16,7 +16,7 @@ import java.util.List;
  * The interface Screening repository.
  */
 @Repository
-public interface ScreeningRepository extends JpaRepository<Screening, Long>, AbstractRepository {
+public interface ScreeningRepository extends JpaRepository<Screening, Long> {
 
     /**
      * Find all by movie id page.

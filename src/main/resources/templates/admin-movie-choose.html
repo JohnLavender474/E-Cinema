@@ -3,18 +3,18 @@
 <head th:insert="fragments/header :: header"></head>
 <body>
 <nav th:insert="fragments/webpage-top :: webpage-top"></nav>
-<div th:insert="fragments/back-to-admin-page :: back-to-admin-page"></div>
-<div class="moviesContainer">
+<div th:insert="fragments/back-to-management-page :: back-to-management-page"></div>
+<div class="container">
     <h1>Movies</h1>
     <br/>
     <table class="table table-bordered table-striped">
         <tbody>
         <tr th:each="movie:${movies}">
+            <td><span style="color: white" th:text="${movie.title}"></span></td>
             <td>
-                <span style="color: white" th:text="${movie.title}"></span>
-                <button class="btn btn-primary">
-                    <a th:href="@{${href}(id=${movie.id})}">CHOOSE</a>
-                </button>
+                <form method="get" th:action="@{${href}(id=${movie.id})}">
+                    <button class="btn btn-primary">Choose</button>
+                </form>
             </td>
         </tr>
         </tbody>

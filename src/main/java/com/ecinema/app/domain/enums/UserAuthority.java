@@ -1,5 +1,6 @@
 package com.ecinema.app.domain.enums;
 
+import com.ecinema.app.domain.entities.AbstractUserAuthority;
 import com.ecinema.app.domain.entities.*;
 import org.springframework.security.core.GrantedAuthority;
 
@@ -17,15 +18,13 @@ public enum UserAuthority implements GrantedAuthority {
      */
     ADMIN {
         @Override
-        @SuppressWarnings("unchecked")
-        public AdminAuthority instantiate() {
-            return new AdminAuthority();
+        public Admin instantiate() {
+            return new Admin();
         }
 
         @Override
-        @SuppressWarnings("unchecked")
-        public AdminAuthority cast(Object o) {
-            return (AdminAuthority) o;
+        public Admin cast(Object o) {
+            return (Admin) o;
         }
 
         @Override
@@ -40,15 +39,13 @@ public enum UserAuthority implements GrantedAuthority {
      */
     MODERATOR {
         @Override
-        @SuppressWarnings("unchecked")
-        public ModeratorAuthority instantiate() {
-            return new ModeratorAuthority();
+        public Moderator instantiate() {
+            return new Moderator();
         }
 
         @Override
-        @SuppressWarnings("unchecked")
-        public ModeratorAuthority cast(Object o) {
-            return (ModeratorAuthority) o;
+        public Moderator cast(Object o) {
+            return (Moderator) o;
         }
 
         @Override
@@ -63,15 +60,13 @@ public enum UserAuthority implements GrantedAuthority {
      */
     CUSTOMER {
         @Override
-        @SuppressWarnings("unchecked")
-        public CustomerAuthority instantiate() {
-            return new CustomerAuthority();
+        public Customer instantiate() {
+            return new Customer();
         }
 
         @Override
-        @SuppressWarnings("unchecked")
-        public CustomerAuthority cast(Object o) {
-            return (CustomerAuthority) o;
+        public Customer cast(Object o) {
+            return (Customer) o;
         }
 
         @Override
@@ -83,9 +78,9 @@ public enum UserAuthority implements GrantedAuthority {
 
     private static final Map<Class<? extends AbstractUserAuthority>, UserAuthority> DEF_CLASS_TO_USER_ROLE_MAP =
             new HashMap<>() {{
-                put(AdminAuthority.class, ADMIN);
-                put(CustomerAuthority.class, CUSTOMER);
-                put(ModeratorAuthority.class, MODERATOR);
+                put(Admin.class, ADMIN);
+                put(Customer.class, CUSTOMER);
+                put(Moderator.class, MODERATOR);
             }};
 
     /**

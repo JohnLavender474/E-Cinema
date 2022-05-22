@@ -1,10 +1,16 @@
 package com.ecinema.app.controllers;
 
+import com.ecinema.app.configs.InitializationConfig;
+import com.ecinema.app.domain.entities.User;
+import com.ecinema.app.repositories.UserRepository;
+import com.ecinema.app.services.EncoderService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
@@ -14,14 +20,22 @@ import static org.springframework.security.test.web.servlet.setup.SecurityMockMv
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrl;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
 class LoginControllerTest {
 
     @Autowired
     private WebApplicationContext context;
+
+    @Autowired
+    private UserRepository userRepository;
+
+    @Autowired
+    private EncoderService encoderService;
+
+    @MockBean
+    private InitializationConfig config;
 
     private MockMvc mockMvc;
 
@@ -44,10 +58,17 @@ class LoginControllerTest {
     @Test
     void successLogin()
             throws Exception {
+        User user = new User();
+        user.setEmail("User123");
+        user.setPassword(encoderService.encode("password123?!"));
+        user.setIsAccountEnabled(true);
+        user.setIsAccountExpired(false);
+        user.setIsAccountLocked(false);
+        user.setIsCredentialsExpired(false);
+        userRepository.save(user);
         mockMvc.perform(post("/perform-login")
-                                .param("username", "RootUser123")
+                                .param("username", "User123")
                                 .param("password", "password123?!"))
-               .andDo(print())
                .andExpect(redirectedUrl("/login-success"));
     }
 
@@ -57,7 +78,6 @@ class LoginControllerTest {
         mockMvc.perform(post("/perform-login")
                                 .param("username", "dummy")
                                 .param("password", "dummy"))
-               .andDo(print())
                .andExpect(redirectedUrl("/login-error"));
     }
 
@@ -66,8 +86,7 @@ class LoginControllerTest {
     void loggedInUserCannotAccessLoginPage()
             throws Exception {
         mockMvc.perform(get("/login"))
-               .andDo(print())
-               .andExpect(redirectedUrl("/index"));
+               .andExpect(redirectedUrlPattern("/index**"));
     }
 
 }

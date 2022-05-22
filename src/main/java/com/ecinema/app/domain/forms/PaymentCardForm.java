@@ -4,6 +4,7 @@ import com.ecinema.app.domain.contracts.IAddress;
 import com.ecinema.app.domain.contracts.IPaymentCard;
 import com.ecinema.app.domain.enums.PaymentCardType;
 import com.ecinema.app.domain.enums.UsState;
+import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -11,8 +12,7 @@ import java.io.Serializable;
 import java.time.LocalDate;
 import java.time.Month;
 
-@Getter
-@Setter
+@Data
 public class PaymentCardForm implements IPaymentCard, Serializable {
 
     private Long customerRoleDefId = 0L;

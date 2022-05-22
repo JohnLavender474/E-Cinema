@@ -1,9 +1,11 @@
 package com.ecinema.app.controllers;
 
+import com.ecinema.app.beans.SecurityContext;
 import com.ecinema.app.domain.dtos.UserDto;
 import com.ecinema.app.domain.enums.UserAuthority;
+import com.ecinema.app.exceptions.NoEntityFoundException;
 import com.ecinema.app.services.*;
-import com.ecinema.app.utils.UtilMethods;
+import com.ecinema.app.util.UtilMethods;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,26 +15,18 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-/**
- * The type Admin controller.
- */
 @Controller
 @RequiredArgsConstructor
 public class ManagementController {
 
     private final UserService userService;
-    private final SecurityService securityService;
+    private final SecurityContext securityContext;
     private final Logger logger = LoggerFactory.getLogger(ManagementController.class);
 
-    /**
-     * Show admin page string.
-     *
-     * @param model the model
-     * @return the string
-     */
     @GetMapping("/management")
     public String showAdminPage(final Model model) {
-        UserDto userDto = securityService.findLoggedInUserDTO();
+        Long userId = securityContext.findIdOfLoggedInUser();
+        UserDto userDto = userService.findById(userId);
         List<String> userAuthorities = userService.userAuthoritiesAsListOfStrings(userDto.getId());
         if (userDto.getUserAuthorities().contains(UserAuthority.MODERATOR)) {
             model.addAttribute("moderator", true);

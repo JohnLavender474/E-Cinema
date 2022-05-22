@@ -14,7 +14,7 @@ import java.util.Optional;
  * The interface User repository.
  */
 @Repository
-public interface UserRepository extends JpaRepository<User, Long>, AbstractRepository {
+public interface UserRepository extends JpaRepository<User, Long> {
 
     /**
      * Exists by username boolean.
@@ -33,13 +33,24 @@ public interface UserRepository extends JpaRepository<User, Long>, AbstractRepos
     boolean existsByEmail(String email);
 
     /**
+     * Returns true if there is a {@link User} that exists where {@link User#getUsername()} or
+     * {@link User#getEmail()} equals the provided String.
+     *
+     * @param s the String to match to username or email
+     * @return true if there is a User that matches the predicate
+     */
+    @Query("SELECT CASE WHEN count(u) > 0 THEN true ELSE false END " +
+            "FROM User u WHERE u.username = ?1 OR u.email = ?1")
+    boolean existsByUsernameOrEmail(String s);
+
+    /**
      * Find id by username or email long.
      *
      * @param s the s
      * @return the long
      */
-    @Query("SELECT u.id FROM User u WHERE u.email = :s OR u.username = :s")
-    Long findIdByUsernameOrEmail(@Param("s") String s);
+    @Query("SELECT u.id FROM User u WHERE u.email = ?1 OR u.username = ?1")
+    Long findIdByUsernameOrEmail(String s);
 
     /**
      * Find by username optional.

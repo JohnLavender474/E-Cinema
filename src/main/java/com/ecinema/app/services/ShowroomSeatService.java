@@ -1,117 +1,80 @@
 package com.ecinema.app.services;
 
-import com.ecinema.app.domain.EntityDtoConverter;
+import com.ecinema.app.domain.contracts.ISeat;
 import com.ecinema.app.domain.dtos.ShowroomSeatDto;
-import com.ecinema.app.domain.entities.ScreeningSeat;
 import com.ecinema.app.domain.entities.Showroom;
 import com.ecinema.app.domain.entities.ShowroomSeat;
 import com.ecinema.app.exceptions.InvalidAssociationException;
 import com.ecinema.app.exceptions.NoEntityFoundException;
 import com.ecinema.app.domain.enums.Letter;
+import com.ecinema.app.repositories.ShowroomSeatRepository;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
-/**
- * The interface Showroom seat service.
- */
-public interface ShowroomSeatService extends AbstractService<ShowroomSeat>,
-                                             EntityDtoConverter<ShowroomSeat, ShowroomSeatDto> {
+@Service
+@Transactional
+public class ShowroomSeatService extends AbstractEntityService<ShowroomSeat, ShowroomSeatRepository, ShowroomSeatDto> {
 
-    /**
-     * Find showroom seat map by showroom with id map.
-     *
-     * @param showroomId the showroom id
-     * @return the map
-     */
-    Map<Letter, Set<ShowroomSeatDto>> findShowroomSeatMapByShowroomWithId(Long showroomId)
-            throws InvalidAssociationException;
+    private final ScreeningSeatService screeningSeatService;
 
-    /**
-     * Find all by showroom list.
-     *
-     * @param showroom the showroom
-     * @return the list
-     */
-    List<ShowroomSeatDto> findAllByShowroom(Showroom showroom);
+    public ShowroomSeatService(ShowroomSeatRepository repository, ScreeningSeatService screeningSeatService) {
+        super(repository);
+        this.screeningSeatService = screeningSeatService;
+    }
 
-    /**
-     * Find all by showroom with id list.
-     *
-     * @param showroomId the showroom id
-     * @return the list
-     * @throws NoEntityFoundException the no entity found exception
-     */
-    List<ShowroomSeatDto> findAllByShowroomWithId(Long showroomId)
-            throws NoEntityFoundException;
+    @Override
+    public void onDelete(ShowroomSeat showroomSeat) {
+        logger.debug("Showroom seat on delete");
+        // detach Showroom
+        Showroom showroom = showroomSeat.getShowroom();
+        logger.debug("Detach showroom: " + showroom);
+        if (showroom != null) {
+            showroom.getShowroomSeats().remove(showroomSeat);
+            showroomSeat.setShowroom(null);
+        }
+        // cascade delete ScreeningSeats
+        logger.debug("Delete all associated screening seats");
+        screeningSeatService.deleteAll(showroomSeat.getScreeningSeats());
+    }
 
-    /**
-     * Find all by showroom and row letter list.
-     *
-     * @param showroom  the showroom
-     * @param rowLetter the row letter
-     * @return the list
-     * @throws NoEntityFoundException the no entity found exception
-     */
-    List<ShowroomSeatDto> findAllByShowroomAndRowLetter(Showroom showroom, Letter rowLetter)
-            throws NoEntityFoundException;
+    @Override
+    public ShowroomSeatDto convertToDto(ShowroomSeat showroomSeat) {
+        ShowroomSeatDto showroomSeatDTO = new ShowroomSeatDto();
+        showroomSeatDTO.setId(showroomSeat.getId());
+        showroomSeatDTO.setRowLetter(showroomSeat.getRowLetter());
+        showroomSeatDTO.setSeatNumber(showroomSeat.getSeatNumber());
+        showroomSeatDTO.setShowroomId(showroomSeat.getShowroom().getId());
+        showroomSeatDTO.setShowroomLetter(showroomSeat.getShowroom().getShowroomLetter());
+        logger.debug("Convereted showroom seat to DTO: " + showroomSeatDTO);
+        logger.debug("Showroom seat: " + showroomSeat);
+        return showroomSeatDTO;
+    }
 
-    /**
-     * Find all by showroom with id and row letter list.
-     *
-     * @param showroomId the showroom id
-     * @param rowLetter  the row letter
-     * @return the list
-     * @throws NoEntityFoundException the no entity found exception
-     */
-    List<ShowroomSeatDto> findAllByShowroomWithIdAndRowLetter(Long showroomId, Letter rowLetter)
-            throws NoEntityFoundException;
+    public Map<Letter, Set<ShowroomSeatDto>> findShowroomSeatMapByShowroomWithId(Long showroomId)
+            throws InvalidAssociationException {
+        List<ShowroomSeatDto> showroomSeatDtos = findAllByShowroomWithId(showroomId);
+        if (showroomSeatDtos.isEmpty()) {
+            throw new InvalidAssociationException("No showroom seats mapped to showroom with id " + showroomId);
+        }
+        Map<Letter, Set<ShowroomSeatDto>> showroomSeatMap = new EnumMap<>(Letter.class);
+        for (ShowroomSeatDto showroomSeatDto : showroomSeatDtos) {
+            showroomSeatMap.putIfAbsent(showroomSeatDto.getShowroomLetter(),
+                                        new TreeSet<>(ISeat.SeatComparator.getInstance()));
+            showroomSeatMap.get(showroomSeatDto.getRowLetter()).add(showroomSeatDto);
+        }
+        return showroomSeatMap;
+    }
 
-    /**
-     * Find by screening seats contains optional.
-     *
-     * @param screeningSeat the screening seat
-     * @return the optional
-     * @throws NoEntityFoundException the no entity found exception
-     */
-    ShowroomSeatDto findByScreeningSeatsContains(ScreeningSeat screeningSeat)
-            throws NoEntityFoundException;
+    public List<ShowroomSeatDto> findAllByShowroomWithId(Long showroomId)
+            throws NoEntityFoundException {
+        return sortAndConvert(repository.findAllByShowroomWithId(showroomId));
+    }
 
-    /**
-     * Find by screening seats contains with id optional.
-     *
-     * @param screeningSeatId the screening seat id
-     * @return the optional
-     * @throws NoEntityFoundException the no entity found exception
-     */
-    ShowroomSeatDto findByScreeningSeatsContainsWithId(Long screeningSeatId)
-            throws NoEntityFoundException;
-
-    /**
-     * Find by showroom and row letter and seat number optional.
-     *
-     * @param showroom   the showroom
-     * @param rowLetter  the row letter
-     * @param seatNumber the seat number
-     * @return the optional
-     * @throws NoEntityFoundException the no entity found exception
-     */
-    ShowroomSeatDto findByShowroomAndRowLetterAndSeatNumber(
-            Showroom showroom, Letter rowLetter, Integer seatNumber)
-            throws NoEntityFoundException;
-
-    /**
-     * Find by showroom with id and row letter and seat number optional.
-     *
-     * @param showroomId the showroom id
-     * @param rowLetter  the row letter
-     * @param seatNumber the seat number
-     * @return the optional
-     * @throws NoEntityFoundException the no entity found exception
-     */
-    ShowroomSeatDto findByShowroomWithIdAndRowLetterAndSeatNumber(
-            Long showroomId, Letter rowLetter, Integer seatNumber)
-            throws NoEntityFoundException;
+    private List<ShowroomSeatDto> sortAndConvert(List<ShowroomSeat> showroomSeats) {
+        showroomSeats.sort(ISeat.SeatComparator.getInstance());
+        return convertToDto(showroomSeats);
+    }
 
 }

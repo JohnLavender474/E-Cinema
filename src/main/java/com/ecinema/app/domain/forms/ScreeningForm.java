@@ -8,7 +8,6 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 
-/** Form to be used for adding a new {@link com.ecinema.app.domain.entities.Screening}. */
 @Data
 public class ScreeningForm implements IScreening, Serializable {
 
@@ -20,7 +19,8 @@ public class ScreeningForm implements IScreening, Serializable {
 
     @Override
     public LocalDateTime getShowDateTime() {
-        return LocalDateTime.of(showdate, LocalTime.of(showtimeHour, showtimeMinute));
+        return LocalDateTime.of(showdate, LocalTime.of(
+                showtimeHour, showtimeMinute));
     }
 
     @Override

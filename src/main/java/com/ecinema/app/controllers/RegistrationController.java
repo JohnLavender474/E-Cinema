@@ -4,7 +4,7 @@ import com.ecinema.app.domain.enums.SecurityQuestions;
 import com.ecinema.app.domain.forms.RegistrationForm;
 import com.ecinema.app.exceptions.*;
 import com.ecinema.app.services.RegistrationService;
-import com.ecinema.app.utils.UtilMethods;
+import com.ecinema.app.util.UtilMethods;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

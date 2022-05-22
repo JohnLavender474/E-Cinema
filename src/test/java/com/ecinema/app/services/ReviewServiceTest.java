@@ -1,16 +1,16 @@
 package com.ecinema.app.services;
 
+import com.ecinema.app.beans.SecurityContext;
 import com.ecinema.app.domain.dtos.ReviewDto;
-import com.ecinema.app.domain.entities.CustomerAuthority;
+import com.ecinema.app.domain.entities.Customer;
 import com.ecinema.app.domain.entities.Movie;
 import com.ecinema.app.domain.entities.Review;
 import com.ecinema.app.domain.entities.User;
 import com.ecinema.app.domain.enums.UserAuthority;
 import com.ecinema.app.domain.forms.ReviewForm;
-import com.ecinema.app.repositories.*;
-import com.ecinema.app.services.implementations.*;
 import com.ecinema.app.domain.validators.MovieValidator;
 import com.ecinema.app.domain.validators.ReviewValidator;
+import com.ecinema.app.repositories.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -30,22 +30,20 @@ class ReviewServiceTest {
     private PaymentCardService paymentCardService;
     private ReviewService reviewService;
     private TicketService ticketService;
-    private CouponService couponService;
     private MovieService movieService;
     private ScreeningSeatService screeningSeatService;
     private ScreeningService screeningService;
-    private CustomerAuthorityService customerAuthorityService;
+    private CustomerService customerService;
     private UserService userService;
     private ReviewValidator reviewValidator;
     private MovieValidator movieValidator;
+    private SecurityContext securityContext;
     @Mock
     private PaymentCardRepository paymentCardRepository;
     @Mock
     private ReviewRepository reviewRepository;
     @Mock
     private TicketRepository ticketRepository;
-    @Mock
-    private CouponRepository couponRepository;
     @Mock
     private MovieRepository movieRepository;
     @Mock
@@ -55,71 +53,59 @@ class ReviewServiceTest {
     @Mock
     private ScreeningRepository screeningRepository;
     @Mock
-    private CustomerAuthorityRepository customerAuthorityRepository;
+    private CustomerRepository customerRepository;
     @Mock
     private UserRepository userRepository;
 
     @BeforeEach
     void setUp() {
+        securityContext = new SecurityContext();
         movieValidator = new MovieValidator();
         reviewValidator = new ReviewValidator();
-        paymentCardService = new PaymentCardServiceImpl(
+        paymentCardService = new PaymentCardService(
                 paymentCardRepository, null, null);
-        reviewService = new ReviewServiceImpl(
+        reviewService = new ReviewService(
                 reviewRepository, movieRepository,
-                customerAuthorityRepository, reviewValidator);
-        ticketService = new TicketServiceImpl(
-                ticketRepository, null, null, null);
-        couponService = new CouponServiceImpl(
-                couponRepository, null, null);
-        screeningSeatService = new ScreeningSeatServiceImpl(
+                customerRepository, reviewValidator);
+        ticketService = new TicketService(ticketRepository);
+        screeningSeatService = new ScreeningSeatService(
                 screeningSeatRepository, ticketService);
-        screeningService = new ScreeningServiceImpl(
+        screeningService = new ScreeningService(
                 screeningRepository, movieRepository, showroomRepository,
                 screeningSeatService, null);
-        customerAuthorityService = new CustomerAuthorityServiceImpl(
-                customerAuthorityRepository, reviewService,
-                ticketService, paymentCardService, couponService);
-        movieService = new MovieServiceImpl(
+        customerService = new CustomerService(
+                customerRepository, screeningSeatRepository,
+                null, reviewService, ticketService,
+                paymentCardService, securityContext);
+        movieService = new MovieService(
                 movieRepository, reviewService,
                 screeningService, movieValidator);
-        userService = new UserServiceImpl(
-                userRepository, customerAuthorityService,
+        userService = new UserService(
+                userRepository, customerService,
                 null, null, null,
-                null, null, null);
+                null, null);
     }
 
     @Test
     void deleteReviewCascade() {
         // given
-        CustomerAuthority customerAuthority = new CustomerAuthority();
-        customerAuthorityService.save(customerAuthority);
+        Customer customer = new Customer();
         Movie movie = new Movie();
-        movieService.save(movie);
         Review review = new Review();
         review.setId(1L);
-        review.setWriter(customerAuthority);
-        customerAuthority.getReviews().add(review);
+        review.setWriter(customer);
+        customer.getReviews().add(review);
         review.setMovie(movie);
         movie.getReviews().add(review);
-        CustomerAuthority reporter1 = new CustomerAuthority();
-        customerAuthorityService.save(reporter1);
-
-        CustomerAuthority reporter2 = new CustomerAuthority();
-        customerAuthorityService.save(reporter2);
-
-        given(reviewRepository.findById(1L))
-                .willReturn(Optional.of(review));
-        reviewService.save(review);
-        assertTrue(customerAuthority.getReviews().contains(review));
-        assertEquals(customerAuthority, review.getWriter());
+        assertTrue(customer.getReviews().contains(review));
+        assertEquals(customer, review.getWriter());
         assertTrue(movie.getReviews().contains(review));
         assertEquals(movie, review.getMovie());
         // when
         reviewService.delete(review);
         // then
-        assertFalse(customerAuthority.getReviews().contains(review));
-        assertNotEquals(customerAuthority, review.getWriter());
+        assertFalse(customer.getReviews().contains(review));
+        assertNotEquals(customer, review.getWriter());
         assertFalse(movie.getReviews().contains(review));
         assertNotEquals(movie, review.getMovie());
     }
@@ -130,15 +116,15 @@ class ReviewServiceTest {
         User user = new User();
         user.setUsername("test username");
         userService.save(user);
-        CustomerAuthority customerAuthority = new CustomerAuthority();
-        customerAuthority.setUser(user);
-        user.getUserAuthorities().put(UserAuthority.CUSTOMER, customerAuthority);
-        customerAuthorityService.save(customerAuthority);
+        Customer customer = new Customer();
+        customer.setUser(user);
+        user.getUserAuthorities().put(UserAuthority.CUSTOMER, customer);
+        customerService.save(customer);
         Review review = new Review();
         review.setId(1L);
         review.setReview("test review");
-        review.setWriter(customerAuthority);
-        customerAuthority.getReviews().add(review);
+        review.setWriter(customer);
+        customer.getReviews().add(review);
         review.setIsCensored(false);
         review.setCreationDateTime(LocalDateTime.of(
                 2022, Month.APRIL, 28, 22, 55));
@@ -146,7 +132,7 @@ class ReviewServiceTest {
                 .willReturn(Optional.of(review));
         reviewService.save(review);
         // when
-        ReviewDto reviewDto = reviewService.convertIdToDto(1L);
+        ReviewDto reviewDto = reviewService.convertToDto(1L);
         // then
         assertEquals(review.getId(), reviewDto.getId());
         assertEquals(review.getReview(), reviewDto.getReview());
@@ -161,17 +147,17 @@ class ReviewServiceTest {
         User user = new User();
         user.setId(1L);
         userService.save(user);
-        CustomerAuthority customerAuthority = new CustomerAuthority();
-        customerAuthority.setUser(user);
-        user.getUserAuthorities().put(UserAuthority.CUSTOMER, customerAuthority);
-        given(customerAuthorityRepository.findByUserWithId(1L))
-                .willReturn(Optional.of(customerAuthority));
-        customerAuthorityService.save(customerAuthority);
+        Customer customer = new Customer();
+        customer.setUser(user);
+        user.getUserAuthorities().put(UserAuthority.CUSTOMER, customer);
+        given(customerRepository.findByUserWithId(1L))
+                .willReturn(Optional.of(customer));
+        customerService.save(customer);
         Movie movie = new Movie();
         movie.setId(2L);
         given(movieRepository.findById(2L)).willReturn(Optional.of(movie));
         movieService.save(movie);
-        given(reviewRepository.existsByWriterAndMovie(customerAuthority, movie))
+        given(reviewRepository.existsByWriterAndMovie(customer, movie))
                 .willReturn(false);
         // when
         String reviewStr = "This movie is absolute garbage, I don't even know why I paid to see it.";
@@ -182,11 +168,11 @@ class ReviewServiceTest {
         reviewForm.setRating(10);
         reviewService.submitReviewForm(reviewForm);
         // then
-        assertEquals(1, customerAuthority.getReviews().size());
-        Review review = customerAuthority.getReviews().stream().findFirst()
-                                         .orElseThrow(IllegalStateException::new);
+        assertEquals(1, customer.getReviews().size());
+        Review review = customer.getReviews().stream().findFirst()
+                                .orElseThrow(IllegalStateException::new);
         assertEquals(movie, review.getMovie());
-        assertEquals(customerAuthority, review.getWriter());
+        assertEquals(customer, review.getWriter());
         assertEquals(10, review.getRating());
         assertEquals(reviewStr, review.getReview());
         assertFalse(review.getIsCensored());

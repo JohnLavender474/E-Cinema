@@ -35,7 +35,7 @@ public class Registration extends AbstractEntity implements IRegistration {
 
     @ElementCollection
     @Enumerated(EnumType.STRING)
-    private Set<UserAuthority> userAuthorities = EnumSet.noneOf(UserAuthority.class);
+    private Set<UserAuthority> authorities = EnumSet.noneOf(UserAuthority.class);
 
     @Column
     private String token;

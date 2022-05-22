@@ -1,6 +1,7 @@
 package com.ecinema.app.domain.forms;
 
 import com.ecinema.app.domain.contracts.IMovie;
+import com.ecinema.app.domain.enums.MovieCategory;
 import com.ecinema.app.domain.enums.MsrbRating;
 import lombok.Getter;
 import lombok.Setter;
@@ -30,5 +31,5 @@ public class MovieForm implements IMovie, Serializable {
     private MsrbRating msrbRating = MsrbRating.G;
     private List<String> cast = new ArrayList<>();
     private List<String> writers = new ArrayList<>();
-    private List<String> movieCategories = new ArrayList<>();
+    private List<MovieCategory> movieCategories = new ArrayList<>();
 }

@@ -15,7 +15,7 @@ import java.util.Optional;
  * The interface Screening seat repository.
  */
 @Repository
-public interface ScreeningSeatRepository extends JpaRepository<ScreeningSeat, Long>, AbstractRepository {
+public interface ScreeningSeatRepository extends JpaRepository<ScreeningSeat, Long> {
 
     /**
      * Find all by screening list.
@@ -70,5 +70,15 @@ public interface ScreeningSeatRepository extends JpaRepository<ScreeningSeat, Lo
      */
     @Query("SELECT s FROM ScreeningSeat s WHERE s.ticket.id = ?1")
     Optional<ScreeningSeat> findByTicketWithId(Long ticketId);
+
+    /**
+     * Screening seat is booked boolean.
+     *
+     * @param screeningSeatId the screening seat id
+     * @return the boolean
+     */
+    @Query("SELECT CASE WHEN count(s) > 0 THEN true ELSE false END " +
+            "FROM ScreeningSeat s WHERE s.id = ?1 AND s.ticket is not NULL")
+    boolean screeningSeatIsBooked(Long screeningSeatId);
 
 }

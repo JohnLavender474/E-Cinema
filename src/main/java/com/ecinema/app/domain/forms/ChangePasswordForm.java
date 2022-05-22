@@ -7,9 +7,6 @@ import lombok.Setter;
 
 import java.io.Serializable;
 
-/**
- * The type Change password form.
- */
 @Data
 public class ChangePasswordForm implements IPassword, Serializable {
     private String email = "";

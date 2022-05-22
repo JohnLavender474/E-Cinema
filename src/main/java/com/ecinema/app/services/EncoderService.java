@@ -1,25 +1,36 @@
 package com.ecinema.app.services;
 
-/**
- * The interface PasswordEncoder service.
- */
-public interface EncoderService {
+import com.ecinema.app.util.UtilMethods;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
+
+@Service
+public class EncoderService {
+
+    private final PasswordEncoder passwordEncoder;
+    private final Logger logger = LoggerFactory.getLogger(EncoderService.class);
 
     /**
-     * Encrypt string.
+     * Instantiates a new Encoder service.
      *
-     * @param s the s
-     * @return the string
+     * @param passwordEncoder the password encoder
      */
-    String encode(String s);
+    public EncoderService(PasswordEncoder passwordEncoder) {
+        this.passwordEncoder = passwordEncoder;
+    }
 
-    /**
-     * Matches boolean.
-     *
-     * @param raw     the raw
-     * @param encoded the encoded
-     * @return the boolean
-     */
-    boolean matches(String raw, String encoded);
+    public String encode(String s) {
+        logger.debug("Encoder AbstractEntityService: encode s");
+        logger.debug("First 3 chars of s before encryption: " + s.subSequence(0, 3));
+        String encoded = passwordEncoder.encode(UtilMethods.removeWhitespace(s));
+        logger.debug("First 3 chars of encrypted s: " + encoded.subSequence(0, 3));
+        return encoded;
+    }
+
+    public boolean matches(String raw, String encoded) {
+        return passwordEncoder.matches(UtilMethods.removeWhitespace(raw), encoded);
+    }
 
 }

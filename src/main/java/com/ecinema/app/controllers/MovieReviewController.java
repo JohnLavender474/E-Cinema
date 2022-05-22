@@ -1,5 +1,6 @@
 package com.ecinema.app.controllers;
 
+import com.ecinema.app.beans.SecurityContext;
 import com.ecinema.app.domain.dtos.MovieDto;
 import com.ecinema.app.domain.dtos.ReviewDto;
 import com.ecinema.app.domain.dtos.UserDto;
@@ -9,8 +10,8 @@ import com.ecinema.app.exceptions.ClashException;
 import com.ecinema.app.exceptions.NoEntityFoundException;
 import com.ecinema.app.services.MovieService;
 import com.ecinema.app.services.ReviewService;
-import com.ecinema.app.services.SecurityService;
-import com.ecinema.app.utils.UtilMethods;
+import com.ecinema.app.services.UserService;
+import com.ecinema.app.util.UtilMethods;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,7 +22,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import static com.ecinema.app.utils.UtilMethods.addPageNumbersAttribute;
+import static com.ecinema.app.util.UtilMethods.addPageNumbersAttribute;
 
 /**
  * The type Movie review controller.
@@ -30,9 +31,10 @@ import static com.ecinema.app.utils.UtilMethods.addPageNumbersAttribute;
 @RequiredArgsConstructor
 public class MovieReviewController {
 
+    private final UserService userService;
     private final MovieService movieService;
     private final ReviewService reviewService;
-    private final SecurityService securityService;
+    private final SecurityContext securityContext;
     private final Logger logger = LoggerFactory.getLogger(MovieReviewController.class);
 
     /**
@@ -51,7 +53,8 @@ public class MovieReviewController {
             @PathVariable("id") final Long movieId) {
         try {
             model.addAttribute("movieId", movieId);
-            UserDto userDto = securityService.findLoggedInUserDTO();
+            Long userId = securityContext.findIdOfLoggedInUser();
+            UserDto userDto = userId != null ? userService.convertToDto(userId) : null;
             boolean isCustomer = userDto != null && userDto.getUserAuthorities().contains(UserAuthority.CUSTOMER);
             boolean canWriteReview = isCustomer && !reviewService.existsByUserIdAndMovieId(
                     userDto.getId(), movieId);
@@ -95,11 +98,12 @@ public class MovieReviewController {
                                       @PathVariable("id") final Long movieId) {
         logger.debug(UtilMethods.getDelimiterLine());
         logger.debug("Write review get mapping");
-        UserDto userDto = securityService.findLoggedInUserDTO();
-        if (userDto == null) {
+        Long userId = securityContext.findIdOfLoggedInUser();
+        if (userId == null) {
             redirectAttributes.addFlashAttribute("error", "Fatal error: Forced to logout");
             return "redirect:/logout";
         }
+        UserDto userDto = userService.findById(userId);
         if (!userDto.getUserAuthorities().contains(UserAuthority.CUSTOMER)) {
             redirectAttributes.addFlashAttribute(
                     "error", "Cannot access write-review page without customer credentials");
@@ -112,8 +116,7 @@ public class MovieReviewController {
         }
         model.addAttribute("error", "Cannot access write-review page");
         logger.debug("Added user dto to model: " + userDto);
-        MovieDto movieDto = movieService.findDtoById(movieId).orElseThrow(
-                () -> new NoEntityFoundException("movie", "id", movieId));
+        MovieDto movieDto = movieService.findById(movieId);
         model.addAttribute("movie", movieDto);
         logger.debug("Added movie dto to model: " + movieDto);
         ReviewForm reviewForm = new ReviewForm();

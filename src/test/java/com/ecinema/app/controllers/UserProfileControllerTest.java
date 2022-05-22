@@ -1,17 +1,14 @@
 package com.ecinema.app.controllers;
 
+import com.ecinema.app.beans.SecurityContext;
 import com.ecinema.app.configs.InitializationConfig;
 import com.ecinema.app.domain.contracts.IProfile;
 import com.ecinema.app.domain.dtos.UserDto;
-import com.ecinema.app.domain.entities.User;
 import com.ecinema.app.domain.forms.UserProfileForm;
 import com.ecinema.app.domain.validators.UserProfileValidator;
-import com.ecinema.app.services.SecurityService;
 import com.ecinema.app.services.UserService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.params.shadow.com.univocity.parsers.common.ParsingContextSnapshot;
-import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
@@ -23,6 +20,7 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.Month;
 import java.util.Optional;
 
@@ -32,7 +30,6 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyCollection;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.mock;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -48,9 +45,6 @@ class UserProfileControllerTest {
     private MockMvc mockMvc;
 
     @MockBean
-    private SecurityService securityService;
-
-    @MockBean
     private UserService userService;
 
     @MockBean
@@ -58,6 +52,9 @@ class UserProfileControllerTest {
 
     @MockBean
     private InitializationConfig config;
+
+    @MockBean
+    private SecurityContext securityContext;
 
     @BeforeEach
     void setUp() {
@@ -73,7 +70,15 @@ class UserProfileControllerTest {
     void showUserProfilePage()
             throws Exception {
         UserDto userDto = new UserDto();
-        given(securityService.findLoggedInUserDTO()).willReturn(userDto);
+        userDto.setEmail("test@gmail.com");
+        userDto.setUsername("username");
+        userDto.setFirstName("name");
+        userDto.setLastName("name");
+        userDto.setBirthDate(LocalDate.now());
+        userDto.setCreationDateTime(LocalDateTime.now());
+        userDto.setLastActivityDateTime(LocalDateTime.now());
+        given(securityContext.findIdOfLoggedInUser()).willReturn(1L);
+        given(userService.findById(1L)).willReturn(userDto);
         mockMvc.perform(get("/user-profile"))
                 .andExpect(status().isOk())
                 .andExpect(result -> model().attribute("user", userDto));
@@ -96,7 +101,8 @@ class UserProfileControllerTest {
         userDto.setFirstName("First");
         userDto.setLastName("Last");
         userDto.setBirthDate(LocalDate.of(2000, Month.JANUARY, 1));
-        given(securityService.findLoggedInUserDTO()).willReturn(userDto);
+        given(securityContext.findIdOfLoggedInUser()).willReturn(1L);
+        given(userService.findById(1L)).willReturn(userDto);
         mockMvc.perform(get("/edit-user-profile"))
                 .andExpect(status().isOk())
                 .andExpect(result -> model().attributeExists("profileForm"))
@@ -123,18 +129,19 @@ class UserProfileControllerTest {
     @WithMockUser(username = "user")
     void postEditUserProfile()
             throws Exception {
-        User user = new User();
-        given(userService.findById(1L)).willReturn(Optional.of(user));
+        UserDto userDto = new UserDto();
+        given(userService.findById(1L)).willReturn(userDto);
         UserProfileForm profileForm = new UserProfileForm();
         profileForm.setFirstName("First");
         profileForm.setLastName("Last");
         profileForm.setBirthDate(LocalDate.of(2000, Month.JANUARY, 1));
         doNothing().when(userProfileValidator).validate(any(IProfile.class), anyCollection());
+        given(securityContext.findIdOfLoggedInUser()).willReturn(1L);
+        given(userService.convertToDto(1L)).willReturn(userDto);
         mockMvc.perform(post("/edit-user-profile/" + 1L)
                                 .flashAttr("profileForm", profileForm))
-                .andExpect(redirectedUrl("/profile"))
+                .andExpect(redirectedUrlPattern("/profile**"))
                 .andExpect(result -> model().attributeExists("success"));
-
     }
 
 }

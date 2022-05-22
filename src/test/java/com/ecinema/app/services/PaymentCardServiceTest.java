@@ -1,13 +1,14 @@
 package com.ecinema.app.services;
 
-import com.ecinema.app.domain.entities.CustomerAuthority;
+import com.ecinema.app.beans.SecurityContext;
+import com.ecinema.app.domain.dtos.PaymentCardDto;
+import com.ecinema.app.domain.entities.Customer;
 import com.ecinema.app.domain.entities.PaymentCard;
 import com.ecinema.app.domain.enums.UsState;
 import com.ecinema.app.domain.forms.PaymentCardForm;
 import com.ecinema.app.domain.validators.AddressValidator;
 import com.ecinema.app.domain.validators.PaymentCardValidator;
 import com.ecinema.app.repositories.*;
-import com.ecinema.app.services.implementations.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -28,13 +29,15 @@ import static org.mockito.Mockito.verify;
 @ExtendWith(MockitoExtension.class)
 class PaymentCardServiceTest {
 
-    private PaymentCardService paymentCardService;
     private ReviewService reviewService;
     private TicketService ticketService;
-    private CouponService couponService;
-    private CustomerAuthorityService customerAuthorityService;
+    private CustomerService customerService;
     private AddressValidator addressValidator;
+    private PaymentCardService paymentCardService;
     private PaymentCardValidator paymentCardValidator;
+    private SecurityContext securityContext;
+    @Mock
+    private ScreeningSeatRepository screeningSeatRepository;
     @Mock
     private PaymentCardRepository paymentCardRepository;
     @Mock
@@ -42,154 +45,149 @@ class PaymentCardServiceTest {
     @Mock
     private TicketRepository ticketRepository;
     @Mock
-    private CouponRepository couponRepository;
-    @Mock
-    private CustomerAuthorityRepository customerAuthorityRepository;
+    private CustomerRepository customerRepository;
 
     @BeforeEach
     void setUp() {
+        securityContext = new SecurityContext();
         addressValidator = new AddressValidator();
         paymentCardValidator = new PaymentCardValidator(addressValidator);
-        paymentCardService = new PaymentCardServiceImpl(
-                paymentCardRepository, customerAuthorityRepository,
+        paymentCardService = new PaymentCardService(
+                paymentCardRepository, customerRepository,
                 paymentCardValidator);
-        reviewService = new ReviewServiceImpl(
+        reviewService = new ReviewService(
                 reviewRepository, null,
-                customerAuthorityRepository, null);
-        ticketService = new TicketServiceImpl(
-                ticketRepository, null, null, null);
-        couponService = new CouponServiceImpl(
-                couponRepository, null, null);
-        customerAuthorityService = new CustomerAuthorityServiceImpl(
-                customerAuthorityRepository, reviewService,
-                ticketService, paymentCardService, couponService);
+                customerRepository, null);
+        ticketService = new TicketService(ticketRepository);
+        customerService = new CustomerService(
+                customerRepository, screeningSeatRepository,
+                null, reviewService, ticketService,
+                paymentCardService, securityContext);
     }
 
     @Test
     void findAllByCustomerAuthority() {
         // given
-        CustomerAuthority customerAuthority1 = new CustomerAuthority();
-        customerAuthority1.setId(1L);
-        CustomerAuthority customerAuthority2 = new CustomerAuthority();
-        customerAuthority2.setId(2L);
-        customerAuthorityService.save(customerAuthority1);
-        customerAuthorityService.save(customerAuthority2);
+        Customer customer1 = new Customer();
+        customer1.setId(1L);
+        Customer customer2 = new Customer();
+        customer2.setId(2L);
+        customerService.save(customer1);
+        customerService.save(customer2);
         List<PaymentCard> paymentCards = new ArrayList<>();
         for (int i = 0; i < 10; i++) {
             PaymentCard paymentCard = new PaymentCard();
             if (i % 2 == 0) {
-                paymentCard.setCardOwner(customerAuthority1);
+                paymentCard.setCardOwner(customer1);
             } else {
-                paymentCard.setCardOwner(customerAuthority2);
+                paymentCard.setCardOwner(customer2);
             }
             paymentCards.add(paymentCard);
             paymentCardService.save(paymentCard);
         }
         List<PaymentCard> paymentCardsControl1 = paymentCards
-                .stream().filter(paymentCard -> paymentCard.getCardOwner().equals(customerAuthority1))
+                .stream().filter(paymentCard -> paymentCard.getCardOwner().equals(customer1))
                 .collect(Collectors.toList());
-        given(paymentCardRepository.findDistinctByCardOwner(customerAuthority1))
+        given(paymentCardRepository.findDistinctByCardUserWithId(customer1.getId()))
                 .willReturn(paymentCardsControl1);
         List<PaymentCard> paymentCardsControl2 = paymentCards
-                .stream().filter(paymentCard -> paymentCard.getCardOwner().equals(customerAuthority2))
+                .stream().filter(paymentCard -> paymentCard.getCardOwner().equals(customer2))
                 .collect(Collectors.toList());
-        given(paymentCardRepository.findDistinctByCardOwner(customerAuthority2))
+        given(paymentCardRepository.findDistinctByCardUserWithId(customer2.getId()))
                 .willReturn(paymentCardsControl2);
         // when
-        List<PaymentCard> paymentCardsTest1 = paymentCardService
-                .findAllByCardOwner(customerAuthority1);
-        List<PaymentCard> paymentCardsTest2 = paymentCardService
-                .findAllByCardOwner(customerAuthority2);
+        List<PaymentCardDto> paymentCardsTest1 = paymentCardService
+                .findAllByCardUserWithId(customer1.getId());
+        List<PaymentCardDto> paymentCardsTest2 = paymentCardService
+                .findAllByCardUserWithId(customer2.getId());
         // then
-        assertEquals(paymentCardsControl1, paymentCardsTest1);
-        assertEquals(paymentCardsControl2, paymentCardsTest2);
+        assertEquals(paymentCardService.convertToDto(paymentCardsControl1), paymentCardsTest1);
+        assertEquals(paymentCardService.convertToDto(paymentCardsControl2), paymentCardsTest2);
         verify(paymentCardRepository, times(1))
-                .findDistinctByCardOwner(customerAuthority1);
+                .findDistinctByCardUserWithId(customer1.getId());
         verify(paymentCardRepository, times(1))
-                .findDistinctByCardOwner(customerAuthority2);
-        verify(customerAuthorityRepository, times(1)).save(customerAuthority1);
-        verify(customerAuthorityRepository, times(1)).save(customerAuthority1);
+                .findDistinctByCardUserWithId(customer2.getId());
+        verify(customerRepository, times(1)).save(customer1);
+        verify(customerRepository, times(1)).save(customer1);
     }
 
     @Test
     void findAllByCustomerAuthorityWithId() {
         // given
-        CustomerAuthority customerAuthority1 = new CustomerAuthority();
-        customerAuthority1.setId(1L);
-        CustomerAuthority customerAuthority2 = new CustomerAuthority();
-        customerAuthority2.setId(2L);
-        customerAuthorityService.save(customerAuthority1);
-        customerAuthorityService.save(customerAuthority2);
+        Customer customer1 = new Customer();
+        customer1.setId(1L);
+        Customer customer2 = new Customer();
+        customer2.setId(2L);
+        customerService.save(customer1);
+        customerService.save(customer2);
         List<PaymentCard> paymentCards = new ArrayList<>();
         for (int i = 0; i < 10; i++) {
             PaymentCard paymentCard = new PaymentCard();
             if (i % 2 == 0) {
-                paymentCard.setCardOwner(customerAuthority1);
+                paymentCard.setCardOwner(customer1);
             } else {
-                paymentCard.setCardOwner(customerAuthority2);
+                paymentCard.setCardOwner(customer2);
             }
             paymentCards.add(paymentCard);
             paymentCardService.save(paymentCard);
         }
         List<PaymentCard> paymentCardsControl1 = paymentCards
                 .stream().filter(paymentCard -> paymentCard.getCardOwner().getId()
-                                                           .equals(customerAuthority1.getId()))
+                                                           .equals(customer1.getId()))
                 .collect(Collectors.toList());
         given(paymentCardRepository
-                      .findDistinctByCardOwnerWithId(customerAuthority1.getId()))
+                      .findDistinctByCardUserWithId(customer1.getId()))
                 .willReturn(paymentCardsControl1);
         List<PaymentCard> paymentCardsControl2 = paymentCards
                 .stream().filter(paymentCard -> paymentCard.getCardOwner().getId()
-                                                           .equals(customerAuthority2.getId()))
+                                                           .equals(customer2.getId()))
                 .collect(Collectors.toList());
         given(paymentCardRepository
-                      .findDistinctByCardOwnerWithId(customerAuthority2.getId()))
+                      .findDistinctByCardUserWithId(customer2.getId()))
                 .willReturn(paymentCardsControl2);
         // when
-        List<PaymentCard> paymentCardsTest1 = paymentCardService
-                .findAllByCardOwnerWithId(customerAuthority1.getId());
-        List<PaymentCard> paymentCardsTest2 = paymentCardService
-                .findAllByCardOwnerWithId(customerAuthority2.getId());
+        List<PaymentCardDto> paymentCardsTest1 = paymentCardService
+                .findAllByCardUserWithId(customer1.getId());
+        List<PaymentCardDto> paymentCardsTest2 = paymentCardService
+                .findAllByCardUserWithId(customer2.getId());
         // then
-        assertEquals(paymentCardsControl1, paymentCardsTest1);
-        assertEquals(paymentCardsControl2,  paymentCardsTest2);
+        assertEquals(paymentCardService.convertToDto(paymentCardsControl1), paymentCardsTest1);
+        assertEquals(paymentCardService.convertToDto(paymentCardsControl2),  paymentCardsTest2);
         verify(paymentCardRepository, times(1))
-                .findDistinctByCardOwnerWithId(customerAuthority1.getId());
+                .findDistinctByCardUserWithId(customer1.getId());
         verify(paymentCardRepository, times(1))
-                .findDistinctByCardOwnerWithId(customerAuthority2.getId());
-        verify(customerAuthorityRepository, times(1)).save(customerAuthority1);
-        verify(customerAuthorityRepository, times(1)).save(customerAuthority2);
+                .findDistinctByCardUserWithId(customer2.getId());
+        verify(customerRepository, times(1)).save(customer1);
+        verify(customerRepository, times(1)).save(customer2);
     }
 
     @Test
     void deletePaymentCascade() {
         // given
-        CustomerAuthority customerAuthority = new CustomerAuthority();
-        customerAuthorityService.save(customerAuthority);
+        Customer customer = new Customer();
+        customerService.save(customer);
         PaymentCard paymentCard = new PaymentCard();
         paymentCard.setId(2L);
-        paymentCard.setCardOwner(customerAuthority);
-        customerAuthority.getPaymentCards().add(paymentCard);
-        given(paymentCardRepository.findById(2L))
-                .willReturn(Optional.of(paymentCard));
+        paymentCard.setCardOwner(customer);
+        customer.getPaymentCards().add(paymentCard);
         paymentCardService.save(paymentCard);
-        assertTrue(customerAuthority.getPaymentCards().contains(paymentCard));
-        assertEquals(customerAuthority, paymentCard.getCardOwner());
+        assertTrue(customer.getPaymentCards().contains(paymentCard));
+        assertEquals(customer, paymentCard.getCardOwner());
         // when
         paymentCardService.delete(paymentCard);
         // then
-        assertFalse(customerAuthority.getPaymentCards().contains(paymentCard));
-        assertNotEquals(customerAuthority, paymentCard.getCardOwner());
+        assertFalse(customer.getPaymentCards().contains(paymentCard));
+        assertNotEquals(customer, paymentCard.getCardOwner());
     }
 
     @Test
     void submitPaymentCardForm() {
         // given
-        CustomerAuthority customerAuthority = new CustomerAuthority();
-        customerAuthority.setId(1L);
-        given(customerAuthorityRepository.findById(1L))
-                .willReturn(Optional.of(customerAuthority));
-        customerAuthorityService.save(customerAuthority);
+        Customer customer = new Customer();
+        customer.setId(1L);
+        given(customerRepository.findById(1L))
+                .willReturn(Optional.of(customer));
+        customerService.save(customer);
         // when
         LocalDate expirationDate = LocalDate.now().plusYears(1);
         PaymentCardForm paymentCardForm = new PaymentCardForm();
@@ -197,10 +195,10 @@ class PaymentCardServiceTest {
         paymentCardForm.setExpirationDate(expirationDate);
         paymentCardService.submitPaymentCardForm(paymentCardForm);
         // then
-        assertEquals(1, customerAuthority.getPaymentCards().size());
-        PaymentCard paymentCard = customerAuthority.getPaymentCards().stream().findFirst().orElse(null);
+        assertEquals(1, customer.getPaymentCards().size());
+        PaymentCard paymentCard = customer.getPaymentCards().stream().findFirst().orElse(null);
         assertNotNull(paymentCard);
-        assertEquals(customerAuthority, paymentCard.getCardOwner());
+        assertEquals(customer, paymentCard.getCardOwner());
         assertEquals("John", paymentCard.getFirstName());
         assertEquals("Doe", paymentCard.getLastName());
         assertEquals("1234123412341234", paymentCard.getCardNumber());

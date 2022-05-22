@@ -17,7 +17,7 @@ import java.util.Set;
  * The interface Movie repository.
  */
 @Repository
-public interface MovieRepository extends JpaRepository<Movie, Long>, AbstractRepository {
+public interface MovieRepository extends JpaRepository<Movie, Long> {
 
     /**
      * Find by title optional.

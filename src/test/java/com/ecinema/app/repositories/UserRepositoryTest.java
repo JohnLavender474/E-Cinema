@@ -1,7 +1,7 @@
 package com.ecinema.app.repositories;
 
 import com.ecinema.app.domain.entities.User;
-import com.ecinema.app.utils.UtilMethods;
+import com.ecinema.app.util.UtilMethods;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -85,6 +85,23 @@ class UserRepositoryTest {
         assertTrue(idOptional.isPresent());
         assertTrue(userOptional.isPresent());
         assertEquals(userOptional.get().getId(), idOptional.get());
+    }
+
+    @Test
+    void findByUsernameOrEmail() {
+        // given
+        User user = new User();
+        user.setUsername("test123");
+        user.setEmail("test123@gmail.com");
+        userRepository.save(user);
+        // when
+        Optional<User> userOptional1 = userRepository.findByUsernameOrEmail("test123");
+        Optional<User> userOptional2 = userRepository.findByUsernameOrEmail("test123@gmail.com");
+        // then
+        assertTrue(userOptional1.isPresent());
+        assertTrue(userOptional2.isPresent());
+        assertEquals(user, userOptional1.get());
+        assertEquals(user, userOptional2.get());
     }
 
     @Test

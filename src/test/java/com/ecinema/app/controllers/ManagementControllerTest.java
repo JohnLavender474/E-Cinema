@@ -1,5 +1,6 @@
 package com.ecinema.app.controllers;
 
+import com.ecinema.app.beans.SecurityContext;
 import com.ecinema.app.configs.InitializationConfig;
 import com.ecinema.app.domain.contracts.IMovie;
 import com.ecinema.app.domain.contracts.IScreening;
@@ -14,6 +15,7 @@ import com.ecinema.app.domain.forms.ScreeningForm;
 import com.ecinema.app.domain.validators.MovieValidator;
 import com.ecinema.app.domain.validators.ScreeningValidator;
 import com.ecinema.app.exceptions.InvalidArgsException;
+import com.ecinema.app.exceptions.NoEntityFoundException;
 import com.ecinema.app.repositories.MovieRepository;
 import com.ecinema.app.repositories.ShowroomRepository;
 import com.ecinema.app.services.*;
@@ -54,9 +56,6 @@ class ManagementControllerTest {
     private MockMvc mockMvc;
 
     @MockBean
-    private SecurityService securityService;
-
-    @MockBean
     private UserService userService;
 
     @MockBean
@@ -75,6 +74,9 @@ class ManagementControllerTest {
     private ScreeningService screeningService;
 
     @MockBean
+    private SecurityContext securityContext;
+
+    @MockBean
     private MovieValidator movieValidator;
 
     @MockBean
@@ -90,6 +92,7 @@ class ManagementControllerTest {
                 .apply(springSecurity())
                 .alwaysDo(print())
                 .build();
+        given(securityContext.findIdOfLoggedInUser()).willReturn(null);
     }
 
     @Test
@@ -193,11 +196,11 @@ class ManagementControllerTest {
         MovieForm movieForm = new MovieForm();
         movieForm.setId(1L);
         doNothing().when(movieValidator).validate(any(IMovie.class), anyCollection());
-        given(movieService.findById(1L)).willReturn(Optional.of(new Movie()));
+        given(movieService.findById(1L)).willReturn(new MovieDto());
         mockMvc.perform(post("/edit-movie/" + 1L)
                                 .flashAttr("movieForm", movieForm))
                .andExpect(result -> model().attributeExists("success"))
-               .andExpect(redirectedUrl("/edit-movie-search"));
+               .andExpect(redirectedUrlPattern("/edit-movie-search**"));
     }
 
     @Test
@@ -209,7 +212,7 @@ class ManagementControllerTest {
                                            .submitMovieForm(movieForm);
         mockMvc.perform(post("/edit-movie/" + 1L)
                                 .flashAttr("movieForm", movieForm))
-               .andExpect(redirectedUrl("/edit-movie/" + 1L))
+               .andExpect(redirectedUrlPattern("/edit-movie/" + 1L + "**"))
                .andExpect(result -> model().attributeExists("errors"));
     }
 
@@ -236,10 +239,10 @@ class ManagementControllerTest {
         doAnswer(invocationOnMock -> {
             movieRepository.deleteById(1L);
             return null;
-        }).when(movieService).deleteById(1L);
+        }).when(movieService).delete(1L);
         mockMvc.perform(post("/delete-movie/" + 1L))
                 .andExpect(result -> model().attributeExists("success"))
-                .andExpect(redirectedUrl("/delete-movie-search"));
+                .andExpect(redirectedUrlPattern("/delete-movie-search**"));
         verify(movieRepository, times(1)).deleteById(1L);
     }
 
@@ -283,7 +286,7 @@ class ManagementControllerTest {
     void accessDeleteMoviePage()
             throws Exception {
         MovieDto movie = new MovieDto();
-        given(movieService.findDtoById(1L)).willReturn(Optional.of(movie));
+        given(movieService.findById(1L)).willReturn(movie);
         mockMvc.perform(get("/delete-movie/" + 1L))
                .andExpect(status().isOk())
                .andExpect(result -> model().attribute("movie", movie));
@@ -293,8 +296,10 @@ class ManagementControllerTest {
     @WithMockUser(username = "user", authorities = {"ADMIN"})
     void noEntityFoundExceptionOnDeleteMoviePage()
             throws Exception {
+        given(movieService.findById(1L)).willThrow(
+                new NoEntityFoundException("movie", "id", 1L));
         mockMvc.perform(get("/delete-movie/" + 1L))
-               .andExpect(redirectedUrl("/error"));
+               .andExpect(redirectedUrlPattern("/error**"));
     }
 
     @Test
@@ -323,7 +328,7 @@ class ManagementControllerTest {
     void accessAddScreeningPage() 
             throws Exception {
         MovieDto movie = new MovieDto();
-        given(movieService.findDtoById(1L)).willReturn(Optional.of(movie));
+        given(movieService.findById(1L)).willReturn(movie);
         mockMvc.perform(get("/add-screening/" + 1L))
                .andExpect(status().isOk())
                .andExpect(result -> model().attribute("movie", movie))
@@ -369,7 +374,7 @@ class ManagementControllerTest {
                 any(LocalDateTime.class)))
                 .willReturn(Optional.empty());
         mockMvc.perform(post("/add-screening/" + 1L))
-                .andExpect(redirectedUrl("/add-screening-search"))
+                .andExpect(redirectedUrlPattern("/add-screening-search**"))
                 .andExpect(flash().attribute("success", "Successfully added screening"));
     }
 
@@ -393,7 +398,7 @@ class ManagementControllerTest {
                 .when(screeningService)
                 .submitScreeningForm(any(ScreeningForm.class));
         mockMvc.perform(post("/add-screening/" + 1L))
-                .andExpect(redirectedUrl("/add-screening/" + 1L))
+                .andExpect(redirectedUrlPattern("/add-screening/" + 1L + "**"))
                 .andExpect(result -> model().attributeExists("errors"));
     }
 
@@ -402,14 +407,15 @@ class ManagementControllerTest {
         userDto.setId(1L);
         userDto.setUsername("user");
         userDto.getUserAuthorities().add(UserAuthority.ADMIN);
-        given(securityService.findLoggedInUserDTO()).willReturn(userDto);
+        given(securityContext.findIdOfLoggedInUser()).willReturn(1L);
+        given(userService.findById(1L)).willReturn(userDto);
         given(userService.userAuthoritiesAsListOfStrings(1L)).willReturn(List.of("ADMIN"));
     }
 
     void testAdminMovieChoose(String viewName, String href)
             throws Exception {
         List<MovieDto> movies = new ArrayList<>(Collections.nCopies(10, new MovieDto()));
-        given(movieService.findAllDtos()).willReturn(movies);
+        given(movieService.findAll()).willReturn(movies);
         mockMvc.perform(get(viewName))
                .andExpect(status().isOk())
                .andExpect(result -> model().attribute("href", href))

@@ -1,7 +1,9 @@
 package com.ecinema.app.domain.dtos;
 
+import com.ecinema.app.domain.contracts.AbstractDto;
 import com.ecinema.app.domain.enums.UserAuthority;
-import com.ecinema.app.utils.UtilMethods;
+import com.ecinema.app.util.UtilMethods;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -11,16 +13,12 @@ import java.time.LocalDateTime;
 import java.util.EnumSet;
 import java.util.Set;
 
-/**
- * {@inheritDoc}
- * The type User dto.
- */
 @Getter
 @Setter
-@ToString
-public class UserDto implements AbstractDto {
+@ToString(callSuper = true)
+@EqualsAndHashCode(callSuper = true)
+public class UserDto extends AbstractDto {
 
-    private Long id;
     private String email;
     private String username;
     private String firstName;
@@ -31,29 +29,26 @@ public class UserDto implements AbstractDto {
     private Set<UserAuthority> userAuthorities =
             EnumSet.noneOf(UserAuthority.class);
 
-    /**
-     * Birthdate formatted string.
-     *
-     * @return the string
-     */
+    public boolean isCustomer() {
+        return userAuthorities.contains(UserAuthority.CUSTOMER);
+    }
+
+    public boolean isModerator() {
+        return userAuthorities.contains(UserAuthority.MODERATOR);
+    }
+
+    public boolean isAdmin() {
+        return userAuthorities.contains(UserAuthority.ADMIN);
+    }
+
     public String birthdateFormatted() {
         return UtilMethods.localDateFormatted(birthDate);
     }
 
-    /**
-     * Creation date time formatted string.
-     *
-     * @return the string
-     */
     public String creationDateTimeFormatted() {
         return UtilMethods.localDateTimeFormatted(creationDateTime);
     }
 
-    /**
-     * Last activity date time formatted string.
-     *
-     * @return the string
-     */
     public String lastActivityDateTimeFormatted() {
         return UtilMethods.localDateTimeFormatted(lastActivityDateTime);
     }

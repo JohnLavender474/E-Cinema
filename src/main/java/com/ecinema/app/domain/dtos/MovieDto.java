@@ -1,8 +1,10 @@
 package com.ecinema.app.domain.dtos;
 
-import com.ecinema.app.utils.Duration;
+import com.ecinema.app.domain.contracts.AbstractDto;
+import com.ecinema.app.domain.objects.Duration;
 import com.ecinema.app.domain.enums.MovieCategory;
 import com.ecinema.app.domain.enums.MsrbRating;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -17,9 +19,9 @@ import java.util.Set;
  */
 @Getter
 @Setter
-@ToString
-public class MovieDto implements AbstractDto {
-    private Long id;
+@ToString(callSuper = true)
+@EqualsAndHashCode(callSuper = true)
+public class MovieDto extends AbstractDto {
     private String title;
     private String director;
     private String image;

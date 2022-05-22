@@ -12,7 +12,7 @@ import java.util.Optional;
  * The interface Registration request repository.
  */
 @Repository
-public interface RegistrationRepository extends JpaRepository<Registration, Long>, AbstractRepository {
+public interface RegistrationRepository extends JpaRepository<Registration, Long> {
 
     /**
      * Find by token optional.

@@ -8,8 +8,6 @@ import lombok.ToString;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
-import java.util.HashSet;
-import java.util.Set;
 
 @Getter
 @Setter
@@ -31,15 +29,11 @@ public class Ticket extends AbstractEntity {
     @JoinColumn
     @ToString.Exclude
     @ManyToOne(fetch = FetchType.LAZY)
-    private CustomerAuthority ticketOwner;
+    private Customer ticketOwner;
 
     @JoinColumn
     @ToString.Exclude
     @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private ScreeningSeat screeningSeat;
-
-    @ToString.Exclude
-    @OneToMany(mappedBy = "ticket", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private Set<Coupon> coupons = new HashSet<>();
 
 }
