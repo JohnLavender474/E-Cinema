@@ -6,9 +6,9 @@
 </head>
 <body>
 <nav th:insert="fragments/webpage-top :: webpage-top"></nav>
-<div th:insert="fragments/back-to-management-page :: back-to-management-page"></div>
-<div th:insert="fragments/errors :: errors"></div>
 <div class="container">
+    <div th:insert="fragments/back-to-management-page :: back-to-management-page"></div>
+    <div th:insert="fragments/errors :: errors"></div>
     <form id="cascading-form" method="post" th:action="@{/add-screening}" th:object="${screeningForm}">
         <div class="cascade-field">
             <label for="field1">

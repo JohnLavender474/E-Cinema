@@ -3,8 +3,8 @@
 <head th:insert="fragments/header :: header"></head>
 <body>
 <nav th:insert="fragments/webpage-top :: webpage-top"></nav>
-<div th:insert="fragments/back-to-management-page :: back-to-management-page"></div>
 <div class="container">
+    <div th:insert="fragments/back-to-management-page :: back-to-management-page"></div>
     <h1>Movie: On Delete Info</h1>
     <ul th:each="info:${onDeleteInfo}">
         <li th:text="${info}"></li>

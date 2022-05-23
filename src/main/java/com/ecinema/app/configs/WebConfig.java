@@ -27,19 +27,17 @@ public class WebConfig implements WebMvcConfigurer {
         registry.addViewController("/").setViewName("index");
         registry.addViewController("/about").setViewName("about");
         registry.addViewController("/add-screenings").setViewName("add-screening");
-        registry.addViewController("/add-showrooms").setViewName("add-showrooms");
+        registry.addViewController("/add-showrooms").setViewName("add-showroom");
         registry.addViewController("/delete-movie").setViewName("delete-movie");
         registry.addViewController("/delete-screenings").setViewName("delete-screenings");
         registry.addViewController("/delete-showrooms").setViewName("delete-showrooms");
         registry.addViewController("/edit-movie").setViewName("edit-movie");
         registry.addViewController("/edit-screenings").setViewName("edit-screenings");
-        registry.addViewController("/edit-showrooms").setViewName("edit-showrooms");
         registry.addViewController("/error").setViewName("error");
         registry.addViewController("/index").setViewName("index");
         registry.addViewController("/login-success").setViewName("login-success");
         registry.addViewController("/logout-success").setViewName("logout-success");
         registry.addViewController("/message-page").setViewName("message-page");
-        registry.addViewController("/test").setViewName("test");
     }
 
     @Override

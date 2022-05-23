@@ -30,6 +30,7 @@ public class InitializationConfig {
     private final CustomerService customerService;
     private final ScreeningService screeningService;
     private final PaymentCardService paymentCardService;
+    private final RegistrationService registrationService;
     private final Logger logger = LoggerFactory.getLogger(InitializationConfig.class);
 
     @EventListener(ApplicationReadyEvent.class)
@@ -43,6 +44,7 @@ public class InitializationConfig {
     }
 
     private void defineUsers() {
+        registrationService.deleteAll();
         userService.deleteAll();
         defineRootAdmin();
         defineCustomer();

@@ -17,9 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 @Service
 @Transactional
@@ -48,16 +46,6 @@ public class RegistrationService extends AbstractEntityService<Registration, Reg
         return null;
     }
 
-    public Optional<RegistrationDto> findByToken(String token) {
-        return repository.findByToken(token).map(this::convertToDto);
-    }
-
-    public List<RegistrationDto> findAllByEmail(String email) {
-        return repository.findAllByEmail(email)
-                .stream().map(this::convertToDto)
-                .collect(Collectors.toList());
-    }
-
     public void deleteAllByEmail(String email) {
         repository.deleteAllByEmail(email);
     }
@@ -67,11 +55,6 @@ public class RegistrationService extends AbstractEntityService<Registration, Reg
     }
 
     public void submitRegistrationForm(RegistrationForm registrationForm)
-            throws ClashException, InvalidArgsException, EmailException {
-        submitRegistrationFormAndGetToken(registrationForm);
-    }
-
-    public String submitRegistrationFormAndGetToken(RegistrationForm registrationForm)
             throws ClashException, InvalidArgsException, EmailException {
         logger.debug(UtilMethods.getDelimiterLine());
         logger.debug("Submit registration request and get token");
@@ -90,20 +73,19 @@ public class RegistrationService extends AbstractEntityService<Registration, Reg
         }
         logger.debug("Registration form passed validation checks");
         if (!registrationForm.getIsPasswordEncoded()) {
-            registrationForm.setPassword(encoderService.encode(
-                    registrationForm.getPassword()));
-            registrationForm.setConfirmPassword(encoderService.encode(
-                    registrationForm.getConfirmPassword()));
+            String encodedPassword = encoderService.encode(registrationForm.getPassword());
+            registrationForm.setPassword(encodedPassword);
+            registrationForm.setConfirmPassword(encodedPassword);
             registrationForm.setIsPasswordEncoded(true);
         }
         if (!registrationForm.getIsSecurityAnswer1Encoded()) {
-            registrationForm.setSecurityAnswer1(encoderService.encode(
-                    registrationForm.getSecurityAnswer1()));
+            String encodedAnswer1 = encoderService.encode(registrationForm.getSecurityAnswer1());
+            registrationForm.setSecurityAnswer1(encodedAnswer1);
             registrationForm.setIsSecurityAnswer1Encoded(true);
         }
         if (!registrationForm.getIsSecurityAnswer2Encoded()) {
-            registrationForm.setSecurityAnswer2(encoderService.encode(
-                    registrationForm.getSecurityAnswer2()));
+            String encodedAnswer2 = encoderService.encode(registrationForm.getSecurityAnswer2());
+            registrationForm.setSecurityAnswer2(encodedAnswer2);
             registrationForm.setIsSecurityAnswer2Encoded(true);
         }
         Registration registration = new Registration();
@@ -116,7 +98,6 @@ public class RegistrationService extends AbstractEntityService<Registration, Reg
         repository.save(registration);
         logger.debug("Instantiated and saved new registration: " + registration);
         logger.debug("Registration form: " + registrationForm);
-        return token;
     }
 
     public UserDto confirmRegistrationRequest(String token)

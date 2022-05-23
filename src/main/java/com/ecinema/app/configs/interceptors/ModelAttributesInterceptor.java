@@ -3,7 +3,6 @@ package com.ecinema.app.configs.interceptors;
 import com.ecinema.app.beans.SecurityContext;
 import com.ecinema.app.domain.dtos.UserDto;
 import com.ecinema.app.domain.enums.UserAuthority;
-import com.ecinema.app.exceptions.NoEntityFoundException;
 import com.ecinema.app.services.UserService;
 import com.ecinema.app.domain.objects.Pair;
 import com.ecinema.app.util.UtilMethods;
@@ -55,13 +54,13 @@ public class ModelAttributesInterceptor implements HandlerInterceptor {
         List<Pair<String, String>> dropdownMenu = new ArrayList<>();
         if (userId == null) {
             dropdownMenu.add(new Pair<>("Login", "/login"));
-            dropdownMenu.add(new Pair<>("Register", "/submit-registration"));
-            dropdownMenu.add(new Pair<>("Forgot Password", "/get-email-for-change-password"));
+            dropdownMenu.add(new Pair<>("Register New Customer Account", "/submit-customer-registration"));
+            dropdownMenu.add(new Pair<>("Forgot My Password", "/get-email-for-change-password"));
         } else {
             UserDto userDto = userService.findById(userId);
             logger.debug("User DTO: " + userDto);
+            dropdownMenu.add(new Pair<>("Profile", "/user-profile"));
             if (userDto.getUserAuthorities().contains(UserAuthority.CUSTOMER)) {
-                dropdownMenu.add(new Pair<>("Profile", "/profile"));
                 dropdownMenu.add(new Pair<>("Tickets", "/tickets"));
                 dropdownMenu.add(new Pair<>("Payment Cards", "/payment-cards"));
             }

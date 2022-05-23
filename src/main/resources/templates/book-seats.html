@@ -5,8 +5,8 @@
 </head>
 <body>
 <nav th:insert="fragments/webpage-top :: webpage-top"></nav>
-<div th:insert="fragments/errors :: errors"></div>
 <div class="container">
+    <div th:insert="fragments/errors :: errors"></div>
     <form method="get" th:action="@{/choose-seats-to-book(id=${screening.id})}">
         <button class="btn btn-primary" style="font-size: xx-large;">Edit Seat Selection</button>
     </form>

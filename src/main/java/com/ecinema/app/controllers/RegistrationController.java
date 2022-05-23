@@ -1,6 +1,10 @@
 package com.ecinema.app.controllers;
 
+import com.ecinema.app.domain.entities.Admin;
+import com.ecinema.app.domain.entities.Customer;
+import com.ecinema.app.domain.entities.User;
 import com.ecinema.app.domain.enums.SecurityQuestions;
+import com.ecinema.app.domain.enums.UserAuthority;
 import com.ecinema.app.domain.forms.RegistrationForm;
 import com.ecinema.app.exceptions.*;
 import com.ecinema.app.services.RegistrationService;
@@ -20,7 +24,7 @@ import java.time.LocalDate;
 import java.util.List;
 
 /**
- * The type Registration controller.
+ * Controller for client registration process.
  */
 @Controller
 @RequiredArgsConstructor
@@ -30,59 +34,122 @@ public class RegistrationController {
     private final Logger logger = LoggerFactory.getLogger(RegistrationController.class);
 
     /**
-     * Show registration page string.
+     * Gets the submit-registration page for the purpose of registering a {@link com.ecinema.app.domain.entities.User}
+     * with {@link com.ecinema.app.domain.entities.Customer} authority. Adds to the model {@link RegistrationForm}
+     * and {@link SecurityQuestions#getList()}.
      *
-     * @param model the model
-     * @return the string
+     * @param model            the model of the view
+     * @param registrationForm the registration form
+     * @return the view name
      */
-    @GetMapping("/submit-registration")
-    public String showRegistrationPage(final Model model) {
+    @GetMapping("/submit-customer-registration")
+    public String showCustomerRegistrationPage(final Model model,
+                                       @ModelAttribute("registrationForm") final RegistrationForm registrationForm) {
+        addRegistrationPageAttributes(model, registrationForm);
+        model.addAttribute("action", "/submit-customer-registration");
+        return "submit-registration";
+    }
+
+    /**
+     * Gets the submit-registration page for the purpose of registering a {@link com.ecinema.app.domain.entities.User}
+     * with customized values for {@link UserAuthority}. At least one authority must be specified in the values
+     * of {@link RegistrationForm#getAuthorities()} on submission.
+     *
+     * @param model            the model of the view
+     * @param registrationForm the registration form
+     * @return the view name
+     */
+    @GetMapping("/submit-management-customized-registration")
+    public String showManagementCustomizedRegistrationPage(
+            final Model model, @ModelAttribute("registrationForm") final RegistrationForm registrationForm) {
+        addRegistrationPageAttributes(model, registrationForm);
+        model.addAttribute("action", "/submit-management-customized-registration");
+        return "submit-registration";
+    }
+
+    private void addRegistrationPageAttributes(final Model model, final RegistrationForm registrationForm) {
         logger.debug(UtilMethods.getDelimiterLine());
         logger.debug("Show submit registration page");
-        model.addAttribute("registrationForm", new RegistrationForm());
+        model.addAttribute("registrationForm", registrationForm);
         logger.debug("Added blank registration form to model");
         List<String> securityQuestions = SecurityQuestions.getList();
         model.addAttribute("securityQuestions", securityQuestions);
         logger.debug("Added list of security questions to model");
         logger.debug("Security questions: " + securityQuestions);
-        model.addAttribute("maxDate", LocalDate.now());
+        model.addAttribute("maxDate", LocalDate.now().minusYears(16));
         model.addAttribute("minDate", LocalDate.now().minusYears(120));
-        return "submit-registration";
     }
 
     /**
-     * Register string.
+     * Posts the {@link RegistrationForm} for registering a new {@link User} with {@link Customer} authority.
      *
-     * @param model              the model
      * @param redirectAttributes the redirect attributes
      * @param registrationForm   the registration form
-     * @return the string
+     * @return the view name
      */
-    @PostMapping("/submit-registration")
-    public String register(final Model model, final RedirectAttributes redirectAttributes,
+    @PostMapping("/submit-customer-registration")
+    public String registerCustomer(final RedirectAttributes redirectAttributes,
                            @ModelAttribute("registrationForm") final RegistrationForm registrationForm) {
+        registrationForm.getAuthorities().add(UserAuthority.CUSTOMER);
+        return submitRegistration(redirectAttributes, registrationForm,
+                                  "redirect:/submit-customer-registration");
+    }
+
+    /**
+     * Posts the {@link RegistrationForm} for registering a new {@link User} that has been customized by
+     * an {@link Admin} client. Must contain at least one {@link UserAuthority}.
+     *
+     * @param redirectAttributes the redirect attributes
+     * @param registrationForm   the registration form
+     * @return the view name
+     */
+    @PostMapping("/submit-management-customized-registration")
+    public String registerManagementCustomizedRegistration(
+            final RedirectAttributes redirectAttributes,
+            @ModelAttribute("registrationForm") final RegistrationForm registrationForm) {
+        if (registrationForm.getAuthorities().isEmpty()) {
+            redirectAttributes.addFlashAttribute(
+                    "errors", List.of("Must specify at least one user authority"));
+            redirectAttributes.addFlashAttribute("registrationForm", registrationForm);
+            return "redirect:/submit-management-customized-registration";
+        }
+        return submitRegistration(redirectAttributes, registrationForm,
+                                  "redirect:/submit-management-customized-registration");
+    }
+
+    /**
+     * Posts the {@link RegistrationForm} that the client has filled out. The form is processed by
+     * {@link RegistrationService#submitRegistrationForm(RegistrationForm)}. On success, the client is
+     * redirected to the message-page get-mapping and is notified with an on-success message detailing
+     * the next steps the client needs to take to complete the registration process.
+     */
+    private String submitRegistration(final RedirectAttributes redirectAttributes,
+                                      final RegistrationForm registrationForm, final String returnOnError) {
         logger.debug(UtilMethods.getDelimiterLine());
         logger.debug("Post mapping: submit registration");
         try {
             registrationService.submitRegistrationForm(registrationForm);
             redirectAttributes.addFlashAttribute(
                     "message", "Registration request has been processed. \n Please see " +
-                            "the email sent to your email address with a link to confirm your registration.");
+                            "the email sent with a link to confirm your registration.");
             logger.debug("Successfully submitted registration form");
             return "redirect:/message-page";
         } catch (ClashException | InvalidArgsException | EmailException e) {
-            model.addAttribute("errors", e.getErrors());
+            redirectAttributes.addFlashAttribute("errors", e.getErrors());
+            redirectAttributes.addFlashAttribute("registrationForm", registrationForm);
             logger.debug("Errors: " + e.getErrors());
-            return "submit-registration";
+            return returnOnError;
         }
     }
 
     /**
-     * Confirm registration string.
+     * Gets the confirm-registration page and calls {@link RegistrationService#confirmRegistrationRequest(String)}
+     * using the path variable "token". On success, the client is redirected to the message-page get-mapping
+     * and is notified of being able to log into their newly-created account.
      *
      * @param model the model
      * @param token the token
-     * @return the string
+     * @return the view name
      */
     @GetMapping("/confirm-registration/{token}")
     public String confirmRegistration(final Model model, @PathVariable("token") final String token) {
@@ -95,9 +162,10 @@ public class RegistrationController {
             }
             registrationService.confirmRegistrationRequest(token);
             logger.debug("Successfully confirmed registration token");
-            model.addAttribute(
-                    "message", "Successfully confirmed registration! " +
-                            "You may now login.");
+            model.addAttribute("message",
+                               "Successfully confirmed registration! You may now login.");
+            model.addAttribute("redirectLink", "/login");
+            model.addAttribute("redirectMessage", "Go to Login Page");
             return "message-page";
         } catch (NoEntityFoundException | BadRuntimeVarException e) {
             model.addAttribute("errors", e.getErrors());

@@ -3,7 +3,9 @@
 <head th:insert="fragments/header :: header"></head>
 <body>
 <nav th:insert="fragments/webpage-top :: webpage-top"></nav>
-<div th:insert="fragments/back-to-management-page :: back-to-management-page"></div>
-<div th:insert="fragments/movie-form :: movie-form(${action}, ${movieForm})"></div>
+<div class="container">
+    <div th:insert="fragments/back-to-management-page :: back-to-management-page"></div>
+    <div th:insert="fragments/movie-form :: movie-form(${action}, ${movieForm})"></div>
+</div>
 </body>
 </html>

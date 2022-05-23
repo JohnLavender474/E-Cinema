@@ -6,24 +6,32 @@
         <a class="logo" th:href="@{/index}">
             ECinema<span> Entertainment</span>
         </a>
-        <a class="btn btn-primary" th:href="@{/index}">Home</a>
+        <a class="btn btn-outline-primary" th:href="@{/index}">Home</a>
         &nbsp;
         &nbsp;
         &nbsp;
-        <a class="btn btn-primary" th:href="@{/movies}">Movies</a>
+        <a class="btn btn-outline-primary" th:href="@{/movies}">Movies</a>
         &nbsp;
         &nbsp;
         &nbsp;
-        <a class="btn btn-primary" th:href="@{/about}">About</a>
+        <a class="btn btn-outline-primary" th:href="@{/about}">About</a>
         &nbsp;
         &nbsp;
         &nbsp;
         <div class="dropdown show">
-            <a class="btn btn-primary dropdown-toggle" data-toggle="dropdown"
+            <a class="btn btn-outline-success dropdown-toggle" data-toggle="dropdown"
                aria-haspopup="true" aria-expanded="false">Account</a>
             <div class="dropdown-menu">
-                <a class="dropdown-item-text" th:each="option:${dropdownMenu}"
-                   th:text="${option.first}" th:href="@{${option.second}}"></a>
+                <table class="table table-bordered table-striped">
+                    <tr th:each="option:${dropdownMenu}">
+                        <td>
+                            <form method="get" th:action="@{${option.second}}">
+                                <button class="btn btn-outline-success btn-block m-1"
+                                        th:text="${option.first}"></button>
+                            </form>
+                        </td>
+                    </tr>
+                </table>
             </div>
         </div>
         &nbsp;

@@ -12,6 +12,7 @@ import com.ecinema.app.domain.enums.Letter;
 import com.ecinema.app.domain.enums.UserAuthority;
 import com.ecinema.app.domain.forms.MovieForm;
 import com.ecinema.app.domain.forms.ScreeningForm;
+import com.ecinema.app.domain.forms.ShowroomForm;
 import com.ecinema.app.domain.validators.MovieValidator;
 import com.ecinema.app.domain.validators.ScreeningValidator;
 import com.ecinema.app.exceptions.InvalidArgsException;
@@ -400,6 +401,21 @@ class ManagementControllerTest {
         mockMvc.perform(post("/add-screening/" + 1L))
                 .andExpect(redirectedUrlPattern("/add-screening/" + 1L + "**"))
                 .andExpect(result -> model().attributeExists("errors"));
+    }
+
+    @Test
+    @WithMockUser(username = "user", authorities = {"ADMIN"})
+    void addNewShowroom()
+            throws Exception {
+        ShowroomForm showroomForm = new ShowroomForm();
+        showroomForm.setShowroomLetter(Letter.A);
+        showroomForm.setNumberOfRows(1);
+        showroomForm.setNumberOfSeatsPerRow(3);
+        given(showroomRepository.existsByShowroomLetter(Letter.A)).willReturn(false);
+        mockMvc.perform(post("/add-showroom")
+                                .flashAttr("showroomForm", showroomForm))
+                .andExpect(redirectedUrlPattern("/management**"))
+                .andExpect(result -> model().attributeExists("success"));
     }
 
     void setUpAdminUserDto() {

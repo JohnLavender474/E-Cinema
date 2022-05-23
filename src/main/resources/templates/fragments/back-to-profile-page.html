@@ -4,9 +4,9 @@
 <div th:fragment="back-to-profile-page">
   <div class="container">
     <label>
-      <button>
-        <a th:href="@{/user-profile}">Back to Profile Page</a>
-      </button>
+      <form method="get" th:action="@{/user-profile}">
+        <button class="btn btn-primary">Back to Profile Page</button>
+      </form>
     </label>
   </div>
 </div>

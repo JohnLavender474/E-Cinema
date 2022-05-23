@@ -3,13 +3,9 @@
 <head th:insert="fragments/header :: header"></head>
 <body>
 <nav th:insert="fragments/webpage-top :: webpage-top"></nav>
-<div class="profileContainer" th:if="${user != null}">
-    <h1 class="bold-white-text">Profile</h1>
-    <label>
-        <button class="btn btn-primary">
-            <a th:href="@{/edit-profile}">Edit Profile</a>
-        </button>
-    </label>
+<div class="container" th:if="${user != null}">
+    <div th:insert="fragments/success :: success"></div>
+    <h1 class="bold-white-text center-text">Profile</h1>
     <br/>
     <table class="table table-bordered table-striped">
         <tbody>
@@ -39,6 +35,11 @@
         </tr>
         </tbody>
     </table>
+    <label class="center">
+        <form method="get" th:action="@{/edit-user-profile}">
+            <button class="btn btn-primary">Edit Profile</button>
+        </form>
+    </label>
 </div>
 </body>
 </html>

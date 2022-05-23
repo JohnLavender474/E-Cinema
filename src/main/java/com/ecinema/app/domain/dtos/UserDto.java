@@ -1,6 +1,7 @@
 package com.ecinema.app.domain.dtos;
 
 import com.ecinema.app.domain.contracts.AbstractDto;
+import com.ecinema.app.domain.contracts.IProfile;
 import com.ecinema.app.domain.enums.UserAuthority;
 import com.ecinema.app.util.UtilMethods;
 import lombok.EqualsAndHashCode;
@@ -17,7 +18,7 @@ import java.util.Set;
 @Setter
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
-public class UserDto extends AbstractDto {
+public class UserDto extends AbstractDto implements IProfile {
 
     private String email;
     private String username;

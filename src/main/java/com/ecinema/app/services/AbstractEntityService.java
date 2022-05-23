@@ -40,6 +40,10 @@ public abstract class AbstractEntityService<E extends AbstractEntity,
         repository.save(entity);
     }
 
+    public void saveAll(Iterable<E> entities) {
+        repository.saveAll(entities);
+    }
+
     public void delete(E entity) {
         onDelete(entity);
         repository.delete(entity);

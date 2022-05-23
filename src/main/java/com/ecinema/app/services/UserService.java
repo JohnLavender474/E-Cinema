@@ -159,22 +159,17 @@ public class UserService extends AbstractEntityService<User, UserRepository, Use
         User user = new User();
         user.setUsername(registration.getUsername());
         user.setEmail(registration.getEmail());
-        user.setPassword(passwordEncoded ?
-                                 registration.getPassword() :
+        user.setPassword(passwordEncoded ? registration.getPassword() :
                                  encoderService.encode(registration.getPassword()));
         user.setFirstName(registration.getFirstName());
         user.setLastName(registration.getLastName());
         user.setBirthDate(registration.getBirthDate());
         user.setSecurityQuestion1(registration.getSecurityQuestion1());
-        user.setSecurityAnswer1(securityAnswer1Encoded ?
-                                        registration.getSecurityAnswer1() :
-                                        encoderService.encode(
-                                                registration.getSecurityAnswer1()));
+        user.setSecurityAnswer1(securityAnswer1Encoded ? registration.getSecurityAnswer1() :
+                                        encoderService.encode(registration.getSecurityAnswer1()));
         user.setSecurityQuestion2(registration.getSecurityQuestion2());
-        user.setSecurityAnswer2(securityAnswer2Encoded ?
-                                        registration.getSecurityAnswer2() :
-                                        encoderService.encode(
-                                                registration.getSecurityAnswer2()));
+        user.setSecurityAnswer2(securityAnswer2Encoded ? registration.getSecurityAnswer2() :
+                                        encoderService.encode(registration.getSecurityAnswer2()));
         user.setCreationDateTime(LocalDateTime.now());
         user.setLastActivityDateTime(LocalDateTime.now());
         user.setIsAccountEnabled(true);

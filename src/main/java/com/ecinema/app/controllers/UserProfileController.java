@@ -14,11 +14,10 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import java.util.List;
+import java.time.LocalDate;
 
 @Controller
 @RequiredArgsConstructor
@@ -29,54 +28,57 @@ public class UserProfileController {
     private final Logger logger = LoggerFactory.getLogger(UserProfileController.class);
 
     @GetMapping("/user-profile")
-    public String showUserProfilePage(final Model model, final RedirectAttributes redirectAttributes) {
+    public String showUserProfilePage(final Model model) {
         Long userId = securityContext.findIdOfLoggedInUser();
-        if (userId == null) {
-            redirectAttributes.addFlashAttribute(
-                    "errors", List.of("FATAL ERROR: Forced to logout"));
-            return "redirect:/logout";
-        }
         UserDto userDto = userService.findById(userId);
         model.addAttribute("user", userDto);
         logger.debug(UtilMethods.getDelimiterLine());
-        logger.debug("Get mapping: profile page");
+        logger.debug("Get mapping: user profile page");
         logger.debug("User DTO: " + userDto);
         return "user-profile";
     }
 
     @GetMapping("/edit-user-profile")
-    public String showEditUserProfilePage(final Model model, final RedirectAttributes redirectAttributes) {
+    public String showEditUserProfilePage(final Model model) {
+        logger.debug(UtilMethods.getDelimiterLine());
+        logger.debug("Get mapping: edit user profile");
         Long userId = securityContext.findIdOfLoggedInUser();
-        if (userId == null) {
-            redirectAttributes.addFlashAttribute(
-                    "errors", List.of("FATAL ERROR: Forced to logout"));
-            return "redirect:/logout";
-        }
+        logger.debug("User id: " + userId);
         UserDto userDto = userService.findById(userId);
+        logger.debug("User DTO: " + userDto);
         UserProfileForm userProfileForm = new UserProfileForm();
-        userProfileForm.setFirstName(userDto.getFirstName());
-        userProfileForm.setLastName(userDto.getLastName());
-        userProfileForm.setBirthDate(userDto.getBirthDate());
-        model.addAttribute("userId", userDto.getId());
+        userProfileForm.setToIProfile(userDto);
+        logger.debug("User profile form: " + userProfileForm);
         model.addAttribute("profileForm", userProfileForm);
+        model.addAttribute("minDate", LocalDate.now().minusYears(120));
+        model.addAttribute("maxDate", LocalDate.now().minusYears(16));
         return "edit-user-profile";
     }
 
-    @PostMapping("/edit-user-profile/{id}")
-    public String editUserProfile(final Model model, final RedirectAttributes redirectAttributes,
-                                  @ModelAttribute("profileForm") final UserProfileForm userProfileForm,
-                                  @PathVariable("id") final Long userId) {
+    @PostMapping("/edit-user-profile")
+    public String editUserProfile(final RedirectAttributes redirectAttributes,
+                                  @ModelAttribute("profileForm") final UserProfileForm userProfileForm) {
         try {
+            logger.debug(UtilMethods.getDelimiterLine());
+            logger.debug("Post mapping: edit user profile");
+            Long userId = securityContext.findIdOfLoggedInUser();
+            logger.debug("User id: " + userId);
             userProfileForm.setUserId(userId);
+            logger.debug("User profile form: " + userProfileForm);
             userService.editUserProfile(userProfileForm);
-            redirectAttributes.addFlashAttribute("sucess", "Successfully edited profile");
-            return "redirect:/profile";
+            redirectAttributes.addFlashAttribute("success", "Successfully edited profile");
+            logger.debug("Successfully edited profile");
+            return "redirect:/user-profile";
         } catch (InvalidArgsException e) {
-            model.addAttribute("errors", e.getErrors());
-            return "edit-user-profile";
+            redirectAttributes.addFlashAttribute("errors", e.getErrors());
+            logger.debug("Errors: " + e.getErrors());
+            logger.debug("Redirect to edit user profile page");
+            return "redirect:/edit-user-profile";
         } catch (NoEntityFoundException e) {
             e.getErrors().add("FATAL ERROR: Forced to logout");
-            redirectAttributes.addAttribute("errors", e.getErrors());
+            redirectAttributes.addFlashAttribute("errors", e.getErrors());
+            logger.debug("Errors: " + e.getErrors());
+            logger.debug("Redirect to logout page");
             return "redirect:/logout";
         }
     }

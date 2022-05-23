@@ -1,12 +1,11 @@
 package com.ecinema.app.services;
 
 import com.ecinema.app.domain.dtos.ShowroomDto;
-import com.ecinema.app.domain.dtos.ShowroomSeatDto;
-import com.ecinema.app.domain.entities.Screening;
 import com.ecinema.app.domain.entities.Showroom;
 import com.ecinema.app.domain.entities.ShowroomSeat;
 import com.ecinema.app.domain.forms.ShowroomForm;
 import com.ecinema.app.domain.validators.ShowroomValidator;
+import com.ecinema.app.exceptions.ClashException;
 import com.ecinema.app.exceptions.InvalidArgsException;
 import com.ecinema.app.domain.enums.Letter;
 import com.ecinema.app.exceptions.NoEntityFoundException;
@@ -17,8 +16,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 @Service
 @Transactional
@@ -59,12 +56,12 @@ public class ShowroomService extends AbstractEntityService<Showroom, ShowroomRep
         return showroomDto;
     }
 
-    public Map<Letter, Set<ShowroomSeatDto>> findShowroomSeatMapByShowroomWithId(Long showroomId) {
-        return showroomSeatService.findShowroomSeatMapByShowroomWithId(showroomId);
+    public List<Letter> findAllShowroomLetters() {
+        return repository.findAllShowroomLetters();
     }
 
     public void submitShowroomForm(ShowroomForm showroomForm)
-            throws InvalidArgsException {
+            throws ClashException, InvalidArgsException {
         logger.debug(UtilMethods.getDelimiterLine());
         logger.debug("Submit showroom form");
         List<String> errors = new ArrayList<>();
@@ -73,12 +70,17 @@ public class ShowroomService extends AbstractEntityService<Showroom, ShowroomRep
             throw new InvalidArgsException(errors);
         }
         logger.debug("Submit Showroom Form: passed validation checks");
+        if (repository.existsByShowroomLetter(showroomForm.getShowroomLetter())) {
+            throw new ClashException("Showroom with room letter " +
+                                             showroomForm.getShowroomLetter() + " already exists");
+        }
         Showroom showroom = new Showroom();
         showroom.setShowroomLetter(showroomForm.getShowroomLetter());
         showroom.setNumberOfRows(showroomForm.getNumberOfRows());
         showroom.setNumberOfSeatsPerRow(showroomForm.getNumberOfSeatsPerRow());
         repository.save(showroom);
         logger.debug("Instantiated and saved showroom " + showroom);
+        List<ShowroomSeat> showroomSeats = new ArrayList<>();
         for (int i = 0; i < showroomForm.getNumberOfRows(); i++) {
             Letter rowLetter = Letter.values()[i];
             for (int j = 1; j <= showroomForm.getNumberOfSeatsPerRow(); j++) {
@@ -87,12 +89,14 @@ public class ShowroomService extends AbstractEntityService<Showroom, ShowroomRep
                 showroomSeat.setSeatNumber(j);
                 showroomSeat.setShowroom(showroom);
                 showroom.getShowroomSeats().add(showroomSeat);
-                showroomSeatService.save(showroomSeat);
-                logger.debug("Instantiated and saved showroom seat " +
+                showroomSeats.add(showroomSeat);
+                logger.debug("Instantiated and queuing to save showroom seat " +
                                      showroomSeat.getRowLetter() + "-" +
                                      showroomSeat.getSeatNumber());
             }
         }
+        showroomSeatService.saveAll(showroomSeats);
+        logger.debug("Saved collection of showroom seats: " + showroomSeats);
     }
 
     public ShowroomDto findByShowroomLetter(Letter showroomLetter) {
@@ -105,25 +109,6 @@ public class ShowroomService extends AbstractEntityService<Showroom, ShowroomRep
         Showroom showroom = repository.findByShowroomSeatsContains(showroomSeat)
                                       .orElseThrow( () -> new NoEntityFoundException(
                                               "showroom", "showroom seat", showroomSeat));
-        return convertToDto(showroom);
-    }
-
-    public ShowroomDto findByShowroomSeatsContainsWithId(Long showroomSeatId) {
-        Showroom showroom = repository.findByShowroomSeatsContainsWithId(showroomSeatId)
-                                      .orElseThrow(() -> new NoEntityFoundException(
-                                              "showroom", "showroom seat with id", showroomSeatId));
-        return convertToDto(showroom);
-    }
-
-    public ShowroomDto findByScreeningsContains(Screening screening) {
-        Showroom showroom = repository.findByScreeningsContains(screening).orElseThrow(
-                () -> new NoEntityFoundException("showroom", "screening", screening));
-        return convertToDto(showroom);
-    }
-
-    public ShowroomDto findByScreeningsContainsWithId(Long screeningId) {
-        Showroom showroom = repository.findByScreeningsContainsWithId(screeningId).orElseThrow(
-                () -> new NoEntityFoundException("showroom", "screening with id", screeningId));
         return convertToDto(showroom);
     }
 

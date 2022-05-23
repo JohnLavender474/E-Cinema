@@ -4,11 +4,12 @@ import com.ecinema.app.domain.entities.Screening;
 import com.ecinema.app.domain.entities.Showroom;
 import com.ecinema.app.domain.entities.ShowroomSeat;
 import com.ecinema.app.domain.enums.Letter;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -95,6 +96,25 @@ class ShowroomRepositoryTest {
         assertTrue(showroomOptional2.isPresent());
         assertEquals(showroom, showroomOptional1.get());
         assertEquals(showroom, showroomOptional2.get());
+    }
+
+    /**
+     * Find all showroom letters.
+     */
+    @Test
+    void findAllShowroomLetters() {
+        // given
+        for (int i = 0; i < 3; i++) {
+            Letter showroomLetter = Letter.values()[i];
+            Showroom showroom = new Showroom();
+            showroom.setShowroomLetter(showroomLetter);
+            showroomRepository.save(showroom);
+        }
+        // when
+        List<Letter> showroomLetters = showroomRepository.findAllShowroomLetters();
+        // then
+        assertEquals(3, showroomLetters.size());
+        assertTrue(showroomLetters.containsAll(Arrays.asList(Letter.A, Letter.B, Letter.C)));
     }
 
 }

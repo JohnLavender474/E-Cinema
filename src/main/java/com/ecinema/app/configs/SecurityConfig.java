@@ -37,6 +37,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
             "/perform-login/**",
             "/post-email/**",
             "/submit-registration/**",
+            "/submit-customer-registration/**",
             "/test"
     };
     private static final String[] AUTHENTICATED_PERMITTED = new String[]{

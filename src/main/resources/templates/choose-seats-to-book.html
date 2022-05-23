@@ -5,8 +5,8 @@
 </head>
 <body>
 <nav th:insert="fragments/webpage-top :: webpage-top"></nav>
-<div th:insert="fragments/errors :: errors"></div>
 <div class="container">
+    <div th:insert="fragments/errors :: errors"></div>
     <div class="bold-white-text center-text">
         <h1 th:text="'Book seats for ' + ${screening.movieTitle}"></h1>
         <h1 th:text="'Showtime: ' + ${screening.showDateTimeFormatted()}"></h1>

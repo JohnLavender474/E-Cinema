@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:insert="fragments/header :: header"></head>
+<body>
+<nav th:insert="fragments/webpage-top :: webpage-top"></nav>
+<div class="container">
+    <div th:insert="fragments/errors :: errors"></div>
+    <form method="post" th:action="@{/add-showroom}" th:object="${showroomForm}">
+        <table>
+            <tr>
+                <td>Showroom Letter:</td>
+                <td>
+                    <label><select><option th:each="showroomLetter:${availableShowroomLetters}"
+                                           th:value="${showroomLetter}" th:field="*{showroomLetter}">
+                    </option></select></label>
+                </td>
+            </tr>
+            <tr>
+                <td>Number of Rows:</td>
+                <td>
+                    <label><select><option th:each="number:${#numbers.sequence(1, 25)}"
+                                           th:value="${number}" th:field="*{numberOfRows}">
+                    </option> </select></label>
+                </td>
+            </tr>
+            <tr>
+                <td>Number of Seats per Row:</td>
+                <td>
+                    <label><select><option th:each="number:${numbers.sequence(1, 25)}"
+                                           th:value="${number}" th:field="*{numberOfSeatsPerRow}">
+                    </option></select></label>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <input type="submit" value="submit">
+                </td>
+            </tr>
+        </table>
+    </form>
+</div>
+</body>
+</html>

@@ -91,20 +91,19 @@ class RegistrationServiceTest {
         registrationForm.setBirthDate(LocalDate.of(2000, Month.JANUARY, 1));
         registrationForm.getAuthorities().add(UserAuthority.CUSTOMER);
         // when
-        String token = registrationService.submitRegistrationFormAndGetToken(registrationForm);
+        registrationService.submitRegistrationForm(registrationForm);
         // then
-        assertNotNull(token);
         ArgumentCaptor<Registration> registrationArgumentCaptor = ArgumentCaptor.forClass(Registration.class);
         verify(registrationRepository).save(registrationArgumentCaptor.capture());
         Registration registration = registrationArgumentCaptor.getValue();
         assertTrue(registration.registrationEquals(registrationForm));
         // given
-        given(registrationRepository.findByToken(token)).willReturn(
-                Optional.of(registration));
+        given(registrationRepository.findByToken(registration.getToken()))
+                .willReturn(Optional.of(registration));
         given(userRepository.existsByEmail(anyString())).willReturn(false);
         given(userRepository.existsByUsername(anyString())).willReturn(false);
         // when
-        UserDto userDto = registrationService.confirmRegistrationRequest(token);
+        UserDto userDto = registrationService.confirmRegistrationRequest(registration.getToken());
         // then
         assertNotNull(userDto);
         ArgumentCaptor<User> userArgumentCaptor = ArgumentCaptor.forClass(User.class);

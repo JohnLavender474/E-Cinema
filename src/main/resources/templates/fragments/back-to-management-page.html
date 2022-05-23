@@ -2,11 +2,9 @@
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 <body>
 <div th:fragment="back-to-management-page">
-    <div class="container">
-        <form method="get" th:action="@{/management}">
-            <button class="btn btn-primary">Back to Management page</button>
-        </form>
-    </div>
+    <form method="get" th:action="@{/management}">
+        <button class="btn btn-primary">Back to Management page</button>
+    </form>
 </div>
 </body>
 </html>

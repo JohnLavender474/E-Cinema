@@ -3,11 +3,11 @@
 <head th:insert="fragments/header :: header"></head>
 <body>
 <nav th:insert="fragments/webpage-top :: webpage-top"></nav>
-<div th:insert="fragments/errors :: errors"></div>
-<div class="form-group">
+<div class="container">
+    <div th:insert="fragments/errors :: errors"></div>
     <h1 class="bold-white-text center-text">Register</h1>
-    <form method="post" th:action="@{/submit-registration}" th:object="${registrationForm}">
-        <table class="table table-bordered table-striped">
+    <form method="post" th:action="@{${action}}" th:object="${registrationForm}">
+        <table>
             <tr>
                 <td>Email:</td>
                 <td><label><input th:field="*{email}" type="text" required></label></td>

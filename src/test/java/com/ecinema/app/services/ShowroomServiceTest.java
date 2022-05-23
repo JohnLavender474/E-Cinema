@@ -2,6 +2,7 @@ package com.ecinema.app.services;
 
 import com.ecinema.app.domain.dtos.ShowroomDto;
 import com.ecinema.app.domain.entities.*;
+import com.ecinema.app.domain.forms.ShowroomForm;
 import com.ecinema.app.domain.validators.ScreeningValidator;
 import com.ecinema.app.domain.validators.ShowroomValidator;
 import com.ecinema.app.repositories.*;
@@ -9,14 +10,19 @@ import com.ecinema.app.domain.enums.Letter;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.test.context.TestPropertySource;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.verify;
 
 @ExtendWith(MockitoExtension.class)
 class ShowroomServiceTest {
@@ -37,13 +43,13 @@ class ShowroomServiceTest {
     @Mock
     private ScreeningSeatRepository screeningSeatRepository;
     @Mock
-    private CustomerRepository customerRepository;
-    @Mock
     private TicketRepository ticketRepository;
     @Mock
     private MovieRepository movieRepository;
-    @Mock
-    private UserRepository userRepository;
+    @Captor
+    ArgumentCaptor<Showroom> showroomArgumentCaptor;
+    @Captor
+    ArgumentCaptor<List<ShowroomSeat>> showroomSeatsArgumentCaptor;
 
     @BeforeEach
     void setUp() {
@@ -152,6 +158,29 @@ class ShowroomServiceTest {
         for (Screening screening : screenings) {
             assertNull(screening.getShowroom());
         }
+    }
+
+    @Test
+    void submitShowroomForm() {
+        // given
+        ShowroomForm showroomForm = new ShowroomForm();
+        showroomForm.setShowroomLetter(Letter.A);
+        showroomForm.setNumberOfRows(1);
+        showroomForm.setNumberOfSeatsPerRow(3);
+        // when
+        showroomService.submitShowroomForm(showroomForm);
+        verify(showroomRepository).save(showroomArgumentCaptor.capture());
+        verify(showroomSeatRepository).saveAll(showroomSeatsArgumentCaptor.capture());
+        // then
+        Showroom showroom = showroomArgumentCaptor.getValue();
+        List<ShowroomSeat> showroomSeats = showroomSeatsArgumentCaptor.getValue();
+        assertEquals(Letter.A, showroom.getShowroomLetter());
+        assertEquals(1, showroom.getNumberOfRows());
+        assertEquals(3, showroom.getNumberOfSeatsPerRow());
+        assertEquals(3, showroom.getShowroomSeats().size());
+        assertTrue(showroom.getShowroomSeats().containsAll(showroomSeats));
+        assertEquals(3, showroomSeats.stream().filter(
+                showroomSeat -> showroomSeat.getRowLetter().equals(Letter.A)).count());
     }
 
 }

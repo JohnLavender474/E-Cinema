@@ -9,10 +9,8 @@ import lombok.ToString;
 import org.hibernate.annotations.SortComparator;
 
 import javax.persistence.*;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.SortedSet;
-import java.util.TreeSet;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * The type Showroom.
@@ -33,12 +31,12 @@ public class Showroom extends AbstractEntity implements IShowroom {
     private Integer numberOfSeatsPerRow;
 
     @ToString.Exclude
-    @OneToMany(mappedBy = "showroom", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "showroom", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private Set<Screening> screenings = new HashSet<>();
 
     @ToString.Exclude
     @SortComparator(ISeat.SeatComparator.class)
-    @OneToMany(mappedBy = "showroom", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "showroom", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private SortedSet<ShowroomSeat> showroomSeats = new TreeSet<>(ISeat.SeatComparator.getInstance());
 
     @Override

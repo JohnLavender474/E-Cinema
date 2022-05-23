@@ -16,6 +16,10 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.doNothing;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -48,7 +52,7 @@ class RegistrationControllerTest {
     @Test
     void showSubmitRegistrationPage()
             throws Exception {
-        mockMvc.perform(get("/submit-registration"))
+        mockMvc.perform(get("/submit-customer-registration"))
                 .andExpect(status().isOk())
                 .andExpect(result -> model().attribute(
                         "registrationForm", new RegistrationForm()))
@@ -70,7 +74,10 @@ class RegistrationControllerTest {
         registrationForm.setSecurityAnswer1("Answer 1");
         registrationForm.setSecurityQuestion2(SecurityQuestions.SQ2);
         registrationForm.setSecurityAnswer2("Answer 2");
-
+        doNothing().when(registrationService).submitRegistrationForm(any(RegistrationForm.class));
+        mockMvc.perform(get("/submit-customer-registration")
+                                .flashAttr("registrationForm", registrationForm))
+                .andExpect(status().isOk());
     }
 
 }

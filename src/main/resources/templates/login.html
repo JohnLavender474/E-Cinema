@@ -16,17 +16,21 @@
                 <td><label for="password">Password:</label></td>
                 <td><input type="password" id="password" name="password" autofocus="autofocus" required/></td>
             </tr>
+            <tr>
+                <td><label><input type="submit" th:value="login"/></label></td>
+            </tr>
             </tbody>
         </table>
-        <label><input type="submit" th:value="login"/></label>
     </form>
     <label>
-        <button class="btn btn-primary"><a th:href="@{/submit-registration}">Register</a></button>
+        <button class="btn btn-primary"><a th:href="@{/get-email-for-change-password}">
+            Forgot Password</a></button>
+    </label>
+    <label>
+        <button class="btn btn-primary"><a th:href="@{/submit-customer-registration}">
+            Register New Customer Account</a></button>
     </label>
     <br/>
-    <label>
-        <button class="btn btn-primary"><a th:href="@{/get-email-for-change-password}">Forgot Password</a></button>
-    </label>
     <span class="text" th:if="${error} != null" th:text="${error}"></span>
 </div>
 </body>

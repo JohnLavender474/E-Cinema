@@ -3,8 +3,8 @@
 <head th:insert="fragments/header :: header"></head>
 <body>
 <nav th:insert="fragments/webpage-top :: webpage-top"></nav>
-<div th:insert="fragments/errors :: errors"></div>
 <div class="container">
+    <div th:insert="fragments/errors :: errors"></div>
     <h1 class="bold-white-text">Enter your email:</h1>
     <form method="post" th:action="@{${action}}">
         <span class="bold-white-text">Email:</span><br/>

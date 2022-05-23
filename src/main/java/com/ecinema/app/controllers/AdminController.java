@@ -2,8 +2,10 @@ package com.ecinema.app.controllers;
 
 import com.ecinema.app.domain.dtos.MovieDto;
 import com.ecinema.app.domain.dtos.ShowroomDto;
+import com.ecinema.app.domain.enums.Letter;
 import com.ecinema.app.domain.forms.MovieForm;
 import com.ecinema.app.domain.forms.ScreeningForm;
+import com.ecinema.app.domain.forms.ShowroomForm;
 import com.ecinema.app.exceptions.ClashException;
 import com.ecinema.app.exceptions.InvalidArgsException;
 import com.ecinema.app.exceptions.NoEntityFoundException;
@@ -16,16 +18,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Controller
 @RequiredArgsConstructor
@@ -265,6 +265,36 @@ public class AdminController {
             logger.debug("ERROR!");
             redirectAttributes.addAttribute("errors", e.getErrors());
             return "redirect:/add-screening/" + movieId;
+        }
+    }
+
+    @GetMapping("/add-showroom")
+    public String showAddShowroomPage(final Model model,
+                                     @ModelAttribute("showroomForm") final ShowroomForm showroomForm) {
+        model.addAttribute("showroomForm", showroomForm);
+        List<Letter> showroomLettersAlreadyInUse = showroomService.findAllShowroomLetters();
+        List<Letter> availableShowroomLetters = Stream.of(Letter.values()).filter(
+                letter -> !showroomLettersAlreadyInUse.contains(letter)).collect(
+                        Collectors.toCollection(ArrayList::new));
+        model.addAttribute("availableShowroomLetters", availableShowroomLetters);
+        return "add-showroom";
+    }
+
+    @PostMapping("/add-showroom")
+    public String addShowroom(final RedirectAttributes redirectAttributes,
+                              @ModelAttribute("showroomForm") final ShowroomForm showroomForm) {
+        try {
+            logger.debug(UtilMethods.getDelimiterLine());
+            logger.debug("Post mapping: add showroom");
+            showroomService.submitShowroomForm(showroomForm);
+            logger.debug("Successfully added new showroom");
+            redirectAttributes.addFlashAttribute(
+                    "success", "Successfully added new screening");
+            return "redirect:/management";
+        } catch (ClashException | InvalidArgsException e) {
+            logger.debug("Errors: " + e.getErrors());
+            redirectAttributes.addFlashAttribute("errors", e.getErrors());
+            return "redirect:/add-showroom";
         }
     }
 

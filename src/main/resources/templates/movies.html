@@ -12,8 +12,8 @@
     </form>
     <ul id="pageNumbers" th:if="${totalPages > 0}">
         <li th:each="pageNumber:${pageNumbers}">
-            <a class="btn btn-primary" th:classappend="${page == pageNumber ? 'active' : ''}"
-            th:text="${pageNumber}" th:href="@{/movies(search=${search}, page=${pageNumber})}">
+            <a class="btn btn-outline-primary" th:classappend="${page == pageNumber ? 'disabled' : ''}"
+               th:text="${pageNumber}" th:href="@{/movies(search=${search}, page=${pageNumber})}">
             </a>
         </li>
     </ul>
