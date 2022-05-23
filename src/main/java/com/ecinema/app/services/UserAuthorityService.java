@@ -7,7 +7,6 @@ import com.ecinema.app.exceptions.NoEntityFoundException;
 import com.ecinema.app.repositories.UserAuthorityRepository;
 import com.ecinema.app.util.UtilMethods;
 import lombok.ToString;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
@@ -32,10 +31,11 @@ public abstract class UserAuthorityService<E extends AbstractUserAuthority, R ex
         logger.debug("After detach user authority from user: " + user);
     }
 
-    public void fillCommonUserAuthorityDtoFields(E entity, D dto) {
-        dto.setId(entity.getId());
-        dto.setUserId(entity.getUser().getId());
-        dto.setUsername(entity.getUser().getUsername());
+    public void fillCommonUserAuthorityDtoFields(E userAuthority, D dto) {
+        dto.setId(userAuthority.getId());
+        dto.setUserId(userAuthority.getUser().getId());
+        dto.setEmail(userAuthority.getUser().getEmail());
+        dto.setUsername(userAuthority.getUser().getUsername());
     }
 
     public Optional<D> findByUserWithId(Long userId) {

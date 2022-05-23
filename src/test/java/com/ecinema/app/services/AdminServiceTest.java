@@ -54,6 +54,8 @@ class AdminServiceTest {
         // given
         User user = new User();
         user.setId(1L);
+        user.setEmail("test@gmail.com");
+        user.setUsername("test");
         Admin admin = new Admin();
         admin.setId(1L);
         user.getUserAuthorities().put(UserAuthority.ADMIN, admin);
@@ -65,6 +67,9 @@ class AdminServiceTest {
         AdminDto adminDto = adminService.convertToDto(1L);
         // then
         assertEquals(admin.getId(), adminDto.getId());
+        assertEquals(user.getId(), adminDto.getUserId());
+        assertEquals(user.getEmail(), adminDto.getEmail());
+        assertEquals(user.getUsername(), adminDto.getUsername());
     }
 
 }
