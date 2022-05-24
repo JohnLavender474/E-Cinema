@@ -307,44 +307,25 @@ public class AdminController {
     @GetMapping("/choose-screening-to-delete")
     public String showChooseScreeningToDeletePage(
             final Model model,
-            @RequestParam(value = "page", required = false, defaultValue = "1")
-            final Integer page,
-            @RequestParam(value = "search", required = false, defaultValue = "")
-            final String search,
-            @RequestParam(value = "letterChecked", required = false, defaultValue = "")
-            final List<String> lettersChecked) {
+            @RequestParam(value = "page", required = false, defaultValue = "1") final Integer page,
+            @RequestParam(value = "search", required = false, defaultValue = "") final String search) {
         List<String> showroomLettersInUse = showroomService.findAllShowroomLetters()
                                                                    .stream().map(Letter::name)
                                                                    .collect(Collectors.toList());
         model.addAttribute("showroomLettersInUse", showroomLettersInUse);
         PageRequest pageRequest = PageRequest.of(page - 1, 10);
-        Page<ScreeningDto> screeningDtos;
-        if (search.isBlank()) {
-            screeningDtos = lettersChecked.isEmpty() ?
-                    screeningService.findAll(pageRequest) :
-                    screeningService.findAllByShowroomLetters(
-                            lettersChecked.stream().map(
-                                    Letter::valueOf).collect(
-                                    Collectors.toList()), pageRequest);
-        } else {
-            screeningDtos = lettersChecked.isEmpty() ?
-                    screeningService.findAllByMovieWithTitleLike(search, pageRequest) :
-                    screeningService.findAllByShowroomLettersAndMovieWithTitleLike(
-                            lettersChecked.stream().map(
-                                    Letter::valueOf).collect(
-                                            Collectors.toList()), search, pageRequest);
-        }
+        Page<ScreeningDto> screeningDtos = search.isBlank() ? screeningService.findAll(pageRequest) :
+                screeningService.findAllByMovieWithTitleLike(search, pageRequest);
         UtilMethods.addPageNumbersAttribute(model, screeningDtos);
         model.addAttribute("screenings", screeningDtos.getContent());
         model.addAttribute("page", page);
         model.addAttribute("search", search);
-        model.addAttribute("lettersChecked", lettersChecked);
         return "choose-screening-to-delete";
     }
 
-    @GetMapping("/delete-screening")
+    @GetMapping("/delete-screening/{id}")
     public String showDeleteScreeningPage(final Model model, final RedirectAttributes redirectAttributes,
-                                          @RequestParam("id") final Long screeningId) {
+                                          @PathVariable("id") final Long screeningId) {
         logger.debug(UtilMethods.getLoggingSubjectDelimiterLine());
         logger.debug("Get mapping: delete screening");
         logger.debug("Screening id: " + screeningId);
@@ -364,9 +345,9 @@ public class AdminController {
         }
     }
 
-    @PostMapping("/delete-screening")
+    @PostMapping("/delete-screening/{id}")
     public String deleteScreening(final RedirectAttributes redirectAttributes,
-                                  @RequestParam("id") final Long screeningId) {
+                                  @PathVariable("id") final Long screeningId) {
         logger.debug(UtilMethods.getLoggingSubjectDelimiterLine());
         logger.debug("Post mapping: delete screening");
         logger.debug("Screening id: " + screeningId);
@@ -374,13 +355,12 @@ public class AdminController {
             screeningService.delete(screeningId);
             logger.debug("Successfully deleted screening");
             redirectAttributes.addFlashAttribute("success", "Successfully deleted screening");
-            return "redirect:/choose-screening-to-delete";
         } catch (NoEntityFoundException e) {
             logger.debug("Errors: " + e.getErrors());
             e.getErrors().add("ERROR: Forced to abort action");
             redirectAttributes.addFlashAttribute("errors", e.getErrors());
-            return "redirect:/management";
         }
+        return "redirect:/management";
     }
 
     @GetMapping("/choose-showroom-to-delete")
@@ -437,13 +417,12 @@ public class AdminController {
             redirectAttributes.addFlashAttribute(
                     "success", "Successfully deleted showroom " + showroomLetter);
             logger.debug("Successfully deleted showroom " + showroomLetter);
-            return "redirect:/choose-showroom-to-delete";
         } catch (NoEntityFoundException e) {
             e.getErrors().add("Forced to abort action");
             logger.debug("Errors: " + e.getErrors());
             redirectAttributes.addFlashAttribute("errors", e.getErrors());
-            return "redirect:/management";
         }
+        return "redirect:/management";
     }
 
     @ExceptionHandler(IllegalArgumentException.class)

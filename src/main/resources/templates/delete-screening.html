@@ -16,12 +16,14 @@
         <table class="table table-bordered table-striped">
             <tr>
                 <th>Showroom</th>
+                <th>Movie</th>
                 <th>Show Time</th>
                 <td>End Time</td>
                 <td>Seats Available</td>
             </tr>
             <tr>
                 <td th:text="${screening.showroomLetter}"></td>
+                <td th:text="${screening.movieTitle}"></td>
                 <td th:text="${screening.showDateTimeFormatted()}"></td>
                 <td th:text="${screening.endDateTimeFormatted()}"></td>
                 <td th:text="${screening.seatsAvailable} + '/' + ${screening.totalSeatsInRoom}"></td>
@@ -36,7 +38,7 @@
         </ul>
     </div>
     <div>
-        <form method="post" th:action="@{/delete-screening(id=${screening.id})}">
+        <form method="post" th:action="@{/delete-screening/{id}(id=${screening.id})}">
             <button class="btn btn-outline-danger" th:text="'I Absolutely Want to Delete This Screening ' +
                       'With NO CHANCE OF UNDOING THIS ACTION!'"></button>
         </form>

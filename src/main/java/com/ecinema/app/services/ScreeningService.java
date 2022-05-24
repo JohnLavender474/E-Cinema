@@ -122,20 +122,9 @@ public class ScreeningService extends AbstractEntityService<Screening, Screening
         return onDeleteInfo;
     }
 
-    public Page<ScreeningDto> findAllByShowroomLetters(List<Letter> showroomLetters, Pageable pageable) {
-        return repository.findAllByShowroomLetters(showroomLetters, pageable)
-                .map(this::convertToDto);
-    }
-
     public Page<ScreeningDto> findAllByMovieWithTitleLike(String title, Pageable pageable) {
-        return repository.findAllByMovieWithTitleLike(title, pageable)
-                         .map(this::convertToDto);
-    }
-
-    public Page<ScreeningDto> findAllByShowroomLettersAndMovieWithTitleLike(
-            List<Letter> showroomLetters, String title, Pageable pageable) {
-        return repository.findAllByShowroomLettersAndMovieWithTitleLike(
-                showroomLetters, title, pageable)
+        return repository.findAllByMovieWithTitleLike(
+                MovieService.convertTitleToSearchTitle(title), pageable)
                          .map(this::convertToDto);
     }
 

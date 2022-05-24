@@ -20,7 +20,6 @@ import com.ecinema.app.exceptions.NoEntityFoundException;
 import com.ecinema.app.repositories.MovieRepository;
 import com.ecinema.app.repositories.ShowroomRepository;
 import com.ecinema.app.services.*;
-import com.ecinema.app.util.UtilMethods;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -420,18 +419,14 @@ class ManagementControllerTest {
         }};
         given(showroomRepository.findAllShowroomLetters()).willReturn(showroomLettersInUse);
         PageRequest pageRequest = PageRequest.of(0, 10);
-        Page<Screening> screenings = new PageImpl<>(new ArrayList<>() {{
-            add(new Screening());
-            add(new Screening());
-        }});
+        Page<Screening> screenings = new PageImpl<>(new ArrayList<>());
         Page<ScreeningDto> screeningDtos = screenings.map(screeningService::convertToDto);
         given(screeningService.findAll(eq(pageRequest))).willReturn(screeningDtos);
         mockMvc.perform(get("/choose-screening-to-delete"))
                 .andExpect(status().isOk())
                 .andExpect(result -> model().attribute("screenings", screenings.getContent()))
                 .andExpect(result -> model().attribute("page", 1))
-                .andExpect(result -> model().attribute("search", ""))
-                .andExpect(result -> model().attribute("letterChecked", List.of()));
+                .andExpect(result -> model().attribute("search", ""));
     }
 
     @Test
@@ -450,21 +445,17 @@ class ManagementControllerTest {
             add(new Screening());
         }});
         Page<ScreeningDto> screeningDtos = screenings.map(screeningService::convertToDto);
-        given(screeningService.findAllByShowroomLettersAndMovieWithTitleLike(
-                eq(showroomLettersInUse), eq("TEST"), eq(pageRequest)))
+        given(screeningService.findAllByMovieWithTitleLike(
+                eq("TEST"), eq(pageRequest)))
                 .willReturn(screeningDtos);
         mockMvc.perform(get("/choose-screening-to-delete")
                                 .param("search", "TEST")
-                                .param("page", String.valueOf(4))
-                                .param("letterChecked", "A")
-                                .param("letterChecked", "B")
-                                .param("letterChecked", "C"))
+                                .param("page", String.valueOf(4)))
                 .andExpect(status().isOk())
                 .andExpect(result -> model().attribute(
                         "screenings", screenings.getContent()))
                 .andExpect(result -> model().attribute("page", 1))
-                .andExpect(result -> model().attribute("search", "TEST"))
-                .andExpect(result -> model().attribute("letterChecked", showroomLettersInUse));
+                .andExpect(result -> model().attribute("search", "TEST"));
     }
 
     @Test
@@ -490,8 +481,7 @@ class ManagementControllerTest {
         ScreeningDto screeningDto = new ScreeningDto();
         given(screeningService.findById(1L)).willReturn(screeningDto);
         given(screeningService.onDeleteInfo(1L)).willReturn(List.of("TEST"));
-        mockMvc.perform(get("/delete-screening")
-                                .param("id", String.valueOf(1L)))
+        mockMvc.perform(get("/delete-screening/" + 1L))
                 .andExpect(status().isOk())
                 .andExpect(result -> model().attribute("screening", screeningDto))
                 .andExpect(result -> model().attribute("onDeleteInfo", List.of("TEST")));
@@ -501,8 +491,7 @@ class ManagementControllerTest {
     @WithAnonymousUser
     void failToShowDeleteScreeningPage1()
         throws Exception {
-        mockMvc.perform(get("/delete-screening")
-                                .param("id", String.valueOf(1L)))
+        mockMvc.perform(get("/delete-screening/" + 1L))
                 .andExpect(status().is3xxRedirection());
     }
 
@@ -510,8 +499,7 @@ class ManagementControllerTest {
     @WithMockUser(username = "user", authorities = {"MODERATOR", "CUSTOMER"})
     void failToShowDeleteScreeningPage2()
             throws Exception {
-        mockMvc.perform(get("/delete-screening")
-                                .param("id", String.valueOf(1L)))
+        mockMvc.perform(get("/delete-screening/" + 1L))
                 .andExpect(status().isForbidden());
     }
 
@@ -520,9 +508,8 @@ class ManagementControllerTest {
     void deleteScreening()
             throws Exception {
         doNothing().when(screeningService).delete(anyLong());
-        mockMvc.perform(post("/delete-screening")
-                                .param("id",String.valueOf(1L)))
-                .andExpect(redirectedUrlPattern("/choose-screening-to-delete**"))
+        mockMvc.perform(post("/delete-screening/" + 1L))
+                .andExpect(redirectedUrlPattern("/management**"))
                 .andExpect(result -> model().attributeExists("success"));
     }
 
@@ -530,8 +517,7 @@ class ManagementControllerTest {
     @WithAnonymousUser
     void failToDeleteScreening1()
         throws Exception {
-        mockMvc.perform(post("/delete-screening")
-                                .param("id", String.valueOf(1L)))
+        mockMvc.perform(post("/delete-screening/" + 1L))
                 .andExpect(status().is3xxRedirection());
     }
 
@@ -539,8 +525,7 @@ class ManagementControllerTest {
     @WithMockUser(username = "user", authorities = {"MODERATOR", "CUSTOMER"})
     void failToDeleteScreening2()
             throws Exception {
-        mockMvc.perform(post("/delete-screening")
-                                .param("id", String.valueOf(1L)))
+        mockMvc.perform(post("/delete-screening/" + 1L))
                 .andExpect(status().isForbidden());
     }
 
@@ -550,8 +535,7 @@ class ManagementControllerTest {
         throws Exception {
         NoEntityFoundException e = new NoEntityFoundException("screening", "id", 1L);
         doThrow(e).when(screeningService).delete(anyLong());
-        mockMvc.perform(post("/delete-screening")
-                                .param("id", String.valueOf(1L)))
+        mockMvc.perform(post("/delete-screening/" + 1L))
                 .andExpect(redirectedUrlPattern("/management**"))
                 .andExpect(result -> model().attribute("errors", e.getErrors()));
     }
@@ -663,7 +647,7 @@ class ManagementControllerTest {
         doNothing().when(showroomService).delete(Letter.A);
         mockMvc.perform(post("/delete-showroom")
                                 .param("showroomLetter", Letter.A.name()))
-                .andExpect(redirectedUrlPattern("/choose-showroom-to-delete**"))
+                .andExpect(redirectedUrlPattern("/management**"))
                 .andExpect(result -> model().attributeExists("success"));
     }
 
