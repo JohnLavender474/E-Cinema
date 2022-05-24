@@ -8,7 +8,7 @@ import java.io.Serializable;
 
 @Data
 public class ShowroomForm implements IShowroom, Serializable {
-    private Letter showroomLetter = Letter.A;
-    private Integer numberOfRows = 1;
-    private Integer numberOfSeatsPerRow = 1;
+    private Letter showroomLetter;
+    private Integer numberOfRows;
+    private Integer numberOfSeatsPerRow;
 }

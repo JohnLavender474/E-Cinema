@@ -29,7 +29,7 @@ public class ScreeningSeatService extends AbstractEntityService<
     }
 
     @Override
-    public void onDelete(ScreeningSeat screeningSeat) {
+    protected void onDelete(ScreeningSeat screeningSeat) {
         logger.debug("Screening seat on delete");
         // cascade delete Ticket
         Ticket ticket = screeningSeat.getTicket();
@@ -80,7 +80,7 @@ public class ScreeningSeatService extends AbstractEntityService<
                                             new TreeSet<>(ISeat.SeatComparator.getInstance()));
             mapOfScreeningSeats.get(screeningSeatDto.getRowLetter()).add(screeningSeatDto);
         }
-        logger.debug(UtilMethods.getDelimiterLine());
+        logger.debug(UtilMethods.getLoggingSubjectDelimiterLine());
         logger.debug("Find screening seat map by screening with id: " + screeningId);
         logger.debug("Screening seat map: " + screeningSeatDtos);
         return mapOfScreeningSeats;

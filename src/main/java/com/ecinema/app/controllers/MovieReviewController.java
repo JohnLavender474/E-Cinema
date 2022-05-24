@@ -64,7 +64,7 @@ public class MovieReviewController {
             Page<ReviewDto> pageOfDtos = reviewService.findPageByMovieId(movieId, pageRequest);
             model.addAttribute("reviews", pageOfDtos.getContent().toArray());
             addPageNumbersAttribute(model, pageOfDtos);
-            logger.debug(UtilMethods.getDelimiterLine());
+            logger.debug(UtilMethods.getLoggingSubjectDelimiterLine());
             logger.debug("Page of DTOs: " + pageOfDtos);
             return "movie-reviews";
         } catch (NoEntityFoundException e) {
@@ -96,7 +96,7 @@ public class MovieReviewController {
     @GetMapping("/write-review/{id}")
     public String showWriteReviewPage(final Model model, final RedirectAttributes redirectAttributes,
                                       @PathVariable("id") final Long movieId) {
-        logger.debug(UtilMethods.getDelimiterLine());
+        logger.debug(UtilMethods.getLoggingSubjectDelimiterLine());
         logger.debug("Write review get mapping");
         Long userId = securityContext.findIdOfLoggedInUser();
         if (userId == null) {
@@ -142,7 +142,7 @@ public class MovieReviewController {
                               @PathVariable("id") final Long movieId) {
         try {
             reviewForm.setMovieId(movieId);
-            logger.debug(UtilMethods.getDelimiterLine());
+            logger.debug(UtilMethods.getLoggingSubjectDelimiterLine());
             logger.debug("Write review post mapping");
             reviewService.submitReviewForm(reviewForm);
             redirectAttributes.addFlashAttribute(

@@ -32,7 +32,7 @@ public class UserProfileController {
         Long userId = securityContext.findIdOfLoggedInUser();
         UserDto userDto = userService.findById(userId);
         model.addAttribute("user", userDto);
-        logger.debug(UtilMethods.getDelimiterLine());
+        logger.debug(UtilMethods.getLoggingSubjectDelimiterLine());
         logger.debug("Get mapping: user profile page");
         logger.debug("User DTO: " + userDto);
         return "user-profile";
@@ -40,7 +40,7 @@ public class UserProfileController {
 
     @GetMapping("/edit-user-profile")
     public String showEditUserProfilePage(final Model model) {
-        logger.debug(UtilMethods.getDelimiterLine());
+        logger.debug(UtilMethods.getLoggingSubjectDelimiterLine());
         logger.debug("Get mapping: edit user profile");
         Long userId = securityContext.findIdOfLoggedInUser();
         logger.debug("User id: " + userId);
@@ -59,7 +59,7 @@ public class UserProfileController {
     public String editUserProfile(final RedirectAttributes redirectAttributes,
                                   @ModelAttribute("profileForm") final UserProfileForm userProfileForm) {
         try {
-            logger.debug(UtilMethods.getDelimiterLine());
+            logger.debug(UtilMethods.getLoggingSubjectDelimiterLine());
             logger.debug("Post mapping: edit user profile");
             Long userId = securityContext.findIdOfLoggedInUser();
             logger.debug("User id: " + userId);

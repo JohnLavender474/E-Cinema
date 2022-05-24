@@ -10,13 +10,11 @@ import com.ecinema.app.domain.forms.UserProfileForm;
 import com.ecinema.app.domain.validators.RegistrationValidator;
 import com.ecinema.app.domain.validators.UserProfileValidator;
 import com.ecinema.app.exceptions.ClashException;
-import com.ecinema.app.exceptions.FatalErrorException;
 import com.ecinema.app.exceptions.InvalidArgsException;
 import com.ecinema.app.exceptions.NoEntityFoundException;
 import com.ecinema.app.repositories.UserAuthorityRepository;
 import com.ecinema.app.repositories.UserRepository;
 import com.ecinema.app.util.UtilMethods;
-import org.hibernate.boot.archive.internal.ExplodedArchiveDescriptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -56,7 +54,7 @@ public class UserService extends AbstractEntityService<User, UserRepository, Use
                        EncoderService encoderService, UserProfileValidator userProfileValidator,
                        RegistrationValidator registrationValidator) {
         super(repository);
-        logger.debug(UtilMethods.getDelimiterLine());
+        logger.debug(UtilMethods.getLoggingSubjectDelimiterLine());
         logger.debug("User Service: autowire user repository: " + repository);
         logger.debug("User Service: autowire encoder service: " + encoderService);
         this.encoderService = encoderService;
@@ -74,7 +72,7 @@ public class UserService extends AbstractEntityService<User, UserRepository, Use
     }
 
     @Override
-    public void onDelete(User user) {
+    protected void onDelete(User user) {
         logger.debug("User Service on delete");
         Set<UserAuthority> userAuthorities = user.getAuthorities();
         logger.debug("User roles: " + userAuthorities);
@@ -143,7 +141,7 @@ public class UserService extends AbstractEntityService<User, UserRepository, Use
     public UserDto register(IRegistration registration, boolean passwordEncoded,
                             boolean securityAnswer1Encoded, boolean securityAnswer2Encoded)
             throws InvalidArgsException, ClashException {
-        logger.debug(UtilMethods.getDelimiterLine());
+        logger.debug(UtilMethods.getLoggingSubjectDelimiterLine());
         logger.debug("User registration");
         List<String> errors = new ArrayList<>();
         registrationValidator.validate(registration, errors);

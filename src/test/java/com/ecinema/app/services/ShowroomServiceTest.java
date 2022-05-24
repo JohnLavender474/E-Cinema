@@ -59,14 +59,14 @@ class ShowroomServiceTest {
         screeningSeatService = new ScreeningSeatService(
                 screeningSeatRepository, ticketService);
         screeningService = new ScreeningService(
-                screeningRepository, movieRepository,
+                screeningRepository, movieRepository, null,
                 showroomRepository,  screeningSeatService,
                 screeningValidator);
         showroomSeatService = new ShowroomSeatService(
                 showroomSeatRepository, screeningSeatService);
         showroomService = new ShowroomService(
                 showroomRepository, showroomSeatService,
-                screeningService, showroomValidator);
+                screeningService, showroomValidator, ticketRepository);
     }
 
     @Test

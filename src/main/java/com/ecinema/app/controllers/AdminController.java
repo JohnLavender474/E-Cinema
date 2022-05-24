@@ -1,11 +1,10 @@
 package com.ecinema.app.controllers;
 
 import com.ecinema.app.domain.dtos.MovieDto;
+import com.ecinema.app.domain.dtos.ScreeningDto;
 import com.ecinema.app.domain.dtos.ShowroomDto;
 import com.ecinema.app.domain.enums.Letter;
-import com.ecinema.app.domain.forms.MovieForm;
-import com.ecinema.app.domain.forms.ScreeningForm;
-import com.ecinema.app.domain.forms.ShowroomForm;
+import com.ecinema.app.domain.forms.*;
 import com.ecinema.app.exceptions.ClashException;
 import com.ecinema.app.exceptions.InvalidArgsException;
 import com.ecinema.app.exceptions.NoEntityFoundException;
@@ -16,6 +15,8 @@ import com.ecinema.app.util.UtilMethods;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -44,7 +45,7 @@ public class AdminController {
      */
     @GetMapping("/add-movie")
     public String showAddMoviePage(final Model model) {
-        logger.debug(UtilMethods.getDelimiterLine());
+        logger.debug(UtilMethods.getLoggingSubjectDelimiterLine());
         logger.debug("Get mapping: add movie page");
         model.addAttribute("action", "/add-movie");
         model.addAttribute("movieForm", new MovieForm());
@@ -62,7 +63,7 @@ public class AdminController {
     @PostMapping("/add-movie")
     public String addMovie(final Model model,final RedirectAttributes redirectAttributes,
                            @ModelAttribute("movieForm") final MovieForm movieForm) {
-        logger.debug(UtilMethods.getDelimiterLine());
+        logger.debug(UtilMethods.getLoggingSubjectDelimiterLine());
         logger.debug("Post mapping: add movie");
         logger.debug("Movie form: " + movieForm);
         try {
@@ -83,7 +84,7 @@ public class AdminController {
      */
     @GetMapping("/edit-movie-search")
     public String showEditMovieSearchPage(final Model model) {
-        logger.debug(UtilMethods.getDelimiterLine());
+        logger.debug(UtilMethods.getLoggingSubjectDelimiterLine());
         logger.debug("Get mapping: edit movie search");
         model.addAttribute("href", "/edit-movie/{id}");
         List<MovieDto> movies = movieService.findAll();
@@ -101,7 +102,7 @@ public class AdminController {
      */
     @GetMapping("/edit-movie/{id}")
     public String showEditMoviePage(final Model model, @PathVariable("id") final Long movieId) {
-        logger.debug(UtilMethods.getDelimiterLine());
+        logger.debug(UtilMethods.getLoggingSubjectDelimiterLine());
         logger.debug("Get mapping: edit movie with id " + movieId);
         model.addAttribute("action", "/edit-movie/{id}");
         MovieForm movieForm = movieService.fetchAsForm(movieId);
@@ -122,7 +123,7 @@ public class AdminController {
     public String editMovie(final RedirectAttributes redirectAttributes,
                             @ModelAttribute("movieForm") final MovieForm movieForm,
                             @PathVariable("id") final Long movieId) {
-        logger.debug(UtilMethods.getDelimiterLine());
+        logger.debug(UtilMethods.getLoggingSubjectDelimiterLine());
         logger.debug("Post mapping: edit movie with id " + movieId);
         try {
             movieForm.setId(movieId);
@@ -144,7 +145,7 @@ public class AdminController {
      */
     @GetMapping("/delete-movie-search")
     public String showDeleteMovieSearchPage(final Model model) {
-        logger.debug(UtilMethods.getDelimiterLine());
+        logger.debug(UtilMethods.getLoggingSubjectDelimiterLine());
         logger.debug("Get mapping: delete movie search");
         model.addAttribute("href", "/delete-movie/{id}");
         List<MovieDto> movies = movieService.findAll();
@@ -164,7 +165,7 @@ public class AdminController {
     @GetMapping("/delete-movie/{id}")
     public String showDeleteMoviePage(final Model model, final RedirectAttributes redirectAttributes,
                                       @PathVariable("id") final Long id) {
-        logger.debug(UtilMethods.getDelimiterLine());
+        logger.debug(UtilMethods.getLoggingSubjectDelimiterLine());
         try {
             MovieDto movieDto = movieService.findById(id);
             model.addAttribute("movie", movieDto);
@@ -188,7 +189,7 @@ public class AdminController {
     @PostMapping("/delete-movie/{id}")
     public String deleteMovie(final RedirectAttributes redirectAttributes,
                               @PathVariable("id") final Long movieId) {
-        logger.debug(UtilMethods.getDelimiterLine());
+        logger.debug(UtilMethods.getLoggingSubjectDelimiterLine());
         logger.debug("Post mapping: delete movie");
         movieService.delete(movieId);
         redirectAttributes.addFlashAttribute("success", "Successfully deleted movie");
@@ -203,7 +204,7 @@ public class AdminController {
      */
     @GetMapping("/add-screening-search")
     public String showAddScreeningSearchPage(final Model model) {
-        logger.debug(UtilMethods.getDelimiterLine());
+        logger.debug(UtilMethods.getLoggingSubjectDelimiterLine());
         logger.debug("Get mapping: add screening search");
         model.addAttribute("href", "/add-screening/{id}");
         model.addAttribute("movies", movieService.findAll());
@@ -219,7 +220,7 @@ public class AdminController {
      */
     @GetMapping("/add-screening/{id}")
     public String showAddScreeningPage(final Model model, @PathVariable("id") final Long movieId) {
-        logger.debug(UtilMethods.getDelimiterLine());
+        logger.debug(UtilMethods.getLoggingSubjectDelimiterLine());
         logger.debug("Get mapping: add screening");
         MovieDto movieDto = movieService.findById(movieId);
         logger.debug("Movie DTO: " + movieDto);
@@ -244,15 +245,14 @@ public class AdminController {
      * Add screening string.
      *
      * @param redirectAttributes the redirect attributes
-     * @param movieId            the movie id
      * @param screeningForm      the screening form
      * @return the string
      */
-    @PostMapping("/add-screening/{id}")
+    @PostMapping("/add-screening")
     public String addScreening(final RedirectAttributes redirectAttributes,
-                               @PathVariable("id") final Long movieId,
-                               @ModelAttribute("screeningForm") final ScreeningForm screeningForm) {
-        logger.debug(UtilMethods.getDelimiterLine());
+                               @ModelAttribute("screeningForm") final ScreeningForm screeningForm,
+                               @RequestParam("id") final Long movieId) {
+        logger.debug(UtilMethods.getLoggingSubjectDelimiterLine());
         logger.debug("Post mapping: add screening");
         try {
             screeningForm.setMovieId(movieId);
@@ -269,13 +269,16 @@ public class AdminController {
     }
 
     @GetMapping("/add-showroom")
-    public String showAddShowroomPage(final Model model,
-                                     @ModelAttribute("showroomForm") final ShowroomForm showroomForm) {
-        model.addAttribute("showroomForm", showroomForm);
+    public String showAddShowroomPage(final Model model) {
+        logger.debug(UtilMethods.getLoggingSubjectDelimiterLine());
+        logger.debug("Get mapping: add showroom");
+        model.addAttribute("showroomForm", new ShowroomForm());
         List<Letter> showroomLettersAlreadyInUse = showroomService.findAllShowroomLetters();
         List<Letter> availableShowroomLetters = Stream.of(Letter.values()).filter(
                 letter -> !showroomLettersAlreadyInUse.contains(letter)).collect(
-                        Collectors.toCollection(ArrayList::new));
+                Collectors.toCollection(ArrayList::new));
+        logger.debug("Showroom letters already in use: " + showroomLettersAlreadyInUse);
+        logger.debug("Available showroom letters: " + availableShowroomLetters);
         model.addAttribute("availableShowroomLetters", availableShowroomLetters);
         return "add-showroom";
     }
@@ -284,18 +287,174 @@ public class AdminController {
     public String addShowroom(final RedirectAttributes redirectAttributes,
                               @ModelAttribute("showroomForm") final ShowroomForm showroomForm) {
         try {
-            logger.debug(UtilMethods.getDelimiterLine());
+            logger.debug(UtilMethods.getLoggingSubjectDelimiterLine());
             logger.debug("Post mapping: add showroom");
+            logger.debug("Showroom form: " + showroomForm);
             showroomService.submitShowroomForm(showroomForm);
             logger.debug("Successfully added new showroom");
             redirectAttributes.addFlashAttribute(
-                    "success", "Successfully added new screening");
+                    "success", "Successfully added new Showroom " +
+                            showroomForm.getShowroomLetter());
             return "redirect:/management";
         } catch (ClashException | InvalidArgsException e) {
             logger.debug("Errors: " + e.getErrors());
             redirectAttributes.addFlashAttribute("errors", e.getErrors());
+            redirectAttributes.addFlashAttribute("showroomForm", showroomForm);
             return "redirect:/add-showroom";
         }
+    }
+
+    @GetMapping("/choose-screening-to-delete")
+    public String showChooseScreeningToDeletePage(
+            final Model model,
+            @RequestParam(value = "page", required = false, defaultValue = "1")
+            final Integer page,
+            @RequestParam(value = "search", required = false, defaultValue = "")
+            final String search,
+            @RequestParam(value = "letterChecked", required = false, defaultValue = "")
+            final List<String> lettersChecked) {
+        List<String> showroomLettersInUse = showroomService.findAllShowroomLetters()
+                                                                   .stream().map(Letter::name)
+                                                                   .collect(Collectors.toList());
+        model.addAttribute("showroomLettersInUse", showroomLettersInUse);
+        PageRequest pageRequest = PageRequest.of(page - 1, 10);
+        Page<ScreeningDto> screeningDtos;
+        if (search.isBlank()) {
+            screeningDtos = lettersChecked.isEmpty() ?
+                    screeningService.findAll(pageRequest) :
+                    screeningService.findAllByShowroomLetters(
+                            lettersChecked.stream().map(
+                                    Letter::valueOf).collect(
+                                    Collectors.toList()), pageRequest);
+        } else {
+            screeningDtos = lettersChecked.isEmpty() ?
+                    screeningService.findAllByMovieWithTitleLike(search, pageRequest) :
+                    screeningService.findAllByShowroomLettersAndMovieWithTitleLike(
+                            lettersChecked.stream().map(
+                                    Letter::valueOf).collect(
+                                            Collectors.toList()), search, pageRequest);
+        }
+        UtilMethods.addPageNumbersAttribute(model, screeningDtos);
+        model.addAttribute("screenings", screeningDtos.getContent());
+        model.addAttribute("page", page);
+        model.addAttribute("search", search);
+        model.addAttribute("lettersChecked", lettersChecked);
+        return "choose-screening-to-delete";
+    }
+
+    @GetMapping("/delete-screening")
+    public String showDeleteScreeningPage(final Model model, final RedirectAttributes redirectAttributes,
+                                          @RequestParam("id") final Long screeningId) {
+        logger.debug(UtilMethods.getLoggingSubjectDelimiterLine());
+        logger.debug("Get mapping: delete screening");
+        logger.debug("Screening id: " + screeningId);
+        try {
+            ScreeningDto screeningDto = screeningService.findById(screeningId);
+            logger.debug("Screening DTO: " + screeningDto);
+            model.addAttribute("screening", screeningDto);
+            List<String> onDeleteInfo = screeningService.onDeleteInfo(screeningId);
+            logger.debug("On delete info: " + onDeleteInfo);
+            model.addAttribute("onDeleteInfo", onDeleteInfo);
+            return "delete-screening";
+        } catch (NoEntityFoundException e) {
+            logger.debug("Errors: " + e.getErrors());
+            redirectAttributes.addFlashAttribute("errors", e.getErrors());
+            logger.debug("Redirecting to choose-screening-to-delete");
+            return "redirect:/choose-screening-to-delete";
+        }
+    }
+
+    @PostMapping("/delete-screening")
+    public String deleteScreening(final RedirectAttributes redirectAttributes,
+                                  @RequestParam("id") final Long screeningId) {
+        logger.debug(UtilMethods.getLoggingSubjectDelimiterLine());
+        logger.debug("Post mapping: delete screening");
+        logger.debug("Screening id: " + screeningId);
+        try {
+            screeningService.delete(screeningId);
+            logger.debug("Successfully deleted screening");
+            redirectAttributes.addFlashAttribute("success", "Successfully deleted screening");
+            return "redirect:/choose-screening-to-delete";
+        } catch (NoEntityFoundException e) {
+            logger.debug("Errors: " + e.getErrors());
+            e.getErrors().add("ERROR: Forced to abort action");
+            redirectAttributes.addFlashAttribute("errors", e.getErrors());
+            return "redirect:/management";
+        }
+    }
+
+    @GetMapping("/choose-showroom-to-delete")
+    public String showDeleteShowroomPage(final Model model,
+                                         @ModelAttribute("showroomLetterForm") final StringForm showroomLetterForm) {
+        logger.debug(UtilMethods.getLoggingSubjectDelimiterLine());
+        logger.debug("Get mapping: delete showroom");
+        model.addAttribute("showroomLetterForm", showroomLetterForm);
+        List<String> showroomLettersAlreadyInUse = showroomService.findAllShowroomLetters()
+                .stream().map(Letter::name).collect(Collectors.toList());
+        logger.debug("Showroom letters already in use: " + showroomLettersAlreadyInUse);
+        model.addAttribute("showroomLetters", showroomLettersAlreadyInUse);
+        return "choose-showroom-to-delete";
+    }
+
+    @GetMapping("/delete-showroom")
+    public String showDeleteShowroomPage(final Model model, final RedirectAttributes redirectAttributes,
+                                         @ModelAttribute("showroomLetterForm")
+                                         final StringForm showroomLetterForm) {
+        logger.debug(UtilMethods.getLoggingSubjectDelimiterLine());
+        logger.debug("Get mapping: delete showroom");
+        logger.debug("Showroom letter form: " + showroomLetterForm);
+        try {
+            if (showroomLetterForm.getS().isBlank()) {
+                throw new InvalidArgsException("Showroom letter cannot be blank");
+            }
+            Letter showroomLetter = Letter.valueOf(showroomLetterForm.getS());
+            if (!showroomService.existsByShowroomLetter(showroomLetter)) {
+                throw new NoEntityFoundException("showroom", "showroom letter", showroomLetterForm.getS());
+            }
+            List<String> onDeleteInfo = showroomService.onDeleteInfo(showroomLetter);
+            logger.debug("On delete info: " + onDeleteInfo);
+            model.addAttribute("onDeleteInfo", onDeleteInfo);
+            model.addAttribute("showroomLetterForm", showroomLetterForm);
+            return "delete-showroom";
+        } catch (InvalidArgsException | NoEntityFoundException e) {
+            logger.debug("Errors: " + e.getErrors());
+            redirectAttributes.addFlashAttribute("errors", e.getErrors());
+            redirectAttributes.addFlashAttribute("showroomLetterForm", showroomLetterForm);
+            logger.debug("Redirecting to choose-showroom-to-delete");
+            return "redirect:/choose-showroom-to-delete";
+        }
+    }
+
+    @PostMapping("/delete-showroom")
+    public String deleteShowroom(final RedirectAttributes redirectAttributes,
+                                 @RequestParam("showroomLetter") final String showroomLetterStr) {
+        logger.debug(UtilMethods.getLoggingSubjectDelimiterLine());
+        logger.debug("Post mapping: delete showroom");
+        Letter showroomLetter = Letter.valueOf(showroomLetterStr);
+        logger.debug("Showroom letter: " + showroomLetter);
+        try {
+            showroomService.delete(showroomLetter);
+            redirectAttributes.addFlashAttribute(
+                    "success", "Successfully deleted showroom " + showroomLetter);
+            logger.debug("Successfully deleted showroom " + showroomLetter);
+            return "redirect:/choose-showroom-to-delete";
+        } catch (NoEntityFoundException e) {
+            e.getErrors().add("Forced to abort action");
+            logger.debug("Errors: " + e.getErrors());
+            redirectAttributes.addFlashAttribute("errors", e.getErrors());
+            return "redirect:/management";
+        }
+    }
+
+    @ExceptionHandler(IllegalArgumentException.class)
+    private String handleIllegalArgumentException(final IllegalArgumentException e,
+                                                  final RedirectAttributes redirectAttributes) {
+        List<String> errors = List.of(e.getMessage(), "ERROR: Failed to convert from String " +
+                "to Enum type letter. Forced to abort action.");
+        logger.debug("Errors: " + errors);
+        redirectAttributes.addFlashAttribute("errors", errors);
+        logger.debug("Redirecting to management");
+        return "redirect:/management";
     }
 
 }

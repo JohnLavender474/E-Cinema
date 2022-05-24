@@ -11,7 +11,6 @@ import com.ecinema.app.exceptions.*;
 import com.ecinema.app.repositories.CustomerRepository;
 import com.ecinema.app.repositories.ScreeningSeatRepository;
 import com.ecinema.app.util.UtilMethods;
-import lombok.ToString;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -49,7 +48,7 @@ public class CustomerService extends UserAuthorityService<Customer, CustomerRepo
                            EmailService emailService, ReviewService reviewService, TicketService ticketService,
                            PaymentCardService paymentCardService, SecurityContext securityContext) {
         super(repository);
-        logger.debug(UtilMethods.getDelimiterLine());
+        logger.debug(UtilMethods.getLoggingSubjectDelimiterLine());
         logger.debug("Customer Service: autowire repository : " + repository);
         this.emailService = emailService;
         logger.debug("Customer Service: autowire email service: " + emailService);
@@ -66,7 +65,7 @@ public class CustomerService extends UserAuthorityService<Customer, CustomerRepo
     }
 
     @Override
-    public void onDelete(Customer customer) {
+    protected void onDelete(Customer customer) {
         logger.debug("Customer on delete");
         // detach User
         super.onDelete(customer);

@@ -138,9 +138,9 @@ class UserProfileControllerTest {
         doNothing().when(userProfileValidator).validate(any(IProfile.class), anyCollection());
         given(securityContext.findIdOfLoggedInUser()).willReturn(1L);
         given(userService.convertToDto(1L)).willReturn(userDto);
-        mockMvc.perform(post("/edit-user-profile/" + 1L)
+        mockMvc.perform(post("/edit-user-profile")
                                 .flashAttr("profileForm", profileForm))
-                .andExpect(redirectedUrlPattern("/profile**"))
+                .andExpect(redirectedUrlPattern("/user-profile**"))
                 .andExpect(result -> model().attributeExists("success"));
     }
 

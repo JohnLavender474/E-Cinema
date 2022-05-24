@@ -21,7 +21,7 @@ public class UserActivityInterceptor implements HandlerInterceptor {
     @Override
     public void afterCompletion(HttpServletRequest request, HttpServletResponse response,
                                 Object handler, Exception ex) {
-        logger.debug(UtilMethods.getDelimiterLine());
+        logger.debug(UtilMethods.getLoggingSubjectDelimiterLine());
         logger.debug("User activity interceptor");
         boolean userIsLoggedIn = securityContext.userIsLoggedIn();
         logger.debug("User is logged in: " + userIsLoggedIn);

@@ -71,8 +71,8 @@ class ReviewServiceTest {
         screeningSeatService = new ScreeningSeatService(
                 screeningSeatRepository, ticketService);
         screeningService = new ScreeningService(
-                screeningRepository, movieRepository, showroomRepository,
-                screeningSeatService, null);
+                screeningRepository, movieRepository, null,
+                showroomRepository, screeningSeatService, null);
         customerService = new CustomerService(
                 customerRepository, screeningSeatRepository,
                 null, reviewService, ticketService,

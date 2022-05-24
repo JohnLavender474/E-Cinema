@@ -7,29 +7,36 @@
     <form method="get" th:action="@{/movie-info/{id}(id=${movieId})}">
         <button class="btn btn-outline-success">Go Back to Movie Info Page</button>
     </form>
-    <ul class="list-group-horizontal" th:if="${totalPages > 0}">
-        <li th:each="pageNumber:${pageNumbers}">
-            <a class="btn btn-outline-primary" th:classappend="${page == pageNumber ? 'active' : ''}"
-               th:href="@{/movies(search=${search}, page=${pageNumber})}" th:text="${pageNumber}">
-            </a>
-        </li>
-    </ul>
     <table>
+        <tr>
+            <td th:each="pageNumber:${pageNumbers}">
+                <form method="get" th:action="@{/movies(search=${search}, page=${pageNumber})}">
+                    <button class="btn btn-outline-primary" th:text="${pageNumber}"
+                            th:classappend="${page == pageNumber ? 'disabled' : ''}">
+                    </button>
+                </form>
+            </td>
+        </tr>
+    </table>
+    <table class="table table-bordered table-striped">
         <tr>
             <th>Showroom</th>
             <th>Show Time</th>
             <td>End Time</td>
             <th>Seats Available</th>
         </tr>
-        <tr th:each="screening:${screenings}" style="border: red">
+        <tr th:each="screening:${screenings}">
             <td th:text="${screening.showroomLetter}"></td>
             <td th:text="${screening.showDateTimeFormatted()}"></td>
             <td th:text="${screening.endDateTimeFormatted()}"></td>
             <td th:text="${screening.seatsAvailable} + '/' + ${screening.totalSeatsInRoom}"></td>
-            <td>
+            <td th:if="${isCustomer == true}">
                 <form method="get" th:action="@{/choose-seats-to-book(id=${screening.id})}">
-                    <button class="btn-outline-primary" style="font-size: xx-large">Book Seats</button>
+                    <button class="btn-outline-success">Book Seats</button>
                 </form>
+            </td>
+            <td th:if="${isCustomer == false}">
+                <span th:classappend="bold-white-text">Must be logged-in customer to book seats!</span>
             </td>
         </tr>
     </table>

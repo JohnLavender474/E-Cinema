@@ -13,25 +13,25 @@ import java.util.List;
 import java.util.Optional;
 
 /**
- * The interface Ticket repository.
+ * The jpa repository for {@link Ticket}.
  */
 @Repository
 public interface TicketRepository extends JpaRepository<Ticket, Long> {
 
     /**
-     * Find all by screening list.
+     * Find all by screening.
      *
      * @param screening the screening
-     * @return the list
+     * @return the list of tickets
      */
     @Query("SELECT t FROM Ticket t WHERE t.screeningSeat.screening = ?1")
     List<Ticket> findAllByScreening(Screening screening);
 
     /**
-     * Find all by screening with id list.
+     * Find all by screening with id.
      *
      * @param screeningId the screening id
-     * @return the list
+     * @return the list of tickets
      */
     @Query("SELECT t FROM Ticket t WHERE t.screeningSeat.screening.id = ?1")
     List<Ticket> findAllByScreeningWithId(Long screeningId);
@@ -40,7 +40,7 @@ public interface TicketRepository extends JpaRepository<Ticket, Long> {
      * Find by screening seat optional.
      *
      * @param screeningSeat the screening seat
-     * @return the optional
+     * @return the optional ticket
      */
     Optional<Ticket> findByScreeningSeat(ScreeningSeat screeningSeat);
 
@@ -48,56 +48,74 @@ public interface TicketRepository extends JpaRepository<Ticket, Long> {
      * Find by screening seat with id optional.
      *
      * @param screeningSeatId the screening seat id
-     * @return the optional
+     * @return the optional ticket
      */
     @Query("SELECT t FROM Ticket t WHERE t.screeningSeat.id = ?1")
     Optional<Ticket> findByScreeningSeatWithId(Long screeningSeatId);
 
     /**
-     * Find all by creation date time less than equal list.
+     * Find all by showroom.
+     *
+     * @param showroom the showroom
+     * @return the list of tickets
+     */
+    @Query("SELECT t FROM Ticket t WHERE t.screeningSeat.screening.showroom = ?1")
+    List<Ticket> findAllByShowroom(Showroom showroom);
+
+    /**
+     * Find all by showroom with id.
+     *
+     * @param showroomId the showroom id
+     * @return the list of tickets
+     */
+    @Query("SELECT t FROM Ticket t WHERE t.screeningSeat.screening.showroom.id = ?1")
+    List<Ticket> findAllByShowroomWithId(Long showroomId);
+
+    /**
+     * Find all by creation date time less than or equal to provided {@link LocalDateTime}.
      *
      * @param localDateTime the local date time
-     * @return the list
+     * @return the list of tickets
      */
     List<Ticket> findAllByCreationDateTimeLessThanEqual(LocalDateTime localDateTime);
 
     /**
-     * Find all by creation date time greater than equal list.
+     * Find all by creation date time greater than or equals to provided {@link LocalDateTime}.
      *
      * @param localDateTime the local date time
-     * @return the list
+     * @return the list of tickets
      */
     List<Ticket> findAllByCreationDateTimeGreaterThanEqual(LocalDateTime localDateTime);
 
     /**
-     * Find all by ticket status list.
+     * Find all by ticket status.
      *
      * @param ticketStatus the ticket status
-     * @return the list
+     * @return the list of tickets
      */
     List<Ticket> findAllByTicketStatus(TicketStatus ticketStatus);
 
     /**
-     * Find all by ticket type list.
+     * Find all by ticket type.
      *
      * @param ticketType the ticket type
-     * @return the list
+     * @return the list of tickets
      */
     List<Ticket> findAllByTicketType(TicketType ticketType);
 
     /**
-     * Find all by customer role def list.
+     * Find all by customer ticket owner.
      *
-     * @param customer the customer role def
-     * @return the list
+     * @param customer the customer
+     * @return the list of tickets
      */
     List<Ticket> findAllByTicketOwner(Customer customer);
 
     /**
-     * Find all by customer role def with id list.
+     * Find all by customer ticket owner with id.
      *
-     * @param customerRoleDefId the customer role def id
-     * @return the list
+     * @param customerRoleDefId the customer id
+     * @return the list of tickets
      */
     @Query("SELECT t FROM Ticket t WHERE t.ticketOwner.id = ?1")
     List<Ticket> findAllByTicketOwnerWithId(Long customerRoleDefId);

@@ -50,7 +50,7 @@ public class MovieService extends AbstractEntityService<Movie, MovieRepository, 
     }
 
     @Override
-    public void onDelete(Movie movie) {
+    protected void onDelete(Movie movie) {
         logger.debug("Movie on delete");
         // cascade delete Reviews
         logger.debug("Deleting all associated reviews");
@@ -84,7 +84,7 @@ public class MovieService extends AbstractEntityService<Movie, MovieRepository, 
 
     public MovieForm fetchAsForm(Long movieId)
             throws NoEntityFoundException {
-        logger.debug(UtilMethods.getDelimiterLine());
+        logger.debug(UtilMethods.getLoggingSubjectDelimiterLine());
         logger.debug("Fetching movie as form");
         Movie movie = repository.findById(movieId).orElseThrow(
                 () -> new NoEntityFoundException("movie", "id", movieId));
@@ -112,7 +112,7 @@ public class MovieService extends AbstractEntityService<Movie, MovieRepository, 
 
     public void submitMovieForm(MovieForm movieForm)
             throws InvalidArgsException {
-        logger.debug(UtilMethods.getDelimiterLine());
+        logger.debug(UtilMethods.getLoggingSubjectDelimiterLine());
         logger.debug("Submit movie form: " + movieForm);
         List<String> errors = new ArrayList<>();
         movieValidator.validate(movieForm, errors);
@@ -152,55 +152,10 @@ public class MovieService extends AbstractEntityService<Movie, MovieRepository, 
         return convertToDto(movie);
     }
 
-    public boolean existsByTitle(String title) {
-        String searchTitle = convertTitleToSearchTitle(title);
-        return repository.existsBySearchTitle(searchTitle);
-    }
-
-    public List<MovieDto> findAllByLikeTitle(String title) {
-        String searchTitle = convertTitleToSearchTitle(title);
-        return convertToDto(repository.findBySearchTitleContaining(searchTitle));
-    }
-
     public Page<MovieDto> findAllByLikeTitle(String title, Pageable pageable) {
         String searchTitle = convertTitleToSearchTitle(title);
         return repository.findBySearchTitleContaining(searchTitle, pageable)
                          .map(this::convertToDto);
-    }
-
-    public List<MovieDto> findAllByMsrbRating(MsrbRating msrbRating) {
-        return convertToDto(repository.findAllByMsrbRating(msrbRating));
-    }
-
-    public List<MovieDto> findAllByMoviesCategoriesContains(MovieCategory movieCategory) {
-        return convertToDto(repository.findAllByMoviesCategoriesContains(movieCategory));
-    }
-
-    public List<MovieDto> findAllByMovieCategoriesContainsSet(Set<MovieCategory> movieCategories) {
-        return convertToDto(repository.findAllByMovieCategoriesContainsSet(movieCategories));
-    }
-
-    public List<MovieDto> findAllOrderByReleaseDateAscending() {
-        return convertToDto(repository.findAllOrderByReleaseDateAscending());
-    }
-
-    public List<MovieDto> findAllOrderByReleaseDateDescending() {
-        return convertToDto(repository.findAllOrderByReleaseDateDescending());
-    }
-
-    public List<MovieDto> findAllOrderByDurationAscending() {
-        return convertToDto(repository.findAllOrderByDurationAscending());
-    }
-
-    public List<MovieDto> findAllOrderByDurationDescending() {
-        return convertToDto(repository.findAllOrderByDurationDescending());
-    }
-
-    public Integer findAverageRatingOfMovieWithId(Long movieId) {
-        Movie movie = repository.findById(movieId).orElseThrow(
-                () -> new NoEntityFoundException("movie", "id", movieId));
-        Integer avgRating = reviewService.findAverageRatingOfMovie(movie);
-        return avgRating == null ? 0 : avgRating;
     }
 
 }

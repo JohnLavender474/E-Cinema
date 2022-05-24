@@ -63,14 +63,14 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
             "/add-screening/**",
             "/add-showroom/**",
             "/admin-movie-choose/**",
-            "/edit-movie/**",
-            "/edit-movie-search/**",
-            "/edit-screening/**",
-            "/edit-showroom/**",
+            "/choose-screening-to-delete/**",
+            "/choose-showroom-to-delete/**",
             "/delete-movie/**",
-            "/delete-movie-search",
+            "/delete-movie-search/**",
             "/delete-screening/**",
             "/delete-showroom/**",
+            "/edit-movie/**",
+            "/edit-movie-search/**",
             "/manage-user-accounts/**"
     };
 

@@ -56,7 +56,7 @@ class TicketServiceTest {
         showroomSeatService = new ShowroomSeatService(
                 showroomSeatRepository, screeningSeatService);
         screeningService = new ScreeningService(
-                screeningRepository, movieRepository,
+                screeningRepository, movieRepository, null,
                 showroomRepository,  screeningSeatService, null);
         reviewService = new ReviewService(
                 reviewRepository, movieRepository,
@@ -69,7 +69,7 @@ class TicketServiceTest {
                 paymentCardService, securityContext);
         showroomService = new ShowroomService(
                 showroomRepository, showroomSeatService,
-                screeningService, null);
+                screeningService, null, ticketRepository);
     }
 
     @Test

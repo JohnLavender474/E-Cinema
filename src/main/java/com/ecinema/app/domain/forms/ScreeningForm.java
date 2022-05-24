@@ -2,6 +2,7 @@ package com.ecinema.app.domain.forms;
 
 import com.ecinema.app.domain.contracts.IScreening;
 import lombok.Data;
+import org.springframework.format.annotation.DateTimeFormat;
 
 import java.io.Serializable;
 import java.time.LocalDate;
@@ -15,6 +16,7 @@ public class ScreeningForm implements IScreening, Serializable {
     private Long showroomId = 0L;
     private Integer showtimeHour = 0;
     private Integer showtimeMinute = 0;
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
     private LocalDate showdate = LocalDate.now();
 
     @Override

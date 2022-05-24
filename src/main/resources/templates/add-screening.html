@@ -8,8 +8,10 @@
 <nav th:insert="fragments/webpage-top :: webpage-top"></nav>
 <div class="container">
     <div th:insert="fragments/back-to-management-page :: back-to-management-page"></div>
+    <br/>
     <div th:insert="fragments/errors :: errors"></div>
-    <form id="cascading-form" method="post" th:action="@{/add-screening}" th:object="${screeningForm}">
+    <br/>
+    <form id="cascading-form" method="post" th:action="@{/add-screening(id=${movie.id})}" th:object="${screeningForm}">
         <div class="cascade-field">
             <label for="field1">
                 <span class="bold-white-text">Showroom:</span>

@@ -27,7 +27,7 @@ public class ModelAttributesInterceptor implements HandlerInterceptor {
     @Override
     public void postHandle(HttpServletRequest request, HttpServletResponse response,
                            Object handler, ModelAndView modelAndView) {
-        logger.debug(UtilMethods.getDelimiterLine());
+        logger.debug(UtilMethods.getLoggingSubjectDelimiterLine());
         logger.debug("Model attributes interceptor");
         if (modelAndView != null) {
             addUserDto(modelAndView);

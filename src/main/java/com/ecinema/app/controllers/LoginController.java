@@ -32,7 +32,7 @@ public class LoginController {
     @GetMapping("/login")
     public String showLoginPage() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        logger.debug(UtilMethods.getDelimiterLine());
+        logger.debug(UtilMethods.getLoggingSubjectDelimiterLine());
         logger.debug("Login get mapping");
         logger.debug("Authentication obj: " + authentication);
         return authentication == null || authentication instanceof AnonymousAuthenticationToken ?
@@ -42,7 +42,7 @@ public class LoginController {
     @PostMapping("/perform-login")
     public String performLogin(@RequestParam("username") final String username,
                                @RequestParam("password") final String password) {
-        logger.debug(UtilMethods.getDelimiterLine());
+        logger.debug(UtilMethods.getLoggingSubjectDelimiterLine());
         logger.debug("Perform login post mapping");
         try {
             loginService.login(username, password);
@@ -57,7 +57,7 @@ public class LoginController {
     public String loginError(final Model model) {
         model.addAttribute("error", "Failed to login, bad credentials");
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        logger.debug(UtilMethods.getDelimiterLine());
+        logger.debug(UtilMethods.getLoggingSubjectDelimiterLine());
         logger.debug("Login error get mapping");
         return authentication == null || authentication instanceof AnonymousAuthenticationToken ?
                 "login" : "redirect:/index";

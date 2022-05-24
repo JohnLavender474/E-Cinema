@@ -39,7 +39,7 @@ public class RegistrationService extends AbstractEntityService<Registration, Reg
     }
 
     @Override
-    public void onDelete(Registration entity) {}
+    protected void onDelete(Registration entity) {}
 
     @Override
     public RegistrationDto convertToDto(Registration registration) {
@@ -56,7 +56,7 @@ public class RegistrationService extends AbstractEntityService<Registration, Reg
 
     public void submitRegistrationForm(RegistrationForm registrationForm)
             throws ClashException, InvalidArgsException, EmailException {
-        logger.debug(UtilMethods.getDelimiterLine());
+        logger.debug(UtilMethods.getLoggingSubjectDelimiterLine());
         logger.debug("Submit registration request and get token");
         if (userService.existsByEmail(registrationForm.getEmail())) {
             throw new ClashException(
@@ -102,7 +102,7 @@ public class RegistrationService extends AbstractEntityService<Registration, Reg
 
     public UserDto confirmRegistrationRequest(String token)
             throws NoEntityFoundException, ClashException {
-        logger.debug(UtilMethods.getDelimiterLine());
+        logger.debug(UtilMethods.getLoggingSubjectDelimiterLine());
         logger.debug("Confirm registration request");
         Registration registration = repository.findByToken(token).orElseThrow(
                 () -> new NoEntityFoundException("registration request", "token", token));

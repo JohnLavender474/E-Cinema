@@ -9,6 +9,6 @@ import java.io.Serializable;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class GenericObjForm<T> implements Serializable {
-    private T t;
+public class StringForm implements Serializable {
+    private String s = "";
 }

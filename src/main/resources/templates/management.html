@@ -5,6 +5,11 @@
 <nav th:insert="fragments/webpage-top :: webpage-top"></nav>
 <div class="container">
     <div th:insert="fragments/errors :: errors"></div>
+    <br/>
+    <div th:if="${success != null}">
+        <span class="bold-white-text center-text" th:text="${success}"></span>
+    </div>
+    <br/>
     <div th:if="${moderator == true}">
         <h1 class="bold-white-text center-text">Moderator Management</h1>
         <table>
@@ -37,9 +42,8 @@
                 <td><a class="btn btn-outline-primary btn-block m-1"
                        th:href="@{/add-showroom}">Add New Showroom</a></td>
                 <td><a class="btn btn-outline-primary btn-block m-1"
-                       th:href="@{/edit-showroom}">Edit Showroom</a></td>
-                <td><a class="btn btn-outline-primary btn-block m-1"
-                       th:href="@{/delete-showroom}">Delete Showroom</a></td>
+                       th:href="@{/choose-showroom-to-delete}">Delete Showroom</a></td>
+                <td></td>
             </tr>
             <tr>
                 <td>Manage Screenings:</td>

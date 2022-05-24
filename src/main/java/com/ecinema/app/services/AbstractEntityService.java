@@ -58,7 +58,8 @@ public abstract class AbstractEntityService<E extends AbstractEntity,
         repository.deleteAll();
     }
 
-    public void delete(D dto) {
+    public void delete(D dto)
+            throws NoEntityFoundException {
         delete(dto.getId());
     }
 
@@ -82,14 +83,6 @@ public abstract class AbstractEntityService<E extends AbstractEntity,
 
     public Page<D> findAll(Pageable pageable) {
         return repository.findAll(pageable).map(this::convertToDto);
-    }
-
-    public boolean existsById(Long id) {
-        return repository.existsById(id);
-    }
-
-    public boolean existsById(Collection<Long> ids) {
-        return ids != null && ids.stream().allMatch(this::existsById);
     }
 
 }

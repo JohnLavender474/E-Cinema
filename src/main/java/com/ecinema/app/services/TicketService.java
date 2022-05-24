@@ -24,7 +24,7 @@ public class TicketService extends AbstractEntityService<Ticket, TicketRepositor
     }
 
     @Override
-    public void onDelete(Ticket ticket) {
+    protected void onDelete(Ticket ticket) {
         logger.debug("Ticket on delete");
         // detach ScreeningSeat
         ScreeningSeat screeningSeat = ticket.getScreeningSeat();

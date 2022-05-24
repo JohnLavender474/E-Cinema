@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:insert="fragments/header :: header"></head>
+<body>
+<nav th:insert="fragments/webpage-top :: webpage-top">
+    <div th:insert="fragments/back-to-management-page :: back-to-management-page"></div>
+    <br/>
+    <h1 class="bold-white-text center-text">Screenings</h1>
+    <br/>
+    <div th:if="${success != null}">
+        <span class="bold-white-text center-text" th:text="${success}"></span>
+    </div>
+    <br/>
+    <form method="get" th:action="@{/choose-screening-to-delete(page=1)}">
+        <span class="bold-white-text">Search:</span>
+        <label for="search">
+            <input type="text" name="search" class="form-control"
+                   id="search" size="25" th:value="${search}" required>
+        </label>
+        <br/>
+        <label>
+            <ul class="list-group-horizontal" style="list-style-type: none">
+                <li th:each="showroomLetter:${showroomLettersInUse}">
+                    <input type="checkbox" name="letterChecked"
+                           th:text="${showroomLetter}" th:value="${showroomLetter}">
+                </li>
+            </ul>
+        </label>
+        <button class="button" type="submit">Go</button>
+    </form>
+    <table class="table-hover">
+        <tr>
+            <td th:if="${totalPages > 0}" th:each="pageNumber:${pageNumbers}">
+                <form method="get"
+                      th:action="@{/choose-screening-to-delete(
+                           search=${search}, page=${pageNumber}, lettersChecked=${lettersChecked})}">
+                    <button class="btn btn-outline-primary" th:text="${pageNumber}"></button>
+                </form>
+            </td>
+        </tr>
+    </table>
+    <table class="table table-bordered table-striped">
+        <tr>
+            <th>Showroom</th>
+            <th>Show Time</th>
+            <td>End Time</td>
+        </tr>
+        <tr th:each="screening:${screenings}">
+            <td th:text="${screening.showroomLetter}"></td>
+            <td th:text="${screening.showDateTimeFormatted()}"></td>
+            <td th:text="${screening.endDateTimeFormatted()}"></td>
+            <td th:text="${screening.seatsAvailable} + '/' + ${screening.totalSeatsInRoom}"></td>
+            <td>
+                <form method="get" th:action="@{/delete-screening(id=${screening.id})}">
+                    <button class="btn btn-outline-danger">Delete Screening</button>
+                </form>
+            </td>
+        </tr>
+    </table>
+</nav>
+</body>
+</html>

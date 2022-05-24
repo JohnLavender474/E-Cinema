@@ -3,7 +3,6 @@ package com.ecinema.app.controllers;
 import com.ecinema.app.beans.SecurityContext;
 import com.ecinema.app.domain.dtos.UserDto;
 import com.ecinema.app.domain.enums.UserAuthority;
-import com.ecinema.app.exceptions.NoEntityFoundException;
 import com.ecinema.app.services.*;
 import com.ecinema.app.util.UtilMethods;
 import lombok.RequiredArgsConstructor;
@@ -35,7 +34,7 @@ public class ManagementController {
             model.addAttribute("admin", true);
         }
         model.addAttribute("userAuthorities", userAuthorities);
-        logger.debug(UtilMethods.getDelimiterLine());
+        logger.debug(UtilMethods.getLoggingSubjectDelimiterLine());
         logger.debug("Get mapping: Admin page");
         logger.debug("User authorities: " + userAuthorities);
         return "management";

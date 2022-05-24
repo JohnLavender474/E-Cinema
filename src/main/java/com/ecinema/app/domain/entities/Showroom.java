@@ -22,6 +22,7 @@ import java.util.stream.Collectors;
 public class Showroom extends AbstractEntity implements IShowroom {
 
     @Column
+    @Enumerated(EnumType.STRING)
     private Letter showroomLetter;
 
     @Column

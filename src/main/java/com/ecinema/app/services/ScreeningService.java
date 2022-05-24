@@ -1,17 +1,17 @@
 package com.ecinema.app.services;
 
 import com.ecinema.app.domain.dtos.ScreeningDto;
-import com.ecinema.app.domain.dtos.ScreeningSeatDto;
 import com.ecinema.app.domain.entities.*;
+import com.ecinema.app.domain.enums.Letter;
 import com.ecinema.app.domain.forms.ScreeningForm;
 import com.ecinema.app.domain.validators.ScreeningValidator;
 import com.ecinema.app.exceptions.ClashException;
 import com.ecinema.app.exceptions.InvalidArgsException;
 import com.ecinema.app.exceptions.NoEntityFoundException;
-import com.ecinema.app.domain.enums.Letter;
 import com.ecinema.app.repositories.MovieRepository;
 import com.ecinema.app.repositories.ScreeningRepository;
 import com.ecinema.app.repositories.ShowroomRepository;
+import com.ecinema.app.repositories.TicketRepository;
 import com.ecinema.app.util.UtilMethods;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -27,24 +27,27 @@ import java.util.stream.Collectors;
 public class ScreeningService extends AbstractEntityService<Screening, ScreeningRepository, ScreeningDto> {
 
     private final MovieRepository movieRepository;
+    private final TicketRepository ticketRepository;
     private final ShowroomRepository showroomRepository;
     private final ScreeningSeatService screeningSeatService;
     private final ScreeningValidator screeningValidator;
 
     public ScreeningService(ScreeningRepository repository,
                             MovieRepository movieRepository,
+                            TicketRepository ticketRepository,
                             ShowroomRepository showroomRepository,
                             ScreeningSeatService screeningSeatService,
                             ScreeningValidator screeningValidator) {
         super(repository);
         this.movieRepository = movieRepository;
+        this.ticketRepository = ticketRepository;
         this.showroomRepository = showroomRepository;
         this.screeningSeatService = screeningSeatService;
         this.screeningValidator = screeningValidator;
     }
 
     @Override
-    public void onDelete(Screening screening) {
+    protected void onDelete(Screening screening) {
         logger.debug("Screening on delete");
         // detach Movie
         Movie movie = screening.getMovie();
@@ -101,19 +104,44 @@ public class ScreeningService extends AbstractEntityService<Screening, Screening
         return screeningDTO;
     }
 
-    public long findNumberOfTicketsBooked(Screening screening) {
-        return screening.getScreeningSeats()
-                        .stream().filter(ScreeningSeat::isBooked)
-                        .count();
+    public List<String> onDeleteInfo(Long screeningId)
+            throws NoEntityFoundException {
+        Screening screening = repository.findById(screeningId).orElseThrow(
+                () -> new NoEntityFoundException("screening", "id", screeningId));
+        return onDeleteInfo(screening);
     }
 
-    public Map<Letter, Set<ScreeningSeatDto>> findScreeningSeatMapByScreeningWithId(Long screeningId) {
-        return screeningSeatService.findScreeningSeatMapByScreeningWithId(screeningId);
+    protected List<String> onDeleteInfo(Screening screening) {
+        List<String> onDeleteInfo = new ArrayList<>();
+        List<Ticket> ticketsInShowroom = ticketRepository.findAllByShowroom(screening.getShowroom());
+        int costOfDeletingTickets = ticketsInShowroom.stream().mapToInt(
+                ticket -> ticket.getTicketType().getPrice()).sum();
+        onDeleteInfo.add("Number of seats to be deleted: " + screening.getScreeningSeats().size());
+        onDeleteInfo.add("Number of tickets to be refunded and then deleted: " + ticketsInShowroom.size());
+        onDeleteInfo.add("Cost of refunding all tickets for deleted screenings: $" + costOfDeletingTickets);
+        return onDeleteInfo;
+    }
+
+    public Page<ScreeningDto> findAllByShowroomLetters(List<Letter> showroomLetters, Pageable pageable) {
+        return repository.findAllByShowroomLetters(showroomLetters, pageable)
+                .map(this::convertToDto);
+    }
+
+    public Page<ScreeningDto> findAllByMovieWithTitleLike(String title, Pageable pageable) {
+        return repository.findAllByMovieWithTitleLike(title, pageable)
+                         .map(this::convertToDto);
+    }
+
+    public Page<ScreeningDto> findAllByShowroomLettersAndMovieWithTitleLike(
+            List<Letter> showroomLetters, String title, Pageable pageable) {
+        return repository.findAllByShowroomLettersAndMovieWithTitleLike(
+                showroomLetters, title, pageable)
+                         .map(this::convertToDto);
     }
 
     public void submitScreeningForm(ScreeningForm screeningForm)
             throws NoEntityFoundException, InvalidArgsException, ClashException {
-        logger.debug(UtilMethods.getDelimiterLine());
+        logger.debug(UtilMethods.getLoggingSubjectDelimiterLine());
         logger.debug("Add new screening");
         List<String> errors = new ArrayList<>();
         screeningValidator.validate(screeningForm, errors);

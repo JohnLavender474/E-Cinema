@@ -33,8 +33,8 @@ public class PaymentCardService extends AbstractEntityService<PaymentCard, Payme
     }
 
     @Override
-    public void onDelete(PaymentCard paymentCard) {
-        logger.debug(UtilMethods.getDelimiterLine());
+    protected void onDelete(PaymentCard paymentCard) {
+        logger.debug(UtilMethods.getLoggingSubjectDelimiterLine());
         logger.debug("Payment card on delete");
         // detach Customer
         Customer customer = paymentCard.getCardOwner();
@@ -60,7 +60,7 @@ public class PaymentCardService extends AbstractEntityService<PaymentCard, Payme
 
     public void submitPaymentCardForm(PaymentCardForm paymentCardForm)
             throws NoEntityFoundException, InvalidArgsException {
-        logger.debug(UtilMethods.getDelimiterLine());
+        logger.debug(UtilMethods.getLoggingSubjectDelimiterLine());
         logger.debug("Submit payment card form");
         Customer customer = customerRepository.findById(
                 paymentCardForm.getCustomerRoleDefId()).orElseThrow(

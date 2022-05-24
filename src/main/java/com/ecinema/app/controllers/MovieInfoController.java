@@ -41,7 +41,7 @@ public class MovieInfoController {
         model.addAttribute("movies", movies);
         model.addAttribute("search", search);
         model.addAttribute("page", page);
-        logger.debug(UtilMethods.getDelimiterLine());
+        logger.debug(UtilMethods.getLoggingSubjectDelimiterLine());
         logger.debug("Page: " + page);
         logger.debug("Search: " + search);
         logger.debug("Page of movies: " + pageOfDtos);
@@ -56,7 +56,7 @@ public class MovieInfoController {
             model.addAttribute("movie", movieDto);
             Integer avgRating = reviewService.findAverageRatingOfMovieWithId(movieId);
             model.addAttribute("avgRating", avgRating);
-            logger.debug(UtilMethods.getDelimiterLine());
+            logger.debug(UtilMethods.getLoggingSubjectDelimiterLine());
             logger.debug("Movie debug get mapping");
             logger.debug("Movie DTO: " + movieDto);
             logger.debug("Avg rating: " + avgRating);

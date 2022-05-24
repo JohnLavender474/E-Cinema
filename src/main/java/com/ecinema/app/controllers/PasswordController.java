@@ -34,7 +34,7 @@ public class PasswordController {
 
     @GetMapping("/get-email-for-change-password")
     public String showGetEmailChangePassword(final Model model) {
-        logger.debug(UtilMethods.getDelimiterLine());
+        logger.debug(UtilMethods.getLoggingSubjectDelimiterLine());
         logger.debug("Get mapping: get email for change password");
         Long userId = securityContext.findIdOfLoggedInUser();
         if (userId == null) {
@@ -49,7 +49,7 @@ public class PasswordController {
     @PostMapping("/get-email-for-change-password")
     public String getEmailForChangePassword(final RedirectAttributes redirectAttributes,
                                             @RequestParam("email") final String email) {
-        logger.debug(UtilMethods.getDelimiterLine());
+        logger.debug(UtilMethods.getLoggingSubjectDelimiterLine());
         logger.debug("Post mapping: get email for change password");
         logger.debug("Email: " + email);
         if (userService.existsByEmail(email)) {
@@ -63,7 +63,7 @@ public class PasswordController {
 
     @GetMapping("/change-password")
     public String showChangePasswordPage(final Model model, @RequestParam("email") final String email) {
-        logger.debug(UtilMethods.getDelimiterLine());
+        logger.debug(UtilMethods.getLoggingSubjectDelimiterLine());
         logger.debug("Get mapping: change password");
         logger.debug("Email: " + email);
         ChangePasswordForm changePasswordForm = changePasswordService.getChangePasswordForm(email);
@@ -79,7 +79,7 @@ public class PasswordController {
     public String showChangePasswordPage(final RedirectAttributes redirectAttributes,
                                          @ModelAttribute("changePasswordForm")
                                          final ChangePasswordForm changePasswordForm) {
-        logger.debug(UtilMethods.getDelimiterLine());
+        logger.debug(UtilMethods.getLoggingSubjectDelimiterLine());
         logger.debug("Post mapping: change password");
         logger.debug("Change Password Form: " + changePasswordForm);
         try {
@@ -95,7 +95,7 @@ public class PasswordController {
 
     @GetMapping("/change-password-confirm/{token}")
     public String confirmChangePassword(final Model model, @PathVariable("token") final String token) {
-        logger.debug(UtilMethods.getDelimiterLine());
+        logger.debug(UtilMethods.getLoggingSubjectDelimiterLine());
         logger.debug("Get mapping: change password confirmation");
         logger.debug("Token: " + token);
         try {

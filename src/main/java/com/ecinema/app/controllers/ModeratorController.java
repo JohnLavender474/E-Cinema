@@ -50,7 +50,7 @@ public class ModeratorController {
     public String showModeratorCensorshipPage(final Model model, final RedirectAttributes redirectAttributes,
                                               @RequestParam(value = "page", required = false, defaultValue = "1")
                                               final Integer page) {
-        logger.debug(UtilMethods.getDelimiterLine());
+        logger.debug(UtilMethods.getLoggingSubjectDelimiterLine());
         logger.debug("Get mapping: moderator censorship");
         Long userId = securityContext.findIdOfLoggedInUser();
         if (userId == null) {
@@ -95,7 +95,7 @@ public class ModeratorController {
                                           @RequestParam("moderatorId") final Long moderatorId,
                                           @RequestParam("customerId") final Long customerId,
                                           @RequestParam("currentStatus") final Boolean currentStatus) {
-        logger.debug(UtilMethods.getDelimiterLine());
+        logger.debug(UtilMethods.getLoggingSubjectDelimiterLine());
         logger.debug("Post mapping: set customer censor status");
         logger.debug("Page number: " + page);
         logger.debug("Moderator id: " + moderatorId);

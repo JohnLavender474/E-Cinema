@@ -6,6 +6,7 @@ import com.ecinema.app.domain.entities.*;
 import com.ecinema.app.domain.enums.*;
 import com.ecinema.app.domain.forms.ReviewForm;
 import com.ecinema.app.domain.objects.Duration;
+import com.ecinema.app.domain.validators.ShowroomValidator;
 import com.ecinema.app.repositories.*;
 import com.ecinema.app.domain.validators.MovieValidator;
 import com.ecinema.app.domain.validators.ReviewValidator;
@@ -76,8 +77,8 @@ class MovieServiceTest {
         screeningSeatService = new ScreeningSeatService(
                 screeningSeatRepository, ticketService);
         screeningService = new ScreeningService(
-                screeningRepository, movieRepository, showroomRepository,
-                screeningSeatService, null);
+                screeningRepository, movieRepository, null,
+                showroomRepository, screeningSeatService, null);
         customerService = new CustomerService(
                 customerRepository, screeningSeatRepository,
                 null, reviewService, ticketService,
@@ -89,7 +90,7 @@ class MovieServiceTest {
                 showroomSeatRepository, screeningSeatService);
         showroomService = new ShowroomService(
                 showroomRepository, showroomSeatService,
-                screeningService, null);
+                screeningService, null, ticketRepository);
         userService = new UserService(
                 userRepository, customerService,
                 null, null, null,

@@ -22,7 +22,7 @@
     <table class="table-hover">
         <tr>
             <td th:if="${totalPages > 0}" th:each="pageNumber:${pageNumbers}">
-                <button class="button" th:text="${pageNumber}">
+                <button class="btn btn-outline-primary" th:text="${pageNumber}">
                     <a th:href="@{/movies(search=${search}, page=${pageNumber})}"></a>
                 </button>
             </td>

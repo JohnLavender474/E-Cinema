@@ -42,7 +42,7 @@ public class ChangePasswordService extends AbstractEntityService<ChangePassword,
     }
 
     @Override
-    public void onDelete(ChangePassword entity) {
+    protected void onDelete(ChangePassword entity) {
         // send message to admin saying that new account is confirmed and all
         // tokens have been deleted
     }
@@ -65,7 +65,7 @@ public class ChangePasswordService extends AbstractEntityService<ChangePassword,
 
     public void submitChangePasswordForm(ChangePasswordForm changePasswordForm)
             throws NoEntityFoundException, InvalidArgsException, EmailException {
-        logger.debug(UtilMethods.getDelimiterLine());
+        logger.debug(UtilMethods.getLoggingSubjectDelimiterLine());
         logger.debug("Submit change password form");
         List<String> errors = new ArrayList<>();
         passwordValidator.validate(changePasswordForm, errors);
@@ -118,7 +118,7 @@ public class ChangePasswordService extends AbstractEntityService<ChangePassword,
 
     public void confirmChangePassword(String token)
             throws NoEntityFoundException, ExpirationException {
-        logger.debug(UtilMethods.getDelimiterLine());
+        logger.debug(UtilMethods.getLoggingSubjectDelimiterLine());
         logger.debug("Confirm change password");
         ChangePassword changePassword = repository.findByToken(token).orElseThrow(
                 () -> new NoEntityFoundException("change password request", "token", token));

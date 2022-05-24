@@ -8,10 +8,6 @@ import com.ecinema.app.exceptions.NoEntityFoundException;
 import com.ecinema.app.repositories.CustomerRepository;
 import com.ecinema.app.repositories.ModeratorRepository;
 import com.ecinema.app.util.UtilMethods;
-import jdk.jshell.execution.Util;
-import lombok.ToString;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -27,14 +23,14 @@ public class ModeratorService extends UserAuthorityService<Moderator, ModeratorR
     @Autowired
     public ModeratorService(ModeratorRepository repository, CustomerRepository customerRepository) {
         super(repository);
-        logger.debug(UtilMethods.getDelimiterLine());
+        logger.debug(UtilMethods.getLoggingSubjectDelimiterLine());
         logger.debug("Moderator Service: autowire repository: " + repository);
         this.customerRepository = customerRepository;
         logger.debug("Moderator Service: autowire customer repository: " + customerRepository);
     }
 
     @Override
-    public void onDelete(Moderator moderator) {
+    protected void onDelete(Moderator moderator) {
         // detach User
         super.onDelete(moderator);
         // uncensor and detach censored Customers
@@ -57,7 +53,7 @@ public class ModeratorService extends UserAuthorityService<Moderator, ModeratorR
 
     public void setCustomerCensoredStatus(Long moderatorRoleDefId, Long customerRoleDefId, boolean censor)
             throws NoEntityFoundException, ClashException {
-        logger.debug(UtilMethods.getDelimiterLine());
+        logger.debug(UtilMethods.getLoggingSubjectDelimiterLine());
         logger.debug("Set customer censored status");
         Moderator moderator = repository.findById(moderatorRoleDefId).orElseThrow(
                 () -> new NoEntityFoundException("moderator", "id", moderatorRoleDefId));

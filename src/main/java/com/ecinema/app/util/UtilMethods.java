@@ -99,6 +99,9 @@ public class UtilMethods {
      * @param page  the page
      */
     public static void addPageNumbersAttribute(Model model, Page<?> page) {
+        if (page == null) {
+            return;
+        }
         int totalPages = page.getTotalPages();
         model.addAttribute("totalPages", totalPages);
         if (totalPages > 0) {
@@ -138,7 +141,7 @@ public class UtilMethods {
      *
      * @return the delimiter line
      */
-    public static String getDelimiterLine() {
+    public static String getLoggingSubjectDelimiterLine() {
         return "---------------------------------------------------------------------------------------------";
     }
 

@@ -41,7 +41,7 @@ public class BookSeatsController {
         model.addAttribute("screening", screeningDto);
         model.addAttribute("mapOfScreeningSeats", mapOfScreeningSeats);
         model.addAttribute("seatIdsForm", new GenericListForm<Long>());
-        logger.debug(UtilMethods.getDelimiterLine());
+        logger.debug(UtilMethods.getLoggingSubjectDelimiterLine());
         logger.debug("Get mapping: Choose seats to book");
         logger.debug("Screening DTO: " + screeningDto);
         logger.debug("Map of screening seats has " + mapOfScreeningSeats.keySet().size() + " rows");
@@ -55,7 +55,7 @@ public class BookSeatsController {
     public String showBookSeatsPage(final Model model, final RedirectAttributes redirectAttributes,
                                     @ModelAttribute("seatIdsForm") final GenericListForm<Long> seatIdsForm,
                                     @RequestParam("id") final Long screeningId) {
-        logger.debug(UtilMethods.getDelimiterLine());
+        logger.debug(UtilMethods.getLoggingSubjectDelimiterLine());
         logger.debug("Get mapping: book seats");
         logger.debug("Screening id: " + screeningId);
         logger.debug("Seat ids form: " + seatIdsForm);
@@ -78,7 +78,7 @@ public class BookSeatsController {
     public String bookSeats(final RedirectAttributes redirectAttributes,
                             @ModelAttribute("seatBookingsForm") final SeatBookingsForm seatBookingsForm,
                             @RequestParam("id") final Long screeningId) {
-        logger.debug(UtilMethods.getDelimiterLine());
+        logger.debug(UtilMethods.getLoggingSubjectDelimiterLine());
         logger.debug("Post mapping: book seats");
         try {
             customerService.bookTickets(seatBookingsForm);

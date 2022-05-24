@@ -21,7 +21,7 @@ public abstract class UserAuthorityService<E extends AbstractUserAuthority, R ex
     }
 
     @Override
-    public void onDelete(E userAuthority) {
+    protected void onDelete(E userAuthority) {
         User user = userAuthority.getUser();
         logger.debug("Before detach user authority from user: " + user);
         if (user != null) {
@@ -39,7 +39,7 @@ public abstract class UserAuthorityService<E extends AbstractUserAuthority, R ex
     }
 
     public Optional<D> findByUserWithId(Long userId) {
-        logger.debug(UtilMethods.getDelimiterLine());
+        logger.debug(UtilMethods.getLoggingSubjectDelimiterLine());
         logger.debug("Find by user with id: " + userId);
         E authority = repository.findByUserWithId(userId).orElse(null);
         logger.debug("Found user: " + authority);

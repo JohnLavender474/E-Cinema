@@ -1,8 +1,7 @@
 package com.ecinema.app.services;
 
 import com.ecinema.app.domain.dtos.ShowroomDto;
-import com.ecinema.app.domain.entities.Showroom;
-import com.ecinema.app.domain.entities.ShowroomSeat;
+import com.ecinema.app.domain.entities.*;
 import com.ecinema.app.domain.forms.ShowroomForm;
 import com.ecinema.app.domain.validators.ShowroomValidator;
 import com.ecinema.app.exceptions.ClashException;
@@ -10,6 +9,7 @@ import com.ecinema.app.exceptions.InvalidArgsException;
 import com.ecinema.app.domain.enums.Letter;
 import com.ecinema.app.exceptions.NoEntityFoundException;
 import com.ecinema.app.repositories.ShowroomRepository;
+import com.ecinema.app.repositories.TicketRepository;
 import com.ecinema.app.util.UtilMethods;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -24,17 +24,20 @@ public class ShowroomService extends AbstractEntityService<Showroom, ShowroomRep
     private final ShowroomSeatService showroomSeatService;
     private final ShowroomValidator showroomValidator;
     private final ScreeningService screeningService;
+    private final TicketRepository ticketRepository;
 
     public ShowroomService(ShowroomRepository repository, ShowroomSeatService showroomSeatService,
-                           ScreeningService screeningService, ShowroomValidator showroomValidator) {
+                           ScreeningService screeningService, ShowroomValidator showroomValidator,
+                           TicketRepository ticketRepository) {
         super(repository);
         this.showroomSeatService = showroomSeatService;
         this.screeningService = screeningService;
         this.showroomValidator = showroomValidator;
+        this.ticketRepository = ticketRepository;
     }
 
     @Override
-    public void onDelete(Showroom showroom) {
+    protected void onDelete(Showroom showroom) {
         logger.debug("Showroom on delete");
         // cascade delete ShowroomSeats
         logger.debug("Delete all associated showroom seats");
@@ -56,20 +59,27 @@ public class ShowroomService extends AbstractEntityService<Showroom, ShowroomRep
         return showroomDto;
     }
 
+    public void delete(Letter showroomLetter)
+            throws NoEntityFoundException {
+        delete(repository.findByShowroomLetter(showroomLetter).orElseThrow(
+                () -> new NoEntityFoundException("showroom", "showroom letter", showroomLetter)));
+    }
+
     public List<Letter> findAllShowroomLetters() {
         return repository.findAllShowroomLetters();
     }
 
     public void submitShowroomForm(ShowroomForm showroomForm)
             throws ClashException, InvalidArgsException {
-        logger.debug(UtilMethods.getDelimiterLine());
-        logger.debug("Submit showroom form");
+        logger.debug(UtilMethods.getLoggingSubjectDelimiterLine());
+        logger.debug("Showroom service: submit showroom form");
+        logger.debug("Showroom form: " + showroomForm);
         List<String> errors = new ArrayList<>();
         showroomValidator.validate(showroomForm, errors);
         if (!errors.isEmpty()) {
             throw new InvalidArgsException(errors);
         }
-        logger.debug("Submit Showroom Form: passed validation checks");
+        logger.debug("Showroom form passed validation checks");
         if (repository.existsByShowroomLetter(showroomForm.getShowroomLetter())) {
             throw new ClashException("Showroom with room letter " +
                                              showroomForm.getShowroomLetter() + " already exists");
@@ -110,6 +120,29 @@ public class ShowroomService extends AbstractEntityService<Showroom, ShowroomRep
                                       .orElseThrow( () -> new NoEntityFoundException(
                                               "showroom", "showroom seat", showroomSeat));
         return convertToDto(showroom);
+    }
+
+    public boolean existsByShowroomLetter(Letter showroomLetter) {
+        return repository.existsByShowroomLetter(showroomLetter);
+    }
+
+    public List<String> onDeleteInfo(Letter showroomLetter)
+            throws NoEntityFoundException {
+        return onDeleteInfo(repository.findByShowroomLetter(showroomLetter).orElseThrow(
+                () -> new NoEntityFoundException("showroom", "room letter", showroomLetter)));
+    }
+
+    protected List<String> onDeleteInfo(Showroom showroom) {
+        List<String> onDeleteInfo = new ArrayList<>();
+        List<Ticket> ticketsInShowroom = ticketRepository.findAllByShowroom(showroom);
+        int numberOfScreeningsInShowroom = showroom.getScreenings().size();
+        int costOfDeletingTickets = ticketsInShowroom.stream().mapToInt(
+                ticket -> ticket.getTicketType().getPrice()).sum();
+        onDeleteInfo.add("Number of seats to be deleted: " + showroom.getShowroomSeats().size());
+        onDeleteInfo.add("Number of screenings to be deleted: " + numberOfScreeningsInShowroom);
+        onDeleteInfo.add("Number of tickets to be refunded and then deleted: " + ticketsInShowroom.size());
+        onDeleteInfo.add("Cost of refunding all tickets for deleted screenings: $" + costOfDeletingTickets);
+        return onDeleteInfo;
     }
 
 }

@@ -44,7 +44,7 @@ class ShowroomSeatServiceTest {
                 showroomSeatRepository,screeningSeatService);
         showroomService = new ShowroomService(
                 showroomRepository, showroomSeatService,
-                null, null);
+                null, null, ticketRepository);
     }
 
     @Test

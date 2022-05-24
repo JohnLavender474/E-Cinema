@@ -31,7 +31,7 @@ public class MovieScreeningController {
         Page<ScreeningDto> pageOfDtos = screeningService.findPageByMovieId(id, pageRequest);
         model.addAttribute("screenings", pageOfDtos.getContent().toArray());
         addPageNumbersAttribute(model, pageOfDtos);
-        logger.debug(UtilMethods.getDelimiterLine());
+        logger.debug(UtilMethods.getLoggingSubjectDelimiterLine());
         logger.debug("Screening DTOs: " + pageOfDtos);
         return "movie-screenings";
     }

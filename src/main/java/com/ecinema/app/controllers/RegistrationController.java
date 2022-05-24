@@ -68,7 +68,7 @@ public class RegistrationController {
     }
 
     private void addRegistrationPageAttributes(final Model model, final RegistrationForm registrationForm) {
-        logger.debug(UtilMethods.getDelimiterLine());
+        logger.debug(UtilMethods.getLoggingSubjectDelimiterLine());
         logger.debug("Show submit registration page");
         model.addAttribute("registrationForm", registrationForm);
         logger.debug("Added blank registration form to model");
@@ -125,7 +125,7 @@ public class RegistrationController {
      */
     private String submitRegistration(final RedirectAttributes redirectAttributes,
                                       final RegistrationForm registrationForm, final String returnOnError) {
-        logger.debug(UtilMethods.getDelimiterLine());
+        logger.debug(UtilMethods.getLoggingSubjectDelimiterLine());
         logger.debug("Post mapping: submit registration");
         try {
             registrationService.submitRegistrationForm(registrationForm);
@@ -153,7 +153,7 @@ public class RegistrationController {
      */
     @GetMapping("/confirm-registration/{token}")
     public String confirmRegistration(final Model model, @PathVariable("token") final String token) {
-        logger.debug(UtilMethods.getDelimiterLine());
+        logger.debug(UtilMethods.getLoggingSubjectDelimiterLine());
         logger.debug("Showing confirm registration page");
         logger.debug("Token: " + token);
         try {

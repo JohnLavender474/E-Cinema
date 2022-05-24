@@ -4,19 +4,23 @@
 <body>
 <nav th:insert="fragments/webpage-top :: webpage-top"></nav>
 <div>
+    <h1 class="bold-white-text center-text">Movies</h1>
+    <br/>
     <form method="get" th:action="@{/movies(page=1)}">
         <span class="bold-white-text">Search:</span>
         <label for="search"></label>
         <input type="text" name="search" id="search" size="25" th:value="${search}" required/>
         <button class="button" type="submit">Go</button>
     </form>
-    <ul id="pageNumbers" th:if="${totalPages > 0}">
-        <li th:each="pageNumber:${pageNumbers}">
-            <a class="btn btn-outline-primary" th:classappend="${page == pageNumber ? 'disabled' : ''}"
-               th:text="${pageNumber}" th:href="@{/movies(search=${search}, page=${pageNumber})}">
-            </a>
-        </li>
-    </ul>
+    <table class="table-hover">
+        <tr>
+            <td th:if="${totalPages > 0}" th:each="pageNumber:${pageNumbers}">
+                <form method="get" th:action="@{/movies(search=${search}, page=${pageNumber})}">
+                    <button class="btn btn-outline-primary" th:text="${pageNumber}"></button>
+                </form>
+            </td>
+        </tr>
+    </table>
     <table class="table table-hover">
         <tbody>
         <tr th:each="entries:${movies}">

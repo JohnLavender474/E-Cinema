@@ -6,9 +6,11 @@ import com.ecinema.app.util.UtilMethods;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.data.domain.PageRequest;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -150,6 +152,113 @@ class ScreeningRepositoryTest {
         assertEquals(1, test2.size());
         assertEquals(screening, test2.get(0));
         assertEquals(showroom, test2.get(0).getShowroom());
+    }
+
+    @Test
+    void findAllByShowroomLetter() {
+        // given
+        Showroom showroom1 = new Showroom();
+        showroom1.setShowroomLetter(Letter.A);
+        showroomRepository.save(showroom1);
+        Showroom showroom2 = new Showroom();
+        showroom2.setShowroomLetter(Letter.B);
+        showroomRepository.save(showroom2);
+        Screening screening1 = new Screening();
+        screening1.setShowroom(showroom1);
+        showroom1.getScreenings().add(screening1);
+        screeningRepository.save(screening1);
+        Screening screening2 = new Screening();
+        screening2.setShowroom(showroom2);
+        showroom2.getScreenings().add(screening2);
+        screeningRepository.save(screening2);
+        // when
+        PageRequest pageRequest = PageRequest.of(0, 5);
+        List<Screening> screenings = screeningRepository.findAllByShowroomLetters(
+                List.of(Letter.A, Letter.B), pageRequest).getContent();
+        // when
+        assertEquals(2, screenings.size());
+        assertTrue(screenings.containsAll(Arrays.asList(screening1, screening2)));
+    }
+
+    @Test
+    void findAllByMovieWithTitleLike() {
+        // given
+        Movie movie1 = new Movie();
+        movie1.setSearchTitle("teST1");
+        movieRepository.save(movie1);
+        Movie movie2 = new Movie();
+        movie2.setSearchTitle("  tEsT2 ");
+        movieRepository.save(movie2);
+        Movie movie3 = new Movie();
+        movie3.setSearchTitle("fAiL");
+        movieRepository.save(movie3);
+        Screening screening1 = new Screening();
+        screening1.setMovie(movie1);
+        movie1.getScreenings().add(screening1);
+        screeningRepository.save(screening1);
+        Screening screening2 = new Screening();
+        screening2.setMovie(movie2);
+        movie2.getScreenings().add(screening2);
+        screeningRepository.save(screening2);
+        Screening screening3 = new Screening();
+        screening3.setMovie(movie3);
+        movie3.getScreenings().add(screening3);
+        screeningRepository.save(screening3);
+        // when
+        PageRequest pageRequest = PageRequest.of(0, 3);
+        List<Screening> screenings = screeningRepository.findAllByMovieWithTitleLike(
+                "TeSt", pageRequest).getContent();
+        // then
+        assertEquals(2, screenings.size());
+        assertTrue(screenings.containsAll(Arrays.asList(screening1, screening2)));
+    }
+
+    @Test
+    void findAllByShowroomLetterAndMovieWithTitleLike() {
+        // given
+        Showroom showroom1 = new Showroom();
+        showroom1.setShowroomLetter(Letter.A);
+        showroomRepository.save(showroom1);
+        Showroom showroom2 = new Showroom();
+        showroom2.setShowroomLetter(Letter.B);
+        showroomRepository.save(showroom2);
+        Showroom showroom3 = new Showroom();
+        showroom3.setShowroomLetter(Letter.C);
+        showroomRepository.save(showroom3);
+        Movie movie1 = new Movie();
+        movie1.setSearchTitle("teST1");
+        movieRepository.save(movie1);
+        Movie movie2 = new Movie();
+        movie2.setSearchTitle("  tEsT2 ");
+        movieRepository.save(movie2);
+        Movie movie3 = new Movie();
+        movie3.setSearchTitle("fAiL");
+        movieRepository.save(movie3);
+        Screening screening1 = new Screening();
+        screening1.setShowroom(showroom1);
+        showroom1.getScreenings().add(screening1);
+        screening1.setMovie(movie1);
+        movie1.getScreenings().add(screening1);
+        screeningRepository.save(screening1);
+        Screening screening2 = new Screening();
+        screening2.setShowroom(showroom2);
+        showroom2.getScreenings().add(screening2);
+        screening2.setMovie(movie2);
+        movie2.getScreenings().add(screening2);
+        screeningRepository.save(screening2);
+        Screening screening3 = new Screening();
+        screening3.setShowroom(showroom3);
+        showroom3.getScreenings().add(screening3);
+        screening3.setMovie(movie3);
+        movie3.getScreenings().add(screening3);
+        screeningRepository.save(screening3);
+        // when
+        PageRequest pageRequest = PageRequest.of(0, 5);
+        List<Screening> screenings = screeningRepository.findAllByShowroomLettersAndMovieWithTitleLike(
+                List.of(Letter.A, Letter.B), "TeSt", pageRequest).getContent();
+        // then
+        assertEquals(2, screenings.size());
+        assertTrue(screenings.containsAll(Arrays.asList(screening1, screening2)));
     }
 
 }

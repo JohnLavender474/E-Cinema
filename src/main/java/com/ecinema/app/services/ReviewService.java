@@ -38,7 +38,7 @@ public class ReviewService extends AbstractEntityService<Review, ReviewRepositor
     }
 
     @Override
-    public void onDelete(Review review) {
+    protected void onDelete(Review review) {
         logger.debug("Review on delete");
         // detach Customer
         Customer writer = review.getWriter();
@@ -77,7 +77,7 @@ public class ReviewService extends AbstractEntityService<Review, ReviewRepositor
 
     public void submitReviewForm(ReviewForm reviewForm)
             throws NoEntityFoundException, InvalidArgsException, ClashException {
-        logger.debug(UtilMethods.getDelimiterLine());
+        logger.debug(UtilMethods.getLoggingSubjectDelimiterLine());
         logger.debug("Submit review form");
         Customer customer = customerRepository
                 .findByUserWithId(reviewForm.getUserId())
