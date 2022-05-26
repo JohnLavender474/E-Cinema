@@ -61,7 +61,7 @@ class RegistrationServiceTest {
     void setUp() {
         customerService = new CustomerService(
                 customerRepository, null, null,
-                null, null, null, null);
+                null, null, null, null, null);
         userService = new UserService(
                 userRepository, customerService, null, null,
                 encoderService, userProfileValidator,

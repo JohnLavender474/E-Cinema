@@ -15,9 +15,8 @@
     <table class="table-hover">
         <tr>
             <td th:if="${totalPages > 0}" th:each="pageNumber:${pageNumbers}">
-                <form method="get" th:action="@{/movies(search=${search}, page=${pageNumber})}">
-                    <button class="btn btn-outline-primary" th:text="${pageNumber}"></button>
-                </form>
+                <a th:href="@{/movies(search=${search}, page=${pageNumber})}"
+                   class="btn btn-outline-primary" th:text="${pageNumber}"></a>
             </td>
         </tr>
     </table>

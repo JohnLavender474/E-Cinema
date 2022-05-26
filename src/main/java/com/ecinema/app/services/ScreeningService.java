@@ -2,11 +2,10 @@ package com.ecinema.app.services;
 
 import com.ecinema.app.domain.dtos.ScreeningDto;
 import com.ecinema.app.domain.entities.*;
-import com.ecinema.app.domain.enums.Letter;
 import com.ecinema.app.domain.forms.ScreeningForm;
 import com.ecinema.app.domain.validators.ScreeningValidator;
 import com.ecinema.app.exceptions.ClashException;
-import com.ecinema.app.exceptions.InvalidArgsException;
+import com.ecinema.app.exceptions.InvalidArgumentException;
 import com.ecinema.app.exceptions.NoEntityFoundException;
 import com.ecinema.app.repositories.MovieRepository;
 import com.ecinema.app.repositories.ScreeningRepository;
@@ -129,13 +128,13 @@ public class ScreeningService extends AbstractEntityService<Screening, Screening
     }
 
     public void submitScreeningForm(ScreeningForm screeningForm)
-            throws NoEntityFoundException, InvalidArgsException, ClashException {
+            throws NoEntityFoundException, InvalidArgumentException, ClashException {
         logger.debug(UtilMethods.getLoggingSubjectDelimiterLine());
         logger.debug("Add new screening");
         List<String> errors = new ArrayList<>();
         screeningValidator.validate(screeningForm, errors);
         if (!errors.isEmpty()) {
-            throw new InvalidArgsException(errors);
+            throw new InvalidArgumentException(errors);
         }
         Showroom showroom = showroomRepository
                 .findById(screeningForm.getShowroomId())

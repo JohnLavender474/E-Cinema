@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface PaymentCardRepository extends JpaRepository<PaymentCard, Long> {
@@ -15,6 +16,9 @@ public interface PaymentCardRepository extends JpaRepository<PaymentCard, Long> 
 
     @Query("SELECT p FROM PaymentCard p JOIN p.cardOwner.user u WHERE u.id = ?1")
     List<PaymentCard> findDistinctByCardUserWithId(Long userId);
+
+    @Query("SELECT p.cardOwner.user.id FROM PaymentCard p WHERE p.id = ?1")
+    Optional<Long> findUserIdByPaymentCardWithId(Long paymentCardId);
 
     @Query("SELECT CASE WHEN count(p) > 0 THEN true ELSE false END " +
             "FROM PaymentCard p WHERE p.id = ?1 AND p.cardOwner.id = ?2")

@@ -1,12 +1,15 @@
 package com.ecinema.app.controllers;
 
+import com.ecinema.app.beans.SecurityContext;
 import com.ecinema.app.domain.dtos.ScreeningDto;
+import com.ecinema.app.domain.dtos.TicketDto;
 import com.ecinema.app.domain.forms.GenericListForm;
 import com.ecinema.app.domain.forms.SeatBookingsForm;
 import com.ecinema.app.exceptions.*;
 import com.ecinema.app.services.CustomerService;
 import com.ecinema.app.services.ScreeningSeatService;
 import com.ecinema.app.services.ScreeningService;
+import com.ecinema.app.services.TicketService;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,12 +29,14 @@ import java.util.List;
 @Controller
 @RequiredArgsConstructor
 @SessionAttributes("bookSeatsForm")
-public class BookSeatsController {
+public class TicketController {
 
+    private final TicketService ticketService;
     private final CustomerService customerService;
+    private final SecurityContext securityContext;
     private final ScreeningService screeningService;
     private final ScreeningSeatService screeningSeatService;
-    private final Logger logger = LoggerFactory.getLogger(BookSeatsController.class);
+    private final Logger logger = LoggerFactory.getLogger(TicketController.class);
 
     @GetMapping("/choose-seats-to-book")
     public String seeScreeningPage(final Model model, @RequestParam("id") final Long screeningId) {
@@ -97,6 +102,28 @@ public class BookSeatsController {
             redirectAttributes.addFlashAttribute("errors", e.getErrors());
             redirectAttributes.addFlashAttribute("seatBookingsForm", seatBookingsForm);
             return redirectUrl;
+        }
+    }
+
+    @GetMapping("/tickets")
+    public String showTicketsPage(final Model model) {
+        Long userId = securityContext.findIdOfLoggedInUser();
+        List<TicketDto> tickets = ticketService.findAllByUserWithId(userId);
+        model.addAttribute("tickets", tickets);
+        return "tickets";
+    }
+
+    @GetMapping("/request-refund-ticket/{id}")
+    public String showRequestRefundTicketPage(final Model model, final RedirectAttributes redirectAttributes,
+                                              @PathVariable("id") final Long ticketId) {
+        try {
+            TicketDto ticketDto = ticketService.findById(ticketId);
+            model.addAttribute("ticket", ticketDto);
+            return "request-refund-ticket";
+        } catch (NoEntityFoundException e) {
+            logger.debug("Errors: " + e);
+            redirectAttributes.addFlashAttribute("errors", e.getErrors());
+            return "redirect:/tickets";
         }
     }
 

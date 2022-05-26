@@ -20,7 +20,9 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-/** Service class for {@link Customer} */
+/**
+ * Service class for {@link Customer}
+ */
 @Service
 @Transactional
 public class CustomerService extends UserAuthorityService<Customer, CustomerRepository, CustomerDto> {
@@ -29,6 +31,7 @@ public class CustomerService extends UserAuthorityService<Customer, CustomerRepo
     private final ReviewService reviewService;
     private final TicketService ticketService;
     private final SecurityContext securityContext;
+    private final ReviewVoteService reviewVoteService;
     private final PaymentCardService paymentCardService;
     private final ScreeningSeatRepository screeningSeatRepository;
 
@@ -46,22 +49,16 @@ public class CustomerService extends UserAuthorityService<Customer, CustomerRepo
     @Autowired
     public CustomerService(CustomerRepository repository, ScreeningSeatRepository screeningSeatRepository,
                            EmailService emailService, ReviewService reviewService, TicketService ticketService,
-                           PaymentCardService paymentCardService, SecurityContext securityContext) {
+                           PaymentCardService paymentCardService, ReviewVoteService reviewVoteService,
+                           SecurityContext securityContext) {
         super(repository);
-        logger.debug(UtilMethods.getLoggingSubjectDelimiterLine());
-        logger.debug("Customer Service: autowire repository : " + repository);
         this.emailService = emailService;
-        logger.debug("Customer Service: autowire email service: " + emailService);
-        this.reviewService = reviewService;
-        logger.debug("Customer Service: autowire review service: " + reviewService);
         this.ticketService = ticketService;
-        logger.debug("Customer Service: autowire ticket service: " + ticketService);
+        this.reviewService = reviewService;
         this.securityContext = securityContext;
-        logger.debug("Customer Service: autowire security context: " + securityContext);
+        this.reviewVoteService = reviewVoteService;
         this.paymentCardService = paymentCardService;
-        logger.debug("Customer Service: autowire payment card service: " + paymentCardService);
         this.screeningSeatRepository = screeningSeatRepository;
-        logger.debug("Customer Service: autowire screening seat repository: " + screeningSeatRepository);
     }
 
     @Override
@@ -72,6 +69,9 @@ public class CustomerService extends UserAuthorityService<Customer, CustomerRepo
         // cascade delete Reviews
         logger.debug("Deleting all associated reviews");
         reviewService.deleteAll(customer.getReviews());
+        // cascade delete Review Votes
+        logger.debug("Deleting all associated review votes");
+        reviewVoteService.deleteAll(customer.getReviewVotes());
         // cascade delete Tickets
         logger.debug("Deleting all associated tickets");
         ticketService.deleteAll(customer.getTickets());
@@ -107,24 +107,15 @@ public class CustomerService extends UserAuthorityService<Customer, CustomerRepo
     }
 
     /**
-     * Exists by user with id boolean.
-     *
-     * @param userId the user id
-     * @return the boolean
-     */
-    public boolean existsByUserWithId(Long userId) {
-        return repository.existsByUserWithId(userId);
-    }
-
-    /**
      * Book tickets.
      *
      * @param seatBookingsForm the seat bookings form
-     * @throws NoEntityFoundException      the no entity found exception
-     * @throws ClashException              the clash exception
-     * @throws PermissionDeniedException   the permission denied exception
-     * @throws InvalidAssociationException the invalid association exception
-     * @throws ExpirationException         the expiration exception
+     * @throws NoEntityFoundException      thrown if a requested {@link AbstractEntity} cannot be found
+     * @throws ClashException              thrown if {@link ScreeningSeat#isBooked()} returns true
+     * @throws PermissionDeniedException   thrown if the requesting client does not have {@link Customer} authority
+     * @throws InvalidAssociationException thrown if the {@link PaymentCard} fetched via
+     * {@link SeatBookingsForm#getPaymentCardId()} is not associated with the {@link Customer}
+     * @throws ExpirationException         thrown if {@link PaymentCard#getExpirationDate()} is surpassed
      */
     public void bookTickets(SeatBookingsForm seatBookingsForm)
             throws NoEntityFoundException, ClashException, PermissionDeniedException,
@@ -133,7 +124,7 @@ public class CustomerService extends UserAuthorityService<Customer, CustomerRepo
         // validate that user is logged into customer account and get user id
         Long userId = securityContext.findIdOfLoggedInUser();
         logger.debug("Logged-in user id: " + userId);
-        if (userId == null || !existsByUserWithId(userId)) {
+        if (userId == null || !repository.existsByUserWithId(userId)) {
             throw new PermissionDeniedException("Cannot book tickets if not logged into a valid customer account");
         }
         // find customer by user id
@@ -202,7 +193,7 @@ public class CustomerService extends UserAuthorityService<Customer, CustomerRepo
         ticketDtos.forEach(ticketDto -> {
             String message = "\tPurchased " + ticketDto.getTicketType() + " at " +
                     UtilMethods.localDateTimeFormatted(ticketDto.getCreationDateTime()) + "\n" +
-                    "\tfor seat " + ticketDto.getRowLetter() + "-" + ticketDto.getSeatNumber() + "\n" +
+                    "\tfor seat " + ticketDto.getSeatDesignation() + "\n" +
                     "\tfor " + ticketDto.getMovieTitle() + " in showroom " + ticketDto.getShowroomLetter() + "\n" +
                     "\tat " + UtilMethods.localDateTimeFormatted(ticketDto.getShowtime()) + "\n\n";
             sb.append(message);

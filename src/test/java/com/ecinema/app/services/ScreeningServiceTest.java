@@ -15,11 +15,9 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
-import org.springframework.boot.test.mock.mockito.MockBean;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.time.Month;
 import java.util.Optional;
 
@@ -70,7 +68,7 @@ class ScreeningServiceTest {
                 screeningService, null, ticketRepository);
         reviewService = new ReviewService(
                 reviewRepository, movieRepository,
-                null, null);
+                null, null, null);
         movieService = new MovieService(
                 movieRepository, reviewService,
                 screeningService, null);
@@ -195,7 +193,7 @@ class ScreeningServiceTest {
         // given
         Movie movie = new Movie();
         movie.setId(1L);
-        movie.setDuration(new Duration(1, 30));
+        movie.setDuration(Duration.of(1, 30));
         given(movieRepository.findById(1L)).willReturn(Optional.of(movie));
         Showroom showroom = new Showroom();
         showroom.setShowroomLetter(Letter.A);

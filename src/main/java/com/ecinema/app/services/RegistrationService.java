@@ -7,7 +7,7 @@ import com.ecinema.app.domain.forms.RegistrationForm;
 import com.ecinema.app.domain.validators.RegistrationValidator;
 import com.ecinema.app.exceptions.ClashException;
 import com.ecinema.app.exceptions.EmailException;
-import com.ecinema.app.exceptions.InvalidArgsException;
+import com.ecinema.app.exceptions.InvalidArgumentException;
 import com.ecinema.app.exceptions.NoEntityFoundException;
 import com.ecinema.app.repositories.RegistrationRepository;
 import com.ecinema.app.util.UtilMethods;
@@ -55,7 +55,7 @@ public class RegistrationService extends AbstractEntityService<Registration, Reg
     }
 
     public void submitRegistrationForm(RegistrationForm registrationForm)
-            throws ClashException, InvalidArgsException, EmailException {
+            throws ClashException, InvalidArgumentException, EmailException {
         logger.debug(UtilMethods.getLoggingSubjectDelimiterLine());
         logger.debug("Submit registration request and get token");
         if (userService.existsByEmail(registrationForm.getEmail())) {
@@ -69,7 +69,7 @@ public class RegistrationService extends AbstractEntityService<Registration, Reg
         List<String> errors = new ArrayList<>();
         registrationValidator.validate(registrationForm, errors);
         if (!errors.isEmpty()) {
-            throw new InvalidArgsException(errors);
+            throw new InvalidArgumentException(errors);
         }
         logger.debug("Registration form passed validation checks");
         if (!registrationForm.getIsPasswordEncoded()) {

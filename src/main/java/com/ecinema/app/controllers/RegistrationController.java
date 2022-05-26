@@ -134,7 +134,7 @@ public class RegistrationController {
                             "the email sent with a link to confirm your registration.");
             logger.debug("Successfully submitted registration form");
             return "redirect:/message-page";
-        } catch (ClashException | InvalidArgsException | EmailException e) {
+        } catch (ClashException | InvalidArgumentException | EmailException e) {
             redirectAttributes.addFlashAttribute("errors", e.getErrors());
             redirectAttributes.addFlashAttribute("registrationForm", registrationForm);
             logger.debug("Errors: " + e.getErrors());

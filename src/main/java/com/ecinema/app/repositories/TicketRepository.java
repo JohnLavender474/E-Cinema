@@ -120,21 +120,66 @@ public interface TicketRepository extends JpaRepository<Ticket, Long> {
     @Query("SELECT t FROM Ticket t WHERE t.ticketOwner.id = ?1")
     List<Ticket> findAllByTicketOwnerWithId(Long customerRoleDefId);
 
+    /**
+     * Find all by user id.
+     *
+     * @param userId the user id
+     * @return the list of tickets
+     */
+    @Query("SELECT t FROM Ticket t WHERE t.ticketOwner.user.id = ?1")
+    List<Ticket> findAllByUserWithId(Long userId);
+
+    /**
+     * Find username of ticket user owner optional.
+     *
+     * @param ticketId the ticket id
+     * @return the optional
+     */
     @Query("SELECT t.ticketOwner.user.username FROM Ticket t WHERE t.id = ?1")
     Optional<String> findUsernameOfTicketUserOwner(Long ticketId);
 
+    /**
+     * Find movie title associated with ticket optional.
+     *
+     * @param ticketId the ticket id
+     * @return the optional
+     */
     @Query("SELECT t.screeningSeat.screening.movie.title FROM Ticket t WHERE t.id = ?1")
     Optional<String> findMovieTitleAssociatedWithTicket(Long ticketId);
 
+    /**
+     * Find showroom letter associated with ticket optional.
+     *
+     * @param ticketId the ticket id
+     * @return the optional
+     */
     @Query("SELECT t.screeningSeat.screening.showroom.showroomLetter FROM Ticket t WHERE t.id = ?1")
     Optional<Letter> findShowroomLetterAssociatedWithTicket(Long ticketId);
 
+    /**
+     * Find showtime of screening associated with ticket optional.
+     *
+     * @param ticketId the ticket id
+     * @return the optional
+     */
     @Query("SELECT t.screeningSeat.screening.showDateTime FROM Ticket t WHERE t.id = ?1")
     Optional<LocalDateTime> findShowtimeOfScreeningAssociatedWithTicket(Long ticketId);
 
+    /**
+     * Find endtime of screening associated with ticket optional.
+     *
+     * @param ticketId the ticket id
+     * @return the optional
+     */
     @Query("SELECT t.screeningSeat.screening.endDateTime FROM Ticket t WHERE t.id = ?1")
     Optional<LocalDateTime> findEndtimeOfScreeningAssociatedWithTicket(Long ticketId);
 
+    /**
+     * Find showroom seat associated with ticket optional.
+     *
+     * @param ticketId the ticket id
+     * @return the optional
+     */
     @Query("SELECT t.screeningSeat.showroomSeat FROM Ticket t WHERE t.id = ?1")
     Optional<ShowroomSeat> findShowroomSeatAssociatedWithTicket(Long ticketId);
 

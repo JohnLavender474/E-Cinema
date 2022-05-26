@@ -37,9 +37,9 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-/** Tests {@link BookSeatsController} */
+/** Tests {@link TicketController} */
 @SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
-class BookSeatsControllerTest {
+class TicketControllerTest {
 
     @Autowired
     private WebApplicationContext context;

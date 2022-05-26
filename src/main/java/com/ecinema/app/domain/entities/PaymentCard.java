@@ -21,6 +21,9 @@ public class PaymentCard extends AbstractEntity implements IPaymentCard {
     private PaymentCardType paymentCardType;
 
     @Column
+    private String last4Digits;
+
+    @Column
     private String cardNumber;
 
     @Column

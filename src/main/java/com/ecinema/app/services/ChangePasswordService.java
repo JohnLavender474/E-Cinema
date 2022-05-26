@@ -64,7 +64,7 @@ public class ChangePasswordService extends AbstractEntityService<ChangePassword,
     }
 
     public void submitChangePasswordForm(ChangePasswordForm changePasswordForm)
-            throws NoEntityFoundException, InvalidArgsException, EmailException {
+            throws NoEntityFoundException, InvalidArgumentException, EmailException {
         logger.debug(UtilMethods.getLoggingSubjectDelimiterLine());
         logger.debug("Submit change password form");
         List<String> errors = new ArrayList<>();
@@ -84,7 +84,7 @@ public class ChangePasswordService extends AbstractEntityService<ChangePassword,
             errors.add("New password cannot match old password");
         }
         if (!errors.isEmpty()) {
-            throw new InvalidArgsException(errors);
+            throw new InvalidArgumentException(errors);
         }
         ChangePassword changePassword = new ChangePassword();
         String encodedPassword = encoderService.encode(changePasswordForm.getPassword());

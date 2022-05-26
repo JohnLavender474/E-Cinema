@@ -5,6 +5,7 @@ import com.ecinema.app.domain.dtos.ShowroomDto;
 import com.ecinema.app.domain.dtos.UserDto;
 import com.ecinema.app.domain.enums.*;
 import com.ecinema.app.domain.forms.*;
+import com.ecinema.app.domain.objects.Duration;
 import com.ecinema.app.services.*;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
@@ -47,7 +48,8 @@ public class InitializationConfig {
         registrationService.deleteAll();
         userService.deleteAll();
         defineRootAdmin();
-        defineCustomer();
+        defineCustomer1();
+        defineCustomer2();
     }
 
     private void defineRootAdmin() {
@@ -68,21 +70,39 @@ public class InitializationConfig {
                              false, false);
     }
 
-    private void defineCustomer() {
-        RegistrationForm customerForm = new RegistrationForm();
-        customerForm.setUsername("Customer123");
-        customerForm.setEmail("ecinema.app.customer1@gmail.com");
-        customerForm.setPassword("cheeseburger123?!");
-        customerForm.setConfirmPassword("cheeseburger123?!");
-        customerForm.setFirstName("Johnny");
-        customerForm.setLastName("Bravo");
-        customerForm.setBirthDate(LocalDate.of(1990, Month.JANUARY, 1));
-        customerForm.setSecurityQuestion1(SecurityQuestions.SQ4);
-        customerForm.setSecurityAnswer1("Ernest");
-        customerForm.setSecurityQuestion2(SecurityQuestions.SQ3);
-        customerForm.setSecurityAnswer2("Handsome");
-        customerForm.setAuthorities(EnumSet.of(UserAuthority.CUSTOMER));
-        userService.register(customerForm, false,
+    private void defineCustomer1() {
+        RegistrationForm registrationForm = new RegistrationForm();
+        registrationForm.setUsername("Customer123");
+        registrationForm.setEmail("ecinema.app.customer1@gmail.com");
+        registrationForm.setPassword("cheeseburger123?!");
+        registrationForm.setConfirmPassword("cheeseburger123?!");
+        registrationForm.setFirstName("Johnny");
+        registrationForm.setLastName("Bravo");
+        registrationForm.setBirthDate(LocalDate.of(1990, Month.JANUARY, 1));
+        registrationForm.setSecurityQuestion1(SecurityQuestions.SQ4);
+        registrationForm.setSecurityAnswer1("Ernest");
+        registrationForm.setSecurityQuestion2(SecurityQuestions.SQ3);
+        registrationForm.setSecurityAnswer2("Handsome");
+        registrationForm.setAuthorities(EnumSet.of(UserAuthority.CUSTOMER));
+        userService.register(registrationForm, false,
+                             false, false);
+    }
+
+    private void defineCustomer2() {
+        RegistrationForm registrationForm = new RegistrationForm();
+        registrationForm.setUsername("LeviLavendersky48");
+        registrationForm.setEmail("customer2@gmail.com");
+        registrationForm.setPassword("cheeseburger474?!");
+        registrationForm.setConfirmPassword("cheeseburger474?!");
+        registrationForm.setFirstName("Levi");
+        registrationForm.setLastName("Lavendersky");
+        registrationForm.setBirthDate(LocalDate.of(1948, Month.DECEMBER, 6));
+        registrationForm.setSecurityQuestion1(SecurityQuestions.SQ3);
+        registrationForm.setSecurityAnswer1("Shorty Lee");
+        registrationForm.setSecurityQuestion2(SecurityQuestions.SQ4);
+        registrationForm.setSecurityAnswer2("Love Song for Bobby Lee");
+        registrationForm.setAuthorities(EnumSet.of(UserAuthority.CUSTOMER, UserAuthority.MODERATOR));
+        userService.register(registrationForm, false,
                              false, false);
     }
 
@@ -104,11 +124,8 @@ public class InitializationConfig {
                                    "it's either fight or die as the space marines battle against the aliens. As the " +
                                    "Marines do their best to defend themselves, Ripley must attempt to protect a " +
                                    "young girl who is the sole survivor of the nearly wiped out space colony");
-        aliens.setHours(2);
-        aliens.setMinutes(17);
-        aliens.setReleaseYear(1986);
-        aliens.setReleaseDay(20);
-        aliens.setReleaseMonth(Month.JULY);
+        aliens.setDuration(Duration.of(2, 17));
+        aliens.setReleaseDate(LocalDate.of(1986, Month.JULY, 20));
         aliens.setMsrbRating(MsrbRating.R);
         aliens.setCast(new ArrayList<>() {{
             add("Sigourney Weaver");
@@ -140,11 +157,8 @@ public class InitializationConfig {
                                         "invincible Nazi regime, whatever the cost. However difficult and dangerous " +
                                         "his decision may be, Churchill has no choice but to shine in the " +
                                         "country's darkest hour.");
-        darkestHour.setHours(2);
-        darkestHour.setMinutes(5);
-        darkestHour.setReleaseYear(2017);
-        darkestHour.setReleaseDay(26);
-        darkestHour.setReleaseMonth(Month.NOVEMBER);
+        darkestHour.setDuration(Duration.of(2, 5));
+        darkestHour.setReleaseDate(LocalDate.of(2017, Month.NOVEMBER, 26));
         darkestHour.setMsrbRating(MsrbRating.PG13);
         darkestHour.setCast(new ArrayList<>() {{
             add("Gary Oldman");
@@ -171,11 +185,8 @@ public class InitializationConfig {
                                  "conflict over the planet's exclusive supply of the most precious resource in " +
                                  "existence-a commodity capable of unlocking humanity's greatest potential-only " +
                                  "those who can conquer their fear will survive.");
-        dune.setHours(2);
-        dune.setMinutes(35);
-        dune.setReleaseYear(2021);
-        dune.setReleaseDay(22);
-        dune.setReleaseMonth(Month.OCTOBER);
+        dune.setDuration(Duration.of(2, 35));
+        dune.setReleaseDate(LocalDate.of(2021, Month.OCTOBER, 22));
         dune.setMsrbRating(MsrbRating.PG13);
         dune.setCast(new ArrayList<>() {{
             add("Timothee Chalamet");
@@ -203,11 +214,8 @@ public class InitializationConfig {
                                               "in search of Yoda. Only with the Jedi Master's help will Luke survive " +
                                               "when the Dark Side of the Force beckons him into the ultimate duel " +
                                               "with Darth Vader.");
-        empireStrikesBack.setHours(2);
-        empireStrikesBack.setMinutes(4);
-        empireStrikesBack.setReleaseYear(1980);
-        empireStrikesBack.setReleaseDay(25);
-        empireStrikesBack.setReleaseMonth(Month.MAY);
+        empireStrikesBack.setDuration(Duration.of(2, 4));
+        empireStrikesBack.setReleaseDate(LocalDate.of(1986, Month.MARCH, 25));
         empireStrikesBack.setMsrbRating(MsrbRating.PG);
         empireStrikesBack.setCast(new ArrayList<>() {{
             add("Mark Hamill");
@@ -237,11 +245,8 @@ public class InitializationConfig {
                                          "discovered wormhole in the far reaches of our solar system allows a team " +
                                          "of astronauts to go where no man has gone before, a planet that may have " +
                                          "the right environment to sustain human life.");
-        interstellar.setHours(2);
-        interstellar.setMinutes(49);
-        interstellar.setReleaseYear(2014);
-        interstellar.setReleaseMonth(Month.NOVEMBER);
-        interstellar.setReleaseDay(9);
+        interstellar.setDuration(Duration.of(2, 49));
+        interstellar.setReleaseDate(LocalDate.of(2014, Month.NOVEMBER, 9));
         interstellar.setMsrbRating(MsrbRating.PG13);
         interstellar.setCast(new ArrayList<>() {{
             add("Matthew McConaughey");
@@ -266,11 +271,8 @@ public class InitializationConfig {
                                         "asking for help. The mission to rescue a kidnapped scientist turns out to " +
                                         "be far more treacherous than expected, leading Bond onto the trail of a " +
                                         "mysterious villain armed with dangerous new technology");
-        noTimeToDie.setHours(2);
-        noTimeToDie.setMinutes(43);
-        noTimeToDie.setReleaseYear(2021);
-        noTimeToDie.setReleaseMonth(Month.OCTOBER);
-        noTimeToDie.setReleaseDay(8);
+        noTimeToDie.setDuration(Duration.of(2, 43));
+        noTimeToDie.setReleaseDate(LocalDate.of(2021, Month.OCTOBER, 8));
         noTimeToDie.setMsrbRating(MsrbRating.PG13);
         noTimeToDie.setDirector("Cary Joji Fukunaga");
         noTimeToDie.setCast(new ArrayList<>() {{
@@ -304,11 +306,8 @@ public class InitializationConfig {
                                 "Indeed, strange as it sounds, inconsolable Rob only wants his pig back, and if " +
                                 "he has to, he'll go to the edge of the world to find her. But first things " +
                                 "first. Who has Rob's pig?");
-        pig.setHours(1);
-        pig.setMinutes(32);
-        pig.setReleaseYear(2021);
-        pig.setReleaseMonth(Month.JULY);
-        pig.setReleaseDay(18);
+        pig.setDuration(Duration.of(1, 32));
+        pig.setReleaseDate(LocalDate.of(2021, Month.JULY, 18));
         pig.setMsrbRating(MsrbRating.R);
         pig.setCast(new ArrayList<>() {{
             add("Nicolas Cage");
@@ -333,11 +332,8 @@ public class InitializationConfig {
         batman.setSynopsis("When the Riddler, a sadistic serial killer, begins murdering key political figures " +
                                    "in Gotham, Batman is forced to investigate the city's hidden corruption " +
                                    "and question his family's involvement.");
-        batman.setHours(2);
-        batman.setMinutes(56);
-        batman.setReleaseYear(2022);
-        batman.setReleaseMonth(Month.MARCH);
-        batman.setReleaseDay(4);
+        batman.setDuration(Duration.of(2, 56));
+        batman.setReleaseDate(LocalDate.of(2022, Month.MARCH, 4));
         batman.setMsrbRating(MsrbRating.PG13);
         batman.setCast(new ArrayList<>() {{
             add("Robert Pattinson");
@@ -375,11 +371,8 @@ public class InitializationConfig {
                                         "Blondie met with Carson and knows they know where the gold is; now he needs " +
                                         "them to lead him to it. Now The Good, the Bad, and the Ugly must all battle " +
                                         "it out to get their hands on $200,000.00 worth of gold.");
-        goodBadUgly.setHours(2);
-        goodBadUgly.setMinutes(58);
-        goodBadUgly.setReleaseYear(1967);
-        goodBadUgly.setReleaseMonth(Month.DECEMBER);
-        goodBadUgly.setReleaseDay(29);
+        goodBadUgly.setDuration(Duration.of(2, 58));
+        goodBadUgly.setReleaseDate(LocalDate.of(1967, Month.DECEMBER, 29));
         goodBadUgly.setMsrbRating(MsrbRating.R);
         goodBadUgly.setCast(new ArrayList<>() {{
             add("Clint Eastwood");
@@ -403,11 +396,8 @@ public class InitializationConfig {
         theNorthman.setSynopsis("From visionary director Robert Eggers comes The Northman, an action-filled " +
                                         "epic that follows a young Viking prince on his quest to avenge his " +
                                         "father's murder.");
-        theNorthman.setHours(2);
-        theNorthman.setMinutes(17);
-        theNorthman.setReleaseYear(2022);
-        theNorthman.setReleaseMonth(Month.APRIL);
-        theNorthman.setReleaseDay(24);
+        theNorthman.setDuration(Duration.of(2, 17));
+        theNorthman.setReleaseDate(LocalDate.of(2022, Month.APRIL, 24));
         theNorthman.setMsrbRating(MsrbRating.R);
         theNorthman.setCast(new ArrayList<>() {{
             add("Alexander Skarsgard");
@@ -677,10 +667,9 @@ public class InitializationConfig {
 
     private void definePaymentCards() {
         UserDto customer = userService.findByUsername("Customer123");
-        Long customerRoleDefId = customerService.findIdByUserWithId(customer.getId());
         // Paymentcard 1
         PaymentCardForm paymentCardForm1 = new PaymentCardForm();
-        paymentCardForm1.setCustomerRoleDefId(customerRoleDefId);
+        paymentCardForm1.setUserId(customer.getId());
         paymentCardForm1.setExpirationDate(LocalDate.now().plusYears(2));
         paymentCardForm1.setPaymentCardType(PaymentCardType.CREDIT);
         paymentCardForm1.setCardNumber("1234123412341234");
@@ -693,7 +682,7 @@ public class InitializationConfig {
         paymentCardService.submitPaymentCardForm(paymentCardForm1);
         // Paymentcard 2
         PaymentCardForm paymentCardForm2 = new PaymentCardForm();
-        paymentCardForm2.setCustomerRoleDefId(customerRoleDefId);
+        paymentCardForm2.setUserId(customer.getId());
         paymentCardForm2.setExpirationDate(LocalDate.now().plusYears(4));
         paymentCardForm2.setPaymentCardType(PaymentCardType.DEBIT);
         paymentCardForm2.setCardNumber("9876987698769876");

@@ -22,10 +22,11 @@
                 </td>
             </tr>
             <tr>
+                <td>Review:</td>
                 <td>
                     <label>
                         <textarea rows="100" cols="100" style="height: 200px"
-                                  maxlength="1999" th:field="*{review}" type="text" required>
+                                  minlength="50" maxlength="1999" th:field="*{review}" type="text" required>
                         </textarea>
                     </label>
                 </td>

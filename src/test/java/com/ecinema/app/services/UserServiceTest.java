@@ -22,33 +22,36 @@ import static org.mockito.Mockito.*;
 @ExtendWith(MockitoExtension.class)
 class UserServiceTest {
 
+    private UserService userService;
+    private AdminService adminService;
     private ReviewService reviewService;
     private TicketService ticketService;
-    private PaymentCardService paymentCardService;
-    private UserService userService;
-    private CustomerService customerService;
-    private ModeratorService moderatorService;
-    private AdminService adminService;
     private EmailValidator emailValidator;
+    private CustomerService customerService;
+    private SecurityContext securityContext;
+    private ModeratorService moderatorService;
+    private ReviewVoteService reviewVoteService;
     private UsernameValidator usernameValidator;
     private PasswordValidator PasswordValidator;
+    private PaymentCardService paymentCardService;
     private UserProfileValidator userProfileValidator;
     private RegistrationValidator registrationValidator;
-    private SecurityContext securityContext;
+    @Mock
+    private UserRepository userRepository;
+    @Mock
+    private AdminRepository adminRepository;
     @Mock
     private ReviewRepository reviewRepository;
     @Mock
     private TicketRepository ticketRepository;
     @Mock
-    private PaymentCardRepository paymentCardRepository;
-    @Mock
-    private UserRepository userRepository;
-    @Mock
     private CustomerRepository customerRepository;
     @Mock
     private ModeratorRepository moderatorRepository;
     @Mock
-    private AdminRepository adminRepository;
+    private ReviewVoteRepository reviewVoteRepository;
+    @Mock
+    private PaymentCardRepository paymentCardRepository;
     @Mock
     private ScreeningSeatRepository screeningSeatRepository;
 
@@ -62,17 +65,20 @@ class UserServiceTest {
         registrationValidator = new RegistrationValidator(
                 emailValidator, userProfileValidator,
                 usernameValidator, PasswordValidator);
+        reviewVoteService = new ReviewVoteService(
+                reviewVoteRepository, reviewRepository, customerRepository);
         reviewService = new ReviewService(
                 reviewRepository, null,
-                null, null);
+                null, null, reviewVoteService);
         ticketService = new TicketService(ticketRepository);
         paymentCardService = new PaymentCardService(
-                paymentCardRepository, null, null);
+                paymentCardRepository, null,
+                null, null);
         adminService = new AdminService(adminRepository);
         customerService = new CustomerService(
                 customerRepository, screeningSeatRepository,
                 null, reviewService, ticketService,
-                paymentCardService, securityContext);
+                paymentCardService, reviewVoteService, securityContext);
         moderatorService = new ModeratorService(
                 moderatorRepository, customerRepository);
         userService = new UserService(

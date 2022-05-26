@@ -4,60 +4,60 @@
 <body>
 <nav th:insert="fragments/webpage-top :: webpage-top"></nav>
 <div class="container">
-    <form method="get" th:action="@{/movie-info/{id}(id=${movieId})}">
-        <button class="btn btn-primary">Go Back to Movie Info Page</button>
-    </form>
-    <div th:if="${success != null}">
-        <span th:text="${success}"></span>
+    <div>
+        <form method="get" th:action="@{/movie-info/{id}(id=${movieId})}">
+            <button class="btn btn-primary">Go Back to Movie Info Page</button>
+        </form>
     </div>
-    <div th:if="${isCustomer}">
-        <span>
-            <label>
-                <button class="button">
-                    <a th:href="@{/write-review/{id}(id=${movieId})}">Write Review</a>
-                </button>
-            </label>
-        </span>
+    <br/>
+    <div th:insert="fragments/errors :: errors"></div>
+    <br/>
+    <div th:if="${success != null}"><span th:text="${success}"></span></div>
+    <br/>
+    <div th:if="${userIsCustomer} and ${canWriteReview}">
+        <label>
+            <a th:href="@{/write-review/{id}(id=${movieId})}" class="btn btn-outline-primary">Write Review</a>
+        </label>
     </div>
-    <table class="table-hover">
-        <tr>
-            <td th:if="${totalPages > 0}" th:each="pageNumber:${pageNumbers}">
-                <button class="btn btn-outline-primary" th:text="${pageNumber}">
-                    <a th:href="@{/movies(search=${search}, page=${pageNumber})}"></a>
-                </button>
-            </td>
-        </tr>
-    </table>
-    <table class="table table-striped table-bordered">
-        <thead class="thead-dark">
-        <tr>
-            <th>Reviews</th>
-        </tr>
-        </thead>
-        <tbody>
-        <tr th:each="review:${reviews}" style="border: red">
-            <td>
-                <span th:text="${review.writer}" style="font-weight: bold"></span>
-            </td>
-            <td>
-                <span th:text="${review.creationDateTimeFormatted()}" style="font-style: italic; color: gray"></span>
-            </td>
-            <td>
-                <span th:text="${review.review}" style="max-width: 150px; word-wrap: break-word"></span>
-            </td>
-            <td th:if="${isCustomer} and ${review.isReportedByCurrentLoggedInUser == false}">
-                <form method="get" th:action="@{/report-review{id}(id=${review.id})}">
-                    <button class="btn btn-primary">Report Review</button>
-                </form>
-            </td>
-            <td th:if="${isCustomer} and ${review.isReportedByCurrentLoggedInUser == true}">
-                <form method="get" th:action="@{/unreport-review{id}(id=${review.id})}">
-                    <button class="btn btn-primary">Unreport Review</button>
-                </form>
-            </td>
-        </tr>
-        </tbody>
-    </table>
+    <br/>
+    <div>
+        <table class="table-hover">
+            <tr>
+                <td th:if="${totalPages > 0}" th:each="pageNumber:${pageNumbers}">
+                    <a th:href="@{/movie-reviews/{id}(id=${movieId},page=${pageNumber})}"
+                       class="btn btn-outline-primary" th:text="${pageNumber}"></a>
+                </td>
+            </tr>
+        </table>
+    </div>
+    <br/>
+    <div>
+        <table class="table table-bordered table-striped">
+            <tr th:each="review:${reviews}" th:if="${!review.isCensored}" style="border: red">
+                <td th:text="${review.writer}"></td>
+                <td th:text="${review.creationDateTimeFormatted()}"></td>
+                <td th:text="${review.review}"></td>
+                <td>
+                    <span th:text="${#lists.size(review.upvoteUserIds)} + ' likes'"></span>
+                    <form method="post" th:action="@{/vote-review/{id}/0(id=${review.id})}">
+                        <input th:disabled="${user == null} or ${!userIsCustomer} or ${review.userId == user.getId()}
+                               or ${#lists.contains(review.upvoteUserIds, user.getId())}"
+                               type="submit" value="Like" class="btn btn-success">
+                        <label><input hidden name="page" th:value="${page}"></label>
+                        <label><input hidden name="movieId" th:value="${movieId}"></label>
+                    </form>
+                    <span th:text="${#lists.size(review.downvoteUserIds)} + ' dislikes'"></span>
+                    <form method="post" th:action="@{/vote-review/{id}/1(id=${review.id})}">
+                        <input th:disabled="${user == null} or ${!userIsCustomer} or ${review.userId == user.getId()}
+                               or ${#lists.contains(review.downvoteUserIds, user.getId())}"
+                               type="submit" value="Dislike" class="btn btn-danger">
+                        <label><input hidden name="page" th:value="${page}"></label>
+                        <label><input hidden name="movieId" th:value="${movieId}"></label>
+                    </form>
+                </td>
+            </tr>
+        </table>
+    </div>
 </div>
 </body>
 </html>

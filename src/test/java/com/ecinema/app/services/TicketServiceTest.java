@@ -60,13 +60,14 @@ class TicketServiceTest {
                 showroomRepository,  screeningSeatService, null);
         reviewService = new ReviewService(
                 reviewRepository, movieRepository,
-                null, null);
+                null, null, null);
         paymentCardService = new PaymentCardService(
-                paymentCardRepository, null, null);
+                paymentCardRepository, null,
+                null, null);
         customerService = new CustomerService(
                 customerRepository, screeningSeatRepository,
                 null, reviewService, ticketService,
-                paymentCardService, securityContext);
+                paymentCardService, null, securityContext);
         showroomService = new ShowroomService(
                 showroomRepository, showroomSeatService,
                 screeningService, null, ticketRepository);

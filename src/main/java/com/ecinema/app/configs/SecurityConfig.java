@@ -47,9 +47,14 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
             "/edit-user-profile/**"
     };
     private static final String[] CUSTOMERS_PERMITTED = new String[]{
+            "/add-payment-card/**",
             "/book-seats/**",
             "/choose-seats-to-book/**",
-            "/customer/**",
+            "/edit-payment-card/**",
+            "/payment-cards/**",
+            "/payment-card/**",
+            "/tickets/**",
+            "/vote-review/**",
             "/write-review/**"
     };
     private static final String[] MODERATORS_AND_ADMINS_PERMITTED = new String[]{
@@ -59,6 +64,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     };
     private static final String[] ADMINS_PERMITTED = new String[]{
+            "/admin-movie/**",
             "/add-movie/**",
             "/add-screening/**",
             "/add-showroom/**",

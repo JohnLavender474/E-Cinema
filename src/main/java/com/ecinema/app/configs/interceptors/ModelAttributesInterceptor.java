@@ -9,6 +9,7 @@ import com.ecinema.app.util.UtilMethods;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.security.core.parameters.P;
 import org.springframework.web.servlet.HandlerInterceptor;
 import org.springframework.web.servlet.ModelAndView;
 
@@ -30,17 +31,17 @@ public class ModelAttributesInterceptor implements HandlerInterceptor {
         logger.debug(UtilMethods.getLoggingSubjectDelimiterLine());
         logger.debug("Model attributes interceptor");
         if (modelAndView != null) {
-            addUserDto(modelAndView);
-            addDropdownMenu(modelAndView);
+            Long userId = securityContext.findIdOfLoggedInUser();
+            addUserDto(userId, modelAndView);
+            addDropdownMenu(userId, modelAndView);
         } else {
             logger.debug("Model and view is null");
         }
     }
 
-    private void addUserDto(final ModelAndView modelAndView) {
-        Long userId = securityContext.findIdOfLoggedInUser();
+    private void addUserDto(final Long userId, final ModelAndView modelAndView) {
         logger.debug("User id: " + userId);
-        UserDto userDto = userId != null ? userService.convertToDto(userId) : null;
+        UserDto userDto = userId != null ? userService.findById(userId) : null;
         logger.debug("User DTO: " + userDto);
         modelAndView.addObject("user", userDto);
         modelAndView.addObject("userIsAdmin", userDto != null && userDto.isAdmin());
@@ -48,8 +49,7 @@ public class ModelAttributesInterceptor implements HandlerInterceptor {
         modelAndView.addObject("userIsModerator", userDto != null && userDto.isModerator());
     }
 
-    private void addDropdownMenu(final ModelAndView modelAndView) {
-        Long userId = securityContext.findIdOfLoggedInUser();
+    private void addDropdownMenu(final Long userId, final ModelAndView modelAndView) {
         logger.debug("Id of logged in user: " + userId);
         List<Pair<String, String>> dropdownMenu = new ArrayList<>();
         if (userId == null) {
@@ -58,8 +58,10 @@ public class ModelAttributesInterceptor implements HandlerInterceptor {
             dropdownMenu.add(new Pair<>("Forgot My Password", "/get-email-for-change-password"));
         } else {
             UserDto userDto = userService.findById(userId);
+            if (userDto == null) {
+                return;
+            }
             logger.debug("User DTO: " + userDto);
-            dropdownMenu.add(new Pair<>("Profile", "/user-profile"));
             if (userDto.getUserAuthorities().contains(UserAuthority.CUSTOMER)) {
                 dropdownMenu.add(new Pair<>("Tickets", "/tickets"));
                 dropdownMenu.add(new Pair<>("Payment Cards", "/payment-cards"));
@@ -68,6 +70,8 @@ public class ModelAttributesInterceptor implements HandlerInterceptor {
                     userDto.getUserAuthorities().contains(UserAuthority.ADMIN)) {
                 dropdownMenu.add(new Pair<>("Management", "/management"));
             }
+            dropdownMenu.add(new Pair<>("Profile", "/user-profile"));
+            dropdownMenu.add(new Pair<>("Change Password", "/change-password"));
             dropdownMenu.add(new Pair<>("Logout", "/logout"));
         }
         modelAndView.addObject("dropdownMenu", dropdownMenu);

@@ -4,6 +4,7 @@ import com.ecinema.app.beans.SecurityContext;
 import com.ecinema.app.domain.dtos.PaymentCardDto;
 import com.ecinema.app.domain.entities.Customer;
 import com.ecinema.app.domain.entities.PaymentCard;
+import com.ecinema.app.domain.enums.PaymentCardType;
 import com.ecinema.app.domain.enums.UsState;
 import com.ecinema.app.domain.forms.PaymentCardForm;
 import com.ecinema.app.domain.validators.AddressValidator;
@@ -12,10 +13,13 @@ import com.ecinema.app.repositories.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import java.time.LocalDate;
+import java.time.Month;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -35,6 +39,7 @@ class PaymentCardServiceTest {
     private AddressValidator addressValidator;
     private PaymentCardService paymentCardService;
     private PaymentCardValidator paymentCardValidator;
+    private EncoderService encoderService;
     private SecurityContext securityContext;
     @Mock
     private ScreeningSeatRepository screeningSeatRepository;
@@ -51,118 +56,23 @@ class PaymentCardServiceTest {
     void setUp() {
         securityContext = new SecurityContext();
         addressValidator = new AddressValidator();
+        encoderService = new EncoderService(new BCryptPasswordEncoder());
         paymentCardValidator = new PaymentCardValidator(addressValidator);
         paymentCardService = new PaymentCardService(
-                paymentCardRepository, customerRepository,
-                paymentCardValidator);
+                paymentCardRepository, encoderService,
+                customerRepository, paymentCardValidator);
         reviewService = new ReviewService(
                 reviewRepository, null,
-                customerRepository, null);
+                customerRepository, null, null);
         ticketService = new TicketService(ticketRepository);
         customerService = new CustomerService(
                 customerRepository, screeningSeatRepository,
                 null, reviewService, ticketService,
-                paymentCardService, securityContext);
+                paymentCardService, null, securityContext);
     }
 
     @Test
-    void findAllByCustomerAuthority() {
-        // given
-        Customer customer1 = new Customer();
-        customer1.setId(1L);
-        Customer customer2 = new Customer();
-        customer2.setId(2L);
-        customerService.save(customer1);
-        customerService.save(customer2);
-        List<PaymentCard> paymentCards = new ArrayList<>();
-        for (int i = 0; i < 10; i++) {
-            PaymentCard paymentCard = new PaymentCard();
-            if (i % 2 == 0) {
-                paymentCard.setCardOwner(customer1);
-            } else {
-                paymentCard.setCardOwner(customer2);
-            }
-            paymentCards.add(paymentCard);
-            paymentCardService.save(paymentCard);
-        }
-        List<PaymentCard> paymentCardsControl1 = paymentCards
-                .stream().filter(paymentCard -> paymentCard.getCardOwner().equals(customer1))
-                .collect(Collectors.toList());
-        given(paymentCardRepository.findDistinctByCardUserWithId(customer1.getId()))
-                .willReturn(paymentCardsControl1);
-        List<PaymentCard> paymentCardsControl2 = paymentCards
-                .stream().filter(paymentCard -> paymentCard.getCardOwner().equals(customer2))
-                .collect(Collectors.toList());
-        given(paymentCardRepository.findDistinctByCardUserWithId(customer2.getId()))
-                .willReturn(paymentCardsControl2);
-        // when
-        List<PaymentCardDto> paymentCardsTest1 = paymentCardService
-                .findAllByCardUserWithId(customer1.getId());
-        List<PaymentCardDto> paymentCardsTest2 = paymentCardService
-                .findAllByCardUserWithId(customer2.getId());
-        // then
-        assertEquals(paymentCardService.convertToDto(paymentCardsControl1), paymentCardsTest1);
-        assertEquals(paymentCardService.convertToDto(paymentCardsControl2), paymentCardsTest2);
-        verify(paymentCardRepository, times(1))
-                .findDistinctByCardUserWithId(customer1.getId());
-        verify(paymentCardRepository, times(1))
-                .findDistinctByCardUserWithId(customer2.getId());
-        verify(customerRepository, times(1)).save(customer1);
-        verify(customerRepository, times(1)).save(customer1);
-    }
-
-    @Test
-    void findAllByCustomerAuthorityWithId() {
-        // given
-        Customer customer1 = new Customer();
-        customer1.setId(1L);
-        Customer customer2 = new Customer();
-        customer2.setId(2L);
-        customerService.save(customer1);
-        customerService.save(customer2);
-        List<PaymentCard> paymentCards = new ArrayList<>();
-        for (int i = 0; i < 10; i++) {
-            PaymentCard paymentCard = new PaymentCard();
-            if (i % 2 == 0) {
-                paymentCard.setCardOwner(customer1);
-            } else {
-                paymentCard.setCardOwner(customer2);
-            }
-            paymentCards.add(paymentCard);
-            paymentCardService.save(paymentCard);
-        }
-        List<PaymentCard> paymentCardsControl1 = paymentCards
-                .stream().filter(paymentCard -> paymentCard.getCardOwner().getId()
-                                                           .equals(customer1.getId()))
-                .collect(Collectors.toList());
-        given(paymentCardRepository
-                      .findDistinctByCardUserWithId(customer1.getId()))
-                .willReturn(paymentCardsControl1);
-        List<PaymentCard> paymentCardsControl2 = paymentCards
-                .stream().filter(paymentCard -> paymentCard.getCardOwner().getId()
-                                                           .equals(customer2.getId()))
-                .collect(Collectors.toList());
-        given(paymentCardRepository
-                      .findDistinctByCardUserWithId(customer2.getId()))
-                .willReturn(paymentCardsControl2);
-        // when
-        List<PaymentCardDto> paymentCardsTest1 = paymentCardService
-                .findAllByCardUserWithId(customer1.getId());
-        List<PaymentCardDto> paymentCardsTest2 = paymentCardService
-                .findAllByCardUserWithId(customer2.getId());
-        // then
-        assertEquals(paymentCardService.convertToDto(paymentCardsControl1), paymentCardsTest1);
-        assertEquals(paymentCardService.convertToDto(paymentCardsControl2),  paymentCardsTest2);
-        verify(paymentCardRepository, times(1))
-                .findDistinctByCardUserWithId(customer1.getId());
-        verify(paymentCardRepository, times(1))
-                .findDistinctByCardUserWithId(customer2.getId());
-        verify(customerRepository, times(1)).save(customer1);
-        verify(customerRepository, times(1)).save(customer2);
-    }
-
-    @Test
-    void deletePaymentCascade() {
+    void onDeleteCascade() {
         // given
         Customer customer = new Customer();
         customerService.save(customer);
@@ -181,36 +91,68 @@ class PaymentCardServiceTest {
     }
 
     @Test
-    void submitPaymentCardForm() {
+    void submitPaymentCardForm1() {
         // given
         Customer customer = new Customer();
-        customer.setId(1L);
-        given(customerRepository.findById(1L))
-                .willReturn(Optional.of(customer));
-        customerService.save(customer);
+        given(customerRepository.findByUserWithId(1L)).willReturn(Optional.of(customer));
         // when
-        LocalDate expirationDate = LocalDate.now().plusYears(1);
+        LocalDate expirationDate = LocalDate.of(2030, Month.JANUARY, 1);
         PaymentCardForm paymentCardForm = new PaymentCardForm();
-        paymentCardForm.setCustomerRoleDefId(1L);
+        paymentCardForm.setUserId(1L);
+        paymentCardForm.setCardNumber("1234567812345678");
+        paymentCardForm.setFirstName("Johnny");
+        paymentCardForm.setLastName("Bravo");
         paymentCardForm.setExpirationDate(expirationDate);
+        paymentCardForm.setStreet("555 Fifth St");
+        paymentCardForm.setCity("Filthy City");
+        paymentCardForm.setUsState(UsState.GEORGIA);
+        paymentCardForm.setZipcode("55555");
+        paymentCardForm.setPaymentCardType(PaymentCardType.CREDIT);
         paymentCardService.submitPaymentCardForm(paymentCardForm);
         // then
+        ArgumentCaptor<PaymentCard> paymentCardArgumentCaptor = ArgumentCaptor.forClass(PaymentCard.class);
+        verify(paymentCardRepository).save(paymentCardArgumentCaptor.capture());
+        PaymentCard paymentCard = paymentCardArgumentCaptor.getValue();
         assertEquals(1, customer.getPaymentCards().size());
-        PaymentCard paymentCard = customer.getPaymentCards().stream().findFirst().orElse(null);
-        assertNotNull(paymentCard);
         assertEquals(customer, paymentCard.getCardOwner());
-        assertEquals("John", paymentCard.getFirstName());
-        assertEquals("Doe", paymentCard.getLastName());
-        assertEquals("1234123412341234", paymentCard.getCardNumber());
-        assertNotNull(paymentCard.getExpirationDate());
-        assertEquals(expirationDate.getMonth(), paymentCard.getExpirationDate().getMonth());
-        assertEquals(1, paymentCard.getExpirationDate().getDayOfMonth());
-        assertEquals(expirationDate.getYear(), paymentCard.getExpirationDate().getYear());
-        assertNotNull(paymentCard.getBillingAddress());
-        assertEquals("Street", paymentCard.getBillingAddress().getStreet());
-        assertEquals("City", paymentCard.getBillingAddress().getCity());
+        assertEquals("Johnny", paymentCard.getFirstName());
+        assertEquals("Bravo", paymentCard.getLastName());
+        assertTrue(encoderService.matches("1234567812345678", paymentCard.getCardNumber()));
+        assertEquals(expirationDate, paymentCard.getExpirationDate());
+        assertEquals("555 Fifth St", paymentCard.getBillingAddress().getStreet());
+        assertEquals("Filthy City", paymentCard.getBillingAddress().getCity());
         assertEquals(UsState.GEORGIA, paymentCard.getBillingAddress().getUsState());
-        assertEquals("12345", paymentCard.getBillingAddress().getZipcode());
+        assertEquals("55555", paymentCard.getBillingAddress().getZipcode());
+    }
+
+    @Test
+    void submitPaymentCardForm2() {
+        // given
+        PaymentCard paymentCard = new PaymentCard();
+        given(paymentCardRepository.findById(1L)).willReturn(Optional.of(paymentCard));
+        // when
+        LocalDate expirationDate = LocalDate.of(2030, Month.JANUARY, 1);
+        PaymentCardForm paymentCardForm = new PaymentCardForm();
+        paymentCardForm.setPaymentCardId(1L);
+        paymentCardForm.setCardNumber("1234567812345678");
+        paymentCardForm.setFirstName("Johnny");
+        paymentCardForm.setLastName("Bravo");
+        paymentCardForm.setExpirationDate(expirationDate);
+        paymentCardForm.setStreet("555 Fifth St");
+        paymentCardForm.setCity("Filthy City");
+        paymentCardForm.setUsState(UsState.GEORGIA);
+        paymentCardForm.setZipcode("55555");
+        paymentCardForm.setPaymentCardType(PaymentCardType.CREDIT);
+        paymentCardService.submitPaymentCardForm(paymentCardForm);
+        // then
+        assertEquals("Johnny", paymentCard.getFirstName());
+        assertEquals("Bravo", paymentCard.getLastName());
+        assertTrue(encoderService.matches("1234567812345678", paymentCard.getCardNumber()));
+        assertEquals(expirationDate, paymentCard.getExpirationDate());
+        assertEquals("555 Fifth St", paymentCard.getBillingAddress().getStreet());
+        assertEquals("Filthy City", paymentCard.getBillingAddress().getCity());
+        assertEquals(UsState.GEORGIA, paymentCard.getBillingAddress().getUsState());
+        assertEquals("55555", paymentCard.getBillingAddress().getZipcode());
     }
 
 }

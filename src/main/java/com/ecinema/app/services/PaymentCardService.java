@@ -1,15 +1,18 @@
 package com.ecinema.app.services;
 
+import com.ecinema.app.TooManyPaymentCardsException;
 import com.ecinema.app.domain.dtos.PaymentCardDto;
 import com.ecinema.app.domain.entities.Customer;
 import com.ecinema.app.domain.entities.PaymentCard;
 import com.ecinema.app.domain.forms.PaymentCardForm;
 import com.ecinema.app.domain.validators.PaymentCardValidator;
-import com.ecinema.app.exceptions.InvalidArgsException;
+import com.ecinema.app.exceptions.InvalidArgumentException;
 import com.ecinema.app.exceptions.NoEntityFoundException;
 import com.ecinema.app.repositories.CustomerRepository;
 import com.ecinema.app.repositories.PaymentCardRepository;
 import com.ecinema.app.util.UtilMethods;
+import org.modelmapper.internal.asm.tree.ModuleExportNode;
+import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -21,13 +24,18 @@ import java.util.stream.Collectors;
 @Transactional
 public class PaymentCardService extends AbstractEntityService<PaymentCard, PaymentCardRepository, PaymentCardDto> {
 
+    public static final int MAX_PAYMENT_CARDS_PER_CUSTOMER = 5;
+
+    private final EncoderService encoderService;
     private final CustomerRepository customerRepository;
     private final PaymentCardValidator paymentCardValidator;
 
     public PaymentCardService(PaymentCardRepository repository,
+                              EncoderService encoderService,
                               CustomerRepository customerRepository,
                               PaymentCardValidator paymentCardValidator) {
         super(repository);
+        this.encoderService = encoderService;
         this.customerRepository = customerRepository;
         this.paymentCardValidator = paymentCardValidator;
     }
@@ -49,42 +57,70 @@ public class PaymentCardService extends AbstractEntityService<PaymentCard, Payme
     public PaymentCardDto convertToDto(PaymentCard paymentCard) {
         PaymentCardDto paymentCardDto = new PaymentCardDto();
         paymentCardDto.setId(paymentCard.getId());
-        paymentCardDto.setCardOwnerId(paymentCard.getCardOwner().getId());
-        paymentCardDto.setFirstName(paymentCard.getFirstName());
-        paymentCardDto.setLastName(paymentCard.getLastName());
-        paymentCardDto.setExpirationDate(
-                UtilMethods.localDateFormatted(
-                        paymentCard.getExpirationDate()));
+        paymentCardDto.setUserId(repository.findUserIdByPaymentCardWithId(
+                paymentCard.getId()).orElseThrow(
+                () -> new NoEntityFoundException("user id", "payment card id", paymentCard.getId())));
+        paymentCardDto.setToIPaymentCard(paymentCard, false);
+        paymentCardDto.setCardNumber(paymentCard.getLast4Digits());
         return paymentCardDto;
     }
 
+    public PaymentCardForm fetchAsForm(Long paymentCardId)
+            throws NoEntityFoundException {
+        PaymentCard paymentCard = repository.findById(paymentCardId).orElseThrow(
+                () -> new NoEntityFoundException("payment card", "id", paymentCardId));
+        PaymentCardForm paymentCardForm = new PaymentCardForm();
+        paymentCardForm.setToIPaymentCard(paymentCard, false);
+        return paymentCardForm;
+    }
+
     public void submitPaymentCardForm(PaymentCardForm paymentCardForm)
-            throws NoEntityFoundException, InvalidArgsException {
+            throws NoEntityFoundException, TooManyPaymentCardsException, InvalidArgumentException {
         logger.debug(UtilMethods.getLoggingSubjectDelimiterLine());
-        logger.debug("Submit payment card form");
-        Customer customer = customerRepository.findById(
-                paymentCardForm.getCustomerRoleDefId()).orElseThrow(
-                        () -> new NoEntityFoundException(
-                                "customer role def", "id", paymentCardForm.getCustomerRoleDefId()));
-        logger.debug("Found customer role def by id " + paymentCardForm.getCustomerRoleDefId());
+        logger.debug("Payment card: " + paymentCardForm);
         List<String> errors = new ArrayList<>();
         paymentCardValidator.validate(paymentCardForm, errors);
         if (!errors.isEmpty()) {
-            throw new InvalidArgsException(errors);
+            throw new InvalidArgumentException(errors);
         }
         logger.debug("Payment card form passed validation checks");
+        if (paymentCardForm.getPaymentCardId() == null) {
+            submitPaymentCardFormToAddNewPaymentCard(paymentCardForm);
+        } else {
+            submitPaymentCardFormToEditPaymentCard(paymentCardForm);
+        }
+    }
+
+    private void submitPaymentCardFormToAddNewPaymentCard(PaymentCardForm paymentCardForm) {
+        logger.debug("Submit payment card form to add new payment card");
+        Customer customer = customerRepository.findByUserWithId(paymentCardForm.getUserId()).orElseThrow(
+                () -> new NoEntityFoundException(
+                        "customer authority", "user id", paymentCardForm.getUserId()));
+        logger.debug("Found customer authority by user id " + paymentCardForm.getUserId());
+        if (customer.getPaymentCards().size() >= MAX_PAYMENT_CARDS_PER_CUSTOMER) {
+            throw new TooManyPaymentCardsException(customer.getPaymentCards().size());
+        }
         PaymentCard paymentCard = new PaymentCard();
         paymentCard.setCardOwner(customer);
         customer.getPaymentCards().add(paymentCard);
-        paymentCard.setBillingAddress(paymentCardForm.getBillingAddress());
-        paymentCard.setPaymentCardType(paymentCardForm.getPaymentCardType());
-        paymentCard.setCardNumber(paymentCardForm.getCardNumber());
-        paymentCard.setFirstName(paymentCardForm.getFirstName());
-        paymentCard.setLastName(paymentCardForm.getLastName());
-        paymentCard.setExpirationDate(paymentCardForm.getExpirationDate());
-        repository.save(paymentCard);
+        paymentCard.setToIPaymentCard(paymentCardForm, false);
+        String cardNumber = paymentCardForm.getCardNumber();
+        paymentCard.setCardNumber(encoderService.encode(cardNumber));
+        paymentCard.setLast4Digits(cardNumber.substring(cardNumber.length() - 4));
+        save(paymentCard);
         logger.debug("Instantiated and saved new payment card: " + paymentCard);
-        logger.debug("Payment card form: " + paymentCardForm);
+    }
+
+    private void submitPaymentCardFormToEditPaymentCard(PaymentCardForm paymentCardForm) {
+        PaymentCard paymentCard = repository.findById(paymentCardForm.getPaymentCardId()).orElseThrow(
+                () -> new NoEntityFoundException(
+                        "payment card", "id", paymentCardForm.getPaymentCardId()));
+        paymentCard.setToIPaymentCard(paymentCardForm, false);
+        String cardNumber = paymentCardForm.getCardNumber();
+        paymentCard.setCardNumber(encoderService.encode(cardNumber));
+        paymentCard.setLast4Digits(cardNumber.substring(cardNumber.length() - 4));
+        save(paymentCard);
+        logger.debug("Edited payment card: " + paymentCard);
     }
 
     public List<PaymentCardDto> findAllByCardCustomerWithId(Long customerId) {

@@ -6,7 +6,6 @@ import com.ecinema.app.domain.entities.*;
 import com.ecinema.app.domain.enums.*;
 import com.ecinema.app.domain.forms.ReviewForm;
 import com.ecinema.app.domain.objects.Duration;
-import com.ecinema.app.domain.validators.ShowroomValidator;
 import com.ecinema.app.repositories.*;
 import com.ecinema.app.domain.validators.MovieValidator;
 import com.ecinema.app.domain.validators.ReviewValidator;
@@ -29,19 +28,20 @@ import static org.mockito.BDDMockito.given;
 @ExtendWith(MockitoExtension.class)
 class MovieServiceTest {
 
+    private UserService userService;
     private MovieService movieService;
     private ReviewService reviewService;
     private TicketService ticketService;
-    private PaymentCardService paymentCardService;
-    private ShowroomService showroomService;
-    private ShowroomSeatService showroomSeatService;
-    private ScreeningSeatService screeningSeatService;
-    private ScreeningService screeningService;
-    private CustomerService customerService;
-    private UserService userService;
     private MovieValidator movieValidator;
+    private ShowroomService showroomService;
+    private CustomerService customerService;
     private ReviewValidator reviewValidator;
     private SecurityContext securityContext;
+    private ScreeningService screeningService;
+    private ReviewVoteService reviewVoteService;
+    private PaymentCardService paymentCardService;
+    private ShowroomSeatService showroomSeatService;
+    private ScreeningSeatService screeningSeatService;
     @Mock
     private MovieRepository movieRepository;
     @Mock
@@ -49,9 +49,11 @@ class MovieServiceTest {
     @Mock
     private TicketRepository ticketRepository;
     @Mock
-    private PaymentCardRepository paymentCardRepository;
-    @Mock
     private ShowroomRepository showroomRepository;
+    @Mock
+    private ReviewVoteRepository reviewVoteRepository;
+    @Mock
+    private PaymentCardRepository paymentCardRepository;
     @Mock
     private ShowroomSeatRepository showroomSeatRepository;
     @Mock
@@ -68,21 +70,23 @@ class MovieServiceTest {
         securityContext = new SecurityContext();
         reviewValidator = new ReviewValidator();
         movieValidator = new MovieValidator();
+        reviewVoteService = new ReviewVoteService(
+                reviewVoteRepository, reviewRepository, customerRepository);
         reviewService = new ReviewService(
                 reviewRepository, movieRepository,
-                customerRepository, reviewValidator);
+                customerRepository, reviewValidator, reviewVoteService);
         ticketService = new TicketService(ticketRepository);
-        paymentCardService = new PaymentCardService(
-                paymentCardRepository, null, null);
+        paymentCardService = new PaymentCardService(paymentCardRepository, null,
+                                                    customerRepository, null);
         screeningSeatService = new ScreeningSeatService(
                 screeningSeatRepository, ticketService);
         screeningService = new ScreeningService(
-                screeningRepository, movieRepository, null,
+                screeningRepository, movieRepository, ticketRepository,
                 showroomRepository, screeningSeatService, null);
         customerService = new CustomerService(
                 customerRepository, screeningSeatRepository,
                 null, reviewService, ticketService,
-                paymentCardService, securityContext);
+                paymentCardService, reviewVoteService, securityContext);
         movieService = new MovieService(
                 movieRepository, reviewService,
                 screeningService, movieValidator);
@@ -102,25 +106,31 @@ class MovieServiceTest {
         // given
         Movie movie = new Movie();
         movie.setId(1L);
-        movieService.save(movie);
         Customer customer = new Customer();
-        customerService.save(customer);
         Review review = new Review();
         review.setId(2L);
         review.setWriter(customer);
         customer.getReviews().add(review);
         review.setMovie(movie);
         movie.getReviews().add(review);
-        reviewService.save(review);
         Screening screening = new Screening();
         screening.setId(3L);
         screening.setMovie(movie);
         movie.getScreenings().add(screening);
-        screeningService.save(screening);
+        Customer voter = new Customer();
+        ReviewVote reviewVote = new ReviewVote();
+        reviewVote.setVoter(voter);
+        voter.getReviewVotes().add(reviewVote);
+        reviewVote.setReview(review);
+        review.getReviewVotes().add(reviewVote);
         assertTrue(customer.getReviews().contains(review));
         assertEquals(movie, review.getMovie());
         assertTrue(movie.getScreenings().contains(screening));
         assertEquals(movie, screening.getMovie());
+        assertTrue(review.getReviewVotes().contains(reviewVote));
+        assertEquals(review, reviewVote.getReview());
+        assertTrue(voter.getReviewVotes().contains(reviewVote));
+        assertEquals(voter, reviewVote.getVoter());
         // when
         movieService.delete(movie);
         // then
@@ -128,6 +138,10 @@ class MovieServiceTest {
         assertNull(review.getMovie());
         assertFalse(movie.getScreenings().contains(screening));
         assertNull(screening.getMovie());
+        assertFalse(voter.getReviewVotes().contains(reviewVote));
+        assertNull(reviewVote.getVoter());
+        assertFalse(review.getReviewVotes().contains(reviewVote));
+        assertNull(reviewVote.getReview());
     }
 
     /**
@@ -142,7 +156,7 @@ class MovieServiceTest {
         movie.setId(1L);
         movie.setTitle("title");
         movie.setSynopsis("synopsis");
-        movie.setDuration(new Duration(1, 30));
+        movie.setDuration(Duration.of(1, 30));
         movie.setReleaseDate(LocalDate.of(2022, Month.APRIL, 28));
         movie.setMsrbRating(MsrbRating.PG);
         movie.setCast(new HashSet<>() {{
@@ -225,9 +239,7 @@ class MovieServiceTest {
         assertEquals(movie.getCast(), movieDto.getCast());
         assertEquals(movie.getDirector(), movieDto.getDirector());
         assertEquals(movie.getMovieCategories(), movieDto.getMovieCategories());
-        assertEquals(movie.getReleaseDate().getDayOfMonth(), movieDto.getReleaseDay());
-        assertEquals(movie.getReleaseDate().getMonth(), movieDto.getReleaseMonth());
-        assertEquals(movie.getReleaseDate().getYear(), movieDto.getReleaseYear());
+        assertEquals(movie.getReleaseDate(), movieDto.getReleaseDate());
     }
 
     @Test

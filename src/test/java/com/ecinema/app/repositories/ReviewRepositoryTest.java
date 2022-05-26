@@ -13,6 +13,7 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -133,9 +134,67 @@ class ReviewRepositoryTest {
         customer.getReviews().add(review);
         reviewRepository.save(review);
         // when
-        boolean test = reviewRepository.existsByUserIdAndMovieId(user.getId(), movie.getId());
+        boolean test = reviewRepository.existsByUserWithIdAndMovieWithId(user.getId(), movie.getId());
         // then
         assertTrue(test);
+    }
+
+    @Test
+    void findCustomerIdByReviewWithId() {
+        // given
+        Customer customer = new Customer();
+        customerRepository.save(customer);
+        Review review = new Review();
+        review.setWriter(customer);
+        customer.getReviews().add(review);
+        reviewRepository.save(review);
+        // when
+        Optional<Long> customerIdOptional = reviewRepository.findCustomerIdByReviewWithId(review.getId());
+        // then
+        assertTrue(customerIdOptional.isPresent());
+        assertEquals(customer.getId(), customerIdOptional.get());
+    }
+
+    @Test
+    void findUserIdByReviewWithId() {
+        // given
+        User user = new User();
+        userRepository.save(user);
+        Customer customer = new Customer();
+        customer.setUser(user);
+        user.getUserAuthorities().put(UserAuthority.CUSTOMER, customer);
+        customerRepository.save(customer);
+        Review review = new Review();
+        review.setWriter(customer);
+        customer.getReviews().add(review);
+        reviewRepository.save(review);
+        // when
+        Optional<Long> userIdOptional = reviewRepository.findUserIdByReviewWithId(review.getId());
+        // then
+        assertTrue(userIdOptional.isPresent());
+        assertEquals(user.getId(), userIdOptional.get());
+    }
+
+    @Test
+    void findUsernameOfWriterByReviewWithId() {
+        // given
+        User user = new User();
+        user.setUsername("TestUser123");
+        userRepository.save(user);
+        Customer customer = new Customer();
+        customer.setUser(user);
+        user.getUserAuthorities().put(UserAuthority.CUSTOMER, customer);
+        customerRepository.save(customer);
+        Review review = new Review();
+        review.setWriter(customer);
+        customer.getReviews().add(review);
+        reviewRepository.save(review);
+        // when
+        Optional<String> usernameOptional = reviewRepository
+                .findUsernameOfWriterForReviewWithId(review.getId());
+        // then
+        assertTrue(usernameOptional.isPresent());
+        assertEquals(user.getUsername(), usernameOptional.get());
     }
 
 }

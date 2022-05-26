@@ -9,9 +9,6 @@ import javax.persistence.*;
 import java.util.HashSet;
 import java.util.Set;
 
-/**
- * The type Moderator role def.
- */
 @Getter
 @Setter
 @Entity
@@ -23,7 +20,7 @@ public class Moderator extends AbstractUserAuthority {
     private Set<Customer> censoredCustomers = new HashSet<>();
 
     @Override
-    protected UserAuthority defineUserRole() {
+    protected final UserAuthority defineUserRole() {
         return UserAuthority.MODERATOR;
     }
 

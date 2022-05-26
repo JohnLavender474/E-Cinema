@@ -111,7 +111,7 @@ class MovieInfoControllerTest {
         given(movieService.findByTitle("dune")).willReturn(movieDto);
         PageRequest pageRequest = PageRequest.of(0, 6);
         Page<ReviewDto> pageOfDtos = new PageImpl<>(new ArrayList<>());
-        given(reviewService.findPageByMovieId(movieDto.getId(), pageRequest))
+        given(reviewService.findPageByMovieIdAndNotCensored(movieDto.getId(), pageRequest))
                 .willReturn(pageOfDtos);
         mockMvc.perform(get("/movie-reviews/" + movieDto.getId()))
                .andDo(print())

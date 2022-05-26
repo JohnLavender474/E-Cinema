@@ -2,7 +2,6 @@ package com.ecinema.app.repositories;
 
 import com.ecinema.app.domain.entities.User;
 import com.ecinema.app.util.UtilMethods;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
@@ -22,16 +21,7 @@ class UserRepositoryTest {
     @Autowired
     private UserRepository userRepository;
 
-    private final Random rand;
-
-    UserRepositoryTest() {
-        rand = new Random(System.currentTimeMillis());
-    }
-
-    @AfterEach
-    void tearDown() {
-        userRepository.deleteAll();
-    }
+    private final Random rand = new Random();
 
     @Test
     void existsByEmail() {
@@ -133,7 +123,8 @@ class UserRepositoryTest {
                 .stream().filter(User::isAccountNonLocked)
                 .collect(Collectors.toList());
         // then
-        assertEquals(unlockedUsers, userRepository.findAllByIsAccountLocked(false));
+        assertEquals(unlockedUsers,
+                     userRepository.findAllByIsAccountLocked(false));
     }
 
     @Test
@@ -148,11 +139,12 @@ class UserRepositoryTest {
         }
         LocalDateTime randomLDT = UtilMethods.randomDateTime();
         // when
-        List<User> usersBefore = users.stream()
-                .filter(user -> user.getCreationDateTime().isBefore(randomLDT))
-                .collect(Collectors.toList());
+        List<User> usersBefore = users.stream().filter(
+                user -> user.getCreationDateTime().isBefore(randomLDT))
+                                      .collect(Collectors.toList());
         // then
-        assertEquals(usersBefore, userRepository.findAllByCreationDateTimeBefore(randomLDT));
+        assertEquals(usersBefore,
+                     userRepository.findAllByCreationDateTimeBefore(randomLDT));
     }
 
     @Test
@@ -167,11 +159,12 @@ class UserRepositoryTest {
         }
         LocalDateTime randomLDT = UtilMethods.randomDateTime();
         // when
-        List<User> usersBefore = users.stream()
-                                      .filter(user -> user.getCreationDateTime().isAfter(randomLDT))
+        List<User> usersBefore = users.stream().filter(
+                user -> user.getCreationDateTime().isAfter(randomLDT))
                                       .collect(Collectors.toList());
         // then
-        assertEquals(usersBefore, userRepository.findAllByCreationDateTimeAfter(randomLDT));
+        assertEquals(usersBefore,
+                     userRepository.findAllByCreationDateTimeAfter(randomLDT));
     }
 
     @Test
@@ -186,11 +179,12 @@ class UserRepositoryTest {
         }
         LocalDateTime randomLDT = UtilMethods.randomDateTime();
         // when
-        List<User> usersBefore = users.stream()
-                                      .filter(user -> user.getLastActivityDateTime().isBefore(randomLDT))
+        List<User> usersBefore = users.stream().filter(
+                user -> user.getLastActivityDateTime().isBefore(randomLDT))
                                       .collect(Collectors.toList());
         // then
-        assertEquals(usersBefore, userRepository.findAllByLastActivityDateTimeBefore(randomLDT));
+        assertEquals(usersBefore,
+                     userRepository.findAllByLastActivityDateTimeBefore(randomLDT));
 
     }
 
@@ -206,11 +200,12 @@ class UserRepositoryTest {
         }
         LocalDateTime randomLDT = UtilMethods.randomDateTime();
         // when
-        List<User> usersBefore = users.stream()
-                                      .filter(user -> user.getLastActivityDateTime().isAfter(randomLDT))
+        List<User> usersBefore = users.stream().filter(
+                user -> user.getLastActivityDateTime().isAfter(randomLDT))
                                       .collect(Collectors.toList());
         // then
-        assertEquals(usersBefore, userRepository.findAllByLastActivityDateTimeAfter(randomLDT));
+        assertEquals(usersBefore,
+                     userRepository.findAllByLastActivityDateTimeAfter(randomLDT));
     }
 
     @Test
@@ -221,15 +216,15 @@ class UserRepositoryTest {
         user.setEmail("username@test.com");
         User savedUser = userRepository.save(user);
         // when
-        Long id1 = userRepository.findIdByUsernameOrEmail("username");
-        Long id2 = userRepository.findIdByUsernameOrEmail("username@test.com");
-        Long id3 = userRepository.findIdByUsernameOrEmail("wrong");
+        Optional<Long> id2 = userRepository.findIdByUsernameOrEmail("username@test.com");
+        Optional<Long> id1 = userRepository.findIdByUsernameOrEmail("username");
+        Optional<Long> id3 = userRepository.findIdByUsernameOrEmail("FAIL");
         // then
-        assertNotNull(id1);
-        assertNotNull(id2);
-        assertNull(id3);
-        assertEquals(savedUser.getId(), id1);
-        assertEquals(savedUser.getId(), id2);
+        assertTrue(id1.isPresent());
+        assertTrue(id2.isPresent());
+        assertTrue(id3.isEmpty());
+        assertEquals(savedUser.getId(), id1.get());
+        assertEquals(savedUser.getId(), id2.get());
     }
 
 }

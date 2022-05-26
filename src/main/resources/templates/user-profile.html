@@ -4,7 +4,10 @@
 <body>
 <nav th:insert="fragments/webpage-top :: webpage-top"></nav>
 <div class="container" th:if="${user != null}">
+    <div th:insert="fragments/errors :: errors"></div>
+    <br/>
     <div th:insert="fragments/success :: success"></div>
+    <br/>
     <h1 class="bold-white-text center-text">Profile</h1>
     <br/>
     <table class="table table-bordered table-striped">
@@ -35,11 +38,14 @@
         </tr>
         </tbody>
     </table>
-    <label class="center">
-        <form method="get" th:action="@{/edit-user-profile}">
-            <button class="btn btn-primary">Edit Profile</button>
-        </form>
-    </label>
+    <br/>
+    <div>
+        <label>
+            <form method="get" th:action="@{/edit-user-profile}">
+                <button class="btn btn-primary">Edit Profile</button>
+            </form>
+        </label>
+    </div>
 </div>
 </body>
 </html>

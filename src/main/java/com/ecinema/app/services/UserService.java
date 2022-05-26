@@ -10,7 +10,7 @@ import com.ecinema.app.domain.forms.UserProfileForm;
 import com.ecinema.app.domain.validators.RegistrationValidator;
 import com.ecinema.app.domain.validators.UserProfileValidator;
 import com.ecinema.app.exceptions.ClashException;
-import com.ecinema.app.exceptions.InvalidArgsException;
+import com.ecinema.app.exceptions.InvalidArgumentException;
 import com.ecinema.app.exceptions.NoEntityFoundException;
 import com.ecinema.app.repositories.UserAuthorityRepository;
 import com.ecinema.app.repositories.UserRepository;
@@ -105,16 +105,16 @@ public class UserService extends AbstractEntityService<User, UserRepository, Use
      *
      * @param userProfileForm the profile form
      * @throws NoEntityFoundException the no entity found exception
-     * @throws InvalidArgsException   the invalid args exception
+     * @throws InvalidArgumentException   the invalid args exception
      */
     public void editUserProfile(UserProfileForm userProfileForm)
-            throws NoEntityFoundException, InvalidArgsException {
+            throws NoEntityFoundException, InvalidArgumentException {
         User user = repository.findById(userProfileForm.getUserId()).orElseThrow(
                 () -> new NoEntityFoundException("user", "id", userProfileForm.getUserId()));
         List<String> errors = new ArrayList<>();
         userProfileValidator.validate(userProfileForm, errors);
         if (!errors.isEmpty()) {
-            throw new InvalidArgsException(errors);
+            throw new InvalidArgumentException(errors);
         }
         user.setFirstName(userProfileForm.getFirstName());
         user.setLastName(userProfileForm.getLastName());
@@ -140,13 +140,13 @@ public class UserService extends AbstractEntityService<User, UserRepository, Use
 
     public UserDto register(IRegistration registration, boolean passwordEncoded,
                             boolean securityAnswer1Encoded, boolean securityAnswer2Encoded)
-            throws InvalidArgsException, ClashException {
+            throws InvalidArgumentException, ClashException {
         logger.debug(UtilMethods.getLoggingSubjectDelimiterLine());
         logger.debug("User registration");
         List<String> errors = new ArrayList<>();
         registrationValidator.validate(registration, errors);
         if (!errors.isEmpty()) {
-            throw new InvalidArgsException(errors);
+            throw new InvalidArgumentException(errors);
         }
         if (existsByEmail(registration.getEmail())) {
             throw new ClashException("User with email " + registration.getEmail() + " already exists");
@@ -226,10 +226,10 @@ public class UserService extends AbstractEntityService<User, UserRepository, Use
     }
 
     public <T extends AbstractUserAuthority> Optional<T> getUserAuthorityOf(Long userId, Class<T> userAuthorityClass)
-            throws InvalidArgsException, NoEntityFoundException {
+            throws InvalidArgumentException, NoEntityFoundException {
         UserAuthority userAuthority = UserAuthority.defClassToUserRole(userAuthorityClass);
         if (userAuthority == null) {
-            throw new InvalidArgsException("The provided class " + userAuthorityClass.getName() +
+            throw new InvalidArgumentException("The provided class " + userAuthorityClass.getName() +
                                                    " is not mapped to a user role value");
         }
         User user = repository.findById(userId).orElseThrow(
@@ -238,7 +238,7 @@ public class UserService extends AbstractEntityService<User, UserRepository, Use
         return Optional.ofNullable(userAuthorityClass.cast(userAuthorityDef));
     }
 
-    public Long findIdByUsernameOrEmail(String s) {
+    public Optional<Long> findIdByUsernameOrEmail(String s) {
         return repository.findIdByUsernameOrEmail(s);
     }
 
@@ -297,7 +297,7 @@ public class UserService extends AbstractEntityService<User, UserRepository, Use
     }
 
     protected void addUserAuthorityToUser(User user, Set<UserAuthority> userAuthorities)
-            throws NoEntityFoundException, InvalidArgsException, ClashException {
+            throws NoEntityFoundException, InvalidArgumentException, ClashException {
         logger.debug("Adding "+ userAuthorities + " authorities to user " + user);
         List<UserAuthority> authoritiesAlreadyInstantiated = UtilMethods.findAllKeysThatMapContainsIfAny(
                 user.getUserAuthorities(), userAuthorities);
@@ -336,34 +336,34 @@ public class UserService extends AbstractEntityService<User, UserRepository, Use
     }
 
     public void addUserAuthorityToUser(Long userId, UserAuthority... userAuthorities)
-            throws NoEntityFoundException, InvalidArgsException, ClashException {
+            throws NoEntityFoundException, InvalidArgumentException, ClashException {
         addUserAuthorityToUser(userId, Set.of(userAuthorities));
     }
 
     public void addUserAuthorityToUser(Long userId, Set<UserAuthority> userAuthorities)
-            throws NoEntityFoundException, InvalidArgsException, ClashException {
+            throws NoEntityFoundException, InvalidArgumentException, ClashException {
         User user = repository.findById(userId).orElseThrow(
                 () -> new NoEntityFoundException("user", "id", userId));
         addUserAuthorityToUser(user, userAuthorities);
     }
 
     public void removeUserAuthorityFromUser(User user, UserAuthority... userAuthorities)
-            throws NoEntityFoundException, InvalidArgsException {
+            throws NoEntityFoundException, InvalidArgumentException {
         removeUserAuthorityFromUser(user.getId(), userAuthorities);
     }
 
     public void removeUserAuthorityFromUser(User user, Set<UserAuthority> userAuthorities)
-            throws NoEntityFoundException, InvalidArgsException {
+            throws NoEntityFoundException, InvalidArgumentException {
         removeUserAuthorityFromUser(user.getId(), userAuthorities);
     }
 
     public void removeUserAuthorityFromUser(Long userId, UserAuthority... userAuthorities)
-            throws NoEntityFoundException, InvalidArgsException {
+            throws NoEntityFoundException, InvalidArgumentException {
         removeUserAuthorityFromUser(userId, Set.of(userAuthorities));
     }
 
     public void removeUserAuthorityFromUser(Long userId, Set<UserAuthority> userAuthorities)
-            throws NoEntityFoundException, InvalidArgsException {
+            throws NoEntityFoundException, InvalidArgumentException {
         User user = repository.findById(userId).orElseThrow(
                 () -> new NoEntityFoundException("User", "id", userId));
         for (UserAuthority userAuthority : userAuthorities) {
@@ -376,7 +376,7 @@ public class UserService extends AbstractEntityService<User, UserRepository, Use
     }
 
     public void requestPasswordChange(IPassword iPassword)
-            throws InvalidArgsException {
+            throws InvalidArgumentException {
 
 
     }

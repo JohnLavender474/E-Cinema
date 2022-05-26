@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:insert="fragments/header :: header"></head>
+<body>
+<nav th:insert="fragments/webpage-top :: webpage-top"></nav>
+<div class="container">
+    <div th:insert="fragments/errors :: errors"></div>
+    <br/>
+    <table class="table table-bordered table-striped">
+        <tr>
+            <th>Movie</th>
+            <th>Showroom</th>
+            <th>Showtime</th>
+            <th>Endtime</th>
+            <th>Seat</th>
+            <th>Type</th>
+            <th>Status</th>
+            <th>Time of Purchase</th>
+            <th>Refundable</th>
+            <th>Actions</th>
+        </tr>
+        <tr>
+            <td th:text="${ticket.movieTitle}"></td>
+            <td th:text="${ticket.showroomLetter}"></td>
+            <td th:text="${ticket.showtime}"></td>
+            <td th:text="${ticket.endtime}"></td>
+            <td th:text="${ticket.seatDesignation}"></td>
+            <td th:text="${ticket.ticketType} + ' - $' + ${ticket.ticketType.price}"></td>
+            <td th:text="${ticket.ticketStatus}"></td>
+            <td th:text="${ticket.creationDateTime}"></td>
+            <td th:text="${ticket.isRefundable}"></td>
+        </tr>
+    </table>
+    <br/>
+    <div th:if="${ticket.isRefundable}">
+        <span>You're in luck! Your ticket qualifies for an immediate refund!</span>
+        <br/>
+        <span>Just click the button below to finalize the refund process!</span>
+        <br/>
+        <form method="post" th:action="@{/refund-ticket/{id}(id=${ticket.id})}">
+            <button class="btn btn-success">Refund Ticket</button>
+        </form>
+    </div>
+    <div th:unless="${ticket.isRefundable}">
+        <span>Looks like the showtime for your ticket is within the next three days.</span>
+        <br/>
+        <span>Therefore, your ticket does not qualify for a refund by default.</span>
+        <br/>
+        <span>However, you may still request a refund.</span>
+        <br/>
+        <span>Please give your reason for wanting to refund your ticket.</span>
+        <br/>
+        <span>An administrator will hear you out and let you know if your ticket can be refunded.</span>
+        <br/>
+        <form method="post" th:action="@{/request-refund-ticket/{id}(id=${ticket.id})}">
+
+        </form>
+    </div>
+</div>
+
+</body>
+</html>

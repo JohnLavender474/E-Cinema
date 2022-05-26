@@ -7,6 +7,7 @@ import com.ecinema.app.domain.enums.UsState;
 import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
+import org.springframework.format.annotation.DateTimeFormat;
 
 import java.io.Serializable;
 import java.time.LocalDate;
@@ -15,28 +16,18 @@ import java.time.Month;
 @Data
 public class PaymentCardForm implements IPaymentCard, Serializable {
 
-    private Long customerRoleDefId = 0L;
-    private PaymentCardType paymentCardType = PaymentCardType.CREDIT;
-    private String cardNumber = "1234123412341234";
+    private Long userId = null;
+    private Long paymentCardId = null;
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
+    private LocalDate expirationDate = LocalDate.now();
+    private String cardNumber = "";
     private String firstName = "John";
     private String lastName = "Doe";
-    private Month expirationMonth = Month.JANUARY;
-    private Integer expirationYear = 2020;
     private String street = "Street";
     private String city = "City";
-    private UsState usState = UsState.GEORGIA;
     private String zipcode = "12345";
-
-    @Override
-    public LocalDate getExpirationDate() {
-        return LocalDate.of(expirationYear, expirationMonth, 1);
-    }
-
-    @Override
-    public void setExpirationDate(LocalDate expirationDate) {
-        setExpirationYear(expirationDate.getYear());
-        setExpirationMonth(expirationDate.getMonth());
-    }
+    private UsState usState = UsState.GEORGIA;
+    private PaymentCardType paymentCardType = PaymentCardType.CREDIT;
 
     @Override
     public IAddress getBillingAddress() {

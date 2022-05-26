@@ -1,21 +1,16 @@
 package com.ecinema.app.domain.entities;
 
 import com.ecinema.app.domain.contracts.IReview;
+import com.ecinema.app.domain.enums.Vote;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
+import java.util.HashSet;
+import java.util.Set;
 
-/**
- * {@inheritDoc}
- * This class represents a review that a user has written and posted for a particular {@link Movie}.
- * This class is mapped to {@link #writer} which owns this instance. {@link User} instances
- * with a customer role def are allowed to write and post reviews and post a single like or dislike
- * for any other review instance. A review can optionally be censored by a {@link Moderator}
- * which means that the review has been removed from public viewing until the moderator unlocks it.
- */
 @Getter
 @Setter
 @Entity
@@ -43,5 +38,9 @@ public class Review extends AbstractEntity implements IReview {
     @ToString.Exclude
     @ManyToOne(fetch = FetchType.LAZY)
     private Customer writer;
+
+    @ToString.Exclude
+    @OneToMany(mappedBy = "review", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private Set<ReviewVote> reviewVotes = new HashSet<>();
 
 }

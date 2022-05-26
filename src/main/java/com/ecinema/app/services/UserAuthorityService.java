@@ -11,11 +11,23 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
 
+/**
+ * Service class for entities extending {@link AbstractUserAuthority}.
+ *
+ * @param <E> the Entity type parameter
+ * @param <R> the JpaRepository type parameter
+ * @param <D> the {@link com.ecinema.app.domain.contracts.AbstractDto} type parameter
+ */
 @ToString
 @Transactional
 public abstract class UserAuthorityService<E extends AbstractUserAuthority, R extends UserAuthorityRepository<E>,
         D extends UserAuthorityDto> extends AbstractEntityService<E, R, D> {
 
+    /**
+     * Instantiates a new User authority service.
+     *
+     * @param repository the repository
+     */
     public UserAuthorityService(R repository) {
         super(repository);
     }
@@ -31,13 +43,25 @@ public abstract class UserAuthorityService<E extends AbstractUserAuthority, R ex
         logger.debug("After detach user authority from user: " + user);
     }
 
-    public void fillCommonUserAuthorityDtoFields(E userAuthority, D dto) {
+    /**
+     * Fill common user authority dto fields of {@link D}.
+     *
+     * @param userAuthority the user authority
+     * @param dto           the dto
+     */
+    protected void fillCommonUserAuthorityDtoFields(E userAuthority, D dto) {
         dto.setId(userAuthority.getId());
         dto.setUserId(userAuthority.getUser().getId());
         dto.setEmail(userAuthority.getUser().getEmail());
         dto.setUsername(userAuthority.getUser().getUsername());
     }
 
+    /**
+     * Find optional {@link E} by {@link User#getId()} from {@link E#getUser()}.
+     *
+     * @param userId the user id
+     * @return the optional E
+     */
     public Optional<D> findByUserWithId(Long userId) {
         logger.debug(UtilMethods.getLoggingSubjectDelimiterLine());
         logger.debug("Find by user with id: " + userId);
@@ -49,10 +73,29 @@ public abstract class UserAuthorityService<E extends AbstractUserAuthority, R ex
         return Optional.of(convertToDto(authority));
     }
 
+    /**
+     * Find {@link E#getId()} of the {@link E} where {@link User#getId()} from {@link E#getUser()} equals the
+     * provided Long user id argument.
+     *
+     * @param userId the user id
+     * @return the User Authority id
+     * @throws NoEntityFoundException thrown if no E matches the predicate
+     */
     public Long findIdByUserWithId(Long userId)
             throws NoEntityFoundException {
         return repository.findIdByUserWithId(userId).orElseThrow(
                 () -> new NoEntityFoundException("user authority id", "user id", userId));
+    }
+
+    /**
+     * Return if a {@link E} exists where {@link User#getId()} from {@link E#getUser()} equals the provided Long
+     * user id argument.
+     *
+     * @param userId the user id
+     * @return true if a {@link E} matches the predicate
+     */
+    public boolean existsByUserWithId(Long userId) {
+        return repository.existsByUserWithId(userId);
     }
 
 }

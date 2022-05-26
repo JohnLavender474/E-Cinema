@@ -11,14 +11,11 @@ import lombok.ToString;
 
 import javax.persistence.*;
 import java.time.LocalDate;
-import java.time.Month;
+import java.util.Collection;
 import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.Set;
 
-/**
- * The type Movie.
- */
 @Getter
 @Setter
 @Entity
@@ -73,28 +70,21 @@ public class Movie extends AbstractEntity implements IMovie {
     private Set<Screening> screenings = new HashSet<>();
 
     @Override
-    public Integer getHours() {
-        return duration.getHours();
+    public void setCast(Collection<String> cast) {
+        this.cast.clear();
+        this.cast.addAll(cast);
     }
 
     @Override
-    public Integer getMinutes() {
-        return duration.getMinutes();
+    public void setWriters(Collection<String> writers) {
+        this.writers.clear();
+        this.writers.addAll(writers);
     }
 
     @Override
-    public Integer getReleaseYear() {
-        return releaseDate.getYear();
-    }
-
-    @Override
-    public Integer getReleaseDay() {
-        return releaseDate.getDayOfMonth();
-    }
-
-    @Override
-    public Month getReleaseMonth() {
-        return releaseDate.getMonth();
+    public void setMovieCategories(Collection<MovieCategory> movieCategories) {
+        this.movieCategories.clear();
+        this.movieCategories.addAll(movieCategories);
     }
 
 }

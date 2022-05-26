@@ -7,26 +7,36 @@
     <form method="get" th:action="@{/movies}">
         <button class="btn btn-outline-primary">Go Back to Movies page</button>
     </form>
-    <div class="row">
-        <h1 th:text="${movie.title}"></h1>
-    </div>
-    <div class="row">
-        <img th:src="${movie.image}" width="400" height="500" src="" alt="">
-        <br/>
-        <iframe width="960" height="540" th:src="${movie.trailer}"></iframe>
-    </div>
     <br/>
-    <form method="get" th:action="@{/movie-screenings/{id}(id=${movie.id})}">
-        <button class="button" style="font-size: xx-large">Screenings</button>
-    </form>
-    &nbsp;
-    &nbsp;
-    &nbsp;
-    <form method="get" th:action="@{/movie-reviews/{id}(id=${movie.id})}">
-        <button class="button" style="font-size: xx-large">Reviews</button>
-    </form>
+    <h1 th:text="${movie.title}"></h1>
     <br/>
-    <table th:if="${avgRating >= 1}" style="border: red dot-dot-dash 1px">
+    <table class="table table-bordered table-striped">
+        <tr>
+            <td>
+                <img th:src="${movie.image}" width="300" height="400" src="" alt="">
+            </td>
+            <td>
+                <iframe width="400" height="300" th:src="${movie.trailer}"></iframe>
+            </td>
+        </tr>
+    </table>
+    <br/>
+    <table class="table table-bordered table-striped">
+        <tr>
+            <td>
+                <form method="get" th:action="@{/movie-screenings/{id}(id=${movie.id})}">
+                    <button class="button" style="font-size: xx-large">Screenings</button>
+                </form>
+            </td>
+            <td>
+                <form method="get" th:action="@{/movie-reviews/{id}(id=${movie.id})}">
+                    <button class="button" style="font-size: xx-large">Reviews</button>
+                </form>
+            </td>
+        </tr>
+    </table>
+    <br/>
+    <table th:if="${avgRating >= 1}" class="table table-bordered table-striped">
         <tbody>
         <tr>
             <td>
@@ -58,7 +68,10 @@
         </tr>
         <tr>
             <td class="boldtext">Release Date</td>
-            <td th:text="${movie.releaseMonth} + '-' + ${movie.releaseDay} + '-' + ${movie.releaseYear}"></td>
+            <td th:text="${movie.releaseDate.getMonth()} + '-' +
+                         ${movie.releaseDate.getDayOfMonth()} + '-' +
+                         ${movie.releaseDate.getYear()}">
+            </td>
         </tr>
         <tr>
             <td class="boldtext">MSRB Rating</td>

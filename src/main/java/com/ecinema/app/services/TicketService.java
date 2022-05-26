@@ -11,6 +11,7 @@ import com.ecinema.app.repositories.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -47,31 +48,38 @@ public class TicketService extends AbstractEntityService<Ticket, TicketRepositor
             throws NoFieldFoundException {
         logger.debug("Convert ticket to DTO");
         logger.debug("Ticket: " + ticket);
+        TicketDto ticketDto = new TicketDto();
         String username = findUsernameOfTicketUserOwner(ticket.getId())
                 .orElseThrow(() -> new NoFieldFoundException("username", "ticket"));
+        ticketDto.setUsername(username);
         String movieTitle = findMovieTitleAssociatedWithTicket(ticket.getId())
                 .orElseThrow(() -> new NoFieldFoundException("movie title", "ticket"));
+        ticketDto.setMovieTitle(movieTitle);
         Letter showroomLetter = findShowroomLetterAssociatedWithTicket(ticket.getId())
                 .orElseThrow(() -> new NoFieldFoundException("showroom letter", "ticket"));
+        ticketDto.setShowroomLetter(showroomLetter);
         LocalDateTime showtime = findShowtimeOfScreeningAssociatedWithTicket(ticket.getId())
                 .orElseThrow(() -> new NoFieldFoundException("showtime", "ticket"));
+        ticketDto.setShowtime(showtime);
+        boolean refundable = Duration.between(LocalDateTime.now(), showtime)
+                                     .compareTo(Duration.ofDays(3)) > 0;
+        ticketDto.setIsRefundable(refundable);
         LocalDateTime endtime = findEndtimeOfScreeningAssociatedWithTicket(ticket.getId())
                 .orElseThrow(() -> new NoFieldFoundException("endtime", "ticket"));
+        ticketDto.setEndtime(endtime);
         SeatDesignation seatDesignation = findSeatDesignationOfTicket(ticket.getId())
                 .orElseThrow(() -> new NoFieldFoundException("seat designation", "ticket"));
-        TicketDto ticketDto = new TicketDto();
-        ticketDto.setUsername(username);
-        ticketDto.setShowtime(showtime);
-        ticketDto.setEndtime(endtime);
-        ticketDto.setMovieTitle(movieTitle);
-        ticketDto.setShowroomLetter(showroomLetter);
+        ticketDto.setSeatDesignation(seatDesignation);
         ticketDto.setTicketType(ticket.getTicketType());
         ticketDto.setTicketStatus(ticket.getTicketStatus());
-        ticketDto.setRowLetter(seatDesignation.getRowLetter());
-        ticketDto.setSeatNumber(seatDesignation.getSeatNumber());
         ticketDto.setCreationDateTime(ticket.getCreationDateTime());
         logger.debug("Ticket DTO: " + ticketDto);
         return ticketDto;
+    }
+
+    public void requestRefund(Long ticketId)
+            throws NoEntityFoundException {
+
     }
 
     public Optional<String> findUsernameOfTicketUserOwner(Long ticketId) {
@@ -100,6 +108,10 @@ public class TicketService extends AbstractEntityService<Ticket, TicketRepositor
                 .findShowroomSeatAssociatedWithTicket(ticketId).orElse(null);
         return showroomSeat != null ? Optional.of(new SeatDesignation(
                 showroomSeat.getRowLetter(), showroomSeat.getSeatNumber())) : Optional.empty();
+    }
+
+    public List<TicketDto> findAllByUserWithId(Long userId) {
+        return convertToDto(repository.findAllByUserWithId(userId));
     }
 
     public List<TicketDto> findAllByCreationDateTimeLessThanEqual(LocalDateTime localDateTime) {

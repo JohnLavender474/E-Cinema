@@ -3,7 +3,7 @@ package com.ecinema.app.controllers;
 import com.ecinema.app.beans.SecurityContext;
 import com.ecinema.app.domain.dtos.UserDto;
 import com.ecinema.app.domain.forms.UserProfileForm;
-import com.ecinema.app.exceptions.InvalidArgsException;
+import com.ecinema.app.exceptions.InvalidArgumentException;
 import com.ecinema.app.exceptions.NoEntityFoundException;
 import com.ecinema.app.services.UserService;
 import com.ecinema.app.util.UtilMethods;
@@ -69,7 +69,7 @@ public class UserProfileController {
             redirectAttributes.addFlashAttribute("success", "Successfully edited profile");
             logger.debug("Successfully edited profile");
             return "redirect:/user-profile";
-        } catch (InvalidArgsException e) {
+        } catch (InvalidArgumentException e) {
             redirectAttributes.addFlashAttribute("errors", e.getErrors());
             logger.debug("Errors: " + e.getErrors());
             logger.debug("Redirect to edit user profile page");

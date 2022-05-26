@@ -20,7 +20,10 @@
         &nbsp;
         <div class="dropdown show">
             <a class="btn btn-outline-success dropdown-toggle" data-toggle="dropdown"
-               aria-haspopup="true" aria-expanded="false">Account</a>
+               aria-haspopup="true" aria-expanded="false">
+                <span th:if="${user == null}">Login/Register</span>
+                <span th:unless="${user == null}" th:text="${user.username}"></span>
+            </a>
             <div class="dropdown-menu">
                 <table class="table table-bordered table-striped">
                     <tr th:each="option:${dropdownMenu}">

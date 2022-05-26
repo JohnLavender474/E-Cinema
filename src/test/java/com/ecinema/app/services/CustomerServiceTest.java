@@ -31,6 +31,7 @@ class CustomerServiceTest {
     private TicketService ticketService;
     private ReviewService reviewService;
     private CustomerService customerService;
+    private ReviewVoteService reviewVoteService;
     private PaymentCardService paymentCardService;
     @Mock
     private EmailService emailService;
@@ -43,6 +44,8 @@ class CustomerServiceTest {
     @Mock
     private CustomerRepository customerRepository;
     @Mock
+    private ReviewVoteRepository reviewVoteRepository;
+    @Mock
     private PaymentCardRepository paymentCardRepository;
     @Mock
     private ScreeningSeatRepository screeningSeatRepository;
@@ -53,15 +56,17 @@ class CustomerServiceTest {
     @BeforeEach
     void setUp() {
         ticketService = new TicketService(ticketRepository);
+        reviewVoteService = new ReviewVoteService(
+                reviewVoteRepository, reviewRepository, customerRepository);
         reviewService = new ReviewService(
                 reviewRepository, null,
-                customerRepository, null);
-        paymentCardService = new PaymentCardService(
-                paymentCardRepository, customerRepository, null);
+                customerRepository, null, reviewVoteService);
+        paymentCardService = new PaymentCardService(paymentCardRepository, null,
+                                                    customerRepository, null);
         customerService = new CustomerService(
                 customerRepository, screeningSeatRepository,
                 emailService, reviewService, ticketService,
-                paymentCardService, securityContext);
+                paymentCardService, reviewVoteService, securityContext);
     }
 
     @Test

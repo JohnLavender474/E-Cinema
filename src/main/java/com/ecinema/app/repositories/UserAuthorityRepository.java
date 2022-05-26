@@ -43,4 +43,15 @@ public interface UserAuthorityRepository<T extends AbstractUserAuthority> extend
     @Query("SELECT u.id FROM #{#entityName} u WHERE u.user.id = ?1")
     Optional<Long> findIdByUserWithId(Long userId);
 
+    /**
+     * Returns if a {@link AbstractUserAuthority} exists where {@link User#getId()} from
+     * {@link AbstractUserAuthority#getUser()} equals the provided Long user id argument.
+     *
+     * @param userId the user id
+     * @return if a User Authority exists matching the predicate
+     */
+    @Query("SELECT CASE WHEN count(u) > 0 THEN true ELSE false END " +
+            "FROM #{#entityName} u WHERE u.user.id = ?1")
+    boolean existsByUserWithId(Long userId);
+
 }

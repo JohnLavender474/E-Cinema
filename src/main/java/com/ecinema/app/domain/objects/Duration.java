@@ -2,6 +2,7 @@ package com.ecinema.app.domain.objects;
 
 import com.ecinema.app.exceptions.InvalidDurationException;
 import com.ecinema.app.util.UtilMethods;
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -11,23 +12,51 @@ import java.io.Serializable;
  * Represents time duration in hours and minutes.
  */
 @Getter
-@NoArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class Duration implements Comparable<Duration>, Serializable {
 
     private Integer hours;
     private Integer minutes;
 
-    /**
-     * Instantiates a new Duration with {@link #hours} equal to hours and {@link #minutes} equal to minutes.
-     *
-     * @param hours   the hours to assign to this.hours.
-     * @param minutes the minutes to assign to this.minutes.
-     * @throws InvalidDurationException thrown if the value of hours or minutes is less than zero.
-     */
-    public Duration(Integer hours, Integer minutes)
+    private Duration(Integer hours, Integer minutes)
             throws InvalidDurationException {
         setHours(hours);
         setMinutes(minutes);
+    }
+
+    /**
+     * Returns a new Duration with {@link #hours} and {@link #minutes} set to zero.
+     *
+     * @return the new Duration
+     */
+    public static Duration zero() {
+        return Duration.of(0, 0);
+    }
+
+    /**
+     * Returns a new Duration with {@link #hours} and {@link #minutes} set to the provided args.
+     *
+     * @param hours   the hours
+     * @param minutes the minutes
+     * @return the new Duration
+     * @throws InvalidDurationException if either of the provided integer args are less than zero
+     */
+    public static Duration of(Integer hours, Integer minutes)
+            throws InvalidDurationException {
+        Duration duration = new Duration();
+        duration.set(hours, minutes);
+        return duration;
+    }
+
+    /**
+     * Return a new Duration with {@link #hours} and {@link #minutes} values set to those
+     * of the provided Duration.
+     *
+     * @param duration the Duration whose values are to be copied into the return Duration
+     * @return new Duration with values equal to those of the provided Duration
+     */
+    public static Duration of(Duration duration) {
+        return of(duration.getHours(), duration.getMinutes());
     }
 
     /**
@@ -49,6 +78,12 @@ public class Duration implements Comparable<Duration>, Serializable {
         return new Duration(hours, minutes);
     }
 
+    /**
+     * Returns a {@link Duration} with a random value of {@link #hours} between 0 and 4,
+     * and a random value of {@link #minutes} between 0 and 59.
+     *
+     * @return new {@link Duration} instance.
+     */
     public static Duration randomDuration() {
         int hours = UtilMethods.randomIntBetween(0, 4);
         int minutes = UtilMethods.randomIntBetween(0, 59);
@@ -56,9 +91,9 @@ public class Duration implements Comparable<Duration>, Serializable {
     }
 
     /**
-     * Sets hours.
+     * Sets the value of hours.
      *
-     * @param hours the hours to assign to this.hours.
+     * @param hours the hours to assign to {@link #hours}.
      * @throws InvalidDurationException thrown if the value of hours is less than zero.
      */
     public void setHours(Integer hours)
@@ -77,7 +112,7 @@ public class Duration implements Comparable<Duration>, Serializable {
      * minutes -= 60;
      * hours++;
      * }
-     * }
+     * }*
      *
      * @param minutes the minutes to assign to this.minutes.
      * @throws InvalidDurationException the invalid duration exception
@@ -92,6 +127,28 @@ public class Duration implements Comparable<Duration>, Serializable {
             hours++;
         }
         this.minutes = minutes;
+    }
+
+    /**
+     * Sets the values of {@link #hours} and {@link #minutes}.
+     *
+     * @param hours   the hours
+     * @param minutes the minutes
+     * @throws InvalidDurationException the invalid duration exception
+     */
+    public void set(Integer hours, Integer minutes)
+            throws InvalidDurationException {
+        setHours(hours);
+        setMinutes(minutes);
+    }
+
+    /**
+     * Sets the values of {@link #hours} and {@link #minutes} to those of the provided Duration.
+     *
+     * @param duration the Duration whose values are to be copied
+     */
+    public void set(Duration duration) {
+        set(duration.getHours(), duration.getMinutes());
     }
 
     @Override

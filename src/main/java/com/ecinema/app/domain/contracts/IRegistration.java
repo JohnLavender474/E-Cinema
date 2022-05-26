@@ -4,7 +4,9 @@ import com.ecinema.app.domain.enums.UserAuthority;
 
 import java.util.Set;
 
-/** Defines the contract of the registration. */
+/**
+ * Defines the contract of the registration.
+ * */
 public interface IRegistration extends IProfile, IPassword {
 
     /**
@@ -48,7 +50,6 @@ public interface IRegistration extends IProfile, IPassword {
      * @param isSecurityAnswer2Encoded if the security answer 2 is encoded
      */
     void setIsSecurityAnswer2Encoded(Boolean isSecurityAnswer2Encoded);
-
 
     /**
      * Sets the username.

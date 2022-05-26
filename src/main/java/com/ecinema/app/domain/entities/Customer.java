@@ -1,19 +1,16 @@
 package com.ecinema.app.domain.entities;
 
+import com.ecinema.app.domain.enums.Letter;
 import com.ecinema.app.domain.enums.UserAuthority;
+import com.ecinema.app.domain.enums.Vote;
 import lombok.*;
 
 import javax.persistence.*;
+import java.util.EnumMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
-/**
- * {@inheritDoc}
- * The customer role def class defines the permissions, fields, and relationships pertaining to the customer role.
- * {@link Review} instances owned by this instance are mapped to {@link #reviews}.
- * {@link Ticket} instances owned by this instance are mapped to {@link #tickets}.
- * {@link PaymentCard} instances owned by this instance are mapped to {@link #paymentCards}.
- */
 @Getter
 @Setter
 @Entity
@@ -37,17 +34,13 @@ public class Customer extends AbstractUserAuthority {
     @OneToMany(mappedBy = "voter", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private Set<ReviewVote> reviewVotes = new HashSet<>();
 
-    @ToString.Exclude
-    @OneToMany(mappedBy = "reporter", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private Set<ReviewReport> reviewReports = new HashSet<>();
-
     @JoinColumn
     @ToString.Exclude
     @ManyToOne(fetch = FetchType.LAZY)
     private Moderator censoredBy = null;
 
     @Override
-    protected UserAuthority defineUserRole() {
+    protected final UserAuthority defineUserRole() {
         return UserAuthority.CUSTOMER;
     }
 

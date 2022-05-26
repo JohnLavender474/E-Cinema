@@ -10,11 +10,8 @@
     <table>
         <tr>
             <td th:each="pageNumber:${pageNumbers}">
-                <form method="get" th:action="@{/movies(search=${search}, page=${pageNumber})}">
-                    <button class="btn btn-outline-primary" th:text="${pageNumber}"
-                            th:classappend="${page == pageNumber ? 'disabled' : ''}">
-                    </button>
-                </form>
+                <a th:href="@{/movie-screenings/{id}(id=${movieId},page=${pageNumber})}"
+                   class="btn btn-outline-primary" th:text="${pageNumber}"></a>
             </td>
         </tr>
     </table>

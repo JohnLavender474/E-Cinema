@@ -5,11 +5,15 @@ import com.ecinema.app.domain.dtos.MovieDto;
 import com.ecinema.app.domain.dtos.ReviewDto;
 import com.ecinema.app.domain.dtos.UserDto;
 import com.ecinema.app.domain.enums.UserAuthority;
+import com.ecinema.app.domain.enums.Vote;
 import com.ecinema.app.domain.forms.ReviewForm;
 import com.ecinema.app.exceptions.ClashException;
+import com.ecinema.app.exceptions.InvalidArgumentException;
+import com.ecinema.app.exceptions.InvalidAssociationException;
 import com.ecinema.app.exceptions.NoEntityFoundException;
 import com.ecinema.app.services.MovieService;
 import com.ecinema.app.services.ReviewService;
+import com.ecinema.app.services.ReviewVoteService;
 import com.ecinema.app.services.UserService;
 import com.ecinema.app.util.UtilMethods;
 import lombok.RequiredArgsConstructor;
@@ -25,7 +29,8 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import static com.ecinema.app.util.UtilMethods.addPageNumbersAttribute;
 
 /**
- * The type Movie review controller.
+ * Controls the view pages that predominantly regard {@link com.ecinema.app.domain.entities.Movie} and
+ * {@link com.ecinema.app.domain.entities.Review}.
  */
 @Controller
 @RequiredArgsConstructor
@@ -35,16 +40,17 @@ public class MovieReviewController {
     private final MovieService movieService;
     private final ReviewService reviewService;
     private final SecurityContext securityContext;
+    private final ReviewVoteService reviewVoteService;
     private final Logger logger = LoggerFactory.getLogger(MovieReviewController.class);
 
     /**
-     * Movie reviews page string.
+     * Show movie reviews page.
      *
      * @param model              the model
      * @param redirectAttributes the redirect attributes
      * @param page               the page
      * @param movieId            the movie id
-     * @return the string
+     * @return the view name
      */
     @GetMapping("/movie-reviews/{id}")
     public String movieReviewsPage(
@@ -52,46 +58,100 @@ public class MovieReviewController {
             @RequestParam(value = "page", required = false, defaultValue = "1") final Integer page,
             @PathVariable("id") final Long movieId) {
         try {
-            model.addAttribute("movieId", movieId);
-            Long userId = securityContext.findIdOfLoggedInUser();
-            UserDto userDto = userId != null ? userService.convertToDto(userId) : null;
-            boolean isCustomer = userDto != null && userDto.getUserAuthorities().contains(UserAuthority.CUSTOMER);
-            boolean canWriteReview = isCustomer && !reviewService.existsByUserIdAndMovieId(
-                    userDto.getId(), movieId);
-            model.addAttribute("canWriteReview", canWriteReview);
-
-            PageRequest pageRequest = PageRequest.of(page - 1, 6);
-            Page<ReviewDto> pageOfDtos = reviewService.findPageByMovieId(movieId, pageRequest);
-            model.addAttribute("reviews", pageOfDtos.getContent().toArray());
-            addPageNumbersAttribute(model, pageOfDtos);
             logger.debug(UtilMethods.getLoggingSubjectDelimiterLine());
-            logger.debug("Page of DTOs: " + pageOfDtos);
+            Long userId = securityContext.findIdOfLoggedInUser();
+            boolean canWriteReview = userId != null &&
+                    !reviewService.existsByUserIdAndMovieId(userId, movieId);
+            logger.debug("Can write review: " + canWriteReview);
+            model.addAttribute("canWriteReview", canWriteReview);
+            PageRequest pageRequest = PageRequest.of(page - 1, 6);
+            Page<ReviewDto> pageOfDtos = reviewService
+                    .findPageByMovieIdAndNotCensored(movieId, pageRequest);
+            logger.debug("Review DTOs: " + pageOfDtos.getContent());
+            model.addAttribute("reviews", pageOfDtos);
+            addPageNumbersAttribute(model, pageOfDtos);
+            logger.debug("Page: " + page);
+            model.addAttribute("page", page);
+            logger.debug("Movie id: " + movieId);
+            model.addAttribute("movieId", movieId);
             return "movie-reviews";
         } catch (NoEntityFoundException e) {
+            logger.debug("Errors: " + e);
             redirectAttributes.addFlashAttribute("errors", e.getErrors());
             return "redirect:/error";
         }
     }
 
     /**
-     * Show report review page string.
+     * Upvote or downvote review.
      *
-     * @param reviewId the review id
-     * @return the string
+     * @param redirectAttributes the redirect attributes
+     * @param reviewId           the review id
+     * @param movieId            the movie id
+     * @param page               the page
+     * @return the view name
      */
-    @PostMapping("/report-review/{id}")
+    @PostMapping("/vote-review/{id}/{vote}")
+    public String likeReview(final RedirectAttributes redirectAttributes,
+                             @PathVariable("id") final Long reviewId,
+                             @RequestParam("movieId") final Long movieId,
+                             @PathVariable("vote") final Integer voteOrdinal,
+                             @RequestParam(value = "page", required = false, defaultValue = "1") final Integer page) {
+        try {
+            logger.debug(UtilMethods.getLoggingSubjectDelimiterLine());
+            Long userId = securityContext.findIdOfLoggedInUser();
+            logger.debug("User id: " + userId);
+            logger.debug("Review id: " + reviewId);
+            logger.debug("Movie id: " + movieId);
+            logger.debug("Vote ordinal: " + voteOrdinal);
+            if (voteOrdinal < 0 && voteOrdinal >= Vote.values().length) {
+                throw new InvalidArgumentException(
+                        "Vote ordinal must be within range of Vote array indices but was instead " + voteOrdinal);
+            }
+            Vote vote = Vote.values()[voteOrdinal];
+            reviewVoteService.voteOnReview(userId, reviewId, vote);
+            logger.debug("Successfully applied " + vote + " to review with id: " + reviewId);
+            redirectAttributes.addFlashAttribute("success", "Successfully voted on review");
+        } catch (InvalidAssociationException | NoEntityFoundException  | InvalidArgumentException e) {
+            logger.debug("Errors: " + e);
+            redirectAttributes.addFlashAttribute("errors", e.getErrors());
+        }
+        return "redirect:/movie-reviews/" + movieId + "?page=" + page;
+    }
+
+    /**
+     * Show report review page.
+     *
+     * @param redirectAttributes the redirect attributes
+     * @param reviewId           the review id
+     * @return the view name
+     */
+    @GetMapping("/report-review")
     public String showReportReviewPage(final RedirectAttributes redirectAttributes,
-                                       @PathVariable("id") final Long reviewId) {
+                                       @RequestParam("id") final Long reviewId) {
         return null;
     }
 
     /**
-     * Show write review page string.
+     * Show unreport review page.
+     *
+     * @param redirectAttributes the redirect attributes
+     * @param reviewId           the review id
+     * @return the view name
+     */
+    @GetMapping("/unreport-review")
+    public String showUnreportReviewPage(final RedirectAttributes redirectAttributes,
+                                         @RequestParam("id") final Long reviewId) {
+        return null;
+    }
+
+    /**
+     * Show write review page.
      *
      * @param model              the model
      * @param redirectAttributes the redirect attributes
      * @param movieId            the movie id
-     * @return the string
+     * @return the view name
      */
     @GetMapping("/write-review/{id}")
     public String showWriteReviewPage(final Model model, final RedirectAttributes redirectAttributes,
@@ -128,29 +188,30 @@ public class MovieReviewController {
     }
 
     /**
-     * Write review string.
+     * Write review.
      *
-     * @param model              the model
      * @param redirectAttributes the redirect attributes
      * @param reviewForm         the review form
      * @param movieId            the movie id
-     * @return the string
+     * @return the view name
      */
     @PostMapping("/write-review/{id}")
-    public String writeReview(final Model model, final RedirectAttributes redirectAttributes,
+    public String writeReview(final RedirectAttributes redirectAttributes,
                               @ModelAttribute("reviewForm") final ReviewForm reviewForm,
                               @PathVariable("id") final Long movieId) {
         try {
-            reviewForm.setMovieId(movieId);
             logger.debug(UtilMethods.getLoggingSubjectDelimiterLine());
             logger.debug("Write review post mapping");
+            reviewForm.setMovieId(movieId);
             reviewService.submitReviewForm(reviewForm);
             redirectAttributes.addFlashAttribute(
                     "success", "Successfully created review for movie");
-            return "redirect:/movie-reviews/" + reviewForm.getMovieId();
+            logger.debug("Successfully created review for movie");
+            return "redirect:/movie-reviews/" + movieId;
         } catch (NoEntityFoundException | ClashException e) {
-            model.addAttribute("errors", e.getErrors());
-            return "write-review";
+            logger.debug("Errors: " + e);
+            redirectAttributes.addAttribute("errors", e.getErrors());
+            return "redirect:/write-review/" + movieId;
         }
     }
 

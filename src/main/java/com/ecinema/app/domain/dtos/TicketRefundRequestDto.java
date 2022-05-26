@@ -1,16 +1,14 @@
 package com.ecinema.app.domain.dtos;
 
 import com.ecinema.app.domain.contracts.AbstractDto;
+import lombok.Data;
 import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.Setter;
 import lombok.ToString;
 
-@Getter
-@Setter
+@Data
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
-public class TheaterDto extends AbstractDto {
-    private String theaterName;
-    private AddressDto addressDTO;
+public class TicketRefundRequestDto extends AbstractDto {
+    private Long ticketId;
+    private String request;
 }

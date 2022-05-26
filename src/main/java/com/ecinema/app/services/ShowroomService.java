@@ -5,7 +5,7 @@ import com.ecinema.app.domain.entities.*;
 import com.ecinema.app.domain.forms.ShowroomForm;
 import com.ecinema.app.domain.validators.ShowroomValidator;
 import com.ecinema.app.exceptions.ClashException;
-import com.ecinema.app.exceptions.InvalidArgsException;
+import com.ecinema.app.exceptions.InvalidArgumentException;
 import com.ecinema.app.domain.enums.Letter;
 import com.ecinema.app.exceptions.NoEntityFoundException;
 import com.ecinema.app.repositories.ShowroomRepository;
@@ -70,14 +70,14 @@ public class ShowroomService extends AbstractEntityService<Showroom, ShowroomRep
     }
 
     public void submitShowroomForm(ShowroomForm showroomForm)
-            throws ClashException, InvalidArgsException {
+            throws ClashException, InvalidArgumentException {
         logger.debug(UtilMethods.getLoggingSubjectDelimiterLine());
         logger.debug("Showroom service: submit showroom form");
         logger.debug("Showroom form: " + showroomForm);
         List<String> errors = new ArrayList<>();
         showroomValidator.validate(showroomForm, errors);
         if (!errors.isEmpty()) {
-            throw new InvalidArgsException(errors);
+            throw new InvalidArgumentException(errors);
         }
         logger.debug("Showroom form passed validation checks");
         if (repository.existsByShowroomLetter(showroomForm.getShowroomLetter())) {

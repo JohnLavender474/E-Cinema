@@ -5,7 +5,7 @@ import com.ecinema.app.domain.dtos.UserDto;
 import com.ecinema.app.domain.forms.ChangePasswordForm;
 import com.ecinema.app.exceptions.EmailException;
 import com.ecinema.app.exceptions.ExpirationException;
-import com.ecinema.app.exceptions.InvalidArgsException;
+import com.ecinema.app.exceptions.InvalidArgumentException;
 import com.ecinema.app.exceptions.NoEntityFoundException;
 import com.ecinema.app.services.ChangePasswordService;
 import com.ecinema.app.services.UserService;
@@ -86,7 +86,7 @@ public class PasswordController {
             changePasswordService.submitChangePasswordForm(changePasswordForm);
             redirectAttributes.addFlashAttribute("message", MESSAGE);
             return "redirect:/message-page";
-        } catch (NoEntityFoundException | InvalidArgsException | EmailException e) {
+        } catch (NoEntityFoundException | InvalidArgumentException | EmailException e) {
             logger.debug("Errors: " + e);
             redirectAttributes.addFlashAttribute("errors", e.getErrors());
             return "redirect:/change-password?email=" + changePasswordForm.getEmail();

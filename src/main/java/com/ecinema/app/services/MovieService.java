@@ -4,22 +4,17 @@ import com.ecinema.app.domain.dtos.MovieDto;
 import com.ecinema.app.domain.entities.Movie;
 import com.ecinema.app.domain.forms.MovieForm;
 import com.ecinema.app.domain.validators.MovieValidator;
-import com.ecinema.app.exceptions.InvalidArgsException;
+import com.ecinema.app.exceptions.InvalidArgumentException;
 import com.ecinema.app.exceptions.NoEntityFoundException;
-import com.ecinema.app.domain.enums.MovieCategory;
-import com.ecinema.app.domain.enums.MsrbRating;
 import com.ecinema.app.repositories.MovieRepository;
-import com.ecinema.app.domain.objects.Duration;
 import com.ecinema.app.util.UtilMethods;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
 @Service
 @Transactional
@@ -64,19 +59,7 @@ public class MovieService extends AbstractEntityService<Movie, MovieRepository, 
     public MovieDto convertToDto(Movie movie) {
         MovieDto movieDTO = new MovieDto();
         movieDTO.setId(movie.getId());
-        movieDTO.setTitle(movie.getTitle());
-        movieDTO.setDirector(movie.getDirector());
-        movieDTO.setImage(movie.getImage());
-        movieDTO.setTrailer(movie.getTrailer());
-        movieDTO.setSynopsis(movie.getSynopsis());
-        movieDTO.setDuration(movie.getDuration());
-        movieDTO.setReleaseYear(movie.getReleaseDate().getYear());
-        movieDTO.setReleaseDay(movie.getReleaseDate().getDayOfMonth());
-        movieDTO.setReleaseMonth(movie.getReleaseDate().getMonth());
-        movieDTO.setMsrbRating(movie.getMsrbRating());
-        movieDTO.getCast().addAll(movie.getCast());
-        movieDTO.getWriters().addAll(movie.getWriters());
-        movieDTO.getMovieCategories().addAll(movie.getMovieCategories());
+        movieDTO.setToIMovie(movie);
         logger.debug("Converted movie to DTO: " + movieDTO);
         logger.debug("Movie: " + movie);
         return movieDTO;
@@ -91,33 +74,20 @@ public class MovieService extends AbstractEntityService<Movie, MovieRepository, 
         logger.debug("Found movie with id: " + movieId);
         MovieForm movieForm = new MovieForm();
         movieForm.setId(movieId);
-        movieForm.setTitle(movie.getTitle());
-        movieForm.setDirector(movie.getDirector());
-        movieForm.setImage(movie.getImage());
-        movieForm.setTrailer(movie.getTrailer());
-        movieForm.setSynopsis(movie.getSynopsis());
-        movieForm.setHours(movie.getDuration().getHours());
-        movieForm.setMinutes(movie.getDuration().getMinutes());
-        movieForm.setReleaseYear(movie.getReleaseDate().getYear());
-        movieForm.setReleaseMonth(movie.getReleaseDate().getMonth());
-        movieForm.setReleaseDay(movie.getReleaseDate().getDayOfMonth());
-        movieForm.setMsrbRating(movie.getMsrbRating());
-        movieForm.getCast().addAll(movie.getCast());
-        movieForm.getWriters().addAll(movie.getWriters());
-        movieForm.getMovieCategories().addAll(movie.getMovieCategories());
+        movieForm.setToIMovie(movie);
         logger.debug("Instantiated new movie form: " + movieForm);
         logger.debug("Movie: " + movie);
         return movieForm;
     }
 
-    public void submitMovieForm(MovieForm movieForm)
-            throws InvalidArgsException {
+    public Long submitMovieForm(MovieForm movieForm)
+            throws InvalidArgumentException {
         logger.debug(UtilMethods.getLoggingSubjectDelimiterLine());
         logger.debug("Submit movie form: " + movieForm);
         List<String> errors = new ArrayList<>();
         movieValidator.validate(movieForm, errors);
         if (!errors.isEmpty()) {
-            throw new InvalidArgsException(errors);
+            throw new InvalidArgumentException(errors);
         }
         logger.debug("Movie form passed validation checks");
         Movie movie = movieForm.getId() != null ? repository.findById(movieForm.getId()).orElseThrow(
@@ -125,24 +95,10 @@ public class MovieService extends AbstractEntityService<Movie, MovieRepository, 
         logger.debug("Movie before set to form: " + movie);
         String searchTitle = convertTitleToSearchTitle(movieForm.getTitle());
         movie.setSearchTitle(searchTitle);
-        movie.setTitle(movieForm.getTitle());
-        movie.setImage(movieForm.getImage());
-        movie.setTrailer(movieForm.getTrailer());
-        movie.setDirector(movieForm.getDirector());
-        movie.setSynopsis(movieForm.getSynopsis());
-        movie.setDuration(new Duration(movieForm.getHours(), movieForm.getMinutes()));
-        movie.setReleaseDate(LocalDate.of(movieForm.getReleaseYear(),
-                                          movieForm.getReleaseMonth(),
-                                          movieForm.getReleaseDay()));
-        movie.setMsrbRating(movieForm.getMsrbRating());
-        movie.getCast().clear();
-        movie.getCast().addAll(movieForm.getCast());
-        movie.getWriters().clear();
-        movie.getWriters().addAll(movieForm.getWriters());
-        movie.getMovieCategories().clear();
-        movie.getMovieCategories().addAll(movieForm.getMovieCategories());
+        movie.setToIMovie(movieForm);
         logger.debug("Saved movie: " + movie);
-        repository.save(movie);
+        save(movie);
+        return movie.getId();
     }
 
     public MovieDto findByTitle(String title) {

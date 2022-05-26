@@ -3,18 +3,17 @@ package com.ecinema.app.domain.forms;
 import com.ecinema.app.domain.contracts.IMovie;
 import com.ecinema.app.domain.enums.MovieCategory;
 import com.ecinema.app.domain.enums.MsrbRating;
-import lombok.Getter;
-import lombok.Setter;
+import com.ecinema.app.domain.objects.Duration;
+import lombok.Data;
 import lombok.ToString;
-import org.slf4j.IMarkerFactory;
+import org.springframework.format.annotation.DateTimeFormat;
 
 import java.io.Serializable;
-import java.time.Month;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
-@Getter
-@Setter
+@Data
 @ToString
 public class MovieForm implements IMovie, Serializable {
     private Long id = null;
@@ -23,12 +22,10 @@ public class MovieForm implements IMovie, Serializable {
     private String image = "";
     private String trailer = "";
     private String synopsis = "";
-    private Integer hours = 0;
-    private Integer minutes = 0;
-    private Integer releaseYear = 2020;
-    private Integer releaseDay = 1;
-    private Month releaseMonth = Month.JANUARY;
+    private Duration duration = Duration.zero();
     private MsrbRating msrbRating = MsrbRating.G;
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
+    private LocalDate releaseDate = LocalDate.now();
     private List<String> cast = new ArrayList<>();
     private List<String> writers = new ArrayList<>();
     private List<MovieCategory> movieCategories = new ArrayList<>();

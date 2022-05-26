@@ -11,11 +11,14 @@ import com.ecinema.app.domain.entities.Movie;
 import com.ecinema.app.domain.entities.Screening;
 import com.ecinema.app.domain.entities.Showroom;
 import com.ecinema.app.domain.enums.Letter;
+import com.ecinema.app.domain.enums.MovieCategory;
+import com.ecinema.app.domain.enums.MsrbRating;
 import com.ecinema.app.domain.enums.UserAuthority;
 import com.ecinema.app.domain.forms.*;
+import com.ecinema.app.domain.objects.Duration;
 import com.ecinema.app.domain.validators.MovieValidator;
 import com.ecinema.app.domain.validators.ScreeningValidator;
-import com.ecinema.app.exceptions.InvalidArgsException;
+import com.ecinema.app.exceptions.InvalidArgumentException;
 import com.ecinema.app.exceptions.NoEntityFoundException;
 import com.ecinema.app.repositories.MovieRepository;
 import com.ecinema.app.repositories.ShowroomRepository;
@@ -29,13 +32,16 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.test.context.support.WithAnonymousUser;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.Month;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -154,6 +160,61 @@ class ManagementControllerTest {
     }
 
     @Test
+    @WithMockUser(username = "user", authorities = {"ADMIN"})
+    void accessAddMoviePage()
+            throws Exception {
+        mockMvc.perform(get("/add-movie"))
+                .andExpect(status().isOk())
+                .andExpect(view().name("admin-movie"))
+                .andExpect(result -> model().attribute("action", "/add-movie"))
+                .andExpect(result -> model().attribute("movieForm", new MovieForm()))
+                .andExpect(result -> model().attributeExists("maxDate"))
+                .andExpect(result -> model().attributeExists("minDate"));
+    }
+
+    @Test
+    @WithAnonymousUser
+    void failToAccessAddMoviePage1()
+        throws Exception {
+        mockMvc.perform(get("/add-movie"))
+                .andExpect(status().is3xxRedirection());
+    }
+
+    @Test
+    @WithMockUser(username = "user", authorities = {"MODERATOR", "CUSTOMER"})
+    void failToAccessAddMoviePage2()
+        throws Exception {
+        mockMvc.perform(get("/add-movie"))
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
+    @WithMockUser(username = "user", authorities = {"ADMIN"})
+    void addMovie()
+        throws Exception {
+        MovieForm movieForm = new MovieForm();
+        movieForm.setTitle("Title");
+        movieForm.setDirector("Director");
+        movieForm.setImage("Image");
+        movieForm.setTrailer("Trailer");
+        movieForm.setSynopsis("Synopsis for a test movie that will surely pass expectations!!!");
+        movieForm.setReleaseDate(LocalDate.of(2000, Month.JANUARY, 1));
+        movieForm.setDuration(Duration.of(1, 30));
+        movieForm.setMsrbRating(MsrbRating.R);
+        movieForm.setCast(List.of("member 1", "member 2", "member 3"));
+        movieForm.setWriters(List.of("writer 1", "writer 2", "writer 3"));
+        movieForm.setMovieCategories(List.of(MovieCategory.ACTION, MovieCategory.ADVENTURE));
+        given(movieService.submitMovieForm(movieForm)).willReturn(1L);
+        MovieDto movieDto = new MovieDto();
+        movieDto.setToIMovie(movieForm);
+        given(movieService.findById(1L)).willReturn(movieDto);
+        mockMvc.perform(post("/add-movie")
+                                .flashAttr("movieForm", movieForm))
+                .andExpect(redirectedUrlPattern("/movie-info/" + 1L + "**"))
+                .andExpect(result -> model().attributeExists("success"));
+    }
+
+    @Test
     @WithMockUser(username = "user", authorities = {"MODERATOR", "CUSTOMER"})
     void failToAccessEditMovieSearch1()
             throws Exception {
@@ -175,7 +236,8 @@ class ManagementControllerTest {
         given(movieService.fetchAsForm(1L)).willReturn(movieForm);
         mockMvc.perform(get("/edit-movie/" + 1L))
                .andExpect(status().isOk())
-               .andExpect(result -> model().attribute("action", "/edit-movie"))
+                .andExpect(view().name("admin-movie"))
+               .andExpect(result -> model().attribute("action", "/edit-movie/{id}"))
                .andExpect(result -> model().attribute("movieForm", movieForm));
     }
 
@@ -204,7 +266,7 @@ class ManagementControllerTest {
         mockMvc.perform(post("/edit-movie/" + 1L)
                                 .flashAttr("movieForm", movieForm))
                .andExpect(result -> model().attributeExists("success"))
-               .andExpect(redirectedUrlPattern("/edit-movie-search**"));
+               .andExpect(redirectedUrlPattern("/movie-info/" + 1L + "**"));
     }
 
     @Test
@@ -212,8 +274,8 @@ class ManagementControllerTest {
     void invalidArgsExceptionPostEditMovie()
             throws Exception {
         MovieForm movieForm = new MovieForm();
-        doThrow(InvalidArgsException.class).when(movieService)
-                                           .submitMovieForm(movieForm);
+        doThrow(InvalidArgumentException.class).when(movieService)
+                                               .submitMovieForm(movieForm);
         mockMvc.perform(post("/edit-movie/" + 1L)
                                 .flashAttr("movieForm", movieForm))
                .andExpect(redirectedUrlPattern("/edit-movie/" + 1L + "**"))
@@ -399,7 +461,7 @@ class ManagementControllerTest {
         showroom.setShowroomLetter(Letter.A);
         given(showroomRepository.findById(2L))
                 .willReturn(Optional.of(showroom));
-        doThrow(InvalidArgsException.class)
+        doThrow(InvalidArgumentException.class)
                 .when(screeningService)
                 .submitScreeningForm(any(ScreeningForm.class));
         mockMvc.perform(post("/add-screening")
@@ -439,21 +501,15 @@ class ManagementControllerTest {
             add(Letter.C);
         }};
         given(showroomRepository.findAllShowroomLetters()).willReturn(showroomLettersInUse);
-        PageRequest pageRequest = PageRequest.of(3, 10);
-        Page<Screening> screenings = new PageImpl<>(new ArrayList<>() {{
-            add(new Screening());
-            add(new Screening());
-        }});
+        Page<Screening> screenings = new PageImpl<>(new ArrayList<>());
         Page<ScreeningDto> screeningDtos = screenings.map(screeningService::convertToDto);
         given(screeningService.findAllByMovieWithTitleLike(
-                eq("TEST"), eq(pageRequest)))
-                .willReturn(screeningDtos);
+                anyString(), any(Pageable.class))).willReturn(screeningDtos);
         mockMvc.perform(get("/choose-screening-to-delete")
                                 .param("search", "TEST")
                                 .param("page", String.valueOf(4)))
                 .andExpect(status().isOk())
-                .andExpect(result -> model().attribute(
-                        "screenings", screenings.getContent()))
+                .andExpect(result -> model().attribute("screenings", screenings.getContent()))
                 .andExpect(result -> model().attribute("page", 1))
                 .andExpect(result -> model().attribute("search", "TEST"));
     }
@@ -620,7 +676,7 @@ class ManagementControllerTest {
     @WithMockUser(username = "user", authorities = {"ADMIN"})
     void throwExceptionOnAttemptToShowDeleteShowroomPage1()
         throws Exception {
-        InvalidArgsException e = new InvalidArgsException("Showroom letter cannot be blank");
+        InvalidArgumentException e = new InvalidArgumentException("Showroom letter cannot be blank");
         mockMvc.perform(get("/delete-showroom")
                                 .flashAttr("showroomLetterForm", new StringForm()))
                 .andExpect(redirectedUrlPattern("/choose-showroom-to-delete**"))

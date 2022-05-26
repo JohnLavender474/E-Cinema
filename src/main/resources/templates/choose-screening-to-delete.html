@@ -23,11 +23,9 @@
     <table class="table-hover">
         <tr>
             <td th:if="${totalPages > 0}" th:each="pageNumber:${pageNumbers}">
-                <form method="get"
-                      th:action="@{/choose-screening-to-delete(
-                           search=${search}, page=${pageNumber}, lettersChecked=${lettersChecked})}">
-                    <button class="btn btn-outline-primary" th:text="${pageNumber}"></button>
-                </form>
+                <a th:href="@{/choose-screening-to-delete(
+                           search=${search}, page=${pageNumber}, lettersChecked=${lettersChecked})}"
+                   class="btn btn-outline-primary" th:text="${pageNumber}"></a>
             </td>
         </tr>
     </table>

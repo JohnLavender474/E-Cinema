@@ -4,6 +4,7 @@ import com.ecinema.app.domain.dtos.ReviewDto;
 import com.ecinema.app.domain.entities.Customer;
 import com.ecinema.app.domain.entities.Movie;
 import com.ecinema.app.domain.entities.Review;
+import com.ecinema.app.domain.enums.Vote;
 import com.ecinema.app.domain.forms.ReviewForm;
 import com.ecinema.app.domain.validators.ReviewValidator;
 import com.ecinema.app.exceptions.*;
@@ -19,7 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
+import java.util.Map;
 
 @Service
 @Transactional
@@ -28,12 +29,15 @@ public class ReviewService extends AbstractEntityService<Review, ReviewRepositor
     private final CustomerRepository customerRepository;
     private final MovieRepository movieRepository;
     private final ReviewValidator reviewValidator;
+    private final ReviewVoteService reviewVoteService;
 
     public ReviewService(ReviewRepository repository, MovieRepository movieRepository,
-                         CustomerRepository customerRepository, ReviewValidator reviewValidator) {
+                         CustomerRepository customerRepository, ReviewValidator reviewValidator,
+                         ReviewVoteService reviewVoteService) {
         super(repository);
         this.movieRepository = movieRepository;
         this.reviewValidator = reviewValidator;
+        this.reviewVoteService = reviewVoteService;
         this.customerRepository = customerRepository;
     }
 
@@ -43,40 +47,49 @@ public class ReviewService extends AbstractEntityService<Review, ReviewRepositor
         // detach Customer
         Customer writer = review.getWriter();
         if (writer != null) {
-            logger.debug("Detach customer role def: " + writer);
+            logger.debug("Detach customer authority: " + writer);
             writer.getReviews().remove(review);
             review.setWriter(null);
         }
-        // detatch Movie
+        // detach Movie
         Movie movie = review.getMovie();
         if (movie != null) {
             logger.debug("Detach movie: " + movie);
             movie.getReviews().remove(review);
             review.setMovie(null);
         }
+        // delete Review Votes
+        reviewVoteService.deleteAll(review.getReviewVotes());
     }
 
     @Override
     public ReviewDto convertToDto(Review review) {
         ReviewDto reviewDTO = new ReviewDto();
+        reviewDTO.setToIReview(review);
         reviewDTO.setId(review.getId());
-        reviewDTO.setReview(review.getReview());
-        reviewDTO.setRating(review.getRating());
         reviewDTO.setIsCensored(review.getIsCensored());
         reviewDTO.setCreationDateTime(review.getCreationDateTime());
-        reviewDTO.setCustomerId(review.getWriter().getId());
-        reviewDTO.setWriter(review.getWriter().getUser().getUsername());
+        reviewDTO.setCustomerId(
+                repository.findCustomerIdByReviewWithId(review.getId())
+                          .orElseThrow(() -> new NoEntityFoundException(
+                                  "customer id", "review id", review.getId())));
+        reviewDTO.setUserId(
+                repository.findUserIdByReviewWithId(review.getId())
+                        .orElseThrow(() -> new NoEntityFoundException(
+                                "user id", "review id", review.getId())));
+        reviewDTO.setWriter(
+                repository.findUsernameOfWriterForReviewWithId(review.getId())
+                        .orElseThrow(() -> new NoEntityFoundException(
+                                "username", "review id", review.getId())));
+        Map<Vote, List<Long>> mapOfVoterUserIds = reviewVoteService.mapOfVoterUserIds(review.getId());
+        reviewDTO.setUpvoteUserIds(mapOfVoterUserIds.get(Vote.UPVOTE));
+        reviewDTO.setDownvoteUserIds(mapOfVoterUserIds.get(Vote.DOWNVOTE));
         logger.debug("convert review to DTO: " + reviewDTO);
         return reviewDTO;
     }
 
-    public boolean existsByUserIdAndMovieId(Long userId, Long movieId)
-            throws NoEntityFoundException {
-        return repository.existsByUserIdAndMovieId(userId, movieId);
-    }
-
     public void submitReviewForm(ReviewForm reviewForm)
-            throws NoEntityFoundException, InvalidArgsException, ClashException {
+            throws NoEntityFoundException, InvalidArgumentException, ClashException {
         logger.debug(UtilMethods.getLoggingSubjectDelimiterLine());
         logger.debug("Submit review form");
         Customer customer = customerRepository
@@ -92,7 +105,7 @@ public class ReviewService extends AbstractEntityService<Review, ReviewRepositor
         List<String> errors = new ArrayList<>();
         reviewValidator.validate(reviewForm, errors);
         if (!errors.isEmpty()) {
-            throw new InvalidArgsException(errors);
+            throw new InvalidArgumentException(errors);
         }
         logger.debug("Submit Review Form: passed validation checks");
         Review review = new Review();
@@ -109,26 +122,14 @@ public class ReviewService extends AbstractEntityService<Review, ReviewRepositor
                              " by " + customer.getUser().getUsername());
     }
 
-    public List<ReviewDto> findAllDtosByMovie(Movie movie) {
-        return repository.findAllByMovie(movie)
-                         .stream().map(this::convertToDto)
-                         .collect(Collectors.toList());
+    public boolean existsByUserIdAndMovieId(Long userId, Long movieId)
+            throws NoEntityFoundException {
+        return repository.existsByUserWithIdAndMovieWithId(userId, movieId);
     }
 
-    public List<ReviewDto> findAllDtosByMovieWithId(Long movieId) {
-        return repository.findAllByMovieWithId(movieId)
-                         .stream().map(this::convertToDto)
-                         .collect(Collectors.toList());
-    }
-
-    public Page<ReviewDto> findPageByMovieId(Long movieId, Pageable pageable) {
-        return repository.findAllByMovieWithId(movieId, pageable)
+    public Page<ReviewDto> findPageByMovieIdAndNotCensored(Long movieId, Pageable pageable) {
+        return repository.findAllByMovieWithIdAndNotCensored(movieId, pageable)
                          .map(this::convertToDto);
-    }
-
-    public Integer findAverageRatingOfMovie(Movie movie) {
-        Integer avgRating = repository.findAverageOfReviewRatingsForMovie(movie);
-        return avgRating == null ? 0 : avgRating;
     }
 
     public Integer findAverageRatingOfMovieWithId(Long movieId) {

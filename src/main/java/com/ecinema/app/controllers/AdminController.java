@@ -6,7 +6,7 @@ import com.ecinema.app.domain.dtos.ShowroomDto;
 import com.ecinema.app.domain.enums.Letter;
 import com.ecinema.app.domain.forms.*;
 import com.ecinema.app.exceptions.ClashException;
-import com.ecinema.app.exceptions.InvalidArgsException;
+import com.ecinema.app.exceptions.InvalidArgumentException;
 import com.ecinema.app.exceptions.NoEntityFoundException;
 import com.ecinema.app.services.MovieService;
 import com.ecinema.app.services.ScreeningService;
@@ -22,6 +22,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
@@ -49,30 +50,33 @@ public class AdminController {
         logger.debug("Get mapping: add movie page");
         model.addAttribute("action", "/add-movie");
         model.addAttribute("movieForm", new MovieForm());
-        return "add-movie";
+        model.addAttribute("maxDate", LocalDate.now());
+        model.addAttribute("minDate", LocalDate.now().minusYears(120));
+        return "admin-movie";
     }
 
     /**
      * Add movie string.
      *
-     * @param model              the model
      * @param redirectAttributes the redirect attributes
      * @param movieForm          the movie form
      * @return the string
      */
     @PostMapping("/add-movie")
-    public String addMovie(final Model model,final RedirectAttributes redirectAttributes,
+    public String addMovie(final RedirectAttributes redirectAttributes,
                            @ModelAttribute("movieForm") final MovieForm movieForm) {
         logger.debug(UtilMethods.getLoggingSubjectDelimiterLine());
         logger.debug("Post mapping: add movie");
         logger.debug("Movie form: " + movieForm);
         try {
-            movieService.submitMovieForm(movieForm);
-            redirectAttributes.addFlashAttribute("message", "Successfully added movie");
-            return "redirect:/message-page";
-        } catch (ClashException | InvalidArgsException e) {
-            model.addAttribute("errors", e.getErrors());
-            return "add-movie";
+            Long id = movieService.submitMovieForm(movieForm);
+            redirectAttributes.addFlashAttribute("success", "Successfully added movie!\n " +
+                            "Please verify that the information displayed on this page is correct.");
+            return "redirect:/movie-info/" + id;
+        } catch (ClashException | InvalidArgumentException e) {
+            redirectAttributes.addFlashAttribute("errors", e.getErrors());
+            redirectAttributes.addFlashAttribute("movieForm", movieForm);
+            return "redirect:/admin-movie";
         }
     }
 
@@ -108,7 +112,9 @@ public class AdminController {
         MovieForm movieForm = movieService.fetchAsForm(movieId);
         logger.debug("Movie form: " + movieForm);
         model.addAttribute("movieForm", movieForm);
-        return "edit-movie";
+        model.addAttribute("maxDate", LocalDateTime.now());
+        model.addAttribute("minDate", LocalDateTime.now().minusYears(120));
+        return "admin-movie";
     }
 
     /**
@@ -129,9 +135,10 @@ public class AdminController {
             movieForm.setId(movieId);
             logger.debug("Movie form: " + movieForm);
             movieService.submitMovieForm(movieForm);
-            redirectAttributes.addFlashAttribute("success", "Successfully edited movie!");
-            return "redirect:/edit-movie-search";
-        } catch (InvalidArgsException e) {
+            redirectAttributes.addFlashAttribute("success", "Successfully edited movie!\n" +
+                    "Please verify that the information displayed on this page is correct.");
+            return "redirect:/movie-info/" + movieId;
+        } catch (InvalidArgumentException e) {
             redirectAttributes.addAttribute("errors", e.getErrors());
             return "redirect:/edit-movie/" + movieId;
         }
@@ -261,7 +268,7 @@ public class AdminController {
             redirectAttributes.addFlashAttribute("success", "Successfully added screening");
             logger.debug("Success!");
             return "redirect:/add-screening-search";
-        } catch (NoEntityFoundException | InvalidArgsException | ClashException e) {
+        } catch (NoEntityFoundException | InvalidArgumentException | ClashException e) {
             logger.debug("ERROR!");
             redirectAttributes.addAttribute("errors", e.getErrors());
             return "redirect:/add-screening/" + movieId;
@@ -296,7 +303,7 @@ public class AdminController {
                     "success", "Successfully added new Showroom " +
                             showroomForm.getShowroomLetter());
             return "redirect:/management";
-        } catch (ClashException | InvalidArgsException e) {
+        } catch (ClashException | InvalidArgumentException e) {
             logger.debug("Errors: " + e.getErrors());
             redirectAttributes.addFlashAttribute("errors", e.getErrors());
             redirectAttributes.addFlashAttribute("showroomForm", showroomForm);
@@ -385,7 +392,7 @@ public class AdminController {
         logger.debug("Showroom letter form: " + showroomLetterForm);
         try {
             if (showroomLetterForm.getS().isBlank()) {
-                throw new InvalidArgsException("Showroom letter cannot be blank");
+                throw new InvalidArgumentException("Showroom letter cannot be blank");
             }
             Letter showroomLetter = Letter.valueOf(showroomLetterForm.getS());
             if (!showroomService.existsByShowroomLetter(showroomLetter)) {
@@ -396,7 +403,7 @@ public class AdminController {
             model.addAttribute("onDeleteInfo", onDeleteInfo);
             model.addAttribute("showroomLetterForm", showroomLetterForm);
             return "delete-showroom";
-        } catch (InvalidArgsException | NoEntityFoundException e) {
+        } catch (InvalidArgumentException | NoEntityFoundException e) {
             logger.debug("Errors: " + e.getErrors());
             redirectAttributes.addFlashAttribute("errors", e.getErrors());
             redirectAttributes.addFlashAttribute("showroomLetterForm", showroomLetterForm);

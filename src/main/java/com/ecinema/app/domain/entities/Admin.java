@@ -14,7 +14,7 @@ import javax.persistence.Entity;
 public class Admin extends AbstractUserAuthority {
 
     @Override
-    protected UserAuthority defineUserRole() {
+    protected final UserAuthority defineUserRole() {
         return UserAuthority.ADMIN;
     }
 

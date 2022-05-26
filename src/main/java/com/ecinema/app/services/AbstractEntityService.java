@@ -1,6 +1,5 @@
 package com.ecinema.app.services;
 
-import com.ecinema.app.domain.EntityDtoConverter;
 import com.ecinema.app.domain.entities.AbstractEntity;
 import com.ecinema.app.domain.contracts.AbstractDto;
 import com.ecinema.app.exceptions.NoEntityFoundException;
@@ -17,11 +16,11 @@ import java.util.stream.Collectors;
 
 @Transactional
 public abstract class AbstractEntityService<E extends AbstractEntity,
-        R extends JpaRepository<E, Long>, D extends AbstractDto>
-        implements EntityDtoConverter<E, D> {
+        R extends JpaRepository<E, Long>, D extends AbstractDto> {
+
+    protected final Logger logger = LoggerFactory.getLogger(getClass());
 
     protected final R repository;
-    protected final Logger logger = LoggerFactory.getLogger(getClass());
 
     public AbstractEntityService(R repository) {
         this.repository = repository;
@@ -29,7 +28,13 @@ public abstract class AbstractEntityService<E extends AbstractEntity,
 
     protected abstract void onDelete(E entity);
 
-    @Override
+    protected abstract D convertToDto(E entity);
+
+    protected List<D> convertToDto(Collection<E> entities) {
+        return entities.stream().map(this::convertToDto)
+                .collect(Collectors.toList());
+    }
+
     public D convertToDto(Long id)
             throws NoEntityFoundException {
         return convertToDto(repository.findById(id).orElseThrow(
@@ -83,6 +88,10 @@ public abstract class AbstractEntityService<E extends AbstractEntity,
 
     public Page<D> findAll(Pageable pageable) {
         return repository.findAll(pageable).map(this::convertToDto);
+    }
+
+    public boolean existsById(Long id) {
+        return repository.existsById(id);
     }
 
 }

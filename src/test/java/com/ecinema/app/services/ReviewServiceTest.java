@@ -2,11 +2,9 @@ package com.ecinema.app.services;
 
 import com.ecinema.app.beans.SecurityContext;
 import com.ecinema.app.domain.dtos.ReviewDto;
-import com.ecinema.app.domain.entities.Customer;
-import com.ecinema.app.domain.entities.Movie;
-import com.ecinema.app.domain.entities.Review;
-import com.ecinema.app.domain.entities.User;
+import com.ecinema.app.domain.entities.*;
 import com.ecinema.app.domain.enums.UserAuthority;
+import com.ecinema.app.domain.enums.Vote;
 import com.ecinema.app.domain.forms.ReviewForm;
 import com.ecinema.app.domain.validators.MovieValidator;
 import com.ecinema.app.domain.validators.ReviewValidator;
@@ -19,7 +17,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.LocalDateTime;
 import java.time.Month;
-import java.util.Optional;
+import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.BDDMockito.given;
@@ -27,33 +25,36 @@ import static org.mockito.BDDMockito.given;
 @ExtendWith(MockitoExtension.class)
 class ReviewServiceTest {
 
+    private ScreeningSeatService screeningSeatService;
     private PaymentCardService paymentCardService;
+    private ReviewVoteService reviewVoteService;
+    private ScreeningService screeningService;
+    private CustomerService customerService;
+    private ReviewValidator reviewValidator;
+    private SecurityContext securityContext;
+    private MovieValidator movieValidator;
     private ReviewService reviewService;
     private TicketService ticketService;
     private MovieService movieService;
-    private ScreeningSeatService screeningSeatService;
-    private ScreeningService screeningService;
-    private CustomerService customerService;
     private UserService userService;
-    private ReviewValidator reviewValidator;
-    private MovieValidator movieValidator;
-    private SecurityContext securityContext;
+    @Mock
+    private ScreeningSeatRepository screeningSeatRepository;
     @Mock
     private PaymentCardRepository paymentCardRepository;
+    @Mock
+    private ReviewVoteRepository reviewVoteRepository;
+    @Mock
+    private ScreeningRepository screeningRepository;
+    @Mock
+    private CustomerRepository customerRepository;
+    @Mock
+    private ShowroomRepository showroomRepository;
     @Mock
     private ReviewRepository reviewRepository;
     @Mock
     private TicketRepository ticketRepository;
     @Mock
     private MovieRepository movieRepository;
-    @Mock
-    private ShowroomRepository showroomRepository;
-    @Mock
-    private ScreeningSeatRepository screeningSeatRepository;
-    @Mock
-    private ScreeningRepository screeningRepository;
-    @Mock
-    private CustomerRepository customerRepository;
     @Mock
     private UserRepository userRepository;
 
@@ -62,21 +63,24 @@ class ReviewServiceTest {
         securityContext = new SecurityContext();
         movieValidator = new MovieValidator();
         reviewValidator = new ReviewValidator();
+        reviewVoteService = new ReviewVoteService(
+                reviewVoteRepository, reviewRepository, customerRepository);
         paymentCardService = new PaymentCardService(
-                paymentCardRepository, null, null);
+                paymentCardRepository, null,
+                customerRepository, null);
         reviewService = new ReviewService(
                 reviewRepository, movieRepository,
-                customerRepository, reviewValidator);
+                customerRepository, reviewValidator, reviewVoteService);
         ticketService = new TicketService(ticketRepository);
         screeningSeatService = new ScreeningSeatService(
                 screeningSeatRepository, ticketService);
         screeningService = new ScreeningService(
-                screeningRepository, movieRepository, null,
+                screeningRepository, movieRepository, ticketRepository,
                 showroomRepository, screeningSeatService, null);
         customerService = new CustomerService(
                 customerRepository, screeningSeatRepository,
                 null, reviewService, ticketService,
-                paymentCardService, securityContext);
+                paymentCardService, reviewVoteService, securityContext);
         movieService = new MovieService(
                 movieRepository, reviewService,
                 screeningService, movieValidator);
@@ -97,10 +101,20 @@ class ReviewServiceTest {
         customer.getReviews().add(review);
         review.setMovie(movie);
         movie.getReviews().add(review);
+        Customer voter = new Customer();
+        ReviewVote reviewVote = new ReviewVote();
+        reviewVote.setReview(review);
+        review.getReviewVotes().add(reviewVote);
+        reviewVote.setVoter(voter);
+        voter.getReviewVotes().add(reviewVote);
         assertTrue(customer.getReviews().contains(review));
         assertEquals(customer, review.getWriter());
         assertTrue(movie.getReviews().contains(review));
         assertEquals(movie, review.getMovie());
+        assertTrue(voter.getReviewVotes().contains(reviewVote));
+        assertEquals(voter, reviewVote.getVoter());
+        assertTrue(review.getReviewVotes().contains(reviewVote));
+        assertEquals(review, reviewVote.getReview());
         // when
         reviewService.delete(review);
         // then
@@ -108,37 +122,54 @@ class ReviewServiceTest {
         assertNotEquals(customer, review.getWriter());
         assertFalse(movie.getReviews().contains(review));
         assertNotEquals(movie, review.getMovie());
+        assertFalse(voter.getReviewVotes().contains(reviewVote));
+        assertNotEquals(voter, reviewVote.getVoter());
+        assertFalse(review.getReviewVotes().contains(reviewVote));
+        assertNotEquals(review, reviewVote.getReview());
     }
 
     @Test
-    void reviewDto() {
+    void convertToDto() {
         // given
-        User user = new User();
-        user.setUsername("test username");
-        userService.save(user);
-        Customer customer = new Customer();
-        customer.setUser(user);
-        user.getUserAuthorities().put(UserAuthority.CUSTOMER, customer);
-        customerService.save(customer);
+        given(reviewRepository.findCustomerIdByReviewWithId(1L))
+                .willReturn(Optional.of(2L));
+        given(reviewRepository.findUserIdByReviewWithId(1L))
+                .willReturn(Optional.of(3L));
+        given(reviewRepository.findUsernameOfWriterForReviewWithId(1L))
+                .willReturn(Optional.of("username"));
         Review review = new Review();
         review.setId(1L);
         review.setReview("test review");
-        review.setWriter(customer);
-        customer.getReviews().add(review);
+        review.setRating(7);
         review.setIsCensored(false);
-        review.setCreationDateTime(LocalDateTime.of(
-                2022, Month.APRIL, 28, 22, 55));
-        given(reviewRepository.findById(1L))
-                .willReturn(Optional.of(review));
-        reviewService.save(review);
+        review.setCreationDateTime(LocalDateTime.of(2022, Month.APRIL, 28, 22, 55));
+        Map<Vote, List<Long>> mapOfVoterUserIds = new EnumMap<>(Vote.class) {{
+           put(Vote.UPVOTE, new ArrayList<>());
+           put(Vote.DOWNVOTE, new ArrayList<>());
+        }};
+        for (int i = 0; i < 10; i++) {
+            Vote vote = i % 2 == 0 ? Vote.UPVOTE : Vote.DOWNVOTE;
+            mapOfVoterUserIds.get(vote).add((long) i);
+        }
+        given(reviewVoteRepository.findAllUserIdsByReviewWithIdAndVote(1L, Vote.UPVOTE))
+                .willReturn(mapOfVoterUserIds.get(Vote.UPVOTE));
+        given(reviewVoteRepository.findAllUserIdsByReviewWithIdAndVote(1L, Vote.DOWNVOTE))
+                .willReturn(mapOfVoterUserIds.get(Vote.DOWNVOTE));
+        given(reviewRepository.findById(1L)).willReturn(Optional.of(review));
         // when
         ReviewDto reviewDto = reviewService.convertToDto(1L);
         // then
         assertEquals(review.getId(), reviewDto.getId());
+        assertEquals("username", reviewDto.getWriter());
         assertEquals(review.getReview(), reviewDto.getReview());
+        assertEquals(7, reviewDto.getRating());
+        assertEquals(3L, reviewDto.getUserId());
+        assertEquals(2L, reviewDto.getCustomerId());
         assertEquals(review.getIsCensored(), reviewDto.getIsCensored());
         assertEquals(LocalDateTime.of(2022, Month.APRIL, 28, 22, 55),
                      reviewDto.getCreationDateTime());
+        assertEquals(mapOfVoterUserIds.get(Vote.UPVOTE), reviewDto.getUpvoteUserIds());
+        assertEquals(mapOfVoterUserIds.get(Vote.DOWNVOTE), reviewDto.getDownvoteUserIds());
     }
 
     @Test

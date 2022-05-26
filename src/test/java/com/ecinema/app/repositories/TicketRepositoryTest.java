@@ -126,7 +126,7 @@ class TicketRepositoryTest {
         showroomRepository.save(showroom);
         Movie movie = new Movie();
         movie.setTitle("Test Title");
-        movie.setDuration(new Duration(1, 30));
+        movie.setDuration(Duration.of(1, 30));
         movieRepository.save(movie);
         Screening screening = new Screening();
         screening.setShowroom(showroom);
