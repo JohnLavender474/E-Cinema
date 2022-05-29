@@ -64,7 +64,9 @@ class PaymentCardServiceTest {
         reviewService = new ReviewService(
                 reviewRepository, null,
                 customerRepository, null, null);
-        ticketService = new TicketService(ticketRepository);
+        ticketService = new TicketService(
+                ticketRepository, null, customerRepository,
+                paymentCardRepository, screeningSeatRepository);
         customerService = new CustomerService(
                 customerRepository, screeningSeatRepository,
                 null, reviewService, ticketService,
@@ -108,7 +110,7 @@ class PaymentCardServiceTest {
         paymentCardForm.setUsState(UsState.GEORGIA);
         paymentCardForm.setZipcode("55555");
         paymentCardForm.setPaymentCardType(PaymentCardType.CREDIT);
-        paymentCardService.submitPaymentCardForm(paymentCardForm);
+        paymentCardService.submitPaymentCardFormToAddNewPaymentCard(paymentCardForm);
         // then
         ArgumentCaptor<PaymentCard> paymentCardArgumentCaptor = ArgumentCaptor.forClass(PaymentCard.class);
         verify(paymentCardRepository).save(paymentCardArgumentCaptor.capture());
@@ -134,7 +136,6 @@ class PaymentCardServiceTest {
         LocalDate expirationDate = LocalDate.of(2030, Month.JANUARY, 1);
         PaymentCardForm paymentCardForm = new PaymentCardForm();
         paymentCardForm.setPaymentCardId(1L);
-        paymentCardForm.setCardNumber("1234567812345678");
         paymentCardForm.setFirstName("Johnny");
         paymentCardForm.setLastName("Bravo");
         paymentCardForm.setExpirationDate(expirationDate);
@@ -143,11 +144,10 @@ class PaymentCardServiceTest {
         paymentCardForm.setUsState(UsState.GEORGIA);
         paymentCardForm.setZipcode("55555");
         paymentCardForm.setPaymentCardType(PaymentCardType.CREDIT);
-        paymentCardService.submitPaymentCardForm(paymentCardForm);
+        paymentCardService.submitPaymentCardFormToEditPaymentCard(paymentCardForm);
         // then
         assertEquals("Johnny", paymentCard.getFirstName());
         assertEquals("Bravo", paymentCard.getLastName());
-        assertTrue(encoderService.matches("1234567812345678", paymentCard.getCardNumber()));
         assertEquals(expirationDate, paymentCard.getExpirationDate());
         assertEquals("555 Fifth St", paymentCard.getBillingAddress().getStreet());
         assertEquals("Filthy City", paymentCard.getBillingAddress().getCity());

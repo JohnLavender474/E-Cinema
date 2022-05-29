@@ -4,6 +4,7 @@ import com.ecinema.app.TooManyPaymentCardsException;
 import com.ecinema.app.domain.dtos.PaymentCardDto;
 import com.ecinema.app.domain.entities.Customer;
 import com.ecinema.app.domain.entities.PaymentCard;
+import com.ecinema.app.domain.entities.Ticket;
 import com.ecinema.app.domain.forms.PaymentCardForm;
 import com.ecinema.app.domain.validators.PaymentCardValidator;
 import com.ecinema.app.exceptions.InvalidArgumentException;
@@ -11,12 +12,11 @@ import com.ecinema.app.exceptions.NoEntityFoundException;
 import com.ecinema.app.repositories.CustomerRepository;
 import com.ecinema.app.repositories.PaymentCardRepository;
 import com.ecinema.app.util.UtilMethods;
-import org.modelmapper.internal.asm.tree.ModuleExportNode;
-import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -51,6 +51,13 @@ public class PaymentCardService extends AbstractEntityService<PaymentCard, Payme
             customer.getPaymentCards().remove(paymentCard);
             paymentCard.setCardOwner(null);
         }
+        // detached purchased Tickets
+        Iterator<Ticket> ticketIterator = paymentCard.getPurchasedTickets().iterator();
+        while (ticketIterator.hasNext()) {
+            Ticket ticket = ticketIterator.next();
+            ticket.setPaymentCard(null);
+            ticketIterator.remove();
+        }
     }
 
     @Override
@@ -70,12 +77,13 @@ public class PaymentCardService extends AbstractEntityService<PaymentCard, Payme
         PaymentCard paymentCard = repository.findById(paymentCardId).orElseThrow(
                 () -> new NoEntityFoundException("payment card", "id", paymentCardId));
         PaymentCardForm paymentCardForm = new PaymentCardForm();
+        paymentCardForm.setPaymentCardId(paymentCardId);
         paymentCardForm.setToIPaymentCard(paymentCard, false);
         return paymentCardForm;
     }
 
-    public void submitPaymentCardForm(PaymentCardForm paymentCardForm)
-            throws NoEntityFoundException, TooManyPaymentCardsException, InvalidArgumentException {
+    public void submitPaymentCardFormToAddNewPaymentCard(PaymentCardForm paymentCardForm)
+            throws InvalidArgumentException, TooManyPaymentCardsException {
         logger.debug(UtilMethods.getLoggingSubjectDelimiterLine());
         logger.debug("Payment card: " + paymentCardForm);
         List<String> errors = new ArrayList<>();
@@ -84,14 +92,6 @@ public class PaymentCardService extends AbstractEntityService<PaymentCard, Payme
             throw new InvalidArgumentException(errors);
         }
         logger.debug("Payment card form passed validation checks");
-        if (paymentCardForm.getPaymentCardId() == null) {
-            submitPaymentCardFormToAddNewPaymentCard(paymentCardForm);
-        } else {
-            submitPaymentCardFormToEditPaymentCard(paymentCardForm);
-        }
-    }
-
-    private void submitPaymentCardFormToAddNewPaymentCard(PaymentCardForm paymentCardForm) {
         logger.debug("Submit payment card form to add new payment card");
         Customer customer = customerRepository.findByUserWithId(paymentCardForm.getUserId()).orElseThrow(
                 () -> new NoEntityFoundException(
@@ -111,14 +111,23 @@ public class PaymentCardService extends AbstractEntityService<PaymentCard, Payme
         logger.debug("Instantiated and saved new payment card: " + paymentCard);
     }
 
-    private void submitPaymentCardFormToEditPaymentCard(PaymentCardForm paymentCardForm) {
+    public void submitPaymentCardFormToEditPaymentCard(PaymentCardForm paymentCardForm)
+            throws InvalidArgumentException, NoEntityFoundException {
+        logger.debug(UtilMethods.getLoggingSubjectDelimiterLine());
+        logger.debug("Payment card: " + paymentCardForm);
+        List<String> errors = new ArrayList<>();
+        // set dummy value for card number to pass validation checks
+        // card number of payment card is never reset because payment card id field of payment card form is not null
+        paymentCardForm.setCardNumber("0000000000000000");
+        paymentCardValidator.validate(paymentCardForm, errors);
+        if (!errors.isEmpty()) {
+            throw new InvalidArgumentException(errors);
+        }
+        logger.debug("Payment card form passed validation checks");
         PaymentCard paymentCard = repository.findById(paymentCardForm.getPaymentCardId()).orElseThrow(
                 () -> new NoEntityFoundException(
                         "payment card", "id", paymentCardForm.getPaymentCardId()));
         paymentCard.setToIPaymentCard(paymentCardForm, false);
-        String cardNumber = paymentCardForm.getCardNumber();
-        paymentCard.setCardNumber(encoderService.encode(cardNumber));
-        paymentCard.setLast4Digits(cardNumber.substring(cardNumber.length() - 4));
         save(paymentCard);
         logger.debug("Edited payment card: " + paymentCard);
     }

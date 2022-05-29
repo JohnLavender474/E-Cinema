@@ -13,8 +13,14 @@ public interface ISeat {
 
         @Override
         public int compare(ISeat o1, ISeat o2) {
+            if (o1 == null || o2 == null) {
+                return 0;
+            }
+            if (o1.getRowLetter() == null || o2.getRowLetter() == null) {
+                return 0;
+            }
             int comparison = o1.getRowLetter().compareTo(o2.getRowLetter());
-            if (comparison == 0) {
+            if (comparison == 0 && o1.getSeatNumber() != null && o2.getSeatNumber() != null) {
                 comparison = o1.getSeatNumber().compareTo(o2.getSeatNumber());
             }
             return comparison;

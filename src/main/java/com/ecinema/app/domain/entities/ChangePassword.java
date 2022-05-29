@@ -18,6 +18,9 @@ public class ChangePassword extends AbstractEntity {
     private Long userId;
 
     @Column
+    private String email;
+
+    @Column
     private String token;
 
     @Column

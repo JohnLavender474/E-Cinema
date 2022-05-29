@@ -33,4 +33,8 @@ public class PaymentCardDto extends AbstractDto implements IPaymentCard {
         return UtilMethods.localDateFormatted(expirationDate);
     }
 
+    public Boolean isExpired() {
+        return expirationDate.isBefore(LocalDate.now());
+    }
+
 }

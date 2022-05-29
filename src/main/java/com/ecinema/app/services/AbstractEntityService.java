@@ -10,8 +10,10 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Transactional
@@ -82,6 +84,19 @@ public abstract class AbstractEntityService<E extends AbstractEntity,
 
     public List<D> findAll() {
         return repository.findAll()
+                         .stream().map(this::convertToDto)
+                         .collect(Collectors.toList());
+    }
+
+    public List<D> findAll(Collection<Long> ids)
+            throws NoEntityFoundException {
+        List<Long> nonexistentEntities = ids.stream().filter(
+                id -> !existsById(id)).collect(Collectors.toList());
+        if (!nonexistentEntities.isEmpty()) {
+            throw new NoEntityFoundException(nonexistentEntities.stream().map(
+                    id -> "No entity found with id = " + id).collect(Collectors.toList()));
+        }
+        return repository.findAllById(ids)
                          .stream().map(this::convertToDto)
                          .collect(Collectors.toList());
     }

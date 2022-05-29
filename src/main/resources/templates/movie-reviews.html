@@ -4,11 +4,7 @@
 <body>
 <nav th:insert="fragments/webpage-top :: webpage-top"></nav>
 <div class="container">
-    <div>
-        <form method="get" th:action="@{/movie-info/{id}(id=${movieId})}">
-            <button class="btn btn-primary">Go Back to Movie Info Page</button>
-        </form>
-    </div>
+    <a th:href="@{/movie-info(id=${movieId})}" class="btn btn-primary">Go Back to Movie Info Page</a>
     <br/>
     <div th:insert="fragments/errors :: errors"></div>
     <br/>
@@ -16,7 +12,7 @@
     <br/>
     <div th:if="${userIsCustomer} and ${canWriteReview}">
         <label>
-            <a th:href="@{/write-review/{id}(id=${movieId})}" class="btn btn-outline-primary">Write Review</a>
+            <a th:href="@{/write-review(id=${movieId})}" class="btn btn-outline-primary">Write Review</a>
         </label>
     </div>
     <br/>
@@ -24,7 +20,7 @@
         <table class="table-hover">
             <tr>
                 <td th:if="${totalPages > 0}" th:each="pageNumber:${pageNumbers}">
-                    <a th:href="@{/movie-reviews/{id}(id=${movieId},page=${pageNumber})}"
+                    <a th:href="@{/movie-reviews(id=${movieId},page=${pageNumber})}"
                        class="btn btn-outline-primary" th:text="${pageNumber}"></a>
                 </td>
             </tr>

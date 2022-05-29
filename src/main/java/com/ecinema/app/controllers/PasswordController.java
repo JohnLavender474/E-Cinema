@@ -1,6 +1,7 @@
 package com.ecinema.app.controllers;
 
 import com.ecinema.app.beans.SecurityContext;
+import com.ecinema.app.domain.dtos.ChangePasswordDto;
 import com.ecinema.app.domain.dtos.UserDto;
 import com.ecinema.app.domain.forms.ChangePasswordForm;
 import com.ecinema.app.exceptions.EmailException;

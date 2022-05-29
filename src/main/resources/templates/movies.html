@@ -24,7 +24,7 @@
         <tbody>
         <tr th:each="entries:${movies}">
             <td th:each="movie:${entries.value}">
-                <a th:href="@{/movie-info/{id}(id=${movie.id})}">
+                <a th:href="@{/movie-info(id=${movie.id})}">
                     <img th:src="${movie.image}" width="400" height="500"
                          alt="failed to load image" src="">
                 </a>

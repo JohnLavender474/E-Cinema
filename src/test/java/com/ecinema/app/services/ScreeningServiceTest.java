@@ -54,7 +54,9 @@ class ScreeningServiceTest {
     @BeforeEach
     void setUp() {
         screeningValidator = new ScreeningValidator();
-        ticketService = new TicketService(ticketRepository);
+        ticketService = new TicketService(
+                ticketRepository, null, null,
+                null, screeningSeatRepository);
         screeningSeatService = new ScreeningSeatService(
                 screeningSeatRepository, ticketService);
         screeningService = new ScreeningService(

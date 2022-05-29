@@ -9,6 +9,8 @@ import lombok.ToString;
 
 import javax.persistence.*;
 import java.time.LocalDate;
+import java.util.HashSet;
+import java.util.Set;
 
 @Getter
 @Setter
@@ -35,14 +37,17 @@ public class PaymentCard extends AbstractEntity implements IPaymentCard {
     @Column
     private LocalDate expirationDate;
 
+    @Embedded
+    private Address billingAddress = new Address();
+
     @JoinColumn
     @ToString.Exclude
     @ManyToOne(fetch = FetchType.LAZY)
     private Customer cardOwner;
 
-    @Embedded
     @ToString.Exclude
-    private Address billingAddress = new Address();
+    @OneToMany(mappedBy = "paymentCard", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private Set<Ticket> purchasedTickets = new HashSet<>();
 
     @Override
     public void setBillingAddress(IAddress billingAddress) {

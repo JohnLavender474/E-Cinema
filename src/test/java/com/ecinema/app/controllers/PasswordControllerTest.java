@@ -6,6 +6,7 @@ import com.ecinema.app.domain.dtos.UserDto;
 import com.ecinema.app.domain.entities.User;
 import com.ecinema.app.domain.forms.ChangePasswordForm;
 import com.ecinema.app.repositories.UserRepository;
+import com.ecinema.app.services.ChangePasswordService;
 import com.ecinema.app.services.EncoderService;
 import com.ecinema.app.services.LoginService;
 import com.ecinema.app.services.UserService;

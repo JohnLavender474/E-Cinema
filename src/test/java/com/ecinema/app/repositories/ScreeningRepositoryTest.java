@@ -261,4 +261,23 @@ class ScreeningRepositoryTest {
         assertTrue(screenings.containsAll(Arrays.asList(screening1, screening2)));
     }
 
+    @Test
+    void findAllScreeningIdsByMovieId() {
+        // given
+        Movie movie = new Movie();
+        movieRepository.save(movie);
+        List<Long> screeningIds = new ArrayList<>();
+        for (int i = 0; i < 10; i++) {
+            Screening screening = new Screening();
+            screening.setMovie(movie);
+            movie.getScreenings().add(screening);
+            screeningRepository.save(screening);
+            screeningIds.add(screening.getId());
+        }
+        // when
+        List<Long> test = screeningRepository.findAllScreeningIdsByMovieId(movie.getId());
+        // then
+        assertEquals(screeningIds, test);
+    }
+
 }

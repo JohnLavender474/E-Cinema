@@ -27,11 +27,6 @@ public enum UserAuthority implements GrantedAuthority {
             return (Admin) o;
         }
 
-        @Override
-        public String toString() {
-            return "Admin Authority";
-        }
-
     },
 
     /**
@@ -48,11 +43,6 @@ public enum UserAuthority implements GrantedAuthority {
             return (Moderator) o;
         }
 
-        @Override
-        public String toString() {
-            return "Moderator Authority";
-        }
-
     },
 
     /**
@@ -67,11 +57,6 @@ public enum UserAuthority implements GrantedAuthority {
         @Override
         public Customer cast(Object o) {
             return (Customer) o;
-        }
-
-        @Override
-        public String toString() {
-            return "Customer Authority";
         }
 
     };

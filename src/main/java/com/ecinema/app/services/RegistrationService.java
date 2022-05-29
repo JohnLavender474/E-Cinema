@@ -43,7 +43,9 @@ public class RegistrationService extends AbstractEntityService<Registration, Reg
 
     @Override
     public RegistrationDto convertToDto(Registration registration) {
-        return null;
+        RegistrationDto registrationDto = new RegistrationDto();
+        registrationDto.setToIRegistration(registration);
+        return registrationDto;
     }
 
     public void deleteAllByEmail(String email) {
@@ -58,6 +60,9 @@ public class RegistrationService extends AbstractEntityService<Registration, Reg
             throws ClashException, InvalidArgumentException, EmailException {
         logger.debug(UtilMethods.getLoggingSubjectDelimiterLine());
         logger.debug("Submit registration request and get token");
+        if (registrationForm.getAuthorities().isEmpty()) {
+            throw new InvalidArgumentException("User authorities cannot be empty");
+        }
         if (userService.existsByEmail(registrationForm.getEmail())) {
             throw new ClashException(
                     "User with email " + registrationForm.getEmail() + " already exists");

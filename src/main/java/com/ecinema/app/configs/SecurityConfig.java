@@ -10,10 +10,6 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 
 import static com.ecinema.app.domain.enums.UserAuthority.*;
 
-/**
- * https://www.baeldung.com/spring-security-login
- * https://www.baeldung.com/spring-security-custom-authentication-failure-handler
- */
 @Configuration
 @RequiredArgsConstructor
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
@@ -38,21 +34,23 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
             "/post-email/**",
             "/submit-registration/**",
             "/submit-customer-registration/**",
-            "/test"
+            "/view-seats/**"
     };
     private static final String[] AUTHENTICATED_PERMITTED = new String[]{
+            "/edit-user-profile/**",
             "/logout/**",
             "/logout-success/**",
-            "/user-profile/**",
-            "/edit-user-profile/**"
+            "/user-profile/**"
     };
     private static final String[] CUSTOMERS_PERMITTED = new String[]{
             "/add-payment-card/**",
-            "/book-seats/**",
-            "/choose-seats-to-book/**",
+            "/book-seat/**",
+            "/current-tickets/**",
             "/edit-payment-card/**",
+            "/past-tickets/**",
             "/payment-cards/**",
             "/payment-card/**",
+            "/refund-ticket/**",
             "/tickets/**",
             "/vote-review/**",
             "/write-review/**"
@@ -61,13 +59,15 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
             "/management/**"
     };
     private static final String[] MODERATORS_PERMITTED = new String[]{
-
+            "/moderator-censorship/**"
     };
     private static final String[] ADMINS_PERMITTED = new String[]{
             "/admin-movie/**",
             "/add-movie/**",
             "/add-screening/**",
             "/add-showroom/**",
+            "/admin-change-user-password/**",
+            "/admin-create-new-account/**",
             "/admin-movie-choose/**",
             "/choose-screening-to-delete/**",
             "/choose-showroom-to-delete/**",
@@ -76,8 +76,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
             "/delete-screening/**",
             "/delete-showroom/**",
             "/edit-movie/**",
-            "/edit-movie-search/**",
-            "/manage-user-accounts/**"
+            "/edit-movie-search/**"
     };
 
     private final AuthenticationProvider authenticationProvider;

@@ -12,7 +12,6 @@ import com.ecinema.app.domain.validators.UserProfileValidator;
 import com.ecinema.app.exceptions.ClashException;
 import com.ecinema.app.exceptions.InvalidArgumentException;
 import com.ecinema.app.exceptions.NoEntityFoundException;
-import com.ecinema.app.repositories.UserAuthorityRepository;
 import com.ecinema.app.repositories.UserRepository;
 import com.ecinema.app.util.UtilMethods;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,13 +29,10 @@ import java.util.stream.Collectors;
 @Transactional
 public class UserService extends AbstractEntityService<User, UserRepository, UserDto> implements UserDetailsService {
 
-    private final Map<UserAuthority, UserAuthorityService<? extends AbstractUserAuthority,
-            ? extends UserAuthorityRepository<? extends AbstractUserAuthority>, ? extends UserAuthorityDto>>
-            userAuthorityServices = new EnumMap<>(UserAuthority.class);
     private final AdminService adminService;
+    private final EncoderService encoderService;
     private final CustomerService customerService;
     private final ModeratorService moderatorService;
-    private final EncoderService encoderService;
     private final UserProfileValidator userProfileValidator;
     private final RegistrationValidator registrationValidator;
 
@@ -54,21 +50,12 @@ public class UserService extends AbstractEntityService<User, UserRepository, Use
                        EncoderService encoderService, UserProfileValidator userProfileValidator,
                        RegistrationValidator registrationValidator) {
         super(repository);
-        logger.debug(UtilMethods.getLoggingSubjectDelimiterLine());
-        logger.debug("User Service: autowire user repository: " + repository);
-        logger.debug("User Service: autowire encoder service: " + encoderService);
-        this.encoderService = encoderService;
-        logger.debug("User Service: autowire user profile validator: " + userProfileValidator);
-        this.userProfileValidator = userProfileValidator;
-        logger.debug("User Service: autowire user registration validator: " + registrationValidator);
-        this.registrationValidator = registrationValidator;
         this.adminService = adminService;
+        this.encoderService = encoderService;
         this.customerService = customerService;
         this.moderatorService = moderatorService;
-        userAuthorityServices.put(UserAuthority.CUSTOMER, customerService);
-        userAuthorityServices.put(UserAuthority.MODERATOR, moderatorService);
-        userAuthorityServices.put(UserAuthority.ADMIN, adminService);
-        logger.debug("UserService: autowire user authority services: " + userAuthorityServices);
+        this.userProfileValidator = userProfileValidator;
+        this.registrationValidator = registrationValidator;
     }
 
     @Override
@@ -78,8 +65,14 @@ public class UserService extends AbstractEntityService<User, UserRepository, Use
         logger.debug("User roles: " + userAuthorities);
         for (UserAuthority userAuthority : userAuthorities) {
             logger.debug("Deleting user role: " + userAuthority);
-            UserAuthorityService userAuthorityService = userAuthorityServices.get(userAuthority);
-            userAuthorityService.delete(user.getUserAuthorities().get(userAuthority));
+            switch (userAuthority) {
+                case ADMIN -> adminService.delete(
+                        (Admin) user.getUserAuthorities().get(userAuthority));
+                case CUSTOMER -> customerService.delete(
+                        (Customer) user.getUserAuthorities().get(userAuthority));
+                case MODERATOR -> moderatorService.delete(
+                        (Moderator) user.getUserAuthorities().get(userAuthority));
+            }
         }
     }
 
@@ -143,6 +136,9 @@ public class UserService extends AbstractEntityService<User, UserRepository, Use
             throws InvalidArgumentException, ClashException {
         logger.debug(UtilMethods.getLoggingSubjectDelimiterLine());
         logger.debug("User registration");
+        if (registration.getAuthorities().isEmpty()) {
+            throw new InvalidArgumentException("Registration authorities cannot be empty");
+        }
         List<String> errors = new ArrayList<>();
         registrationValidator.validate(registration, errors);
         if (!errors.isEmpty()) {
@@ -176,10 +172,8 @@ public class UserService extends AbstractEntityService<User, UserRepository, Use
         user.setIsCredentialsExpired(false);
         repository.save(user);
         logger.debug("Saved user: " + user);
-        if (!registration.getAuthorities().isEmpty()) {
-            logger.debug("Register new authorities for user: " + registration.getAuthorities());
-            addUserAuthorityToUser(user, registration.getAuthorities());
-        }
+        logger.debug("Register new authorities for user: " + registration.getAuthorities());
+        addUserAuthorityToUser(user, registration.getAuthorities());
         logger.debug("Instantiated and saved new user: " + user);
         UserDto userDto = convertToDto(user);
         logger.debug("Returning new user DTO: " + userDto);
@@ -318,20 +312,6 @@ public class UserService extends AbstractEntityService<User, UserRepository, Use
                 case CUSTOMER -> customerService.save((Customer) abstractUserAuthority);
                 case MODERATOR -> moderatorService.save((Moderator) abstractUserAuthority);
             }
-            /*
-            UserAuthorityService userAuthorityService = userAuthorityServices.get(userAuthority);
-            logger.debug("User authority service: " + userAuthorityService);
-            if (userAuthorityService == null) {
-                throw new FatalErrorException(
-                        "FATAL ERROR: User authority service of type " + userAuthority + " is null");
-            }
-            logger.debug("User authority repository: " + userAuthorityService.repository);
-            if (userAuthorityService.repository == null) {
-                throw new FatalErrorException(
-                        "FATAL ERROR: User authority repository of type " + userAuthority + " is null");
-            }
-            userAuthorityService.save(userAuthority.cast(abstractUserAuthority));
-             */
         }
     }
 
@@ -369,8 +349,11 @@ public class UserService extends AbstractEntityService<User, UserRepository, Use
         for (UserAuthority userAuthority : userAuthorities) {
             AbstractUserAuthority iUserAuthority = user.getUserAuthorities().get(userAuthority);
             if (iUserAuthority != null) {
-                UserAuthorityService userAuthorityService = userAuthorityServices.get(userAuthority);
-                userAuthorityService.delete(iUserAuthority);
+                switch (userAuthority) {
+                    case ADMIN -> adminService.delete((Admin) iUserAuthority);
+                    case CUSTOMER -> customerService.delete((Customer) iUserAuthority);
+                    case MODERATOR -> moderatorService.delete((Moderator) iUserAuthority);
+                }
             }
         }
     }

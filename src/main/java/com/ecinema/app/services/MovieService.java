@@ -114,4 +114,11 @@ public class MovieService extends AbstractEntityService<Movie, MovieRepository, 
                          .map(this::convertToDto);
     }
 
+    public List<String> onDeleteInfo(Long movieId) {
+        List<String> onDeleteInfo = new ArrayList<>();
+        screeningService.findAllScreeningIdsByMovieId(movieId).forEach(
+                screeningId -> onDeleteInfo.addAll(screeningService.onDeleteInfo(screeningId)));
+        return onDeleteInfo;
+    }
+
 }

@@ -11,12 +11,13 @@
     <br/>
     <div th:insert="fragments/errors :: errors"></div>
     <br/>
-    <form id="cascading-form" method="post" th:action="@{/add-screening(id=${movie.id})}" th:object="${screeningForm}">
+    <form id="cascading-form" method="post"
+          th:action="@{/add-screening/{id}(id=${movie.id})}" th:object="${screeningForm}">
         <div class="cascade-field">
             <label for="field1">
                 <span class="bold-white-text">Showroom:</span>
                 <select id="field1" th:field="*{showroomId}">
-                    <option value="">Select Showroom</option>
+                    <option selected disabled value="">Select Showroom</option>
                     <option th:each="showroom:${showrooms}"
                             th:text="${showroom.showroomLetter}"
                             th:value="${showroom.id}">
@@ -37,6 +38,7 @@
             <label for="field3">
                 <span class="bold-white-text">Showtime Hour:</span>
                 <select id="field3" th:field="*{showtimeHour}">
+                    <option selected disabled value="">Select Hour</option>
                     <option th:text="12PM" th:value="12"></option>
                     <option th:text="1PM" th:value="13"></option>
                     <option th:text="2PM" th:value="14"></option>
@@ -57,6 +59,7 @@
             <label for="field4">
                 <span class="bold-white-text">Showtime Minute:</span>
                 <select id="field4" th:field="*{showtimeMinute}">
+                    <option selected disabled value="">Select Minute</option>
                     <option th:text="00" th:value="0"></option>
                     <option th:text="15" th:value="15"></option>
                     <option th:text="30" th:value="30"></option>

@@ -6,9 +6,7 @@
 <div class="container">
     <div th:insert="fragments/errors :: errors"></div>
     <br/>
-    <div th:if="${success != null}">
-        <span class="bold-white-text center-text" th:text="${success}"></span>
-    </div>
+    <div th:insert="fragments/success :: success"></div>
     <br/>
     <div th:if="${moderator == true}">
         <h1 class="bold-white-text center-text">Moderator Management</h1>
@@ -17,13 +15,12 @@
             <tr>
                 <td>Manage Censorship:</td>
                 <td><a class="btn btn-outline-primary btn-block m-1"
-                       th:href="@{/moderator-reports}">Reports of Policy Violation</a></td>
-                <td><a class="btn btn-outline-primary btn-block m-1"
                        th:href="@{/moderator-censorship}">Censorship of Customers</a></td>
             </tr>
             </tbody>
         </table>
     </div>
+    <br/>
     <div th:if="${admin == true}">
         <h1 class="bold-white-text center-text">Admin Management</h1>
         <table>
@@ -53,11 +50,11 @@
                        th:href="@{/choose-screening-to-delete}">Delete Screening</a></td>
             </tr>
             <tr>
-                <td>Admin Management:</td>
+                <td>User Management:</td>
                 <td><a class="btn btn-outline-primary btn-block m-1"
-                       th:href="@{/manage-users}">Manage Users</a></td>
+                       th:href="@{/admin-create-new-account}">Create New Account</a></td>
                 <td><a class="btn btn-outline-primary btn-block m-1"
-                       th:href="@{/manage-reports}">Manage Reports</a></td>
+                       th:href="@{/admin-change-user-password}">Change User Password</a></td>
             </tr>
             </tbody>
         </table>

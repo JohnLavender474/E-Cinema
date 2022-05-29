@@ -3,11 +3,13 @@
 <head th:insert="fragments/header :: header"></head>
 <body>
 <nav th:insert="fragments/webpage-top :: webpage-top"></nav>
-<div class="moviesContainer">
+<div class="container">
     <div class="row">
         <img th:src="${movie.image}" width="400" height="500" src="" alt="">
     </div>
+    <br/>
     <div th:insert="fragments/errors :: errors"></div>
+    <br/>
     <form method="post" th:action="@{/write-review/{id}(id=${reviewForm.movieId})}" th:object="${reviewForm}">
         <table class="table table-bordered table-striped">
             <tr>

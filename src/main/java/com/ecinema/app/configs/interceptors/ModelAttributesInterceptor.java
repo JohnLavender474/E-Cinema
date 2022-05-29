@@ -63,7 +63,7 @@ public class ModelAttributesInterceptor implements HandlerInterceptor {
             }
             logger.debug("User DTO: " + userDto);
             if (userDto.getUserAuthorities().contains(UserAuthority.CUSTOMER)) {
-                dropdownMenu.add(new Pair<>("Tickets", "/tickets"));
+                dropdownMenu.add(new Pair<>("Tickets", "/current-tickets"));
                 dropdownMenu.add(new Pair<>("Payment Cards", "/payment-cards"));
             }
             if (userDto.getUserAuthorities().contains(UserAuthority.MODERATOR) ||
@@ -71,7 +71,7 @@ public class ModelAttributesInterceptor implements HandlerInterceptor {
                 dropdownMenu.add(new Pair<>("Management", "/management"));
             }
             dropdownMenu.add(new Pair<>("Profile", "/user-profile"));
-            dropdownMenu.add(new Pair<>("Change Password", "/change-password"));
+            dropdownMenu.add(new Pair<>("Change Password", "/get-email-for-change-password"));
             dropdownMenu.add(new Pair<>("Logout", "/logout"));
         }
         modelAndView.addObject("dropdownMenu", dropdownMenu);

@@ -19,16 +19,8 @@ import java.util.Optional;
 public interface TicketRepository extends JpaRepository<Ticket, Long> {
 
     /**
-     * Find all by screening.
-     *
-     * @param screening the screening
-     * @return the list of tickets
-     */
-    @Query("SELECT t FROM Ticket t WHERE t.screeningSeat.screening = ?1")
-    List<Ticket> findAllByScreening(Screening screening);
-
-    /**
-     * Find all by screening with id.
+     * Find all {@link Ticket} where {@link Screening#getId()} from {@link ScreeningSeat#getScreening()} from
+     * {@link Ticket#getScreeningSeat()} equals the provided Long screening id argument.
      *
      * @param screeningId the screening id
      * @return the list of tickets
@@ -37,15 +29,8 @@ public interface TicketRepository extends JpaRepository<Ticket, Long> {
     List<Ticket> findAllByScreeningWithId(Long screeningId);
 
     /**
-     * Find by screening seat optional.
-     *
-     * @param screeningSeat the screening seat
-     * @return the optional ticket
-     */
-    Optional<Ticket> findByScreeningSeat(ScreeningSeat screeningSeat);
-
-    /**
-     * Find by screening seat with id optional.
+     * Find all {@link Ticket} where {@link ScreeningSeat#getId()} from {@link Ticket#getScreeningSeat()} equals
+     * the provided Long screening seat id argument.
      *
      * @param screeningSeatId the screening seat id
      * @return the optional ticket
@@ -54,16 +39,9 @@ public interface TicketRepository extends JpaRepository<Ticket, Long> {
     Optional<Ticket> findByScreeningSeatWithId(Long screeningSeatId);
 
     /**
-     * Find all by showroom.
-     *
-     * @param showroom the showroom
-     * @return the list of tickets
-     */
-    @Query("SELECT t FROM Ticket t WHERE t.screeningSeat.screening.showroom = ?1")
-    List<Ticket> findAllByShowroom(Showroom showroom);
-
-    /**
-     * Find all by showroom with id.
+     * Find all {@link Ticket} where {@link Showroom#getId()} from {@link Screening#getShowroom()} from
+     * {@link ScreeningSeat#getScreening()} from {@link Ticket#getScreeningSeat()} equals the provided Long
+     * showroom id argument.
      *
      * @param showroomId the showroom id
      * @return the list of tickets
@@ -72,7 +50,8 @@ public interface TicketRepository extends JpaRepository<Ticket, Long> {
     List<Ticket> findAllByShowroomWithId(Long showroomId);
 
     /**
-     * Find all by creation date time less than or equal to provided {@link LocalDateTime}.
+     * Find all {@link Ticket} where {@link Ticket#getCreationDateTime()} less than or equal to the provided
+     * {@link LocalDateTime}.
      *
      * @param localDateTime the local date time
      * @return the list of tickets
@@ -80,7 +59,8 @@ public interface TicketRepository extends JpaRepository<Ticket, Long> {
     List<Ticket> findAllByCreationDateTimeLessThanEqual(LocalDateTime localDateTime);
 
     /**
-     * Find all by creation date time greater than or equals to provided {@link LocalDateTime}.
+     * Find all {@link Ticket} where {@link Ticket#getCreationDateTime()} greater than or equals to the provided
+     * {@link LocalDateTime}.
      *
      * @param localDateTime the local date time
      * @return the list of tickets
@@ -88,7 +68,8 @@ public interface TicketRepository extends JpaRepository<Ticket, Long> {
     List<Ticket> findAllByCreationDateTimeGreaterThanEqual(LocalDateTime localDateTime);
 
     /**
-     * Find all by ticket status.
+     * Find all {@link Ticket} where {@link Ticket#getTicketStatus()} equals the provided {@link TicketStatus}
+     * argument.
      *
      * @param ticketStatus the ticket status
      * @return the list of tickets
@@ -96,7 +77,7 @@ public interface TicketRepository extends JpaRepository<Ticket, Long> {
     List<Ticket> findAllByTicketStatus(TicketStatus ticketStatus);
 
     /**
-     * Find all by ticket type.
+     * Find all {@link Ticket} where {@link Ticket#getTicketType()} equals the provided {@link TicketType} argument.
      *
      * @param ticketType the ticket type
      * @return the list of tickets
@@ -104,24 +85,8 @@ public interface TicketRepository extends JpaRepository<Ticket, Long> {
     List<Ticket> findAllByTicketType(TicketType ticketType);
 
     /**
-     * Find all by customer ticket owner.
-     *
-     * @param customer the customer
-     * @return the list of tickets
-     */
-    List<Ticket> findAllByTicketOwner(Customer customer);
-
-    /**
-     * Find all by customer ticket owner with id.
-     *
-     * @param customerRoleDefId the customer id
-     * @return the list of tickets
-     */
-    @Query("SELECT t FROM Ticket t WHERE t.ticketOwner.id = ?1")
-    List<Ticket> findAllByTicketOwnerWithId(Long customerRoleDefId);
-
-    /**
-     * Find all by user id.
+     * Find all {@link Ticket} where {@link User#getId()} from {@link Customer#getUser()} from
+     * {@link Ticket#getTicketOwner()} equals the provided Long user id argument.
      *
      * @param userId the user id
      * @return the list of tickets
@@ -130,55 +95,108 @@ public interface TicketRepository extends JpaRepository<Ticket, Long> {
     List<Ticket> findAllByUserWithId(Long userId);
 
     /**
-     * Find username of ticket user owner optional.
+     * Find all {@link Ticket#getId()} where {@link User#getId()} from {@link Customer#getUser()} from
+     * {@link Ticket#getTicketOwner()} equals the provided Long user id argument and {@link Screening#getShowDateTime()}
+     * from {@link ScreeningSeat#getScreening()} from {@link Ticket#getScreeningSeat()} is before the provided
+     * {@link LocalDateTime} argument.
+     *
+     * @param userId        the user id
+     * @param localDateTime the local date time
+     * @return the list of tickets
+     */
+    @Query("SELECT t.id FROM Ticket t WHERE t.ticketOwner.user.id = ?1 AND t.screeningSeat.screening.showDateTime < ?2")
+    List<Long> findAllIdsByUserWithIdAndShowDateTimeIsBefore(Long userId, LocalDateTime localDateTime);
+
+    /**
+     * Find all {@link Ticket#getId()} where {@link User#getId()} from {@link Customer#getUser()} from
+     * {@link Ticket#getTicketOwner()} equals the provided Long user id argument and {@link Screening#getShowDateTime()}
+     * from {@link ScreeningSeat#getScreening()} from {@link Ticket#getScreeningSeat()} is after the provided
+     * {@link LocalDateTime} argument.
+     *
+     * @param userId        the user id
+     * @param localDateTime the local date time
+     * @return the list
+     */
+    @Query("SELECT t.id FROM Ticket t WHERE t.ticketOwner.user.id = ?1 AND t.screeningSeat.screening.showDateTime > ?2")
+    List<Long> findAllIdsByUserWithIdAndShowDateTimeIsAfter(Long userId, LocalDateTime localDateTime);
+
+    /**
+     * Find optional {@link User#getId()} from {@link Customer#getUser()} from {@link Ticket#getTicketOwner()}
+     * where {@link Ticket#getId()} equals the provided Long ticket id argument.
      *
      * @param ticketId the ticket id
-     * @return the optional
+     * @return the optional {@link User} id
+     */
+    @Query("SELECT t.ticketOwner.user.id FROM Ticket t WHERE t.id = ?1")
+    Optional<Long> findUserIdOfTicket(Long ticketId);
+
+    /**
+     * Find optional {@link User#getEmail()} from {@link Customer#getUser()} from {@link Ticket#getTicketOwner()} where
+     * {@link Ticket#getId()} equals the provided Long ticket id argument.
+     *
+     * @param ticketId the ticket id
+     * @return the optional email
+     */
+    @Query("SELECT t.ticketOwner.user.email FROM Ticket t WHERE t.id = ?1")
+    Optional<String> findEmailOfTicketUserOwner(Long ticketId);
+
+    /**
+     * Find optional {@link User#getUsername()} from {@link Customer#getUser()} from {@link Ticket#getTicketOwner()}
+     * where {@link Ticket#getId()} equals the provided Long ticket id argument.
+     *
+     * @param ticketId the ticket id
+     * @return the optional username
      */
     @Query("SELECT t.ticketOwner.user.username FROM Ticket t WHERE t.id = ?1")
     Optional<String> findUsernameOfTicketUserOwner(Long ticketId);
 
     /**
-     * Find movie title associated with ticket optional.
+     * Find optional {@link Movie#getTitle()} from {@link Screening#getMovie()} from {@link ScreeningSeat#getScreening()}
+     * where {@link Ticket#getScreeningSeat()} where {@link Ticket#getId()} equals the provided Long ticket id argument.
      *
      * @param ticketId the ticket id
-     * @return the optional
+     * @return the optional movie title
      */
     @Query("SELECT t.screeningSeat.screening.movie.title FROM Ticket t WHERE t.id = ?1")
     Optional<String> findMovieTitleAssociatedWithTicket(Long ticketId);
 
     /**
-     * Find showroom letter associated with ticket optional.
+     * Find optional {@link Showroom#getShowroomLetter()} from {@link Screening#getShowroom()} from
+     * {@link ScreeningSeat#getScreening()} from {@link Ticket#getScreeningSeat()} where {@link Ticket#getId()}
+     * equals the provided Long ticket id argument.
      *
      * @param ticketId the ticket id
-     * @return the optional
+     * @return the optional showroom letter
      */
     @Query("SELECT t.screeningSeat.screening.showroom.showroomLetter FROM Ticket t WHERE t.id = ?1")
     Optional<Letter> findShowroomLetterAssociatedWithTicket(Long ticketId);
 
     /**
-     * Find showtime of screening associated with ticket optional.
+     * Find optional {@link Screening#getShowDateTime()} from {@link ScreeningSeat#getScreening()} from
+     * {@link Ticket#getScreeningSeat()} where {@link Ticket#getId()} equals the provided Long ticket id argument.
      *
      * @param ticketId the ticket id
-     * @return the optional
+     * @return the optional show date time
      */
     @Query("SELECT t.screeningSeat.screening.showDateTime FROM Ticket t WHERE t.id = ?1")
-    Optional<LocalDateTime> findShowtimeOfScreeningAssociatedWithTicket(Long ticketId);
+    Optional<LocalDateTime> findShowDateTimeOfScreeningAssociatedWithTicket(Long ticketId);
 
     /**
-     * Find endtime of screening associated with ticket optional.
+     * Find optional {@link Screening#getEndDateTime()} from {@link ScreeningSeat#getScreening()} from
+     * {@link Ticket#getScreeningSeat()} where {@link Ticket#getId()} equals the provided Long ticket id argument.
      *
      * @param ticketId the ticket id
-     * @return the optional
+     * @return the optional end date time
      */
     @Query("SELECT t.screeningSeat.screening.endDateTime FROM Ticket t WHERE t.id = ?1")
-    Optional<LocalDateTime> findEndtimeOfScreeningAssociatedWithTicket(Long ticketId);
+    Optional<LocalDateTime> findEndDateTimeOfScreeningAssociatedWithTicket(Long ticketId);
 
     /**
-     * Find showroom seat associated with ticket optional.
+     * Find optional {@link ShowroomSeat} from {@link ScreeningSeat#getShowroomSeat()} from
+     * {@link Ticket#getScreeningSeat()} where {@link Ticket#getId()} equals the provided Long ticket id argument.
      *
      * @param ticketId the ticket id
-     * @return the optional
+     * @return the optional showroom seat
      */
     @Query("SELECT t.screeningSeat.showroomSeat FROM Ticket t WHERE t.id = ?1")
     Optional<ShowroomSeat> findShowroomSeatAssociatedWithTicket(Long ticketId);

@@ -75,9 +75,12 @@ class MovieServiceTest {
         reviewService = new ReviewService(
                 reviewRepository, movieRepository,
                 customerRepository, reviewValidator, reviewVoteService);
-        ticketService = new TicketService(ticketRepository);
-        paymentCardService = new PaymentCardService(paymentCardRepository, null,
-                                                    customerRepository, null);
+        ticketService = new TicketService(
+                ticketRepository, null, customerRepository,
+                paymentCardRepository, screeningSeatRepository);
+        paymentCardService = new PaymentCardService(
+                paymentCardRepository, null,
+                customerRepository, null);
         screeningSeatService = new ScreeningSeatService(
                 screeningSeatRepository, ticketService);
         screeningService = new ScreeningService(

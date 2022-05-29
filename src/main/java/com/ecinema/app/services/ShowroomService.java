@@ -134,7 +134,7 @@ public class ShowroomService extends AbstractEntityService<Showroom, ShowroomRep
 
     protected List<String> onDeleteInfo(Showroom showroom) {
         List<String> onDeleteInfo = new ArrayList<>();
-        List<Ticket> ticketsInShowroom = ticketRepository.findAllByShowroom(showroom);
+        List<Ticket> ticketsInShowroom = ticketRepository.findAllByShowroomWithId(showroom.getId());
         int numberOfScreeningsInShowroom = showroom.getScreenings().size();
         int costOfDeletingTickets = ticketsInShowroom.stream().mapToInt(
                 ticket -> ticket.getTicketType().getPrice()).sum();

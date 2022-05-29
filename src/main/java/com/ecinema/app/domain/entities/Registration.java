@@ -12,18 +12,12 @@ import java.time.LocalDateTime;
 import java.util.EnumSet;
 import java.util.Set;
 
-/**
- * The type Registration.
- */
 @Getter
 @Setter
 @Entity
 @ToString
 public class Registration extends AbstractEntity implements IRegistration {
 
-    /**
-     * Instantiates a new Registration.
-     */
     public Registration() {
         setIsPasswordEncoded(false);
         setIsSecurityAnswer1Encoded(false);
@@ -35,7 +29,8 @@ public class Registration extends AbstractEntity implements IRegistration {
 
     @ElementCollection
     @Enumerated(EnumType.STRING)
-    private Set<UserAuthority> authorities = EnumSet.noneOf(UserAuthority.class);
+    private Set<UserAuthority> authorities =
+            EnumSet.noneOf(UserAuthority.class);
 
     @Column
     private String token;

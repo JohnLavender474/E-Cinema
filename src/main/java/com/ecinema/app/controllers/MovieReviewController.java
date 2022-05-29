@@ -11,10 +11,7 @@ import com.ecinema.app.exceptions.ClashException;
 import com.ecinema.app.exceptions.InvalidArgumentException;
 import com.ecinema.app.exceptions.InvalidAssociationException;
 import com.ecinema.app.exceptions.NoEntityFoundException;
-import com.ecinema.app.services.MovieService;
-import com.ecinema.app.services.ReviewService;
-import com.ecinema.app.services.ReviewVoteService;
-import com.ecinema.app.services.UserService;
+import com.ecinema.app.services.*;
 import com.ecinema.app.util.UtilMethods;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
@@ -25,6 +22,8 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
+import java.util.List;
 
 import static com.ecinema.app.util.UtilMethods.addPageNumbersAttribute;
 
@@ -39,6 +38,7 @@ public class MovieReviewController {
     private final UserService userService;
     private final MovieService movieService;
     private final ReviewService reviewService;
+    private final CustomerService customerService;
     private final SecurityContext securityContext;
     private final ReviewVoteService reviewVoteService;
     private final Logger logger = LoggerFactory.getLogger(MovieReviewController.class);
@@ -52,11 +52,11 @@ public class MovieReviewController {
      * @param movieId            the movie id
      * @return the view name
      */
-    @GetMapping("/movie-reviews/{id}")
+    @GetMapping("/movie-reviews")
     public String movieReviewsPage(
             final Model model, final RedirectAttributes redirectAttributes,
             @RequestParam(value = "page", required = false, defaultValue = "1") final Integer page,
-            @PathVariable("id") final Long movieId) {
+            @RequestParam("id") final Long movieId) {
         try {
             logger.debug(UtilMethods.getLoggingSubjectDelimiterLine());
             Long userId = securityContext.findIdOfLoggedInUser();
@@ -116,33 +116,7 @@ public class MovieReviewController {
             logger.debug("Errors: " + e);
             redirectAttributes.addFlashAttribute("errors", e.getErrors());
         }
-        return "redirect:/movie-reviews/" + movieId + "?page=" + page;
-    }
-
-    /**
-     * Show report review page.
-     *
-     * @param redirectAttributes the redirect attributes
-     * @param reviewId           the review id
-     * @return the view name
-     */
-    @GetMapping("/report-review")
-    public String showReportReviewPage(final RedirectAttributes redirectAttributes,
-                                       @RequestParam("id") final Long reviewId) {
-        return null;
-    }
-
-    /**
-     * Show unreport review page.
-     *
-     * @param redirectAttributes the redirect attributes
-     * @param reviewId           the review id
-     * @return the view name
-     */
-    @GetMapping("/unreport-review")
-    public String showUnreportReviewPage(final RedirectAttributes redirectAttributes,
-                                         @RequestParam("id") final Long reviewId) {
-        return null;
+        return "redirect:/movie-reviews?id=" + movieId + "&page=" + page;
     }
 
     /**
@@ -153,9 +127,9 @@ public class MovieReviewController {
      * @param movieId            the movie id
      * @return the view name
      */
-    @GetMapping("/write-review/{id}")
+    @GetMapping("/write-review")
     public String showWriteReviewPage(final Model model, final RedirectAttributes redirectAttributes,
-                                      @PathVariable("id") final Long movieId) {
+                                      @RequestParam("id") final Long movieId) {
         logger.debug(UtilMethods.getLoggingSubjectDelimiterLine());
         logger.debug("Write review get mapping");
         Long userId = securityContext.findIdOfLoggedInUser();
@@ -163,25 +137,22 @@ public class MovieReviewController {
             redirectAttributes.addFlashAttribute("error", "Fatal error: Forced to logout");
             return "redirect:/logout";
         }
-        UserDto userDto = userService.findById(userId);
-        if (!userDto.getUserAuthorities().contains(UserAuthority.CUSTOMER)) {
-            redirectAttributes.addFlashAttribute(
-                    "error", "Cannot access write-review page without customer credentials");
+        if (customerService.isCustomerCensored(userId)) {
+            List<String> errors = List.of("You cannot write a review because you have been censored by a moderator");
+            redirectAttributes.addFlashAttribute("errors", errors);
             return "redirect:/error";
         }
-        if (reviewService.existsByUserIdAndMovieId(userDto.getId(), movieId)) {
+        if (reviewService.existsByUserIdAndMovieId(userId, movieId)) {
             redirectAttributes.addFlashAttribute(
                     "error", "Customer has already written a review for this movie");
-            return "redirect:/movie-reviews/" + movieId;
+            return "redirect:/movie-reviews?id=" + movieId;
         }
         model.addAttribute("error", "Cannot access write-review page");
-        logger.debug("Added user dto to model: " + userDto);
         MovieDto movieDto = movieService.findById(movieId);
         model.addAttribute("movie", movieDto);
         logger.debug("Added movie dto to model: " + movieDto);
         ReviewForm reviewForm = new ReviewForm();
         reviewForm.setMovieId(movieId);
-        reviewForm.setUserId(userDto.getId());
         model.addAttribute("reviewForm", reviewForm);
         logger.debug("Added review form to model: " + reviewForm);
         return "write-review";
@@ -201,18 +172,25 @@ public class MovieReviewController {
                               @PathVariable("id") final Long movieId) {
         try {
             logger.debug(UtilMethods.getLoggingSubjectDelimiterLine());
+            Long userId = securityContext.findIdOfLoggedInUser();
+            logger.debug("User id: " + userId);
+            reviewForm.setUserId(userId);
             logger.debug("Write review post mapping");
             reviewForm.setMovieId(movieId);
+            logger.debug("Review form: " + reviewForm);
             reviewService.submitReviewForm(reviewForm);
             redirectAttributes.addFlashAttribute(
                     "success", "Successfully created review for movie");
             logger.debug("Successfully created review for movie");
-            return "redirect:/movie-reviews/" + movieId;
+            return "redirect:/movie-reviews?id=" + movieId;
         } catch (NoEntityFoundException | ClashException e) {
             logger.debug("Errors: " + e);
             redirectAttributes.addAttribute("errors", e.getErrors());
-            return "redirect:/write-review/" + movieId;
+            redirectAttributes.addFlashAttribute("reviewForm", reviewForm);
+            return "redirect:/write-review?id=" + movieId;
         }
     }
+
+
 
 }

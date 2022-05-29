@@ -127,4 +127,13 @@ public interface ScreeningRepository extends JpaRepository<Screening, Long> {
     @Query("SELECT s FROM Screening s JOIN s.showroom sh WHERE sh.id = ?1")
     List<Screening> findAllByShowroomWithId(Long showroomId);
 
+    /**
+     * Find all screening ids by movie id list.
+     *
+     * @param movieId the movie id
+     * @return the list
+     */
+    @Query("SELECT s.id FROM Screening s where s.movie.id = ?1")
+    List<Long> findAllScreeningIdsByMovieId(Long movieId);
+
 }

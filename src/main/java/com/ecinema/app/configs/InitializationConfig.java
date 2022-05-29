@@ -468,31 +468,31 @@ public class InitializationConfig {
         ShowroomForm showroomFormA = new ShowroomForm();
         showroomFormA.setShowroomLetter(Letter.A);
         showroomFormA.setNumberOfRows(4);
-        showroomFormA.setNumberOfSeatsPerRow(15);
+        showroomFormA.setNumberOfSeatsPerRow(10);
         showroomService.submitShowroomForm(showroomFormA);
         // Showroom B
         ShowroomForm showroomFormB = new ShowroomForm();
         showroomFormB.setShowroomLetter(Letter.B);
         showroomFormB.setNumberOfRows(5);
-        showroomFormB.setNumberOfSeatsPerRow(12);
+        showroomFormB.setNumberOfSeatsPerRow(8);
         showroomService.submitShowroomForm(showroomFormB);
         // Showroom C
         ShowroomForm showroomFormC = new ShowroomForm();
         showroomFormC.setShowroomLetter(Letter.C);
         showroomFormC.setNumberOfRows(4);
-        showroomFormC.setNumberOfSeatsPerRow(15);
+        showroomFormC.setNumberOfSeatsPerRow(10);
         showroomService.submitShowroomForm(showroomFormC);
         // Showroom D
         ShowroomForm showroomFormD = new ShowroomForm();
         showroomFormD.setShowroomLetter(Letter.D);
         showroomFormD.setNumberOfRows(5);
-        showroomFormD.setNumberOfSeatsPerRow(12);
+        showroomFormD.setNumberOfSeatsPerRow(9);
         showroomService.submitShowroomForm(showroomFormD);
         // Showroom E
         ShowroomForm showroomFormE = new ShowroomForm();
         showroomFormE.setShowroomLetter(Letter.E);
         showroomFormE.setNumberOfRows(4);
-        showroomFormE.setNumberOfSeatsPerRow(10);
+        showroomFormE.setNumberOfSeatsPerRow(7);
         showroomService.submitShowroomForm(showroomFormE);
     }
 
@@ -679,7 +679,7 @@ public class InitializationConfig {
         paymentCardForm1.setCity("Somewhere");
         paymentCardForm1.setUsState(UsState.GEORGIA);
         paymentCardForm1.setZipcode("31775");
-        paymentCardService.submitPaymentCardForm(paymentCardForm1);
+        paymentCardService.submitPaymentCardFormToAddNewPaymentCard(paymentCardForm1);
         // Paymentcard 2
         PaymentCardForm paymentCardForm2 = new PaymentCardForm();
         paymentCardForm2.setUserId(customer.getId());
@@ -692,7 +692,7 @@ public class InitializationConfig {
         paymentCardForm2.setCity("Something");
         paymentCardForm2.setUsState(UsState.FLORIDA);
         paymentCardForm2.setZipcode("55555");
-        paymentCardService.submitPaymentCardForm(paymentCardForm2);
+        paymentCardService.submitPaymentCardFormToAddNewPaymentCard(paymentCardForm2);
     }
 
 }

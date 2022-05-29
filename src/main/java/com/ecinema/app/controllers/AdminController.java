@@ -8,9 +8,7 @@ import com.ecinema.app.domain.forms.*;
 import com.ecinema.app.exceptions.ClashException;
 import com.ecinema.app.exceptions.InvalidArgumentException;
 import com.ecinema.app.exceptions.NoEntityFoundException;
-import com.ecinema.app.services.MovieService;
-import com.ecinema.app.services.ScreeningService;
-import com.ecinema.app.services.ShowroomService;
+import com.ecinema.app.services.*;
 import com.ecinema.app.util.UtilMethods;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
@@ -33,9 +31,12 @@ import java.util.stream.Stream;
 @RequiredArgsConstructor
 public class AdminController {
 
+    private final UserService userService;
+    private final AdminService adminService;
     private final MovieService movieService;
     private final ShowroomService showroomService;
     private final ScreeningService screeningService;
+    private final RegistrationService registrationService;
     private final Logger logger = LoggerFactory.getLogger(AdminController.class);
 
     /**
@@ -72,7 +73,7 @@ public class AdminController {
             Long id = movieService.submitMovieForm(movieForm);
             redirectAttributes.addFlashAttribute("success", "Successfully added movie!\n " +
                             "Please verify that the information displayed on this page is correct.");
-            return "redirect:/movie-info/" + id;
+            return "redirect:/movie-info?id=" + id;
         } catch (ClashException | InvalidArgumentException e) {
             redirectAttributes.addFlashAttribute("errors", e.getErrors());
             redirectAttributes.addFlashAttribute("movieForm", movieForm);
@@ -90,7 +91,7 @@ public class AdminController {
     public String showEditMovieSearchPage(final Model model) {
         logger.debug(UtilMethods.getLoggingSubjectDelimiterLine());
         logger.debug("Get mapping: edit movie search");
-        model.addAttribute("href", "/edit-movie/{id}");
+        model.addAttribute("href", "/edit-movie");
         List<MovieDto> movies = movieService.findAll();
         logger.debug("Movies: " + movies);
         model.addAttribute("movies", movies);
@@ -104,11 +105,11 @@ public class AdminController {
      * @param movieId the id of the movie to be edited
      * @return the string
      */
-    @GetMapping("/edit-movie/{id}")
-    public String showEditMoviePage(final Model model, @PathVariable("id") final Long movieId) {
+    @GetMapping("/edit-movie")
+    public String showEditMoviePage(final Model model, @RequestParam("id") final Long movieId) {
         logger.debug(UtilMethods.getLoggingSubjectDelimiterLine());
         logger.debug("Get mapping: edit movie with id " + movieId);
-        model.addAttribute("action", "/edit-movie/{id}");
+        model.addAttribute("action", "/edit-movie");
         MovieForm movieForm = movieService.fetchAsForm(movieId);
         logger.debug("Movie form: " + movieForm);
         model.addAttribute("movieForm", movieForm);
@@ -137,10 +138,10 @@ public class AdminController {
             movieService.submitMovieForm(movieForm);
             redirectAttributes.addFlashAttribute("success", "Successfully edited movie!\n" +
                     "Please verify that the information displayed on this page is correct.");
-            return "redirect:/movie-info/" + movieId;
+            return "redirect:/movie-info?id=" + movieId;
         } catch (InvalidArgumentException e) {
             redirectAttributes.addAttribute("errors", e.getErrors());
-            return "redirect:/edit-movie/" + movieId;
+            return "redirect:/edit-movie?id=" + movieId;
         }
     }
 
@@ -154,7 +155,7 @@ public class AdminController {
     public String showDeleteMovieSearchPage(final Model model) {
         logger.debug(UtilMethods.getLoggingSubjectDelimiterLine());
         logger.debug("Get mapping: delete movie search");
-        model.addAttribute("href", "/delete-movie/{id}");
+        model.addAttribute("href", "/delete-movie");
         List<MovieDto> movies = movieService.findAll();
         logger.debug("Movies: " + movies);
         model.addAttribute("movies", movies);
@@ -169,16 +170,16 @@ public class AdminController {
      * @param id                 the id
      * @return the string
      */
-    @GetMapping("/delete-movie/{id}")
+    @GetMapping("/delete-movie")
     public String showDeleteMoviePage(final Model model, final RedirectAttributes redirectAttributes,
-                                      @PathVariable("id") final Long id) {
+                                      @RequestParam("id") final Long id) {
         logger.debug(UtilMethods.getLoggingSubjectDelimiterLine());
         try {
             MovieDto movieDto = movieService.findById(id);
             model.addAttribute("movie", movieDto);
             model.addAttribute("movieId", id);
-            List<String> info = new ArrayList<>();
-            model.addAttribute("onDeleteInfo", info);
+            List<String> onDeleteInfo = movieService.onDeleteInfo(id);
+            model.addAttribute("onDeleteInfo", onDeleteInfo);
             return "delete-movie";
         } catch (NoEntityFoundException e) {
             redirectAttributes.addFlashAttribute("errors", e.getErrors());
@@ -213,7 +214,7 @@ public class AdminController {
     public String showAddScreeningSearchPage(final Model model) {
         logger.debug(UtilMethods.getLoggingSubjectDelimiterLine());
         logger.debug("Get mapping: add screening search");
-        model.addAttribute("href", "/add-screening/{id}");
+        model.addAttribute("href", "/add-screening");
         model.addAttribute("movies", movieService.findAll());
         return "admin-movie-choose";
     }
@@ -225,8 +226,8 @@ public class AdminController {
      * @param movieId the movie id
      * @return the string
      */
-    @GetMapping("/add-screening/{id}")
-    public String showAddScreeningPage(final Model model, @PathVariable("id") final Long movieId) {
+    @GetMapping("/add-screening")
+    public String showAddScreeningPage(final Model model, @RequestParam("id") final Long movieId) {
         logger.debug(UtilMethods.getLoggingSubjectDelimiterLine());
         logger.debug("Get mapping: add screening");
         MovieDto movieDto = movieService.findById(movieId);
@@ -255,10 +256,10 @@ public class AdminController {
      * @param screeningForm      the screening form
      * @return the string
      */
-    @PostMapping("/add-screening")
+    @PostMapping("/add-screening/{id}")
     public String addScreening(final RedirectAttributes redirectAttributes,
                                @ModelAttribute("screeningForm") final ScreeningForm screeningForm,
-                               @RequestParam("id") final Long movieId) {
+                               @PathVariable("id") final Long movieId) {
         logger.debug(UtilMethods.getLoggingSubjectDelimiterLine());
         logger.debug("Post mapping: add screening");
         try {
@@ -271,7 +272,7 @@ public class AdminController {
         } catch (NoEntityFoundException | InvalidArgumentException | ClashException e) {
             logger.debug("ERROR!");
             redirectAttributes.addAttribute("errors", e.getErrors());
-            return "redirect:/add-screening/" + movieId;
+            return "redirect:/add-screening?id=" + movieId;
         }
     }
 
@@ -330,9 +331,9 @@ public class AdminController {
         return "choose-screening-to-delete";
     }
 
-    @GetMapping("/delete-screening/{id}")
+    @GetMapping("/delete-screening")
     public String showDeleteScreeningPage(final Model model, final RedirectAttributes redirectAttributes,
-                                          @PathVariable("id") final Long screeningId) {
+                                          @RequestParam("id") final Long screeningId) {
         logger.debug(UtilMethods.getLoggingSubjectDelimiterLine());
         logger.debug("Get mapping: delete screening");
         logger.debug("Screening id: " + screeningId);
@@ -412,9 +413,9 @@ public class AdminController {
         }
     }
 
-    @PostMapping("/delete-showroom")
+    @PostMapping("/delete-showroom/{showroomLetter}")
     public String deleteShowroom(final RedirectAttributes redirectAttributes,
-                                 @RequestParam("showroomLetter") final String showroomLetterStr) {
+                                 @PathVariable("showroomLetter") final String showroomLetterStr) {
         logger.debug(UtilMethods.getLoggingSubjectDelimiterLine());
         logger.debug("Post mapping: delete showroom");
         Letter showroomLetter = Letter.valueOf(showroomLetterStr);
@@ -430,6 +431,65 @@ public class AdminController {
             redirectAttributes.addFlashAttribute("errors", e.getErrors());
         }
         return "redirect:/management";
+    }
+
+    @GetMapping("/admin-create-new-account")
+    public String showAdminCreateNewAccountPage(
+            final Model model, @ModelAttribute("registrationForm") final RegistrationForm registrationForm) {
+        logger.debug(UtilMethods.getLoggingSubjectDelimiterLine());
+        logger.debug("Get mapping: admin create new account");
+        UtilMethods.addRegistrationPageAttributes(model, registrationForm);
+        model.addAttribute("registrationForm", registrationForm);
+        return "admin-create-new-account";
+    }
+
+    @PostMapping("/admin-create-new-account")
+    public String adminCreateNewAccount(final RedirectAttributes redirectAttributes,
+                                        @ModelAttribute("registrationForm") final RegistrationForm registrationForm) {
+        try {
+            logger.debug(UtilMethods.getLoggingSubjectDelimiterLine());
+            logger.debug("Post mapping: admin create new account");
+            logger.debug("Registration form: " + registrationForm);
+            registrationService.submitRegistrationForm(registrationForm);
+            redirectAttributes.addFlashAttribute(
+                    "success", "Successfully submitted registration form. Check email " +
+                    "and click on link to finalize registration");
+            return "redirect:/management";
+        } catch (InvalidArgumentException | ClashException e) {
+            logger.debug("Errors: " + e);
+            redirectAttributes.addFlashAttribute("errors", e.getErrors());
+            redirectAttributes.addFlashAttribute("registrationForm", registrationForm);
+            return "redirect:/admin-create-new-account";
+        }
+    }
+
+    @GetMapping("/admin-change-user-password")
+    public String showAdminChangeUserPasswordPage(
+            final Model model, @ModelAttribute("form") final AdminChangeUserPasswordForm form) {
+        logger.debug(UtilMethods.getLoggingSubjectDelimiterLine());
+        logger.debug("Get mapping: admin change user password");
+        logger.debug("Admin change user password form: " + form);
+        model.addAttribute("form", form);
+        return "admin-change-user-password";
+    }
+
+    @PostMapping("/admin-change-user-password")
+    public String adminChangeUserPassword(final RedirectAttributes redirectAttributes,
+                                          @ModelAttribute("form") final AdminChangeUserPasswordForm form) {
+        try {
+            logger.debug(UtilMethods.getLoggingSubjectDelimiterLine());
+            logger.debug("Post mapping: admin change user password");
+            logger.debug("Admin change user password form: " + form);
+            adminService.changeUserPassword(form);
+            redirectAttributes.addFlashAttribute(
+                    "success", "Successfully changed user password");
+            return "redirect:/management";
+        } catch (NoEntityFoundException | InvalidArgumentException e) {
+            logger.debug("Errors: " + e);
+            redirectAttributes.addFlashAttribute("errors", e.getErrors());
+            redirectAttributes.addFlashAttribute("form", form);
+            return "redirect:/admin-change-user-password";
+        }
     }
 
     @ExceptionHandler(IllegalArgumentException.class)

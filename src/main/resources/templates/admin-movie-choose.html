@@ -17,9 +17,7 @@
         <tr th:each="movie:${movies}">
             <td><span style="color: white" th:text="${movie.title}"></span></td>
             <td>
-                <form method="get" th:action="@{${href}(id=${movie.id})}">
-                    <button class="btn btn-primary">Choose</button>
-                </form>
+                <a th:href="@{${href}(id=${movie.id})}" class="btn btn-primary">Choose</a>
             </td>
         </tr>
         </tbody>

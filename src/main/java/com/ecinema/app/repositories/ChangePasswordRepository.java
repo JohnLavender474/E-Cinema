@@ -4,10 +4,11 @@ import com.ecinema.app.domain.entities.ChangePassword;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 
 /**
- * The interface Change password request repository.
+ * The jpa repository for {@link ChangePassword}.
  */
 @Repository
 public interface ChangePasswordRepository extends JpaRepository<ChangePassword, Long> {
@@ -34,5 +35,13 @@ public interface ChangePasswordRepository extends JpaRepository<ChangePassword, 
      * @return the optional
      */
     Optional<ChangePassword> findByToken(String token);
+
+    /**
+     * Find all by user id list.
+     *
+     * @param userId the user id
+     * @return the list
+     */
+    List<ChangePassword> findAllByUserId(Long userId);
 
 }

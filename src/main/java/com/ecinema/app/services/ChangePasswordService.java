@@ -16,6 +16,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional
@@ -29,10 +30,8 @@ public class ChangePasswordService extends AbstractEntityService<ChangePassword,
     private final UserRepository userRepository;
     private final PasswordValidator passwordValidator;
 
-    public ChangePasswordService(ChangePasswordRepository repository,
-                                 EmailService emailService,
-                                 EncoderService encoderService,
-                                 UserRepository userRepository,
+    public ChangePasswordService(ChangePasswordRepository repository, EmailService emailService,
+                                 EncoderService encoderService, UserRepository userRepository,
                                  PasswordValidator passwordValidator) {
         super(repository);
         this.emailService = emailService;
@@ -42,14 +41,16 @@ public class ChangePasswordService extends AbstractEntityService<ChangePassword,
     }
 
     @Override
-    protected void onDelete(ChangePassword entity) {
-        // send message to admin saying that new account is confirmed and all
-        // tokens have been deleted
-    }
+    protected void onDelete(ChangePassword entity) {}
 
-    public ChangePasswordDto convertToDto(ChangePassword entity) {
-        // TODO: create ChangePasswordDto.class
-        return null;
+    public ChangePasswordDto convertToDto(ChangePassword changePassword) {
+        ChangePasswordDto changePasswordDto = new ChangePasswordDto();
+        changePasswordDto.setUserId(changePassword.getUserId());
+        changePasswordDto.setEmail(changePassword.getEmail());
+        changePasswordDto.setToken(changePassword.getToken());
+        changePasswordDto.setCreationDateTime(changePassword.getCreationDateTime());
+        changePasswordDto.setExpirationDateTime(changePassword.getExpirationDateTime());
+        return changePasswordDto;
     }
 
     public ChangePasswordForm getChangePasswordForm(String email)
@@ -90,6 +91,7 @@ public class ChangePasswordService extends AbstractEntityService<ChangePassword,
         String encodedPassword = encoderService.encode(changePasswordForm.getPassword());
         changePassword.setPassword(encodedPassword);
         changePassword.setUserId(user.getId());
+        changePassword.setEmail(user.getEmail());
         LocalDateTime creationDateTime = LocalDateTime.now();
         changePassword.setCreationDateTime(creationDateTime);
         LocalDateTime expirationDateTime = creationDateTime.plusMinutes(EXPIRATION_MINUTES);
@@ -136,6 +138,12 @@ public class ChangePasswordService extends AbstractEntityService<ChangePassword,
         sendConfirmationEmail(user.getEmail());
         logger.debug("Deleted all change password requests associated with user id: " + user.getId());
         logger.debug("Saved new user password");
+    }
+
+    public List<ChangePasswordDto> findAllByUserId(Long userId) {
+        return repository.findAllByUserId(userId)
+                         .stream().map(this::convertToDto)
+                         .collect(Collectors.toList());
     }
 
     public boolean existsByToken(String token) {

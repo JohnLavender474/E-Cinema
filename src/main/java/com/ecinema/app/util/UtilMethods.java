@@ -1,5 +1,7 @@
 package com.ecinema.app.util;
 
+import com.ecinema.app.domain.enums.SecurityQuestions;
+import com.ecinema.app.domain.forms.RegistrationForm;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -307,7 +309,8 @@ public class UtilMethods {
     public static LocalDate randomDate() {
         long minDay = LocalDate.of(2022, Month.JANUARY, 1).toEpochDay();
         LocalDate localDate = LocalDate.now();
-        long maxDay = LocalDate.of(localDate.getYear(), localDate.getMonth(), localDate.getDayOfMonth()).toEpochDay();
+        long maxDay = LocalDate.of(localDate.getYear(),
+                                   localDate.getMonth(), localDate.getDayOfMonth()).toEpochDay();
         long randomDay = ThreadLocalRandom.current().nextLong(minDay, maxDay);
         return LocalDate.ofEpochDay(randomDay);
     }
@@ -321,6 +324,15 @@ public class UtilMethods {
         int randomHour = ThreadLocalRandom.current().nextInt(0, 23 + 1);
         int randomMinute = ThreadLocalRandom.current().nextInt(0, 59 + 1);
         return LocalTime.of(randomHour, randomMinute);
+    }
+
+    public static void addRegistrationPageAttributes(final Model model,
+                                                     final RegistrationForm registrationForm) {
+        model.addAttribute("registrationForm", registrationForm);
+        List<String> securityQuestions = SecurityQuestions.getList();
+        model.addAttribute("securityQuestions", securityQuestions);
+        model.addAttribute("maxDate", LocalDate.now().minusYears(16));
+        model.addAttribute("minDate", LocalDate.now().minusYears(120));
     }
 
 }

@@ -7,7 +7,9 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 import java.util.Optional;
 
-/** The interface Customer role def repository. */
+/**
+ * The interface Customer role def repository.
+ */
 @Repository
 public interface CustomerRepository extends UserAuthorityRepository<Customer> {
 
@@ -78,6 +80,15 @@ public interface CustomerRepository extends UserAuthorityRepository<Customer> {
      * @return the list
      */
     List<Customer> findAllByCensoredByNull();
+
+    /**
+     * Number of tokens owned by customer optional.
+     *
+     * @param userId the user id
+     * @return the optional
+     */
+    @Query("SELECT c.tokens FROM Customer c WHERE c.user.id = ?1")
+    Optional<Integer> numberOfTokensOwnedByUserId(Long userId);
 
     /**
      * Exists by user id boolean.

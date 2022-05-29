@@ -52,40 +52,49 @@ public class PaymentCardController {
         logger.debug(UtilMethods.getLoggingSubjectDelimiterLine());
         logger.debug("Get mapping: add payment card");
         model.addAttribute("paymentCardForm", paymentCardForm);
-        model.addAttribute("action", "/add-payment-card");
-        model.addAttribute("banner", "Add Payment Card");
         model.addAttribute("minDate", LocalDate.now());
         model.addAttribute("maxDate", LocalDate.now().plusYears(20));
-        return "payment-card";
+        return "add-payment-card";
     }
 
     @PostMapping("/add-payment-card")
     public String addPaymentCard(final RedirectAttributes redirectAttributes,
                                  @ModelAttribute("paymentCardForm") final PaymentCardForm paymentCardForm) {
-        logger.debug(UtilMethods.getLoggingSubjectDelimiterLine());
-        logger.debug("Post mapping: add payment card");
-        logger.debug("Payment card form: " + paymentCardForm);
-        return postPaymentCard(redirectAttributes, paymentCardForm,
-                               "redirect:/add-payment-card",
-                               "Successfully added new payment card");
+        try {
+            logger.debug(UtilMethods.getLoggingSubjectDelimiterLine());
+            logger.debug("Post mapping: edit payment card");
+            Long userId = securityContext.findIdOfLoggedInUser();
+            logger.debug("User id: " + userId);
+            paymentCardForm.setUserId(userId);
+            logger.debug("Payment card form: " + paymentCardForm);
+            paymentCardService.submitPaymentCardFormToAddNewPaymentCard(paymentCardForm);
+            logger.debug("Successfully submitted payment card form");
+            redirectAttributes.addFlashAttribute(
+                    "success", "Successfully added new payment card");
+            return "redirect:/payment-cards";
+        } catch (NoEntityFoundException | TooManyPaymentCardsException | InvalidArgumentException e) {
+            logger.debug("Errors: " + e);
+            redirectAttributes.addFlashAttribute("errors", e.getErrors());
+            logger.debug("Payment card form: " + paymentCardForm);
+            redirectAttributes.addFlashAttribute("paymentCardForm", paymentCardForm);
+            return "redirect:/add-payment-card";
+        }
     }
 
-    @GetMapping("/edit-payment-card/{id}")
+    @GetMapping("/edit-payment-card")
     public String showEditPaymentCardPage(final Model model, final RedirectAttributes redirectAttributes,
-                                          @PathVariable("id") final Long paymentCardId) {
+                                          @RequestParam("id") final Long paymentCardId) {
         try {
             logger.debug(UtilMethods.getLoggingSubjectDelimiterLine());
             logger.debug("Get mapping: edit payment card");
             logger.debug("Payment card id: " + paymentCardId);
-            model.addAttribute("paymentCardId");
+            model.addAttribute("paymentCardId", paymentCardId);
             PaymentCardForm paymentCardForm = paymentCardService.fetchAsForm(paymentCardId);
             logger.debug("Payment card form: " + paymentCardForm);
             model.addAttribute("paymentCardForm", paymentCardForm);
-            model.addAttribute("banner", "Edit Payment Card");
-            model.addAttribute("action", "/edit-payment-card");
             model.addAttribute("minDate", LocalDate.now());
             model.addAttribute("maxDate", LocalDate.now().plusYears(20));
-            return "payment-card";
+            return "edit-payment-card";
         } catch (NoEntityFoundException e) {
             logger.debug("Errors: " + e);
             redirectAttributes.addFlashAttribute("errors", e.getErrors());
@@ -93,15 +102,30 @@ public class PaymentCardController {
         }
     }
 
-    @PostMapping("/edit-payment-card")
+    @PostMapping("/edit-payment-card/{id}")
     public String editPaymentCard(final RedirectAttributes redirectAttributes,
+                                  @PathVariable("id") final Long paymentCardId,
                                   @ModelAttribute("paymentCardForm") final PaymentCardForm paymentCardForm) {
-        logger.debug(UtilMethods.getLoggingSubjectDelimiterLine());
-        logger.debug("Post mapping: edit payment card");
-        logger.debug("Payment card form: " + paymentCardForm);
-        return postPaymentCard(redirectAttributes, paymentCardForm,
-                               "redirect:/edit-payment-card",
-                               "Successfully edited payment card");
+        try {
+            logger.debug(UtilMethods.getLoggingSubjectDelimiterLine());
+            logger.debug("Post mapping: edit payment card");
+            Long userId = securityContext.findIdOfLoggedInUser();
+            logger.debug("User id: " + userId);
+            paymentCardForm.setUserId(userId);
+            paymentCardForm.setPaymentCardId(paymentCardId);
+            logger.debug("Payment card form: " + paymentCardForm);
+            paymentCardService.submitPaymentCardFormToEditPaymentCard(paymentCardForm);
+            logger.debug("Successfully submitted payment card form");
+            redirectAttributes.addFlashAttribute(
+                    "success", "Successfully edited payment card");
+            return "redirect:/payment-cards";
+        } catch (NoEntityFoundException | InvalidArgumentException e) {
+            logger.debug("Errors: " + e);
+            redirectAttributes.addFlashAttribute("errors", e.getErrors());
+            logger.debug("Payment card form: " + paymentCardForm);
+            redirectAttributes.addFlashAttribute("paymentCardForm", paymentCardForm);
+            return "redirect:/edit-payment-card?id=" + paymentCardForm.getPaymentCardId();
+        }
     }
 
     @PostMapping("/delete-payment-card/{id}")
@@ -121,26 +145,6 @@ public class PaymentCardController {
             redirectAttributes.addFlashAttribute("errors", e.getErrors());
         }
         return "redirect:/payment-cards";
-    }
-
-    private String postPaymentCard(final RedirectAttributes redirectAttributes,
-                                   final PaymentCardForm paymentCardForm, final String redirectOnError,
-                                   final String onSuccessMessage) {
-        try {
-            Long userId = securityContext.findIdOfLoggedInUser();
-            paymentCardForm.setUserId(userId);
-            paymentCardService.submitPaymentCardForm(paymentCardForm);
-            logger.debug("Successfully submitted payment card form");
-            redirectAttributes.addFlashAttribute("success", onSuccessMessage);
-            return "redirect:/payment-cards";
-        } catch (NoEntityFoundException | TooManyPaymentCardsException | InvalidArgumentException e) {
-            logger.debug("Errors: " + e);
-            redirectAttributes.addFlashAttribute("errors", e.getErrors());
-            logger.debug("Payment card form: " + paymentCardForm);
-            redirectAttributes.addFlashAttribute("paymentCardForm", paymentCardForm);
-            logger.debug("Redirect on error: " + redirectOnError);
-            return redirectOnError;
-        }
     }
 
 }

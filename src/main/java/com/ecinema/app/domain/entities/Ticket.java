@@ -33,6 +33,11 @@ public class Ticket extends AbstractEntity {
 
     @JoinColumn
     @ToString.Exclude
+    @ManyToOne(fetch = FetchType.LAZY)
+    private PaymentCard paymentCard;
+
+    @JoinColumn
+    @ToString.Exclude
     @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private ScreeningSeat screeningSeat;
 

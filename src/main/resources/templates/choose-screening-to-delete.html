@@ -46,9 +46,7 @@
             <td th:text="${screening.endDateTimeFormatted()}"></td>
             <td th:text="${screening.seatsAvailable} + '/' + ${screening.totalSeatsInRoom}"></td>
             <td>
-                <form method="get" th:action="@{/delete-screening/{id}(id=${screening.id})}">
-                    <button class="btn btn-outline-danger">Delete Screening</button>
-                </form>
+                <a th:href="@{/delete-screening(id=${screening.id})}" class="btn btn-primary">Delete</a>
             </td>
         </tr>
     </table>

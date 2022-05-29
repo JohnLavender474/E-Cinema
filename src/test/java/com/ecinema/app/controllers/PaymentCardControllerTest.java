@@ -126,7 +126,8 @@ class PaymentCardControllerTest {
     void addPaymentCard()
         throws Exception {
         setUpCustomer();
-        doNothing().when(paymentCardService).submitPaymentCardForm(any(PaymentCardForm.class));
+        doNothing().when(paymentCardService)
+                   .submitPaymentCardFormToAddNewPaymentCard(any(PaymentCardForm.class));
         PaymentCardForm paymentCardForm = new PaymentCardForm();
         mockMvc.perform(post("/add-payment-card")
                                 .flashAttr("paymentCardForm", paymentCardForm))
@@ -161,7 +162,8 @@ class PaymentCardControllerTest {
         PaymentCardForm paymentCardForm = new PaymentCardForm();
         paymentCardForm.setFirstName("Johnny");
         NoEntityFoundException e = new NoEntityFoundException("payment card", "id", 1L);
-        doThrow(e).when(paymentCardService).submitPaymentCardForm(paymentCardForm);
+        doThrow(e).when(paymentCardService)
+                  .submitPaymentCardFormToAddNewPaymentCard(paymentCardForm);
         mockMvc.perform(post("/add-payment-card")
                                 .flashAttr("paymentCardForm", paymentCardForm))
                 .andExpect(redirectedUrlPattern("/add-payment-card**"))
@@ -177,7 +179,8 @@ class PaymentCardControllerTest {
         PaymentCardForm paymentCardForm = new PaymentCardForm();
         paymentCardForm.setPaymentCardId(1L);
         given(paymentCardService.fetchAsForm(1L)).willReturn(paymentCardForm);
-        mockMvc.perform(get("/edit-payment-card/" + 1L))
+        mockMvc.perform(get("/edit-payment-card")
+                                .param("id", String.valueOf(1L)))
                 .andExpect(status().isOk())
                 .andExpect(result -> model().attribute("paymentCardForm", paymentCardForm));
     }
@@ -186,7 +189,8 @@ class PaymentCardControllerTest {
     @WithAnonymousUser
     void failToShowEditPaymentCardPage1()
         throws Exception {
-        mockMvc.perform(get("/edit-payment-card/" + 1L))
+        mockMvc.perform(get("/edit-payment-card")
+                                .param("id", String.valueOf(1L)))
                 .andExpect(status().is3xxRedirection());
     }
 
@@ -194,7 +198,8 @@ class PaymentCardControllerTest {
     @WithMockUser(username = "user", authorities = {"ADMIN", "MODERATOR"})
     void failToShowEditPaymentCardPage2()
         throws Exception {
-        mockMvc.perform(get("/edit-payment-card/" + 1L))
+        mockMvc.perform(get("/edit-payment-card")
+                                .param("id", String.valueOf(1L)))
                 .andExpect(status().isForbidden());
     }
 
@@ -205,7 +210,8 @@ class PaymentCardControllerTest {
         setUpCustomer();
         NoEntityFoundException e = new NoEntityFoundException("payment card", "id", 1L);
         doThrow(e).when(paymentCardService).fetchAsForm(1L);
-        mockMvc.perform(get("/edit-payment-card/" + 1L))
+        mockMvc.perform(get("/edit-payment-card")
+                                .param("id", String.valueOf(1L)))
                 .andExpect(redirectedUrlPattern("/payment-cards**"))
                 .andExpect(result -> model().attributeExists("errors"));
     }
@@ -216,8 +222,9 @@ class PaymentCardControllerTest {
         throws Exception {
         setUpCustomer();
         PaymentCardForm paymentCardForm = new PaymentCardForm();
-        doNothing().when(paymentCardService).submitPaymentCardForm(any(PaymentCardForm.class));
-        mockMvc.perform(post("/edit-payment-card")
+        doNothing().when(paymentCardService)
+                   .submitPaymentCardFormToEditPaymentCard(any(PaymentCardForm.class));
+        mockMvc.perform(post("/edit-payment-card/" + 1L)
                                 .flashAttr("paymentCardForm", paymentCardForm))
                 .andExpect(redirectedUrlPattern("/payment-cards**"))
                 .andExpect(result -> model().attributeExists("success"));
@@ -229,7 +236,7 @@ class PaymentCardControllerTest {
     void failToEditPaymentCard1()
             throws Exception {
         PaymentCardForm paymentCardForm = new PaymentCardForm();
-        mockMvc.perform(post("/edit-payment-card")
+        mockMvc.perform(post("/edit-payment-card/" + 1L)
                                 .flashAttr("paymentCardForm", paymentCardForm))
                .andExpect(status().is3xxRedirection());
     }
@@ -239,7 +246,7 @@ class PaymentCardControllerTest {
     void failToEditPaymentCard2()
             throws Exception {
         PaymentCardForm paymentCardForm = new PaymentCardForm();
-        mockMvc.perform(post("/edit-payment-card")
+        mockMvc.perform(post("/edit-payment-card/" + 1L)
                                 .flashAttr("paymentCardForm", paymentCardForm))
                .andExpect(status().isForbidden());
     }
@@ -251,8 +258,9 @@ class PaymentCardControllerTest {
         PaymentCardForm paymentCardForm = new PaymentCardForm();
         paymentCardForm.setFirstName("Johnny");
         NoEntityFoundException e = new NoEntityFoundException("payment card", "id", 1L);
-        doThrow(e).when(paymentCardService).submitPaymentCardForm(paymentCardForm);
-        mockMvc.perform(post("/edit-payment-card")
+        doThrow(e).when(paymentCardService)
+                  .submitPaymentCardFormToEditPaymentCard(paymentCardForm);
+        mockMvc.perform(post("/edit-payment-card/" + 1L)
                                 .flashAttr("paymentCardForm", paymentCardForm))
                .andExpect(redirectedUrlPattern("/edit-payment-card**"))
                .andExpect(result -> model().attribute("paymentCardForm", paymentCardForm))

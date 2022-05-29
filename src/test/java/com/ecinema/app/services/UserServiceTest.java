@@ -70,11 +70,14 @@ class UserServiceTest {
         reviewService = new ReviewService(
                 reviewRepository, null,
                 null, null, reviewVoteService);
-        ticketService = new TicketService(ticketRepository);
+        ticketService = new TicketService(
+                ticketRepository, null, customerRepository,
+                paymentCardRepository, screeningSeatRepository);
         paymentCardService = new PaymentCardService(
                 paymentCardRepository, null,
                 null, null);
-        adminService = new AdminService(adminRepository);
+        adminService = new AdminService(adminRepository, userRepository,
+                                        null, null);
         customerService = new CustomerService(
                 customerRepository, screeningSeatRepository,
                 null, reviewService, ticketService,

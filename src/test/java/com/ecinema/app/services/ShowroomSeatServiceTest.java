@@ -37,7 +37,9 @@ class ShowroomSeatServiceTest {
 
     @BeforeEach
     void setUp() {
-        ticketService = new TicketService(ticketRepository);
+        ticketService = new TicketService(
+                ticketRepository, null, null,
+                null, screeningSeatRepository);
         screeningSeatService = new ScreeningSeatService(
                 screeningSeatRepository, ticketService);
         showroomSeatService = new ShowroomSeatService(

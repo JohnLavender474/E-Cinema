@@ -97,7 +97,8 @@ class MovieInfoControllerTest {
         MovieDto movieDto = new MovieDto();
         movieDto.setId(1L);
         given(movieService.findById(1L)).willReturn(movieDto);
-        mockMvc.perform(get("/movie-info/" + movieDto.getId()))
+        mockMvc.perform(get("/movie-info")
+                                .param("id", String.valueOf(movieDto.getId())))
                .andDo(print())
                .andExpect(status().isOk())
                .andExpect(result -> model().attribute("movie", movieDto));
@@ -113,7 +114,8 @@ class MovieInfoControllerTest {
         Page<ReviewDto> pageOfDtos = new PageImpl<>(new ArrayList<>());
         given(reviewService.findPageByMovieIdAndNotCensored(movieDto.getId(), pageRequest))
                 .willReturn(pageOfDtos);
-        mockMvc.perform(get("/movie-reviews/" + movieDto.getId()))
+        mockMvc.perform(get("/movie-reviews")
+                                .param("id", String.valueOf(movieDto.getId())))
                .andDo(print())
                .andExpect(status().isOk())
                .andExpect(result -> model().attribute("reviews", pageOfDtos));
@@ -129,7 +131,8 @@ class MovieInfoControllerTest {
         Page<ScreeningDto> pageOfDtos = new PageImpl<>(new ArrayList<>());
         given(screeningService.findPageByMovieId(1L, pageRequest))
                 .willReturn(pageOfDtos);
-        mockMvc.perform(get("/movie-screenings/" + movieDto.getId()))
+        mockMvc.perform(get("/movie-screenings")
+                                .param("id", String.valueOf(1L)))
                .andDo(print())
                .andExpect(status().isOk())
                .andExpect(result -> model().attribute("screenings", pageOfDtos));

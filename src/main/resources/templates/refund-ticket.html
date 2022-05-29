@@ -6,6 +6,12 @@
 <div class="container">
     <div th:insert="fragments/errors :: errors"></div>
     <br/>
+    <div>
+        <form method="get" th:action="@{/current-tickets}">
+            <button class="btn btn-primary">Back to Current Tickets</button>
+        </form>
+    </div>
+    <br/>
     <table class="table table-bordered table-striped">
         <tr>
             <th>Movie</th>
@@ -13,22 +19,19 @@
             <th>Showtime</th>
             <th>Endtime</th>
             <th>Seat</th>
-            <th>Type</th>
             <th>Status</th>
+            <th>Type</th>
             <th>Time of Purchase</th>
-            <th>Refundable</th>
-            <th>Actions</th>
         </tr>
         <tr>
             <td th:text="${ticket.movieTitle}"></td>
             <td th:text="${ticket.showroomLetter}"></td>
-            <td th:text="${ticket.showtime}"></td>
-            <td th:text="${ticket.endtime}"></td>
+            <td th:text="${ticket.showDateTimeFormatted()}"></td>
+            <td th:text="${ticket.endDateTimeFormatted()}"></td>
             <td th:text="${ticket.seatDesignation}"></td>
-            <td th:text="${ticket.ticketType} + ' - $' + ${ticket.ticketType.price}"></td>
             <td th:text="${ticket.ticketStatus}"></td>
-            <td th:text="${ticket.creationDateTime}"></td>
-            <td th:text="${ticket.isRefundable}"></td>
+            <td th:text="${ticket.ticketTypeFormatted()}"></td>
+            <td th:text="${ticket.creationDateTimeFormatted()}"></td>
         </tr>
     </table>
     <br/>
@@ -42,19 +45,7 @@
         </form>
     </div>
     <div th:unless="${ticket.isRefundable}">
-        <span>Looks like the showtime for your ticket is within the next three days.</span>
-        <br/>
-        <span>Therefore, your ticket does not qualify for a refund by default.</span>
-        <br/>
-        <span>However, you may still request a refund.</span>
-        <br/>
-        <span>Please give your reason for wanting to refund your ticket.</span>
-        <br/>
-        <span>An administrator will hear you out and let you know if your ticket can be refunded.</span>
-        <br/>
-        <form method="post" th:action="@{/request-refund-ticket/{id}(id=${ticket.id})}">
-
-        </form>
+        <span>Sorry but this ticket no longer qualifies for a refund</span>
     </div>
 </div>
 

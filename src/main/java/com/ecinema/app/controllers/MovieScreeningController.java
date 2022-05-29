@@ -22,9 +22,9 @@ public class MovieScreeningController {
     private final ScreeningService screeningService;
     private final Logger logger = LoggerFactory.getLogger(MovieScreeningController.class);
 
-    @GetMapping("/movie-screenings/{id}")
+    @GetMapping("/movie-screenings")
     public String movieScreeningsPage(
-            final Model model, @PathVariable("id") final Long id,
+            final Model model, @RequestParam("id") final Long id,
             @RequestParam(value = "page", required = false, defaultValue = "1") final Integer page) {
         model.addAttribute("movieId", id);
         PageRequest pageRequest = PageRequest.of(page - 1, 6);

@@ -1,20 +1,19 @@
 package com.ecinema.app.controllers;
 
 import com.ecinema.app.beans.SecurityContext;
+import com.ecinema.app.domain.dtos.PaymentCardDto;
 import com.ecinema.app.domain.dtos.ScreeningDto;
 import com.ecinema.app.domain.dtos.TicketDto;
-import com.ecinema.app.domain.forms.GenericListForm;
-import com.ecinema.app.domain.forms.SeatBookingsForm;
+import com.ecinema.app.domain.forms.LongListForm;
+import com.ecinema.app.domain.forms.SeatBookingForm;
 import com.ecinema.app.exceptions.*;
-import com.ecinema.app.services.CustomerService;
-import com.ecinema.app.services.ScreeningSeatService;
-import com.ecinema.app.services.ScreeningService;
-import com.ecinema.app.services.TicketService;
+import com.ecinema.app.services.*;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
 
+import java.time.LocalDateTime;
 import java.util.*;
 
 import com.ecinema.app.domain.dtos.ScreeningSeatDto;
@@ -35,95 +34,151 @@ public class TicketController {
     private final CustomerService customerService;
     private final SecurityContext securityContext;
     private final ScreeningService screeningService;
+    private final PaymentCardService paymentCardService;
     private final ScreeningSeatService screeningSeatService;
     private final Logger logger = LoggerFactory.getLogger(TicketController.class);
 
-    @GetMapping("/choose-seats-to-book")
-    public String seeScreeningPage(final Model model, @RequestParam("id") final Long screeningId) {
-        ScreeningDto screeningDto = screeningService.findById(screeningId);
-        Map<Letter, Set<ScreeningSeatDto>> mapOfScreeningSeats = screeningSeatService
-                .findScreeningSeatMapByScreeningWithId(screeningId);
-        model.addAttribute("screening", screeningDto);
-        model.addAttribute("mapOfScreeningSeats", mapOfScreeningSeats);
-        model.addAttribute("seatIdsForm", new GenericListForm<Long>());
-        logger.debug(UtilMethods.getLoggingSubjectDelimiterLine());
-        logger.debug("Get mapping: Choose seats to book");
-        logger.debug("Screening DTO: " + screeningDto);
-        logger.debug("Map of screening seats has " + mapOfScreeningSeats.keySet().size() + " rows");
-        for (Map.Entry<Letter, Set<ScreeningSeatDto>> entry : mapOfScreeningSeats.entrySet()) {
-            logger.debug("Row " + entry.getKey() + " has " + entry.getValue() + " seats");
-        }
-        return "choose-seats-to-book";
-    }
-
-    @GetMapping("/book-seats")
-    public String showBookSeatsPage(final Model model, final RedirectAttributes redirectAttributes,
-                                    @ModelAttribute("seatIdsForm") final GenericListForm<Long> seatIdsForm,
-                                    @RequestParam("id") final Long screeningId) {
-        logger.debug(UtilMethods.getLoggingSubjectDelimiterLine());
-        logger.debug("Get mapping: book seats");
-        logger.debug("Screening id: " + screeningId);
-        logger.debug("Seat ids form: " + seatIdsForm);
-        if (seatIdsForm == null || seatIdsForm.getList().isEmpty()) {
-            redirectAttributes.addFlashAttribute(
-                    "errors", List.of("Error: Must select at least one seat to book"));
-            return "redirect:/choose-seats-to-book/" + screeningId;
-        }
-        ScreeningDto screeningDto = screeningService.findById(screeningId);
-        logger.debug("Screening DTO: " + screeningDto);
-        model.addAttribute("screening", screeningDto);
-        SeatBookingsForm seatBookingsForm = new SeatBookingsForm();
-        seatBookingsForm.setSeatIds(seatIdsForm.getList());
-        logger.debug("Seat bookings form: " + seatBookingsForm);
-        model.addAttribute("seatBookingsForm", seatBookingsForm);
-        return "book-seats";
-    }
-
-    @PostMapping("/book-seats")
-    public String bookSeats(final RedirectAttributes redirectAttributes,
-                            @ModelAttribute("seatBookingsForm") final SeatBookingsForm seatBookingsForm,
-                            @RequestParam("id") final Long screeningId) {
-        logger.debug(UtilMethods.getLoggingSubjectDelimiterLine());
-        logger.debug("Post mapping: book seats");
+    @GetMapping("/view-seats")
+    public String seeViewSeatsPage(final Model model, final RedirectAttributes redirectAttributes,
+                                   @RequestParam("id") final Long screeningId) {
         try {
-            customerService.bookTickets(seatBookingsForm);
-            redirectAttributes.addFlashAttribute(
-                    "message", "Successfully purchased tickets \n" +
-                    "Check your email for the confirmation message with details of your purchase");
-            logger.debug("Successfully booked tickets");
-            return "redirect:/message-page";
-        } catch (NoEntityFoundException | ClashException | PermissionDeniedException | ExpirationException e) {
-            logger.debug("Encountered exception, redirection to book seats page");
-            logger.debug("Errors: " + e);
-            logger.debug("Seat bookings form: " + seatBookingsForm);
-            logger.debug("Screening id: " + screeningId);
-            String redirectUrl = "redirect:/book-seats?id=" + screeningId;
-            logger.debug("Redirect url: " + redirectUrl);
+            logger.debug(UtilMethods.getLoggingSubjectDelimiterLine());
+            logger.debug("Get mapping: Choose seats to book");
+            ScreeningDto screeningDto = screeningService.findById(screeningId);
+            logger.debug("Screening DTO: " + screeningDto);
+            Map<Letter, Set<ScreeningSeatDto>> mapOfScreeningSeats = screeningSeatService
+                    .findScreeningSeatMapByScreeningWithId(screeningId);
+            logger.debug("Map of screening seats has " + mapOfScreeningSeats.keySet().size() + " rows");
+            model.addAttribute("screening", screeningDto);
+            model.addAttribute("mapOfScreeningSeats", mapOfScreeningSeats);
+            model.addAttribute("seatIdsForm", new LongListForm());
+            for (Map.Entry<Letter, Set<ScreeningSeatDto>> entry : mapOfScreeningSeats.entrySet()) {
+                logger.debug("Row " + entry.getKey() + " has " + entry.getValue() + " seats");
+            }
+            return "view-seats";
+        } catch (NoEntityFoundException | InvalidAssociationException e) {
+            logger.debug("Errors: " + e.getErrors());
+            logger.debug("Redirecting to movie screening page");
             redirectAttributes.addFlashAttribute("errors", e.getErrors());
-            redirectAttributes.addFlashAttribute("seatBookingsForm", seatBookingsForm);
-            return redirectUrl;
+            return "redirect:/movie-screening/" + screeningId;
         }
     }
 
-    @GetMapping("/tickets")
-    public String showTicketsPage(final Model model) {
-        Long userId = securityContext.findIdOfLoggedInUser();
-        List<TicketDto> tickets = ticketService.findAllByUserWithId(userId);
-        model.addAttribute("tickets", tickets);
-        return "tickets";
+    @GetMapping("/book-seat")
+    public String seeBookSeatsPage(final Model model, final RedirectAttributes redirectAttributes,
+                                   @RequestParam("screeningId") final Long screeningId,
+                                   @RequestParam("seatId") final Long seatId) {
+        try {
+            logger.debug(UtilMethods.getLoggingSubjectDelimiterLine());
+            logger.debug("Get mapping: book seat");
+            if (!screeningService.existsById(screeningId)) {
+                throw new NoEntityFoundException("screening", "id", screeningId);
+            }
+            if (screeningSeatService.screeningSeatIsBooked(seatId)) {
+                throw new InvalidActionException("Seat with id " + seatId + " is already booked");
+            }
+            // screening dto
+            ScreeningDto screening = screeningService.findById(screeningId);
+            logger.debug("Screening DTO: " + screening);
+            model.addAttribute("screening", screening);
+            // screening seat dto
+            ScreeningSeatDto screeningSeat = screeningSeatService.findById(seatId);
+            logger.debug("Screening seat DTO: " + screeningSeat);
+            model.addAttribute("screeningSeat", screeningSeat);
+            // seat booking form
+            SeatBookingForm seatBookingForm = screeningSeatService.fetchSeatBookingForm(seatId);
+            logger.debug("Seat booking form: " + seatBookingForm);
+            model.addAttribute("seatBookingForm", seatBookingForm);
+            // user id
+            Long userId = securityContext.findIdOfLoggedInUser();
+            logger.debug("User id: " + userId);
+            // payment cards
+            List<PaymentCardDto> paymentCards = paymentCardService.findAllByCardUserWithId(userId);
+            logger.debug("Payment cards: " + paymentCards);
+            model.addAttribute("paymentCards", paymentCards);
+            // tokens
+            Integer tokens = customerService.numberOfTokensOwnedByUser(userId);
+            logger.debug("Tokens: " + tokens);
+            model.addAttribute("tokens", tokens);
+            return "book-seat";
+        } catch (NoEntityFoundException | InvalidActionException e) {
+            logger.debug("Errors: " + e);
+            redirectAttributes.addFlashAttribute("errors", e.getErrors());
+            logger.debug("Redirecting to view seats page");
+            return "redirect:/view-seats?id=" + screeningId;
+        }
     }
 
-    @GetMapping("/request-refund-ticket/{id}")
-    public String showRequestRefundTicketPage(final Model model, final RedirectAttributes redirectAttributes,
-                                              @PathVariable("id") final Long ticketId) {
+    @PostMapping("/book-seat")
+    public String bookSeat(final RedirectAttributes redirectAttributes,
+                           @ModelAttribute("seatBookingForm") final SeatBookingForm seatBookingForm) {
+        try {
+            logger.debug(UtilMethods.getLoggingSubjectDelimiterLine());
+            logger.debug("Post mapping: book seat");
+            Long userId = securityContext.findIdOfLoggedInUser();
+            logger.debug("User id: " + userId);
+            seatBookingForm.setUserId(userId);
+            logger.debug("Seat booking form: " + seatBookingForm);
+            ticketService.bookTicket(seatBookingForm);
+            logger.debug("Successfully booked seat");
+            redirectAttributes.addFlashAttribute(
+                    "success", "Successfully booked ticket for seat");
+            return "redirect:/view-seats?id=" + seatBookingForm.getScreeningId();
+        } catch (NoEntityFoundException | InvalidActionException e) {
+            logger.debug("Errors: " + e);
+            logger.debug("Redirecting to book seat page");
+            logger.debug("Screening id: " + seatBookingForm.getScreeningSeatId());
+            logger.debug("Seat id: " + seatBookingForm.getScreeningSeatId());
+            redirectAttributes.addFlashAttribute("errors", e.getErrors());
+            redirectAttributes.addFlashAttribute("seatBookingForm", seatBookingForm);
+            return "redirect:/book-seat?screeningId=" + seatBookingForm.getScreeningId() +
+                    "&seatId=" + seatBookingForm.getScreeningSeatId();
+        }
+    }
+
+    @GetMapping("/current-tickets")
+    public String showCurrentTicketsPage(final Model model) {
+        Long userId = securityContext.findIdOfLoggedInUser();
+        List<TicketDto> tickets = ticketService.findAllByUserWithIdAndShowDateTimeIsAfter(
+                userId, LocalDateTime.now());
+        model.addAttribute("tickets", tickets);
+        return "current-tickets";
+    }
+
+    @GetMapping("/past-tickets")
+    public String showPastTicketsPage(final Model model) {
+        Long userId = securityContext.findIdOfLoggedInUser();
+        List<TicketDto> tickets = ticketService.findAllByUserWithIdAndShowDateTimeIsBefore(
+                userId, LocalDateTime.now());
+        model.addAttribute("tickets", tickets);
+        return "past-tickets";
+    }
+
+    @GetMapping("/refund-ticket")
+    public String showRefundTicketPage(final Model model, final RedirectAttributes redirectAttributes,
+                                       @RequestParam("id") final Long ticketId) {
         try {
             TicketDto ticketDto = ticketService.findById(ticketId);
             model.addAttribute("ticket", ticketDto);
-            return "request-refund-ticket";
+            return "refund-ticket";
         } catch (NoEntityFoundException e) {
             logger.debug("Errors: " + e);
             redirectAttributes.addFlashAttribute("errors", e.getErrors());
-            return "redirect:/tickets";
+            return "redirect:/current-tickets";
+        }
+    }
+
+    @PostMapping("/refund-ticket/{id}")
+    public String refundTicket(final RedirectAttributes redirectAttributes,
+                               @PathVariable("id") final Long ticketId) {
+        try {
+            ticketService.refundTicket(ticketId);
+            redirectAttributes.addFlashAttribute("success", "Successfully refunded ticket");
+            return "redirect:/current-tickets";
+        } catch (NoEntityFoundException | InvalidActionException | NoFieldFoundException e) {
+            logger.debug("Errors: " + e);
+            redirectAttributes.addFlashAttribute("errors", e.getErrors());
+            return "redirect:/refund-ticket?id=" + ticketId;
         }
     }
 

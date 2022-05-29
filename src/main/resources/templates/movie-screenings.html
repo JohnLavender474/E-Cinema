@@ -4,17 +4,17 @@
 <body>
 <nav th:insert="fragments/webpage-top :: webpage-top"></nav>
 <div class="container">
-    <form method="get" th:action="@{/movie-info/{id}(id=${movieId})}">
-        <button class="btn btn-outline-success">Go Back to Movie Info Page</button>
-    </form>
+    <a th:href="@{/movie-info(id=${movieId})}" class="btn btn-primary">Go Back to Movie Info Page</a>
+    <br/>
     <table>
         <tr>
             <td th:each="pageNumber:${pageNumbers}">
-                <a th:href="@{/movie-screenings/{id}(id=${movieId},page=${pageNumber})}"
+                <a th:href="@{/movie-screenings(id=${movieId},page=${pageNumber})}"
                    class="btn btn-outline-primary" th:text="${pageNumber}"></a>
             </td>
         </tr>
     </table>
+    <br/>
     <table class="table table-bordered table-striped">
         <tr>
             <th>Showroom</th>
@@ -27,12 +27,10 @@
             <td th:text="${screening.showDateTimeFormatted()}"></td>
             <td th:text="${screening.endDateTimeFormatted()}"></td>
             <td th:text="${screening.seatsAvailable} + '/' + ${screening.totalSeatsInRoom}"></td>
-            <td th:if="${isCustomer == true}">
-                <form method="get" th:action="@{/choose-seats-to-book(id=${screening.id})}">
-                    <button class="btn-outline-success">Book Seats</button>
-                </form>
+            <td th:if="${userIsCustomer}">
+                <a class="btn btn-primary" th:href="@{/view-seats(id=${screening.id})}">View Seats</a>
             </td>
-            <td th:if="${isCustomer == false}">
+            <td th:unless="${userIsCustomer}">
                 <span th:classappend="bold-white-text">Must be logged-in customer to book seats!</span>
             </td>
         </tr>

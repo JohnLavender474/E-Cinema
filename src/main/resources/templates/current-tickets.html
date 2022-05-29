@@ -4,10 +4,11 @@
 <body>
 <nav th:insert="fragments/webpage-top :: webpage-top"></nav>
 <div class="container">
+    <h1 class="bold-white-text center-text">Current Tickets</h1>
+    <br/>
     <div th:insert="fragments/errors :: errors"></div>
     <br/>
     <div th:insert="fragments/success :: success"></div>
-    <h1 class="bold-white-text center-text">Tickets</h1>
     <br/>
     <table class="table table-bordered table-striped">
         <thead>
@@ -20,33 +21,34 @@
             <th>Type</th>
             <th>Status</th>
             <th>Time of Purchase</th>
-            <th>Refundable</th>
-            <th>Actions</th>
         </tr>
         </thead>
         <tr th:each="ticket:${tickets}">
             <td th:text="${ticket.movieTitle}"></td>
             <td th:text="${ticket.showroomLetter}"></td>
-            <td th:text="${ticket.showtime}"></td>
-            <td th:text="${ticket.endtime}"></td>
+            <td th:text="${ticket.showDateTimeFormatted()}"></td>
+            <td th:text="${ticket.endDateTimeFormatted()}"></td>
             <td th:text="${ticket.seatDesignation}"></td>
-            <td th:text="${ticket.ticketType} + ' - $' + ${ticket.ticketType.price}"></td>
+            <td th:text="${ticket.ticketTypeFormatted()}"></td>
             <td th:text="${ticket.ticketStatus}"></td>
-            <td th:text="${ticket.creationDateTime}"></td>
-            <td th:text="${ticket.isRefundable}"></td>
-            <td>
+            <td th:text="${ticket.creationDateTimeFormatted()}"></td>
+            <td th:if="${ticket.isRefundable}">
                 <table>
                     <tr>
                         <td>
-                            <form method="get" th:action="@{/request-refund-ticket/{id}(id=${ticket.id})}">
-                                <button class="btn btn-danger">Request Refund</button>
-                            </form>
+                            <a th:href="@{/refund-ticket(id=${ticket.id})}" class="btn btn-danger">Refund</a>
                         </td>
                     </tr>
                 </table>
             </td>
         </tr>
     </table>
+    <br/>
+    <div>
+        <form method="get" th:action="@{/past-tickets}">
+            <button class="btn btn-success">View Past Tickets</button>
+        </form>
+    </div>
 </div>
 </body>
 </html>

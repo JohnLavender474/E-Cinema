@@ -20,9 +20,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import java.time.LocalDate;
-import java.util.List;
-
 /**
  * Controller for client registration process.
  */
@@ -45,39 +42,9 @@ public class RegistrationController {
     @GetMapping("/submit-customer-registration")
     public String showCustomerRegistrationPage(final Model model,
                                        @ModelAttribute("registrationForm") final RegistrationForm registrationForm) {
-        addRegistrationPageAttributes(model, registrationForm);
+        UtilMethods.addRegistrationPageAttributes(model, registrationForm);
         model.addAttribute("action", "/submit-customer-registration");
         return "submit-registration";
-    }
-
-    /**
-     * Gets the submit-registration page for the purpose of registering a {@link com.ecinema.app.domain.entities.User}
-     * with customized values for {@link UserAuthority}. At least one authority must be specified in the values
-     * of {@link RegistrationForm#getAuthorities()} on submission.
-     *
-     * @param model            the model of the view
-     * @param registrationForm the registration form
-     * @return the view name
-     */
-    @GetMapping("/submit-management-customized-registration")
-    public String showManagementCustomizedRegistrationPage(
-            final Model model, @ModelAttribute("registrationForm") final RegistrationForm registrationForm) {
-        addRegistrationPageAttributes(model, registrationForm);
-        model.addAttribute("action", "/submit-management-customized-registration");
-        return "submit-registration";
-    }
-
-    private void addRegistrationPageAttributes(final Model model, final RegistrationForm registrationForm) {
-        logger.debug(UtilMethods.getLoggingSubjectDelimiterLine());
-        logger.debug("Show submit registration page");
-        model.addAttribute("registrationForm", registrationForm);
-        logger.debug("Added blank registration form to model");
-        List<String> securityQuestions = SecurityQuestions.getList();
-        model.addAttribute("securityQuestions", securityQuestions);
-        logger.debug("Added list of security questions to model");
-        logger.debug("Security questions: " + securityQuestions);
-        model.addAttribute("maxDate", LocalDate.now().minusYears(16));
-        model.addAttribute("minDate", LocalDate.now().minusYears(120));
     }
 
     /**
@@ -93,28 +60,6 @@ public class RegistrationController {
         registrationForm.getAuthorities().add(UserAuthority.CUSTOMER);
         return submitRegistration(redirectAttributes, registrationForm,
                                   "redirect:/submit-customer-registration");
-    }
-
-    /**
-     * Posts the {@link RegistrationForm} for registering a new {@link User} that has been customized by
-     * an {@link Admin} client. Must contain at least one {@link UserAuthority}.
-     *
-     * @param redirectAttributes the redirect attributes
-     * @param registrationForm   the registration form
-     * @return the view name
-     */
-    @PostMapping("/submit-management-customized-registration")
-    public String registerManagementCustomizedRegistration(
-            final RedirectAttributes redirectAttributes,
-            @ModelAttribute("registrationForm") final RegistrationForm registrationForm) {
-        if (registrationForm.getAuthorities().isEmpty()) {
-            redirectAttributes.addFlashAttribute(
-                    "errors", List.of("Must specify at least one user authority"));
-            redirectAttributes.addFlashAttribute("registrationForm", registrationForm);
-            return "redirect:/submit-management-customized-registration";
-        }
-        return submitRegistration(redirectAttributes, registrationForm,
-                                  "redirect:/submit-management-customized-registration");
     }
 
     /**
@@ -167,7 +112,7 @@ public class RegistrationController {
             model.addAttribute("redirectLink", "/login");
             model.addAttribute("redirectMessage", "Go to Login Page");
             return "message-page";
-        } catch (NoEntityFoundException | BadRuntimeVarException e) {
+        } catch (InvalidArgumentException | ClashException e) {
             model.addAttribute("errors", e.getErrors());
             logger.debug("Errors: " + e.getErrors());
             return "error";

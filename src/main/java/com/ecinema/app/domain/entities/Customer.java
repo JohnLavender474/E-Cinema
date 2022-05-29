@@ -18,6 +18,9 @@ import java.util.Set;
 @NoArgsConstructor
 public class Customer extends AbstractUserAuthority {
 
+    @Column
+    private Integer tokens = 0;
+
     @ToString.Exclude
     @OneToMany(mappedBy = "writer", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private Set<Review> reviews = new HashSet<>();
@@ -42,6 +45,14 @@ public class Customer extends AbstractUserAuthority {
     @Override
     protected final UserAuthority defineUserRole() {
         return UserAuthority.CUSTOMER;
+    }
+
+    public void addTokens(Integer tokens) {
+        this.tokens += tokens;
+    }
+
+    public void subtractTokens(Integer tokens) {
+        this.tokens = Math.max(0, this.tokens - tokens);
     }
 
 }

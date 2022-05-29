@@ -48,9 +48,9 @@ public class MovieInfoController {
         return "movies";
     }
 
-    @GetMapping("/movie-info/{id}")
+    @GetMapping("/movie-info")
     public String movieInfoPage(final Model model, final RedirectAttributes redirectAttributes,
-                                 @PathVariable("id") final Long movieId) {
+                                 @RequestParam("id") final Long movieId) {
         try {
             MovieDto movieDto = movieService.findById(movieId);
             model.addAttribute("movie", movieDto);

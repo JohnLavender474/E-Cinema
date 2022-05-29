@@ -95,7 +95,7 @@ public class ReviewService extends AbstractEntityService<Review, ReviewRepositor
         Customer customer = customerRepository
                 .findByUserWithId(reviewForm.getUserId())
                 .orElseThrow(() -> new NoEntityFoundException(
-                        "customer role def", "user id", reviewForm.getUserId()));
+                        "customer authority", "user id", reviewForm.getUserId()));
         Movie movie = movieRepository.findById(reviewForm.getMovieId()).orElseThrow(
                 () -> new NoEntityFoundException("movie", "id", reviewForm.getMovieId()));
         if (repository.existsByWriterAndMovie(customer, movie)) {

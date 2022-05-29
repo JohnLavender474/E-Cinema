@@ -6,6 +6,8 @@ import com.ecinema.app.domain.entities.Screening;
 import com.ecinema.app.domain.entities.ScreeningSeat;
 import com.ecinema.app.domain.entities.ShowroomSeat;
 import com.ecinema.app.domain.entities.Ticket;
+import com.ecinema.app.domain.enums.TicketType;
+import com.ecinema.app.domain.forms.SeatBookingForm;
 import com.ecinema.app.exceptions.InvalidAssociationException;
 import com.ecinema.app.domain.enums.Letter;
 import com.ecinema.app.exceptions.NoEntityFoundException;
@@ -76,8 +78,8 @@ public class ScreeningSeatService extends AbstractEntityService<
         }
         Map<Letter, Set<ScreeningSeatDto>> mapOfScreeningSeats = new TreeMap<>();
         for (ScreeningSeatDto screeningSeatDto : screeningSeatDtos) {
-            mapOfScreeningSeats.putIfAbsent(screeningSeatDto.getRowLetter(),
-                                            new TreeSet<>(ISeat.SeatComparator.getInstance()));
+            mapOfScreeningSeats.putIfAbsent(
+                    screeningSeatDto.getRowLetter(), new TreeSet<>(ISeat.SeatComparator.getInstance()));
             mapOfScreeningSeats.get(screeningSeatDto.getRowLetter()).add(screeningSeatDto);
         }
         logger.debug(UtilMethods.getLoggingSubjectDelimiterLine());
@@ -86,8 +88,19 @@ public class ScreeningSeatService extends AbstractEntityService<
         return mapOfScreeningSeats;
     }
 
-    public List<ScreeningSeatDto> findAllByScreeningWithId(Long screeningId) {
-        return sortAndConvert(repository.findAllByScreeningWithId(screeningId));
+    public SeatBookingForm fetchSeatBookingForm(Long screeningSeatId)
+            throws NoEntityFoundException {
+        ScreeningSeat screeningSeat = repository.findById(screeningSeatId).orElseThrow(
+                () -> new NoEntityFoundException("screening seat", "id", screeningSeatId));
+        Long screeningId = repository.findScreeningIdOfScreeningSeatWithId(screeningSeatId)
+                .orElseThrow(() -> new NoEntityFoundException(
+                        "screening id", "screening seat id", screeningSeat));
+        SeatBookingForm seatBookingForm = new SeatBookingForm();
+        seatBookingForm.setScreeningId(screeningId);
+        seatBookingForm.setScreeningSeatId(screeningSeatId);
+        seatBookingForm.setTicketType(TicketType.ADULT);
+        seatBookingForm.setTokensToApply(0);
+        return seatBookingForm;
     }
 
     public boolean screeningSeatIsBooked(Long screeningSeatId)
@@ -95,6 +108,10 @@ public class ScreeningSeatService extends AbstractEntityService<
         ScreeningSeat screeningSeat = repository.findById(screeningSeatId).orElseThrow(
                 () -> new NoEntityFoundException("screening seat", "id", screeningSeatId));
         return screeningSeat.getTicket() != null;
+    }
+
+    public List<ScreeningSeatDto> findAllByScreeningWithId(Long screeningId) {
+        return sortAndConvert(repository.findAllByScreeningWithId(screeningId));
     }
 
     private List<ScreeningSeatDto> sortAndConvert(List<ScreeningSeat> screeningSeats) {

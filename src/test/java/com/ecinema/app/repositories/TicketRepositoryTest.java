@@ -167,10 +167,10 @@ class TicketRepositoryTest {
                 .findShowroomLetterAssociatedWithTicket(ticket.getId())
                 .orElseThrow(IllegalStateException::new);
         LocalDateTime showtime = ticketRepository
-                .findShowtimeOfScreeningAssociatedWithTicket(ticket.getId())
+                .findShowDateTimeOfScreeningAssociatedWithTicket(ticket.getId())
                 .orElseThrow(IllegalStateException::new);
         LocalDateTime endtime = ticketRepository
-                .findEndtimeOfScreeningAssociatedWithTicket(ticket.getId())
+                .findEndDateTimeOfScreeningAssociatedWithTicket(ticket.getId())
                 .orElseThrow(IllegalStateException::new);
         ShowroomSeat testShowroomSeat = ticketRepository
                 .findShowroomSeatAssociatedWithTicket(ticket.getId())
@@ -183,6 +183,66 @@ class TicketRepositoryTest {
         assertEquals(
                 localDateTime.plusHours(1).plusMinutes(30), endtime);
         assertEquals(showroomSeat, testShowroomSeat);
+    }
+
+    @Test
+    void findAllIdsByUserWithIdAndShowDateTime() {
+        // given
+        User user = new User();
+        userRepository.save(user);
+        Customer customer = new Customer();
+        customer.setUser(user);
+        user.getUserAuthorities().put(UserAuthority.CUSTOMER, customer);
+        customerRepository.save(customer);
+        Screening screening1 = new Screening();
+        screening1.setShowDateTime(LocalDateTime.now().minusHours(1));
+        screeningRepository.save(screening1);
+        ShowroomSeat showroomSeat1 = new ShowroomSeat();
+        showroomSeat1.setRowLetter(Letter.A);
+        showroomSeat1.setSeatNumber(1);
+        showroomSeatRepository.save(showroomSeat1);
+        ScreeningSeat screeningSeat1 = new ScreeningSeat();
+        screeningSeat1.setShowroomSeat(showroomSeat1);
+        showroomSeat1.getScreeningSeats().add(screeningSeat1);
+        screeningSeat1.setScreening(screening1);
+        screening1.getScreeningSeats().add(screeningSeat1);
+        screeningSeatRepository.save(screeningSeat1);
+        Screening screening2 = new Screening();
+        screening2.setShowDateTime(LocalDateTime.now().plusHours(1));
+        screeningRepository.save(screening2);
+        ShowroomSeat showroomSeat2 = new ShowroomSeat();
+        showroomSeat2.setRowLetter(Letter.A);
+        showroomSeat2.setSeatNumber(1);
+        showroomSeatRepository.save(showroomSeat2);
+        ScreeningSeat screeningSeat2 = new ScreeningSeat();
+        screeningSeat2.setShowroomSeat(showroomSeat2);
+        showroomSeat2.getScreeningSeats().add(screeningSeat2);
+        screeningSeat2.setScreening(screening2);
+        screening2.getScreeningSeats().add(screeningSeat2);
+        screeningSeatRepository.save(screeningSeat2);
+        List<Ticket> tickets = new ArrayList<>();
+        for (int i = 0; i < 10; i++) {
+            Ticket ticket = new Ticket();
+            ticket.setScreeningSeat(i % 2 == 0 ? screeningSeat1 : screeningSeat2);
+            ticket.setTicketOwner(customer);
+            customer.getTickets().add(ticket);
+            ticketRepository.save(ticket);
+            tickets.add(ticket);
+        }
+        // when
+        List<Long> idsOfPastTickets = ticketRepository
+                .findAllIdsByUserWithIdAndShowDateTimeIsBefore(user.getId(), LocalDateTime.now());
+        List<Long> idsOfCurrentTickets = ticketRepository
+                .findAllIdsByUserWithIdAndShowDateTimeIsAfter(user.getId(), LocalDateTime.now());
+        // then
+        List<Long> controlTicketIdsOfPastTickets = tickets.stream().filter(ticket ->
+                ticket.getScreeningSeat().getScreening().getShowDateTime().isBefore(LocalDateTime.now()))
+                .map(Ticket::getId).collect(Collectors.toList());
+        List<Long> controlTicketIdsOfCurrentTickets = tickets.stream().filter(ticket ->
+                ticket.getScreeningSeat().getScreening().getShowDateTime().isAfter(LocalDateTime.now()))
+                .map(Ticket::getId).collect(Collectors.toList());
+        assertEquals(controlTicketIdsOfPastTickets, idsOfPastTickets);
+        assertEquals(controlTicketIdsOfCurrentTickets, idsOfCurrentTickets);
     }
 
 }

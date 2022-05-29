@@ -17,7 +17,7 @@
         <li th:each="info:${onDeleteInfo}" th:text="${info}"></li>
     </ul>
     <br/>
-    <form method="post" th:action="@{/delete-showroom(showroomLetter=${showroomLetterForm.s})}">
+    <form method="post" th:action="@{/delete-showroom/{showroomLetter}(showroomLetter=${showroomLetterForm.s})}">
         <button class="btn btn-outline-danger" th:text="'I Absolutely Want to Delete Showroom '
                          + ${showroomLetterForm.s} + ' With NO CHANCE OF UNDOING THIS ACTION!!!'"></button>
     </form>

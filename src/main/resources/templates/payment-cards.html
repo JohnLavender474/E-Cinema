@@ -38,9 +38,9 @@
                 <td th:text="${paymentCard.lastName}"></td>
                 <td th:text="${paymentCard.expirationDateFormatted()}"></td>
                 <td>
-                    <form method="get" th:action="@{/edit-payment-card/{id}(id=${paymentCard.id})}">
-                        <button class="btn btn-primary">Edit</button>
-                    </form>
+                    <div>
+                        <a th:href="@{/edit-payment-card(id=${paymentCard.id})}" class="btn btn-primary">Edit</a>
+                    </div>
                     <br/>
                     <form method="post" th:action="@{/delete-payment-card/{id}(id=${paymentCard.id})}">
                         <button class="btn btn-danger">Delete</button>

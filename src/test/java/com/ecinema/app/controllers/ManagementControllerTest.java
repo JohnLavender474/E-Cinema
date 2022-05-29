@@ -10,18 +10,18 @@ import com.ecinema.app.domain.dtos.UserDto;
 import com.ecinema.app.domain.entities.Movie;
 import com.ecinema.app.domain.entities.Screening;
 import com.ecinema.app.domain.entities.Showroom;
-import com.ecinema.app.domain.enums.Letter;
-import com.ecinema.app.domain.enums.MovieCategory;
-import com.ecinema.app.domain.enums.MsrbRating;
-import com.ecinema.app.domain.enums.UserAuthority;
+import com.ecinema.app.domain.entities.User;
+import com.ecinema.app.domain.enums.*;
 import com.ecinema.app.domain.forms.*;
 import com.ecinema.app.domain.objects.Duration;
 import com.ecinema.app.domain.validators.MovieValidator;
 import com.ecinema.app.domain.validators.ScreeningValidator;
+import com.ecinema.app.exceptions.ClashException;
 import com.ecinema.app.exceptions.InvalidArgumentException;
 import com.ecinema.app.exceptions.NoEntityFoundException;
 import com.ecinema.app.repositories.MovieRepository;
 import com.ecinema.app.repositories.ShowroomRepository;
+import com.ecinema.app.repositories.UserRepository;
 import com.ecinema.app.services.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -72,16 +72,28 @@ class ManagementControllerTest {
     private MovieService movieService;
 
     @MockBean
-    private MovieRepository movieRepository;
+    private ShowroomService showroomService;
 
     @MockBean
-    private ShowroomService showroomService;
+    private EncoderService encoderService;
+
+    @MockBean
+    private RegistrationService registrationService;
+
+    @MockBean
+    private MovieRepository movieRepository;
 
     @MockBean
     private ShowroomRepository showroomRepository;
 
     @MockBean
+    private UserRepository userRepository;
+
+    @MockBean
     private ScreeningService screeningService;
+
+    @MockBean
+    private EmailService emailService;
 
     @MockBean
     private SecurityContext securityContext;
@@ -210,7 +222,7 @@ class ManagementControllerTest {
         given(movieService.findById(1L)).willReturn(movieDto);
         mockMvc.perform(post("/add-movie")
                                 .flashAttr("movieForm", movieForm))
-                .andExpect(redirectedUrlPattern("/movie-info/" + 1L + "**"))
+                .andExpect(redirectedUrlPattern("/movie-info**"))
                 .andExpect(result -> model().attributeExists("success"));
     }
 
@@ -234,9 +246,10 @@ class ManagementControllerTest {
             throws Exception {
         MovieForm movieForm = new MovieForm();
         given(movieService.fetchAsForm(1L)).willReturn(movieForm);
-        mockMvc.perform(get("/edit-movie/" + 1L))
+        mockMvc.perform(get("/edit-movie")
+                                .param("id", String.valueOf(1L)))
                .andExpect(status().isOk())
-                .andExpect(view().name("admin-movie"))
+               .andExpect(view().name("admin-movie"))
                .andExpect(result -> model().attribute("action", "/edit-movie/{id}"))
                .andExpect(result -> model().attribute("movieForm", movieForm));
     }
@@ -245,14 +258,14 @@ class ManagementControllerTest {
     @WithMockUser(username = "user", authorities = {"MODERATOR", "CUSTOMER"})
     void failToAccessEditMoviePage1()
             throws Exception {
-        expectGetForbidden("/edit-movie/" + 1L);
+        expectGetForbidden("/edit-movie");
     }
 
     @Test
     @WithAnonymousUser
     void failToAccessEditMoviePage2()
             throws Exception {
-        expectGetRedirectToLogin("/edit-movie/" + 1L);
+        expectGetRedirectToLogin("/edit-movie/");
     }
 
     @Test
@@ -266,7 +279,7 @@ class ManagementControllerTest {
         mockMvc.perform(post("/edit-movie/" + 1L)
                                 .flashAttr("movieForm", movieForm))
                .andExpect(result -> model().attributeExists("success"))
-               .andExpect(redirectedUrlPattern("/movie-info/" + 1L + "**"));
+               .andExpect(redirectedUrlPattern("/movie-info**"));
     }
 
     @Test
@@ -278,7 +291,7 @@ class ManagementControllerTest {
                                                .submitMovieForm(movieForm);
         mockMvc.perform(post("/edit-movie/" + 1L)
                                 .flashAttr("movieForm", movieForm))
-               .andExpect(redirectedUrlPattern("/edit-movie/" + 1L + "**"))
+               .andExpect(redirectedUrlPattern("/edit-movie**"))
                .andExpect(result -> model().attributeExists("errors"));
     }
 
@@ -353,7 +366,8 @@ class ManagementControllerTest {
             throws Exception {
         MovieDto movie = new MovieDto();
         given(movieService.findById(1L)).willReturn(movie);
-        mockMvc.perform(get("/delete-movie/" + 1L))
+        mockMvc.perform(get("/delete-movie")
+                                .param("id", String.valueOf(1L)))
                .andExpect(status().isOk())
                .andExpect(result -> model().attribute("movie", movie));
     }
@@ -364,7 +378,8 @@ class ManagementControllerTest {
             throws Exception {
         given(movieService.findById(1L)).willThrow(
                 new NoEntityFoundException("movie", "id", 1L));
-        mockMvc.perform(get("/delete-movie/" + 1L))
+        mockMvc.perform(get("/delete-movie")
+                                .param("id", String.valueOf(1L)))
                .andExpect(redirectedUrlPattern("/error**"));
     }
 
@@ -372,21 +387,21 @@ class ManagementControllerTest {
     @WithMockUser(username = "user", authorities = {"MODERATOR", "CUSTOMER"})
     void failToAccessDeleteMoviePage1()
             throws Exception {
-        expectGetForbidden("/delete-movie/" + 1L);
+        expectGetForbidden("/delete-movie");
     }
 
     @Test
     @WithAnonymousUser
     void failToAccessDeleteMoviePage2()
             throws Exception {
-        expectGetRedirectToLogin("/delete-movie/" + 1L);
+        expectGetRedirectToLogin("/delete-movie");
     }
 
     @Test
     @WithMockUser(username = "user", authorities = {"ADMIN"})
     void accessAddScreeningSearchPage()
             throws Exception {
-        testAdminMovieChoose("/add-screening-search", "/add-screening/{id}");
+        testAdminMovieChoose("/add-screening-search", "/add-screening");
     }
     
     @Test
@@ -395,10 +410,11 @@ class ManagementControllerTest {
             throws Exception {
         MovieDto movie = new MovieDto();
         given(movieService.findById(1L)).willReturn(movie);
-        mockMvc.perform(get("/add-screening/" + 1L))
+        mockMvc.perform(get("/add-screening")
+                                .param("id", String.valueOf(1L)))
                .andExpect(status().isOk())
                .andExpect(result -> model().attribute("movie", movie))
-               .andExpect(result -> model().attribute("action", "/add-screening/{id}"))
+               .andExpect(result -> model().attribute("action", "/add-screening"))
                .andExpect(result -> model().attribute("screeningForm", new ScreeningForm()));
     }
 
@@ -406,14 +422,14 @@ class ManagementControllerTest {
     @WithMockUser(username = "user", authorities = {"CUSTOMER", "MODERATOR"})
     void failToAccessAddScreeningPage1()
             throws Exception {
-        expectGetForbidden("/add-screening/" + 1L);
+        expectGetForbidden("/add-screening");
     }
 
     @Test
     @WithAnonymousUser
     void failToAccessAddScreeningPage2()
             throws Exception {
-        expectedPostRedirectToLogin("/add-screening/" + 1L);
+        expectedPostRedirectToLogin("/add-screening");
     }
 
     @Test
@@ -439,8 +455,7 @@ class ManagementControllerTest {
                 any(LocalDateTime.class),
                 any(LocalDateTime.class)))
                 .willReturn(Optional.empty());
-        mockMvc.perform(post("/add-screening")
-                                .param("id", String.valueOf(1L)))
+        mockMvc.perform(post("/add-screening/" + 1L))
                 .andExpect(redirectedUrlPattern("/add-screening-search**"))
                 .andExpect(flash().attribute("success", "Successfully added screening"));
     }
@@ -464,9 +479,8 @@ class ManagementControllerTest {
         doThrow(InvalidArgumentException.class)
                 .when(screeningService)
                 .submitScreeningForm(any(ScreeningForm.class));
-        mockMvc.perform(post("/add-screening")
-                                .param("id", String.valueOf(1L)))
-                .andExpect(redirectedUrlPattern("/add-screening/" + 1L + "**"))
+        mockMvc.perform(post("/add-screening/" + 1L))
+                .andExpect(redirectedUrlPattern("/add-screening**"))
                 .andExpect(result -> model().attributeExists("errors"));
     }
 
@@ -537,7 +551,8 @@ class ManagementControllerTest {
         ScreeningDto screeningDto = new ScreeningDto();
         given(screeningService.findById(1L)).willReturn(screeningDto);
         given(screeningService.onDeleteInfo(1L)).willReturn(List.of("TEST"));
-        mockMvc.perform(get("/delete-screening/" + 1L))
+        mockMvc.perform(get("/delete-screening")
+                                .param("id", String.valueOf(1L)))
                 .andExpect(status().isOk())
                 .andExpect(result -> model().attribute("screening", screeningDto))
                 .andExpect(result -> model().attribute("onDeleteInfo", List.of("TEST")));
@@ -701,8 +716,7 @@ class ManagementControllerTest {
     void deleteShowroom()
             throws Exception {
         doNothing().when(showroomService).delete(Letter.A);
-        mockMvc.perform(post("/delete-showroom")
-                                .param("showroomLetter", Letter.A.name()))
+        mockMvc.perform(post("/delete-showroom/" + Letter.A))
                 .andExpect(redirectedUrlPattern("/management**"))
                 .andExpect(result -> model().attributeExists("success"));
     }
@@ -711,7 +725,7 @@ class ManagementControllerTest {
     @WithAnonymousUser
     void failToDeleteShowroom1()
         throws Exception {
-        mockMvc.perform(post("/delete-showroom"))
+        mockMvc.perform(post("/delete-showroom/" + Letter.A))
                 .andExpect(status().is3xxRedirection());
     }
 
@@ -719,7 +733,7 @@ class ManagementControllerTest {
     @WithMockUser(username = "user", authorities = {"MODERATOR", "CUSTOMER"})
     void failToDeleteShowroom2()
             throws Exception {
-        mockMvc.perform(post("/delete-showroom"))
+        mockMvc.perform(post("/delete-showroom/" + Letter.A))
                 .andExpect(status().isForbidden());
     }
 
@@ -729,12 +743,146 @@ class ManagementControllerTest {
         throws Exception {
         NoEntityFoundException e = new NoEntityFoundException("showroom", "showroom letter", Letter.A);
         doThrow(e).when(showroomService).delete(Letter.A);
-        mockMvc.perform(post("/delete-showroom")
-                                .param("showroomLetter", Letter.A.name()))
+        mockMvc.perform(post("/delete-showroom/" + Letter.A))
                 .andExpect(redirectedUrlPattern("/management**"))
                 .andExpect(result -> model().attribute("errors", e.getErrors()))
                 .andExpect(result -> model().attribute(
                         "showroomLetterForm", new StringForm(Letter.A.name())));
+    }
+
+    @Test
+    @WithMockUser(username = "user", authorities = {"ADMIN"})
+    void showAdminCreateNewAccountPage()
+        throws Exception {
+        setUpAdminUserDto();
+        mockMvc.perform(get("/admin-create-new-account"))
+                .andExpect(status().isOk())
+                .andExpect(result -> model().attribute(
+                        "securityQuestions", SecurityQuestions.getList()))
+                .andExpect(result -> model().attribute("action", "/admin-create-new-account"));
+    }
+
+    @Test
+    @WithAnonymousUser
+    void failToShowAdminCreateNewPage1()
+        throws Exception {
+        expectGetRedirectToLogin("/admin-create-new-account");
+    }
+
+    @Test
+    @WithMockUser(username = "user", authorities = {"CUSTOMER", "MODERATOR"})
+    void failToShowAdminCreateNewPage2()
+        throws Exception {
+        expectGetForbidden("/admin-create-new-account");
+    }
+
+    @Test
+    @WithMockUser(username = "user", authorities = {"ADMIN"})
+    void adminCreateNewAccount()
+        throws Exception {
+        RegistrationForm registrationForm = new RegistrationForm();
+        registrationForm.setUsername("username123");
+        registrationForm.setEmail("test@gmail.com");
+        registrationForm.setPassword("password123?!");
+        registrationForm.setConfirmPassword("password123?!");
+        registrationForm.setFirstName("First");
+        registrationForm.setLastName("Last");
+        registrationForm.setSecurityQuestion1(SecurityQuestions.SQ1);
+        registrationForm.setSecurityAnswer1("Answer 1");
+        registrationForm.setSecurityQuestion2(SecurityQuestions.SQ2);
+        registrationForm.setSecurityAnswer2("Answer 2");
+        registrationForm.getAuthorities().add(UserAuthority.CUSTOMER);
+        registrationForm.setBirthDate(LocalDate.of(2000, Month.JANUARY, 1));
+        given(encoderService.encode(anyString())).willReturn("encoded_password");
+        given(userService.existsByUsername("username123")).willReturn(false);
+        given(userService.existsByEmail("test@gmail.com")).willReturn(false);
+        doNothing().when(emailService).sendFromBusinessEmail(anyString(), anyString(), anyString());
+        mockMvc.perform(post("/admin-create-new-account")
+                                .flashAttr("registrationForm", registrationForm))
+                .andExpect(redirectedUrlPattern("/management**"))
+                .andExpect(result -> model().attributeExists("success"));
+    }
+
+    @Test
+    @WithMockUser(username = "user", authorities = {"ADMIN"})
+    void failToAdminCreateNewAccount()
+        throws Exception {
+        RegistrationForm registrationForm = new RegistrationForm();
+        registrationForm.setUsername("username123");
+        registrationForm.setEmail("test@gmail.com");
+        registrationForm.setPassword("password123?!");
+        registrationForm.setConfirmPassword("password123?!");
+        registrationForm.setFirstName("First");
+        registrationForm.setLastName("Last");
+        registrationForm.setSecurityQuestion1(SecurityQuestions.SQ1);
+        registrationForm.setSecurityAnswer1("Answer 1");
+        registrationForm.setSecurityQuestion2(SecurityQuestions.SQ2);
+        registrationForm.setSecurityAnswer2("Answer 2");
+        registrationForm.getAuthorities().add(UserAuthority.CUSTOMER);
+        registrationForm.setBirthDate(LocalDate.of(2000, Month.JANUARY, 1));
+        given(encoderService.encode(anyString())).willReturn("encoded_password");
+        ClashException e = new ClashException("User with eamil test@gmail.com already exists");
+        doThrow(e).when(registrationService).submitRegistrationForm(registrationForm);
+        mockMvc.perform(post("/admin-create-new-account")
+                                .flashAttr("registrationForm", registrationForm))
+               .andExpect(redirectedUrlPattern("/admin-create-new-account**"))
+               .andExpect(result -> model().attributeExists("errors"));
+    }
+
+    @Test
+    @WithMockUser(username = "user", authorities = {"ADMIN"})
+    void showAdminChangeUserPasswordPage()
+        throws Exception {
+        mockMvc.perform(get("/admin-change-user-password"))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    @WithAnonymousUser
+    void failToShowAdminChangeUserPasswordPage1()
+        throws Exception {
+        expectGetRedirectToLogin("/admin-change-user-password");
+    }
+
+    @Test
+    @WithMockUser(username = "user", authorities = {"CUSTOMER", "MODERATOR"})
+    void failToShowAdminChangeUserPasswordPage2()
+        throws Exception {
+        expectGetForbidden("/admin-change-user-password");
+    }
+
+    @Test
+    @WithMockUser(username = "user", authorities = {"ADMIN"})
+    void adminChangeUserPassword()
+        throws Exception {
+        User user = new User();
+        given(userRepository.findByUsernameOrEmail("test@gmail.com"))
+                .willReturn(Optional.of(user));
+        AdminChangeUserPasswordForm form = new AdminChangeUserPasswordForm();
+        form.setEmailOrUsername("test@gmail.com");
+        form.setPassword("password123?!");
+        form.setConfirmPassword("password123?!");
+        mockMvc.perform(post("/admin-change-user-password")
+                                .flashAttr("form", form))
+                .andExpect(redirectedUrlPattern("/management**"))
+                .andExpect(result -> model().attributeExists("success"));
+    }
+
+    @Test
+    @WithMockUser(username = "user", authorities = {"ADMIN"})
+    void failToAdminChangeUserPassword()
+        throws Exception {
+            User user = new User();
+            NoEntityFoundException e = new NoEntityFoundException("user", "username or email", "test@gmail.com");
+            doThrow(e).when(userRepository).findByUsernameOrEmail("test@gmail.com");
+            AdminChangeUserPasswordForm form = new AdminChangeUserPasswordForm();
+            form.setEmailOrUsername("test@gmail.com");
+            form.setPassword("password123?!");
+            form.setConfirmPassword("password123?!");
+            mockMvc.perform(post("/admin-change-user-password")
+                                    .flashAttr("form", form))
+                   .andExpect(redirectedUrlPattern("/admin-change-user-password**"))
+                   .andExpect(result -> model().attributeExists("errors"));
     }
 
     void setUpAdminUserDto() {
@@ -759,7 +907,8 @@ class ManagementControllerTest {
 
     void expectGetForbidden(String viewName)
             throws Exception {
-        mockMvc.perform(get(viewName))
+        mockMvc.perform(get(viewName)
+                                .param("id", String.valueOf(1L)))
                .andExpect(status().isForbidden());
     }
 
@@ -771,13 +920,15 @@ class ManagementControllerTest {
 
     void expectGetRedirectToLogin(String viewName)
             throws Exception {
-        mockMvc.perform(get(viewName))
+        mockMvc.perform(get(viewName)
+                                .param("id", String.valueOf(1L)))
                .andExpect(status().is3xxRedirection());
     }
 
     void expectedPostRedirectToLogin(String action)
             throws Exception {
-        mockMvc.perform(post(action))
+        mockMvc.perform(post(action)
+                                .param("id", String.valueOf(1L)))
                .andExpect(status().is3xxRedirection());
     }
 

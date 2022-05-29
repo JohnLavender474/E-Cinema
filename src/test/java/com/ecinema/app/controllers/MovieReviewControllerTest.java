@@ -16,10 +16,7 @@ import com.ecinema.app.exceptions.InvalidArgumentException;
 import com.ecinema.app.repositories.CustomerRepository;
 import com.ecinema.app.repositories.MovieRepository;
 import com.ecinema.app.repositories.ReviewRepository;
-import com.ecinema.app.services.MovieService;
-import com.ecinema.app.services.ReviewService;
-import com.ecinema.app.services.ReviewVoteService;
-import com.ecinema.app.services.UserService;
+import com.ecinema.app.services.*;
 import com.ecinema.app.util.UtilMethods;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -70,6 +67,9 @@ class MovieReviewControllerTest {
     private ReviewService reviewService;
 
     @MockBean
+    private CustomerService customerService;
+
+    @MockBean
     private ReviewValidator reviewValidator;
 
     @MockBean
@@ -109,7 +109,8 @@ class MovieReviewControllerTest {
                 1L, PageRequest.of(0, 6)))
                 .willReturn(UtilMethods.convertListToPage(
                         reviews, PageRequest.of(0, 6)));
-        mockMvc.perform(get("/movie-reviews/" + 1L))
+        mockMvc.perform(get("/movie-reviews")
+                                .param("id", String.valueOf(1L)))
                .andExpect(status().isOk())
                .andExpect(result -> model().attributeExists("reviews"));
     }
@@ -125,7 +126,9 @@ class MovieReviewControllerTest {
         given(userService.findById(1L)).willReturn(userDto);
         given(movieService.findById(anyLong())).willReturn(new MovieDto());
         given(reviewService.existsByUserIdAndMovieId(1L, 2L)).willReturn(false);
-        mockMvc.perform(get("/write-review/" + 2L))
+        given(customerService.isCustomerCensored(1L)).willReturn(false);
+        mockMvc.perform(get("/write-review")
+                                .param("id", String.valueOf(2L)))
                .andExpect(status().isOk())
                .andExpect(result -> model().attributeExists("movie"))
                .andExpect(result -> model().attributeExists("reviewForm"));
@@ -142,7 +145,9 @@ class MovieReviewControllerTest {
         given(userService.findById(1L)).willReturn(userDto);
         given(movieService.findById(anyLong())).willReturn(new MovieDto());
         given(reviewService.existsByUserIdAndMovieId(1L, 2L)).willReturn(false);
-        mockMvc.perform(get("/write-review/" + 2L))
+        given(customerService.isCustomerCensored(1L)).willReturn(false);
+        mockMvc.perform(get("/write-review")
+                                .param("id", String.valueOf(2L)))
                .andExpect(status().isOk())
                .andExpect(result -> model().attributeExists("movie"))
                .andExpect(result -> model().attributeExists("reviewForm"));
@@ -152,7 +157,8 @@ class MovieReviewControllerTest {
     @WithMockUser(username = "username", authorities = {"ADMIN", "MODERATOR"})
     void accessDeniedToShowWriteReviewPage1()
             throws Exception {
-        mockMvc.perform(get("/write-review/" + 0L))
+        mockMvc.perform(get("/write-review")
+                                .param("id", String.valueOf(1L)))
                .andExpect(status().isForbidden());
     }
 
@@ -160,7 +166,8 @@ class MovieReviewControllerTest {
     @WithMockUser(username = "username")
     void accessDeniedToShowWriteReviewPage2()
             throws Exception {
-        mockMvc.perform(get("/write-review/" + 0L))
+        mockMvc.perform(get("/write-review")
+                                .param("id", String.valueOf(1L)))
                 .andExpect(status().isForbidden());
     }
 
@@ -189,7 +196,7 @@ class MovieReviewControllerTest {
         mockMvc.perform(post(("/write-review/" + 2L))
                                  .flashAttr("reviewForm", reviewForm))
                 .andExpect(result -> model().attributeExists("success"))
-                .andExpect(redirectedUrlPattern("/movie-reviews/" + reviewForm.getMovieId() + "**"));
+                .andExpect(redirectedUrlPattern("/movie-reviews**"));
     }
 
     @Test
@@ -217,7 +224,7 @@ class MovieReviewControllerTest {
         mockMvc.perform(post("/write-review/" + 2L)
                                  .flashAttr("reviewForm", reviewForm))
                 .andExpect(result -> model().attributeExists("success"))
-                .andExpect(redirectedUrlPattern("/movie-reviews/" + reviewForm.getMovieId() + "**"));
+                .andExpect(redirectedUrlPattern("/movie-reviews**" ));
     }
 
     @Test
@@ -229,7 +236,8 @@ class MovieReviewControllerTest {
         Page<ReviewDto> reviews = new PageImpl<>(new ArrayList<>());
         setUpReviews(reviews);
         given(reviewService.existsByUserIdAndMovieId(1L, 2L)).willReturn(false);
-        mockMvc.perform(get("/movie-reviews/" + 2L))
+        mockMvc.perform(get("/movie-reviews")
+                                .param("id", String.valueOf(2L)))
                 .andExpect(status().isOk())
                 .andExpect(result -> model().attribute("user", user))
                 .andExpect(result -> model().attribute("isCustomer", true))
@@ -246,7 +254,8 @@ class MovieReviewControllerTest {
         Page<ReviewDto> reviews = new PageImpl<>(new ArrayList<>());
         setUpReviews(reviews);
         given(reviewService.existsByUserIdAndMovieId(1L, 2L)).willReturn(true);
-        mockMvc.perform(get("/movie-reviews/" + 2L))
+        mockMvc.perform(get("/movie-reviews")
+                                .param("id", String.valueOf(2L)))
                 .andExpect(status().isOk())
                 .andExpect(result -> model().attribute("user", user))
                 .andExpect(result -> model().attribute("isCustomer", true))
@@ -265,7 +274,7 @@ class MovieReviewControllerTest {
         mockMvc.perform(post("/vote-review/" + 2L + "/" + 0)
                                 .param("movieId", String.valueOf(3L))
                                 .param("page", String.valueOf(2)))
-                .andExpect(redirectedUrlPattern("/movie-reviews/" + 3L + "?page=" + 2 + "**"))
+                .andExpect(redirectedUrlPattern("/movie-reviews**"))
                 .andExpect(result -> model().attributeDoesNotExist("errors"))
                 .andExpect(result -> model().attributeExists("success"));
     }
@@ -281,7 +290,7 @@ class MovieReviewControllerTest {
         mockMvc.perform(post("/vote-review/" + 2L + "/" + 1)
                                 .param("movieId", String.valueOf(3L))
                                 .param("page", String.valueOf(2)))
-               .andExpect(redirectedUrlPattern("/movie-reviews/" + 3L + "?page=" + 2 + "**"))
+               .andExpect(redirectedUrlPattern("/movie-reviews**"))
                .andExpect(result -> model().attributeDoesNotExist("errors"))
                .andExpect(result -> model().attributeExists("success"));
     }
@@ -314,7 +323,7 @@ class MovieReviewControllerTest {
         mockMvc.perform(post("/vote-review/" + 2L + "/" + 1)
                                 .param("movieId", String.valueOf(3L))
                                 .param("page", String.valueOf(2)))
-               .andExpect(redirectedUrlPattern("/movie-reviews/" + 3L + "?page=" + 2 + "**"))
+               .andExpect(redirectedUrlPattern("/movie-reviews**"))
                .andExpect(result -> model().attributeExists("errors"));
     }
 

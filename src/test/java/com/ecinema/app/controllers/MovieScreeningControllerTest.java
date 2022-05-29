@@ -61,7 +61,8 @@ class MovieScreeningControllerTest {
         List<ScreeningDto> screenings = new ArrayList<>(Collections.nCopies(10, new ScreeningDto()));
         given(screeningService.findPageByMovieId(1L, PageRequest.of(0, 6)))
                 .willReturn(UtilMethods.convertListToPage(screenings, PageRequest.of(0, 6)));
-        mockMvc.perform(get("/movie-screenings/" + 1L))
+        mockMvc.perform(get("/movie-screenings")
+                                .param("id", String.valueOf(1L)))
                .andExpect(status().isOk())
                .andExpect(result -> model().attributeExists("screenings"));
     }

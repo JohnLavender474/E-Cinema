@@ -112,7 +112,8 @@ public class ScreeningService extends AbstractEntityService<Screening, Screening
 
     protected List<String> onDeleteInfo(Screening screening) {
         List<String> onDeleteInfo = new ArrayList<>();
-        List<Ticket> ticketsInShowroom = ticketRepository.findAllByShowroom(screening.getShowroom());
+        List<Ticket> ticketsInShowroom = ticketRepository.findAllByShowroomWithId(
+                screening.getShowroom().getId());
         int costOfDeletingTickets = ticketsInShowroom.stream().mapToInt(
                 ticket -> ticket.getTicketType().getPrice()).sum();
         onDeleteInfo.add("Number of seats to be deleted: " + screening.getScreeningSeats().size());
@@ -198,6 +199,10 @@ public class ScreeningService extends AbstractEntityService<Screening, Screening
             }
         }
         return Optional.empty();
+    }
+
+    List<Long> findAllScreeningIdsByMovieId(Long movieId) {
+        return repository.findAllScreeningIdsByMovieId(movieId);
     }
 
     public Page<ScreeningDto> findPageByMovieId(Long movieId, Pageable pageable) {

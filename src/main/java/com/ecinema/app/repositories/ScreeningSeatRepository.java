@@ -72,6 +72,15 @@ public interface ScreeningSeatRepository extends JpaRepository<ScreeningSeat, Lo
     Optional<ScreeningSeat> findByTicketWithId(Long ticketId);
 
     /**
+     * Find screening id of screening seat with id optional.
+     *
+     * @param screeningSeatId the screening seat id
+     * @return the optional
+     */
+    @Query("SELECT s.screening.id FROM ScreeningSeat s WHERE s.id = ?1")
+    Optional<Long> findScreeningIdOfScreeningSeatWithId(Long screeningSeatId);
+
+    /**
      * Screening seat is booked boolean.
      *
      * @param screeningSeatId the screening seat id

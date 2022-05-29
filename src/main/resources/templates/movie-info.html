@@ -13,10 +13,10 @@
     <table class="table table-bordered table-striped">
         <tr>
             <td>
-                <img th:src="${movie.image}" width="300" height="400" src="" alt="">
+                <a th:href="@{/movie-screenings(id=${movie.id})}" class="btn btn-primary">Screenings</a>
             </td>
             <td>
-                <iframe width="400" height="300" th:src="${movie.trailer}"></iframe>
+                <a th:href="@{/movie-reviews(id=${movie.id})}" class="btn btn-primary">Reviews</a>
             </td>
         </tr>
     </table>
@@ -24,14 +24,10 @@
     <table class="table table-bordered table-striped">
         <tr>
             <td>
-                <form method="get" th:action="@{/movie-screenings/{id}(id=${movie.id})}">
-                    <button class="button" style="font-size: xx-large">Screenings</button>
-                </form>
+                <img th:src="${movie.image}" width="300" height="400" src="" alt="">
             </td>
             <td>
-                <form method="get" th:action="@{/movie-reviews/{id}(id=${movie.id})}">
-                    <button class="button" style="font-size: xx-large">Reviews</button>
-                </form>
+                <iframe width="400" height="300" th:src="${movie.trailer}"></iframe>
             </td>
         </tr>
     </table>
