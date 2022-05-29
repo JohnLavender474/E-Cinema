@@ -140,7 +140,6 @@ public class TicketService extends AbstractEntityService<Ticket, TicketRepositor
         save(ticket);
         if (seatBookingForm.getTokensToApply() > 0) {
             customer.subtractTokens(seatBookingForm.getTokensToApply());
-            customerRepository.save(customer);
         }
         sendPurchaseConfirmationEmail(
                 convertToDto(ticket), seatBookingForm.getTokensToApply());

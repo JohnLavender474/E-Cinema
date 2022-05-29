@@ -23,10 +23,7 @@ public class ModeratorService extends UserAuthorityService<Moderator, ModeratorR
     @Autowired
     public ModeratorService(ModeratorRepository repository, CustomerRepository customerRepository) {
         super(repository);
-        logger.debug(UtilMethods.getLoggingSubjectDelimiterLine());
-        logger.debug("Moderator Service: autowire repository: " + repository);
         this.customerRepository = customerRepository;
-        logger.debug("Moderator Service: autowire customer repository: " + customerRepository);
     }
 
     @Override
