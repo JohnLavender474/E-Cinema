@@ -6,7 +6,7 @@ import java.util.Set;
 
 /**
  * Defines the contract of the registration.
- * */
+ */
 public interface IRegistration extends IProfile, IPassword {
 
     /**

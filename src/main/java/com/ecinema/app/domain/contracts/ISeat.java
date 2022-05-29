@@ -9,6 +9,9 @@ import java.util.Comparator;
  */
 public interface ISeat {
 
+    /**
+     * The type Seat comparator.
+     */
     class SeatComparator implements Comparator<ISeat> {
 
         @Override
@@ -26,6 +29,11 @@ public interface ISeat {
             return comparison;
         }
 
+        /**
+         * Gets instance.
+         *
+         * @return the instance
+         */
         public static SeatComparator getInstance() {
             return new SeatComparator();
         }

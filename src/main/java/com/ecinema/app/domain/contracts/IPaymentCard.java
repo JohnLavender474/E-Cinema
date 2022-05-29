@@ -96,7 +96,8 @@ public interface IPaymentCard {
     /**
      * Sets to i payment card.
      *
-     * @param o the o
+     * @param o             the o
+     * @param setCardNumber the set card number
      */
     default void setToIPaymentCard(IPaymentCard o, boolean setCardNumber) {
         setPaymentCardType(o.getPaymentCardType());

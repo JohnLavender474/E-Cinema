@@ -18,6 +18,9 @@ import javax.servlet.http.HttpServletResponse;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * The type Model attributes interceptor.
+ */
 @RequiredArgsConstructor
 public class ModelAttributesInterceptor implements HandlerInterceptor {
 

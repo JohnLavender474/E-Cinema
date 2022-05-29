@@ -7,6 +7,9 @@ import lombok.ToString;
 
 import javax.persistence.Entity;
 
+/**
+ * The type Admin.
+ */
 @Getter
 @Setter
 @Entity

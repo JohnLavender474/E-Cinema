@@ -6,6 +6,9 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 
+/**
+ * The type Showroom seat dto.
+ */
 @Getter
 @Setter
 @ToString(callSuper = true)

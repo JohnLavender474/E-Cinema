@@ -19,6 +19,9 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.time.LocalDate;
 
+/**
+ * The type User profile controller.
+ */
 @Controller
 @RequiredArgsConstructor
 public class UserProfileController {
@@ -27,6 +30,12 @@ public class UserProfileController {
     private final SecurityContext securityContext;
     private final Logger logger = LoggerFactory.getLogger(UserProfileController.class);
 
+    /**
+     * Show user profile page string.
+     *
+     * @param model the model
+     * @return the string
+     */
     @GetMapping("/user-profile")
     public String showUserProfilePage(final Model model) {
         Long userId = securityContext.findIdOfLoggedInUser();
@@ -38,6 +47,12 @@ public class UserProfileController {
         return "user-profile";
     }
 
+    /**
+     * Show edit user profile page string.
+     *
+     * @param model the model
+     * @return the string
+     */
     @GetMapping("/edit-user-profile")
     public String showEditUserProfilePage(final Model model) {
         logger.debug(UtilMethods.getLoggingSubjectDelimiterLine());
@@ -55,6 +70,13 @@ public class UserProfileController {
         return "edit-user-profile";
     }
 
+    /**
+     * Edit user profile string.
+     *
+     * @param redirectAttributes the redirect attributes
+     * @param userProfileForm    the user profile form
+     * @return the string
+     */
     @PostMapping("/edit-user-profile")
     public String editUserProfile(final RedirectAttributes redirectAttributes,
                                   @ModelAttribute("profileForm") final UserProfileForm userProfileForm) {

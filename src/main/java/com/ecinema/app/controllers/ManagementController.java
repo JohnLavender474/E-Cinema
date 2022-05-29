@@ -14,6 +14,9 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+/**
+ * The type Management controller.
+ */
 @Controller
 @RequiredArgsConstructor
 public class ManagementController {
@@ -22,6 +25,12 @@ public class ManagementController {
     private final SecurityContext securityContext;
     private final Logger logger = LoggerFactory.getLogger(ManagementController.class);
 
+    /**
+     * Show admin page string.
+     *
+     * @param model the model
+     * @return the string
+     */
     @GetMapping("/management")
     public String showAdminPage(final Model model) {
         Long userId = securityContext.findIdOfLoggedInUser();

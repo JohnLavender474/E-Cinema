@@ -16,6 +16,9 @@ import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.Set;
 
+/**
+ * The type Movie.
+ */
 @Getter
 @Setter
 @Entity

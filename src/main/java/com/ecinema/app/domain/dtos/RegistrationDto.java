@@ -14,6 +14,9 @@ import java.time.LocalDateTime;
 import java.util.EnumSet;
 import java.util.Set;
 
+/**
+ * The type Registration dto.
+ */
 @Getter
 @Setter
 @ToString(callSuper = true)

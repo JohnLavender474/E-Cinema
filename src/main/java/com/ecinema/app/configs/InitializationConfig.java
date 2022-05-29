@@ -19,6 +19,9 @@ import java.time.LocalDateTime;
 import java.time.Month;
 import java.util.*;
 
+/**
+ * The type Initialization config.
+ */
 @Component
 @RequiredArgsConstructor
 public class InitializationConfig {
@@ -34,6 +37,9 @@ public class InitializationConfig {
     private final RegistrationService registrationService;
     private final Logger logger = LoggerFactory.getLogger(InitializationConfig.class);
 
+    /**
+     * App ready.
+     */
     @EventListener(ApplicationReadyEvent.class)
     public void appReady() {
         defineUsers();

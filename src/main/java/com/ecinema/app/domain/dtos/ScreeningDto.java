@@ -11,6 +11,9 @@ import lombok.ToString;
 
 import java.time.LocalDateTime;
 
+/**
+ * The type Screening dto.
+ */
 @Getter
 @Setter
 @ToString(callSuper = true)
@@ -27,10 +30,20 @@ public class ScreeningDto extends AbstractDto implements IScreening {
     private LocalDateTime showDateTime;
     private LocalDateTime endDateTime;
 
+    /**
+     * Show date time formatted string.
+     *
+     * @return the string
+     */
     public String showDateTimeFormatted() {
         return UtilMethods.localDateTimeFormatted(showDateTime);
     }
 
+    /**
+     * End date time formatted string.
+     *
+     * @return the string
+     */
     public String endDateTimeFormatted() {
         return UtilMethods.localDateTimeFormatted(endDateTime);
     }

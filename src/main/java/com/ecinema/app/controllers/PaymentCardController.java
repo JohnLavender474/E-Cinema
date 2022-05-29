@@ -20,6 +20,9 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import java.time.LocalDate;
 import java.util.List;
 
+/**
+ * The type Payment card controller.
+ */
 @Controller
 @RequiredArgsConstructor
 public class PaymentCardController {
@@ -29,11 +32,23 @@ public class PaymentCardController {
     private final PaymentCardService paymentCardService;
     private final Logger logger = LoggerFactory.getLogger(PaymentCardController.class);
 
+    /**
+     * Payment card form payment card form.
+     *
+     * @return the payment card form
+     */
     @ModelAttribute("paymentCardForm")
     public PaymentCardForm paymentCardForm() {
         return new PaymentCardForm();
     }
 
+    /**
+     * Show payment cards page string.
+     *
+     * @param model              the model
+     * @param redirectAttributes the redirect attributes
+     * @return the string
+     */
     @GetMapping("/payment-cards")
     public String showPaymentCardsPage(final Model model, final RedirectAttributes redirectAttributes) {
         logger.debug(UtilMethods.getLoggingSubjectDelimiterLine());
@@ -46,6 +61,13 @@ public class PaymentCardController {
         return "payment-cards";
     }
 
+    /**
+     * Show add payment card page string.
+     *
+     * @param model           the model
+     * @param paymentCardForm the payment card form
+     * @return the string
+     */
     @GetMapping("/add-payment-card")
     public String showAddPaymentCardPage(final Model model,
                                          @ModelAttribute("paymentCardForm") final PaymentCardForm paymentCardForm) {
@@ -57,6 +79,13 @@ public class PaymentCardController {
         return "add-payment-card";
     }
 
+    /**
+     * Add payment card string.
+     *
+     * @param redirectAttributes the redirect attributes
+     * @param paymentCardForm    the payment card form
+     * @return the string
+     */
     @PostMapping("/add-payment-card")
     public String addPaymentCard(final RedirectAttributes redirectAttributes,
                                  @ModelAttribute("paymentCardForm") final PaymentCardForm paymentCardForm) {
@@ -81,6 +110,14 @@ public class PaymentCardController {
         }
     }
 
+    /**
+     * Show edit payment card page string.
+     *
+     * @param model              the model
+     * @param redirectAttributes the redirect attributes
+     * @param paymentCardId      the payment card id
+     * @return the string
+     */
     @GetMapping("/edit-payment-card")
     public String showEditPaymentCardPage(final Model model, final RedirectAttributes redirectAttributes,
                                           @RequestParam("id") final Long paymentCardId) {
@@ -102,6 +139,14 @@ public class PaymentCardController {
         }
     }
 
+    /**
+     * Edit payment card string.
+     *
+     * @param redirectAttributes the redirect attributes
+     * @param paymentCardId      the payment card id
+     * @param paymentCardForm    the payment card form
+     * @return the string
+     */
     @PostMapping("/edit-payment-card/{id}")
     public String editPaymentCard(final RedirectAttributes redirectAttributes,
                                   @PathVariable("id") final Long paymentCardId,
@@ -128,6 +173,13 @@ public class PaymentCardController {
         }
     }
 
+    /**
+     * Delete payment card string.
+     *
+     * @param redirectAttributes the redirect attributes
+     * @param paymentCardId      the payment card id
+     * @return the string
+     */
     @PostMapping("/delete-payment-card/{id}")
     public String deletePaymentCard(final RedirectAttributes redirectAttributes,
                                     @PathVariable("id") final Long paymentCardId) {

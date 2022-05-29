@@ -2,7 +2,9 @@ package com.ecinema.app.domain.contracts;
 
 import java.time.LocalDate;
 
-/** Defines the contract of the profile. */
+/**
+ * Defines the contract of the profile.
+ */
 public interface IProfile {
 
     /**

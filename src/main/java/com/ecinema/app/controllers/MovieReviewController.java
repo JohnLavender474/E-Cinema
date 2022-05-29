@@ -88,6 +88,7 @@ public class MovieReviewController {
      * @param redirectAttributes the redirect attributes
      * @param reviewId           the review id
      * @param movieId            the movie id
+     * @param voteOrdinal        the vote ordinal
      * @param page               the page
      * @return the view name
      */

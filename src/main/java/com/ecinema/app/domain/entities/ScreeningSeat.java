@@ -8,6 +8,9 @@ import lombok.ToString;
 
 import javax.persistence.*;
 
+/**
+ * The type Screening seat.
+ */
 @Getter
 @Setter
 @Entity
@@ -35,6 +38,11 @@ public class ScreeningSeat extends AbstractEntity implements ISeat {
         return showroomSeat != null ? showroomSeat.getSeatNumber() : null;
     }
 
+    /**
+     * Is booked boolean.
+     *
+     * @return the boolean
+     */
     public boolean isBooked() {
         return ticket != null;
     }

@@ -21,10 +21,16 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.util.List;
 
+/**
+ * The type Password controller.
+ */
 @Controller
 @RequiredArgsConstructor
 public class PasswordController {
 
+    /**
+     * The constant MESSAGE.
+     */
     public static final String MESSAGE = "An email with further instructions has been sent\n"
             + "Your password will not be changed until you click on the token link in the email";
 
@@ -33,6 +39,12 @@ public class PasswordController {
     private final ChangePasswordService changePasswordService;
     private final Logger logger = LoggerFactory.getLogger(PasswordController.class);
 
+    /**
+     * Show get email change password string.
+     *
+     * @param model the model
+     * @return the string
+     */
     @GetMapping("/get-email-for-change-password")
     public String showGetEmailChangePassword(final Model model) {
         logger.debug(UtilMethods.getLoggingSubjectDelimiterLine());
@@ -47,6 +59,13 @@ public class PasswordController {
         return "redirect:/change-password?email=" + userDto.getEmail();
     }
 
+    /**
+     * Gets email for change password.
+     *
+     * @param redirectAttributes the redirect attributes
+     * @param email              the email
+     * @return the email for change password
+     */
     @PostMapping("/get-email-for-change-password")
     public String getEmailForChangePassword(final RedirectAttributes redirectAttributes,
                                             @RequestParam("email") final String email) {
@@ -62,6 +81,13 @@ public class PasswordController {
         }
     }
 
+    /**
+     * Show change password page string.
+     *
+     * @param model the model
+     * @param email the email
+     * @return the string
+     */
     @GetMapping("/change-password")
     public String showChangePasswordPage(final Model model, @RequestParam("email") final String email) {
         logger.debug(UtilMethods.getLoggingSubjectDelimiterLine());
@@ -76,6 +102,13 @@ public class PasswordController {
         return "change-password";
     }
 
+    /**
+     * Show change password page string.
+     *
+     * @param redirectAttributes the redirect attributes
+     * @param changePasswordForm the change password form
+     * @return the string
+     */
     @PostMapping("/change-password")
     public String showChangePasswordPage(final RedirectAttributes redirectAttributes,
                                          @ModelAttribute("changePasswordForm")
@@ -94,6 +127,13 @@ public class PasswordController {
         }
     }
 
+    /**
+     * Confirm change password string.
+     *
+     * @param model the model
+     * @param token the token
+     * @return the string
+     */
     @GetMapping("/change-password-confirm/{token}")
     public String confirmChangePassword(final Model model, @PathVariable("token") final String token) {
         logger.debug(UtilMethods.getLoggingSubjectDelimiterLine());

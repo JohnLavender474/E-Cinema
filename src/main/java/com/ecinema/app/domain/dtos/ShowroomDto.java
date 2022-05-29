@@ -5,6 +5,9 @@ import com.ecinema.app.domain.contracts.IShowroom;
 import com.ecinema.app.domain.enums.Letter;
 import lombok.*;
 
+/**
+ * The type Showroom dto.
+ */
 @Getter
 @Setter
 @ToString(callSuper = true)

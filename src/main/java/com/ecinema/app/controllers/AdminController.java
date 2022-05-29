@@ -27,6 +27,9 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+/**
+ * The type Admin controller.
+ */
 @Controller
 @RequiredArgsConstructor
 public class AdminController {
@@ -254,6 +257,7 @@ public class AdminController {
      *
      * @param redirectAttributes the redirect attributes
      * @param screeningForm      the screening form
+     * @param movieId            the movie id
      * @return the string
      */
     @PostMapping("/add-screening/{id}")
@@ -276,6 +280,12 @@ public class AdminController {
         }
     }
 
+    /**
+     * Show add showroom page string.
+     *
+     * @param model the model
+     * @return the string
+     */
     @GetMapping("/add-showroom")
     public String showAddShowroomPage(final Model model) {
         logger.debug(UtilMethods.getLoggingSubjectDelimiterLine());
@@ -291,6 +301,13 @@ public class AdminController {
         return "add-showroom";
     }
 
+    /**
+     * Add showroom string.
+     *
+     * @param redirectAttributes the redirect attributes
+     * @param showroomForm       the showroom form
+     * @return the string
+     */
     @PostMapping("/add-showroom")
     public String addShowroom(final RedirectAttributes redirectAttributes,
                               @ModelAttribute("showroomForm") final ShowroomForm showroomForm) {
@@ -312,6 +329,14 @@ public class AdminController {
         }
     }
 
+    /**
+     * Show choose screening to delete page string.
+     *
+     * @param model  the model
+     * @param page   the page
+     * @param search the search
+     * @return the string
+     */
     @GetMapping("/choose-screening-to-delete")
     public String showChooseScreeningToDeletePage(
             final Model model,
@@ -331,6 +356,14 @@ public class AdminController {
         return "choose-screening-to-delete";
     }
 
+    /**
+     * Show delete screening page string.
+     *
+     * @param model              the model
+     * @param redirectAttributes the redirect attributes
+     * @param screeningId        the screening id
+     * @return the string
+     */
     @GetMapping("/delete-screening")
     public String showDeleteScreeningPage(final Model model, final RedirectAttributes redirectAttributes,
                                           @RequestParam("id") final Long screeningId) {
@@ -353,6 +386,13 @@ public class AdminController {
         }
     }
 
+    /**
+     * Delete screening string.
+     *
+     * @param redirectAttributes the redirect attributes
+     * @param screeningId        the screening id
+     * @return the string
+     */
     @PostMapping("/delete-screening/{id}")
     public String deleteScreening(final RedirectAttributes redirectAttributes,
                                   @PathVariable("id") final Long screeningId) {
@@ -371,6 +411,13 @@ public class AdminController {
         return "redirect:/management";
     }
 
+    /**
+     * Show delete showroom page string.
+     *
+     * @param model              the model
+     * @param showroomLetterForm the showroom letter form
+     * @return the string
+     */
     @GetMapping("/choose-showroom-to-delete")
     public String showDeleteShowroomPage(final Model model,
                                          @ModelAttribute("showroomLetterForm") final StringForm showroomLetterForm) {
@@ -384,6 +431,14 @@ public class AdminController {
         return "choose-showroom-to-delete";
     }
 
+    /**
+     * Show delete showroom page string.
+     *
+     * @param model              the model
+     * @param redirectAttributes the redirect attributes
+     * @param showroomLetterForm the showroom letter form
+     * @return the string
+     */
     @GetMapping("/delete-showroom")
     public String showDeleteShowroomPage(final Model model, final RedirectAttributes redirectAttributes,
                                          @ModelAttribute("showroomLetterForm")
@@ -413,6 +468,13 @@ public class AdminController {
         }
     }
 
+    /**
+     * Delete showroom string.
+     *
+     * @param redirectAttributes the redirect attributes
+     * @param showroomLetterStr  the showroom letter str
+     * @return the string
+     */
     @PostMapping("/delete-showroom/{showroomLetter}")
     public String deleteShowroom(final RedirectAttributes redirectAttributes,
                                  @PathVariable("showroomLetter") final String showroomLetterStr) {
@@ -433,6 +495,13 @@ public class AdminController {
         return "redirect:/management";
     }
 
+    /**
+     * Show admin create new account page string.
+     *
+     * @param model            the model
+     * @param registrationForm the registration form
+     * @return the string
+     */
     @GetMapping("/admin-create-new-account")
     public String showAdminCreateNewAccountPage(
             final Model model, @ModelAttribute("registrationForm") final RegistrationForm registrationForm) {
@@ -443,6 +512,13 @@ public class AdminController {
         return "admin-create-new-account";
     }
 
+    /**
+     * Admin create new account string.
+     *
+     * @param redirectAttributes the redirect attributes
+     * @param registrationForm   the registration form
+     * @return the string
+     */
     @PostMapping("/admin-create-new-account")
     public String adminCreateNewAccount(final RedirectAttributes redirectAttributes,
                                         @ModelAttribute("registrationForm") final RegistrationForm registrationForm) {
@@ -463,6 +539,13 @@ public class AdminController {
         }
     }
 
+    /**
+     * Show admin change user password page string.
+     *
+     * @param model the model
+     * @param form  the form
+     * @return the string
+     */
     @GetMapping("/admin-change-user-password")
     public String showAdminChangeUserPasswordPage(
             final Model model, @ModelAttribute("form") final AdminChangeUserPasswordForm form) {
@@ -473,6 +556,13 @@ public class AdminController {
         return "admin-change-user-password";
     }
 
+    /**
+     * Admin change user password string.
+     *
+     * @param redirectAttributes the redirect attributes
+     * @param form               the form
+     * @return the string
+     */
     @PostMapping("/admin-change-user-password")
     public String adminChangeUserPassword(final RedirectAttributes redirectAttributes,
                                           @ModelAttribute("form") final AdminChangeUserPasswordForm form) {

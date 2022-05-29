@@ -9,6 +9,9 @@ import lombok.ToString;
 import javax.persistence.*;
 import java.time.LocalDateTime;
 
+/**
+ * The type Ticket.
+ */
 @Getter
 @Setter
 @Entity

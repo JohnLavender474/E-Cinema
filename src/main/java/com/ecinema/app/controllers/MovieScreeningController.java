@@ -15,6 +15,9 @@ import org.springframework.web.bind.annotation.*;
 
 import static com.ecinema.app.util.UtilMethods.addPageNumbersAttribute;
 
+/**
+ * The type Movie screening controller.
+ */
 @Controller
 @RequiredArgsConstructor
 public class MovieScreeningController {
@@ -22,6 +25,14 @@ public class MovieScreeningController {
     private final ScreeningService screeningService;
     private final Logger logger = LoggerFactory.getLogger(MovieScreeningController.class);
 
+    /**
+     * Movie screenings page string.
+     *
+     * @param model the model
+     * @param id    the id
+     * @param page  the page
+     * @return the string
+     */
     @GetMapping("/movie-screenings")
     public String movieScreeningsPage(
             final Model model, @RequestParam("id") final Long id,
@@ -36,6 +47,13 @@ public class MovieScreeningController {
         return "movie-screenings";
     }
 
+    /**
+     * Handle no entity found exception string.
+     *
+     * @param model the model
+     * @param e     the e
+     * @return the string
+     */
     @ExceptionHandler(NoEntityFoundException.class)
     public String handleNoEntityFoundException(final Model model, final NoEntityFoundException e) {
         model.addAttribute("errors", e.getErrors());

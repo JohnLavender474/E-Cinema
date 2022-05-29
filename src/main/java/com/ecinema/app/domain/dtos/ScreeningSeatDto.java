@@ -5,6 +5,9 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 
+/**
+ * The type Screening seat dto.
+ */
 @Getter
 @Setter
 @ToString(callSuper = true)

@@ -25,10 +25,20 @@ public class LoginController {
     private final Logger logger = LoggerFactory.getLogger(LoginController.class);
     private final LoginService loginService;
 
+    /**
+     * Instantiates a new Login controller.
+     *
+     * @param loginService the login service
+     */
     public LoginController(LoginService loginService) {
         this.loginService = loginService;
     }
 
+    /**
+     * Show login page string.
+     *
+     * @return the string
+     */
     @GetMapping("/login")
     public String showLoginPage() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -39,6 +49,13 @@ public class LoginController {
                 "login" : "redirect:/index";
     }
 
+    /**
+     * Perform login string.
+     *
+     * @param username the username
+     * @param password the password
+     * @return the string
+     */
     @PostMapping("/perform-login")
     public String performLogin(@RequestParam("username") final String username,
                                @RequestParam("password") final String password) {
@@ -53,6 +70,12 @@ public class LoginController {
         }
     }
 
+    /**
+     * Login error string.
+     *
+     * @param model the model
+     * @return the string
+     */
     @GetMapping("/login-error")
     public String loginError(final Model model) {
         model.addAttribute("error", "Failed to login, bad credentials");

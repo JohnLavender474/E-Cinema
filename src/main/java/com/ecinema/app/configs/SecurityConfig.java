@@ -10,6 +10,9 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 
 import static com.ecinema.app.domain.enums.UserAuthority.*;
 
+/**
+ * The type Security config.
+ */
 @Configuration
 @RequiredArgsConstructor
 public class SecurityConfig extends WebSecurityConfigurerAdapter {

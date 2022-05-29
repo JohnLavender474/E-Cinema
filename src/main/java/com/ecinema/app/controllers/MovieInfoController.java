@@ -20,6 +20,9 @@ import java.util.Map;
 
 import static com.ecinema.app.util.UtilMethods.addPageNumbersAttribute;
 
+/**
+ * The type Movie info controller.
+ */
 @Controller
 @RequiredArgsConstructor
 public class MovieInfoController {
@@ -28,6 +31,14 @@ public class MovieInfoController {
     private final ReviewService reviewService;
     private final Logger logger = LoggerFactory.getLogger(MovieInfoController.class);
 
+    /**
+     * Movies page string.
+     *
+     * @param model  the model
+     * @param page   the page
+     * @param search the search
+     * @return the string
+     */
     @GetMapping("/movies")
     public String moviesPage(final Model model,
                              @RequestParam(value = "page", required = false, defaultValue = "1") final Integer page,
@@ -48,6 +59,14 @@ public class MovieInfoController {
         return "movies";
     }
 
+    /**
+     * Movie info page string.
+     *
+     * @param model              the model
+     * @param redirectAttributes the redirect attributes
+     * @param movieId            the movie id
+     * @return the string
+     */
     @GetMapping("/movie-info")
     public String movieInfoPage(final Model model, final RedirectAttributes redirectAttributes,
                                  @RequestParam("id") final Long movieId) {

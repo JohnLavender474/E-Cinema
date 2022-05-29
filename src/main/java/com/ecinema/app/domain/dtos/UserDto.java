@@ -14,6 +14,9 @@ import java.time.LocalDateTime;
 import java.util.EnumSet;
 import java.util.Set;
 
+/**
+ * The type User dto.
+ */
 @Getter
 @Setter
 @ToString(callSuper = true)
@@ -30,26 +33,56 @@ public class UserDto extends AbstractDto implements IProfile {
     private Set<UserAuthority> userAuthorities =
             EnumSet.noneOf(UserAuthority.class);
 
+    /**
+     * Is customer boolean.
+     *
+     * @return the boolean
+     */
     public boolean isCustomer() {
         return userAuthorities.contains(UserAuthority.CUSTOMER);
     }
 
+    /**
+     * Is moderator boolean.
+     *
+     * @return the boolean
+     */
     public boolean isModerator() {
         return userAuthorities.contains(UserAuthority.MODERATOR);
     }
 
+    /**
+     * Is admin boolean.
+     *
+     * @return the boolean
+     */
     public boolean isAdmin() {
         return userAuthorities.contains(UserAuthority.ADMIN);
     }
 
+    /**
+     * Birthdate formatted string.
+     *
+     * @return the string
+     */
     public String birthdateFormatted() {
         return UtilMethods.localDateFormatted(birthDate);
     }
 
+    /**
+     * Creation date time formatted string.
+     *
+     * @return the string
+     */
     public String creationDateTimeFormatted() {
         return UtilMethods.localDateTimeFormatted(creationDateTime);
     }
 
+    /**
+     * Last activity date time formatted string.
+     *
+     * @return the string
+     */
     public String lastActivityDateTimeFormatted() {
         return UtilMethods.localDateTimeFormatted(lastActivityDateTime);
     }

@@ -8,6 +8,9 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import java.time.LocalDateTime;
 
+/**
+ * The type Change password.
+ */
 @Entity
 @Getter
 @Setter

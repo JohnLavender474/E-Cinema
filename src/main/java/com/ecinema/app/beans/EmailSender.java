@@ -6,8 +6,16 @@ import org.springframework.stereotype.Component;
 
 import java.util.Properties;
 
+/**
+ * The type Email sender.
+ */
 @Component
 public class EmailSender {
+    /**
+     * Java mail sender java mail sender.
+     *
+     * @return the java mail sender
+     */
     @Bean
     public JavaMailSenderImpl javaMailSender() {
         JavaMailSenderImpl mailSender = new JavaMailSenderImpl();

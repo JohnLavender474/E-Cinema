@@ -14,6 +14,9 @@ import org.springframework.format.annotation.DateTimeFormat;
 
 import java.time.LocalDate;
 
+/**
+ * The type Payment card dto.
+ */
 @Getter
 @Setter
 @ToString(callSuper = true)
@@ -29,10 +32,20 @@ public class PaymentCardDto extends AbstractDto implements IPaymentCard {
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     private LocalDate expirationDate = LocalDate.now();
 
+    /**
+     * Expiration date formatted string.
+     *
+     * @return the string
+     */
     public String expirationDateFormatted() {
         return UtilMethods.localDateFormatted(expirationDate);
     }
 
+    /**
+     * Is expired boolean.
+     *
+     * @return the boolean
+     */
     public Boolean isExpired() {
         return expirationDate.isBefore(LocalDate.now());
     }

@@ -25,6 +25,9 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.util.List;
 
+/**
+ * The type Ticket controller.
+ */
 @Controller
 @RequiredArgsConstructor
 @SessionAttributes("bookSeatsForm")
@@ -38,6 +41,14 @@ public class TicketController {
     private final ScreeningSeatService screeningSeatService;
     private final Logger logger = LoggerFactory.getLogger(TicketController.class);
 
+    /**
+     * See view seats page string.
+     *
+     * @param model              the model
+     * @param redirectAttributes the redirect attributes
+     * @param screeningId        the screening id
+     * @return the string
+     */
     @GetMapping("/view-seats")
     public String seeViewSeatsPage(final Model model, final RedirectAttributes redirectAttributes,
                                    @RequestParam("id") final Long screeningId) {
@@ -64,6 +75,15 @@ public class TicketController {
         }
     }
 
+    /**
+     * See book seats page string.
+     *
+     * @param model              the model
+     * @param redirectAttributes the redirect attributes
+     * @param screeningId        the screening id
+     * @param seatId             the seat id
+     * @return the string
+     */
     @GetMapping("/book-seat")
     public String seeBookSeatsPage(final Model model, final RedirectAttributes redirectAttributes,
                                    @RequestParam("screeningId") final Long screeningId,
@@ -109,6 +129,13 @@ public class TicketController {
         }
     }
 
+    /**
+     * Book seat string.
+     *
+     * @param redirectAttributes the redirect attributes
+     * @param seatBookingForm    the seat booking form
+     * @return the string
+     */
     @PostMapping("/book-seat")
     public String bookSeat(final RedirectAttributes redirectAttributes,
                            @ModelAttribute("seatBookingForm") final SeatBookingForm seatBookingForm) {
@@ -136,6 +163,12 @@ public class TicketController {
         }
     }
 
+    /**
+     * Show current tickets page string.
+     *
+     * @param model the model
+     * @return the string
+     */
     @GetMapping("/current-tickets")
     public String showCurrentTicketsPage(final Model model) {
         Long userId = securityContext.findIdOfLoggedInUser();
@@ -145,6 +178,12 @@ public class TicketController {
         return "current-tickets";
     }
 
+    /**
+     * Show past tickets page string.
+     *
+     * @param model the model
+     * @return the string
+     */
     @GetMapping("/past-tickets")
     public String showPastTicketsPage(final Model model) {
         Long userId = securityContext.findIdOfLoggedInUser();
@@ -154,6 +193,14 @@ public class TicketController {
         return "past-tickets";
     }
 
+    /**
+     * Show refund ticket page string.
+     *
+     * @param model              the model
+     * @param redirectAttributes the redirect attributes
+     * @param ticketId           the ticket id
+     * @return the string
+     */
     @GetMapping("/refund-ticket")
     public String showRefundTicketPage(final Model model, final RedirectAttributes redirectAttributes,
                                        @RequestParam("id") final Long ticketId) {
@@ -168,6 +215,13 @@ public class TicketController {
         }
     }
 
+    /**
+     * Refund ticket string.
+     *
+     * @param redirectAttributes the redirect attributes
+     * @param ticketId           the ticket id
+     * @return the string
+     */
     @PostMapping("/refund-ticket/{id}")
     public String refundTicket(final RedirectAttributes redirectAttributes,
                                @PathVariable("id") final Long ticketId) {

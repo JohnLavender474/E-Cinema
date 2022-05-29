@@ -11,6 +11,9 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+/**
+ * The type Customer.
+ */
 @Getter
 @Setter
 @Entity
@@ -47,10 +50,20 @@ public class Customer extends AbstractUserAuthority {
         return UserAuthority.CUSTOMER;
     }
 
+    /**
+     * Add tokens.
+     *
+     * @param tokens the tokens
+     */
     public void addTokens(Integer tokens) {
         this.tokens += tokens;
     }
 
+    /**
+     * Subtract tokens.
+     *
+     * @param tokens the tokens
+     */
     public void subtractTokens(Integer tokens) {
         this.tokens = Math.max(0, this.tokens - tokens);
     }
