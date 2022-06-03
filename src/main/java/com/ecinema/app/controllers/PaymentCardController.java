@@ -1,6 +1,6 @@
 package com.ecinema.app.controllers;
 
-import com.ecinema.app.TooManyPaymentCardsException;
+import com.ecinema.app.exceptions.TooManyPaymentCardsException;
 import com.ecinema.app.beans.SecurityContext;
 import com.ecinema.app.domain.dtos.PaymentCardDto;
 import com.ecinema.app.domain.forms.PaymentCardForm;

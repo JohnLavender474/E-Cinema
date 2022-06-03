@@ -1,6 +1,6 @@
 package com.ecinema.app.services;
 
-import com.ecinema.app.TooManyPaymentCardsException;
+import com.ecinema.app.exceptions.TooManyPaymentCardsException;
 import com.ecinema.app.domain.dtos.PaymentCardDto;
 import com.ecinema.app.domain.entities.Customer;
 import com.ecinema.app.domain.entities.PaymentCard;

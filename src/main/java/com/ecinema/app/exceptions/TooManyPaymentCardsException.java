@@ -1,4 +1,4 @@
-package com.ecinema.app;
+package com.ecinema.app.exceptions;
 
 import com.ecinema.app.exceptions.AbstractRuntimeException;
 import com.ecinema.app.services.PaymentCardService;
