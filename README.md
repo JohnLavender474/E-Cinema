@@ -1,5 +1,5 @@
 # ECinema
-## A Spring Boot Project by John Lavender
+## Spring Boot Project by John Lavender
 
 ---------------------
 
