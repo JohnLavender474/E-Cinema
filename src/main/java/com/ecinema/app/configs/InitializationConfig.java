@@ -61,7 +61,7 @@ public class InitializationConfig {
     private void defineRootAdmin() {
         RegistrationForm rootUserForm = new RegistrationForm();
         rootUserForm.setUsername("RootUser123");
-        rootUserForm.setEmail(emailService.getBusinessEmail());
+        rootUserForm.setEmail("admin@gmail.com");
         rootUserForm.setPassword("password123?!");
         rootUserForm.setConfirmPassword("password123?!");
         rootUserForm.setFirstName("Jim");
@@ -72,8 +72,7 @@ public class InitializationConfig {
         rootUserForm.setSecurityQuestion2(SecurityQuestions.SQ5);
         rootUserForm.setSecurityAnswer2("root beer");
         rootUserForm.setAuthorities(EnumSet.of(UserAuthority.ADMIN, UserAuthority.MODERATOR));
-        userService.register(rootUserForm, false,
-                             false, false);
+        userService.register(rootUserForm, false, false, false);
     }
 
     private void defineCustomer1() {
@@ -90,8 +89,7 @@ public class InitializationConfig {
         registrationForm.setSecurityQuestion2(SecurityQuestions.SQ3);
         registrationForm.setSecurityAnswer2("Handsome");
         registrationForm.setAuthorities(EnumSet.of(UserAuthority.CUSTOMER));
-        userService.register(registrationForm, false,
-                             false, false);
+        userService.register(registrationForm, false, false, false);
     }
 
     private void defineCustomer2() {
@@ -108,8 +106,7 @@ public class InitializationConfig {
         registrationForm.setSecurityQuestion2(SecurityQuestions.SQ4);
         registrationForm.setSecurityAnswer2("Love Song for Bobby Lee");
         registrationForm.setAuthorities(EnumSet.of(UserAuthority.CUSTOMER, UserAuthority.MODERATOR));
-        userService.register(registrationForm, false,
-                             false, false);
+        userService.register(registrationForm, false, false, false);
     }
 
     private void defineMovies() {

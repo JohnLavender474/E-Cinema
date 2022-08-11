@@ -124,6 +124,7 @@ class PasswordControllerTest {
                        "question2", equalTo("Question2"))));
     }
 
+    // TODO: Fix authentication error
     @Test
     void changePassword()
             throws Exception {
@@ -138,14 +139,13 @@ class PasswordControllerTest {
         ChangePasswordForm changePasswordForm = new ChangePasswordForm();
         changePasswordForm.setEmail("test@gmail.com");
         changePasswordForm.setQuestion1("Question 1");
-        changePasswordForm.setAnswer1("Answer   1");
+        changePasswordForm.setAnswer1("Answer 1");
         changePasswordForm.setQuestion2("Question 2");
         changePasswordForm.setAnswer2("Answer2");
         changePasswordForm.setPassword("new_password123?!");
         changePasswordForm.setConfirmPassword("new_password123?!");
         given(securityContext.findIdOfLoggedInUser()).willReturn(null);
-        mockMvc.perform(post("/change-password")
-                                .flashAttr("changePasswordForm", changePasswordForm))
+        mockMvc.perform(post("/change-password").flashAttr("changePasswordForm", changePasswordForm))
                .andExpect(redirectedUrlPattern("/message-page**"))
                .andExpect(result -> model().attribute("MESSAGE", PasswordController.MESSAGE));
     }

@@ -11,11 +11,11 @@
     </parent>
 
     <groupId>com.ecinema</groupId>
-    <artifactId>ECinema</artifactId>
+    <artifactId>ecinema</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <packaging>jar</packaging>
-    <name>ECinema</name>
-    <description>ECinema</description>
+    <name>ecinema</name>
+    <description>ecinema</description>
 
     <properties>
         <java.version>17</java.version>
@@ -133,7 +133,7 @@
         <dependency>
             <groupId>org.webjars</groupId>
             <artifactId>bootstrap</artifactId>
-            <version>4.3.1</version>
+            <version>5.1.3</version>
         </dependency>
 
         <dependency>
@@ -156,7 +156,7 @@
         <dependency>
             <groupId>io.projectreactor</groupId>
             <artifactId>reactor-core</artifactId>
-            <version>3.4.16</version>
+            <version>3.4.21</version>
         </dependency>
         <dependency>
             <groupId>junit</groupId>
@@ -171,6 +171,7 @@
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
+                <version>${project.parent.version}</version>
                 <configuration>
                     <excludes>
                         <exclude>
