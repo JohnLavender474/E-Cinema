@@ -7,15 +7,18 @@ import com.ecinema.app.domain.enums.TicketStatus;
 import com.ecinema.app.domain.forms.SeatBookingForm;
 import com.ecinema.app.domain.objects.SeatDesignation;
 import com.ecinema.app.exceptions.InvalidActionException;
+import com.ecinema.app.exceptions.InvalidArgumentException;
 import com.ecinema.app.exceptions.NoEntityFoundException;
 import com.ecinema.app.exceptions.NoFieldFoundException;
 import com.ecinema.app.repositories.*;
+import com.ecinema.app.validators.SeatBookingValidator;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -26,15 +29,17 @@ public class TicketService extends AbstractEntityService<Ticket, TicketRepositor
 
     private final EmailService emailService;
     private final CustomerRepository customerRepository;
+    private final SeatBookingValidator seatBookingValidator;
     private final PaymentCardRepository paymentCardRepository;
     private final ScreeningSeatRepository screeningSeatRepository;
 
     public TicketService(TicketRepository repository, EmailService emailService,
-                         CustomerRepository customerRepository, PaymentCardRepository paymentCardRepository,
-                         ScreeningSeatRepository screeningSeatRepository) {
+                         SeatBookingValidator seatBookingValidator, CustomerRepository customerRepository,
+                         PaymentCardRepository paymentCardRepository, ScreeningSeatRepository screeningSeatRepository) {
         super(repository);
         this.emailService = emailService;
         this.customerRepository = customerRepository;
+        this.seatBookingValidator = seatBookingValidator;
         this.paymentCardRepository = paymentCardRepository;
         this.screeningSeatRepository = screeningSeatRepository;
     }
@@ -100,7 +105,12 @@ public class TicketService extends AbstractEntityService<Ticket, TicketRepositor
     }
 
     public void bookTicket(SeatBookingForm seatBookingForm)
-            throws NoEntityFoundException, InvalidActionException {
+            throws NoEntityFoundException, InvalidActionException, InvalidArgumentException {
+        List<String> errors = new ArrayList<>();
+        seatBookingValidator.validate(seatBookingForm, errors);
+        if (!errors.isEmpty()) {
+            throw new InvalidArgumentException(errors);
+        }
         PaymentCard paymentCard = paymentCardRepository
                 .findById(seatBookingForm.getPaymentCardId())
                 .orElseThrow(() -> new NoEntityFoundException(

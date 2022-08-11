@@ -1,4 +1,4 @@
-package com.ecinema.app.domain.validators;
+package com.ecinema.app.validators;
 
 import com.ecinema.app.domain.contracts.IMovie;
 import org.springframework.stereotype.Component;

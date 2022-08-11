@@ -148,23 +148,25 @@ public class TicketController {
             logger.debug("Seat booking form: " + seatBookingForm);
             ticketService.bookTicket(seatBookingForm);
             logger.debug("Successfully booked seat");
-            redirectAttributes.addFlashAttribute(
-                    "success", "Successfully booked ticket for seat");
-            return "redirect:/view-seats?id=" + seatBookingForm.getScreeningId();
-        } catch (NoEntityFoundException | InvalidActionException e) {
+            redirectAttributes.addFlashAttribute("success", "Successfully booked ticket for seat");
+            Long screeningId = screeningSeatService.getScreeningIdOfScreeningSeatWithId(
+                    seatBookingForm.getScreeningSeatId());
+            return "redirect:/view-seats?id=" + screeningId;
+        } catch (NoEntityFoundException | InvalidActionException | InvalidArgumentException e) {
             logger.debug("Errors: " + e);
             logger.debug("Redirecting to book seat page");
             logger.debug("Screening id: " + seatBookingForm.getScreeningSeatId());
             logger.debug("Seat id: " + seatBookingForm.getScreeningSeatId());
             redirectAttributes.addFlashAttribute("errors", e.getErrors());
             redirectAttributes.addFlashAttribute("seatBookingForm", seatBookingForm);
-            return "redirect:/book-seat?screeningId=" + seatBookingForm.getScreeningId() +
-                    "&seatId=" + seatBookingForm.getScreeningSeatId();
+            Long screeningId = screeningSeatService.getScreeningIdOfScreeningSeatWithId(
+                    seatBookingForm.getScreeningSeatId());
+            return "redirect:/book-seat?screeningId=" + screeningId + "&seatId=" + seatBookingForm.getScreeningSeatId();
         }
     }
 
     /**
-     * Show current tickets page string.
+     * Show current ticket page string.
      *
      * @param model the model
      * @return the string

@@ -182,7 +182,6 @@ class TicketControllerTest {
     void bookSeats()
         throws Exception {
         SeatBookingForm seatBookingForm = new SeatBookingForm();
-        seatBookingForm.setScreeningId(1L);
         doNothing().when(ticketService).bookTicket(eq(seatBookingForm));
         mockMvc.perform(post("/book-seat")
                                 .flashAttr("seatBookingForm", seatBookingForm))
@@ -195,11 +194,9 @@ class TicketControllerTest {
     void failToBookSeats()
         throws Exception {
         SeatBookingForm seatBookingForm = new SeatBookingForm();
-        seatBookingForm.setScreeningId(1L);
         InvalidActionException e = new InvalidActionException("Invalid action");
         doThrow(e).when(ticketService).bookTicket(seatBookingForm);
-        mockMvc.perform(post("/book-seat")
-                                .flashAttr("seatBookingForm", seatBookingForm))
+        mockMvc.perform(post("/book-seat").flashAttr("seatBookingForm", seatBookingForm))
                 .andExpect(redirectedUrlPattern("/book-seat**"))
                 .andExpect(result -> model().attributeExists("errors"));
     }

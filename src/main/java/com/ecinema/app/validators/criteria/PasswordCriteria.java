@@ -1,4 +1,4 @@
-package com.ecinema.app.domain.validators.criteria;
+package com.ecinema.app.validators.criteria;
 
 public class PasswordCriteria {
     public static final int MIN_LENGTH = 9;

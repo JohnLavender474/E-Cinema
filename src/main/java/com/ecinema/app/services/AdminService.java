@@ -4,7 +4,7 @@ import com.ecinema.app.domain.dtos.AdminDto;
 import com.ecinema.app.domain.entities.Admin;
 import com.ecinema.app.domain.entities.User;
 import com.ecinema.app.domain.forms.AdminChangeUserPasswordForm;
-import com.ecinema.app.domain.validators.PasswordValidator;
+import com.ecinema.app.validators.PasswordValidator;
 import com.ecinema.app.exceptions.InvalidArgumentException;
 import com.ecinema.app.exceptions.NoEntityFoundException;
 import com.ecinema.app.repositories.AdminRepository;

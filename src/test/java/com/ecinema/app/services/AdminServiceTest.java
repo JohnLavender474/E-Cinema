@@ -4,7 +4,7 @@ import com.ecinema.app.domain.dtos.AdminDto;
 import com.ecinema.app.domain.entities.*;
 import com.ecinema.app.domain.enums.UserAuthority;
 import com.ecinema.app.domain.forms.AdminChangeUserPasswordForm;
-import com.ecinema.app.domain.validators.PasswordValidator;
+import com.ecinema.app.validators.PasswordValidator;
 import com.ecinema.app.repositories.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

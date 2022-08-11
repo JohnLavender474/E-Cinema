@@ -1,4 +1,4 @@
-package com.ecinema.app.domain.validators;
+package com.ecinema.app.validators;
 
 import com.ecinema.app.domain.contracts.IReview;
 import com.ecinema.app.util.UtilMethods;

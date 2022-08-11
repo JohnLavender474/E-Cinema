@@ -6,6 +6,7 @@ import com.ecinema.app.domain.enums.Letter;
 import com.ecinema.app.domain.enums.UserAuthority;
 import com.ecinema.app.domain.forms.SeatBookingForm;
 import com.ecinema.app.repositories.*;
+import com.ecinema.app.validators.SeatBookingValidator;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -32,6 +33,7 @@ class CustomerServiceTest {
     private CustomerService customerService;
     private ReviewVoteService reviewVoteService;
     private PaymentCardService paymentCardService;
+    private SeatBookingValidator seatBookingValidator;
     @Mock
     private EmailService emailService;
     @Mock
@@ -54,20 +56,14 @@ class CustomerServiceTest {
      */
     @BeforeEach
     void setUp() {
-        ticketService = new TicketService(
-                ticketRepository, emailService, customerRepository,
+        seatBookingValidator = new SeatBookingValidator();
+        ticketService = new TicketService(ticketRepository, emailService, seatBookingValidator, customerRepository,
                 paymentCardRepository, screeningSeatRepository);
-        reviewVoteService = new ReviewVoteService(
-                reviewVoteRepository, reviewRepository, customerRepository);
-        reviewService = new ReviewService(
-                reviewRepository, null,
-                customerRepository, null, reviewVoteService);
-        paymentCardService = new PaymentCardService(paymentCardRepository, null,
-                                                    customerRepository, null);
-        customerService = new CustomerService(
-                customerRepository, screeningSeatRepository,
-                emailService, reviewService, ticketService,
-                paymentCardService, reviewVoteService, securityContext);
+        reviewVoteService = new ReviewVoteService(reviewVoteRepository, reviewRepository, customerRepository);
+        reviewService = new ReviewService(reviewRepository, null, customerRepository, null, reviewVoteService);
+        paymentCardService = new PaymentCardService(paymentCardRepository, null, customerRepository, null);
+        customerService = new CustomerService(customerRepository, screeningSeatRepository, emailService, reviewService,
+                ticketService, paymentCardService, reviewVoteService, securityContext);
     }
 
     @Test

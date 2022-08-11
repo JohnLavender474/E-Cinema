@@ -8,7 +8,6 @@ import java.io.Serializable;
 @Data
 public class SeatBookingForm implements Serializable {
     private Long userId;
-    private Long screeningId;
     private Long paymentCardId;
     private Long screeningSeatId;
     private TicketType ticketType;

@@ -1,4 +1,4 @@
-package com.ecinema.app.domain.validators;
+package com.ecinema.app.validators;
 
 import java.util.Collection;
 

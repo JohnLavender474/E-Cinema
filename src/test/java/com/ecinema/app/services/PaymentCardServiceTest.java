@@ -1,15 +1,15 @@
 package com.ecinema.app.services;
 
 import com.ecinema.app.beans.SecurityContext;
-import com.ecinema.app.domain.dtos.PaymentCardDto;
 import com.ecinema.app.domain.entities.Customer;
 import com.ecinema.app.domain.entities.PaymentCard;
 import com.ecinema.app.domain.enums.PaymentCardType;
 import com.ecinema.app.domain.enums.UsState;
 import com.ecinema.app.domain.forms.PaymentCardForm;
-import com.ecinema.app.domain.validators.AddressValidator;
-import com.ecinema.app.domain.validators.PaymentCardValidator;
+import com.ecinema.app.validators.AddressValidator;
+import com.ecinema.app.validators.PaymentCardValidator;
 import com.ecinema.app.repositories.*;
+import com.ecinema.app.validators.SeatBookingValidator;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -20,14 +20,10 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import java.time.LocalDate;
 import java.time.Month;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 @ExtendWith(MockitoExtension.class)
@@ -39,6 +35,7 @@ class PaymentCardServiceTest {
     private AddressValidator addressValidator;
     private PaymentCardService paymentCardService;
     private PaymentCardValidator paymentCardValidator;
+    private SeatBookingValidator seatBookingValidator;
     private EncoderService encoderService;
     private SecurityContext securityContext;
     @Mock
@@ -56,21 +53,16 @@ class PaymentCardServiceTest {
     void setUp() {
         securityContext = new SecurityContext();
         addressValidator = new AddressValidator();
+        seatBookingValidator = new SeatBookingValidator();
         encoderService = new EncoderService(new BCryptPasswordEncoder());
         paymentCardValidator = new PaymentCardValidator(addressValidator);
-        paymentCardService = new PaymentCardService(
-                paymentCardRepository, encoderService,
-                customerRepository, paymentCardValidator);
-        reviewService = new ReviewService(
-                reviewRepository, null,
-                customerRepository, null, null);
-        ticketService = new TicketService(
-                ticketRepository, null, customerRepository,
+        paymentCardService = new PaymentCardService(paymentCardRepository, encoderService, customerRepository,
+                paymentCardValidator);
+        reviewService = new ReviewService(reviewRepository, null, customerRepository, null, null);
+        ticketService = new TicketService(ticketRepository, null, seatBookingValidator, customerRepository,
                 paymentCardRepository, screeningSeatRepository);
-        customerService = new CustomerService(
-                customerRepository, screeningSeatRepository,
-                null, reviewService, ticketService,
-                paymentCardService, null, securityContext);
+        customerService = new CustomerService(customerRepository, screeningSeatRepository, null, reviewService,
+                ticketService, paymentCardService, null, securityContext);
     }
 
     @Test

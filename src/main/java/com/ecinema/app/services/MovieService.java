@@ -3,7 +3,7 @@ package com.ecinema.app.services;
 import com.ecinema.app.domain.dtos.MovieDto;
 import com.ecinema.app.domain.entities.Movie;
 import com.ecinema.app.domain.forms.MovieForm;
-import com.ecinema.app.domain.validators.MovieValidator;
+import com.ecinema.app.validators.MovieValidator;
 import com.ecinema.app.exceptions.InvalidArgumentException;
 import com.ecinema.app.exceptions.NoEntityFoundException;
 import com.ecinema.app.repositories.MovieRepository;

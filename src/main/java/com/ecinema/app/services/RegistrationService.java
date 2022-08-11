@@ -4,7 +4,7 @@ import com.ecinema.app.domain.dtos.RegistrationDto;
 import com.ecinema.app.domain.dtos.UserDto;
 import com.ecinema.app.domain.entities.Registration;
 import com.ecinema.app.domain.forms.RegistrationForm;
-import com.ecinema.app.domain.validators.RegistrationValidator;
+import com.ecinema.app.validators.RegistrationValidator;
 import com.ecinema.app.exceptions.ClashException;
 import com.ecinema.app.exceptions.EmailException;
 import com.ecinema.app.exceptions.InvalidArgumentException;

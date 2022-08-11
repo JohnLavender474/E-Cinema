@@ -6,9 +6,10 @@ import com.ecinema.app.domain.entities.*;
 import com.ecinema.app.domain.enums.UserAuthority;
 import com.ecinema.app.domain.enums.Vote;
 import com.ecinema.app.domain.forms.ReviewForm;
-import com.ecinema.app.domain.validators.MovieValidator;
-import com.ecinema.app.domain.validators.ReviewValidator;
+import com.ecinema.app.validators.MovieValidator;
+import com.ecinema.app.validators.ReviewValidator;
 import com.ecinema.app.repositories.*;
+import com.ecinema.app.validators.SeatBookingValidator;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -26,6 +27,7 @@ import static org.mockito.BDDMockito.given;
 class ReviewServiceTest {
 
     private ScreeningSeatService screeningSeatService;
+    private SeatBookingValidator seatBookingValidator;
     private PaymentCardService paymentCardService;
     private ReviewVoteService reviewVoteService;
     private ScreeningService screeningService;
@@ -63,33 +65,20 @@ class ReviewServiceTest {
         securityContext = new SecurityContext();
         movieValidator = new MovieValidator();
         reviewValidator = new ReviewValidator();
-        reviewVoteService = new ReviewVoteService(
-                reviewVoteRepository, reviewRepository, customerRepository);
-        paymentCardService = new PaymentCardService(
-                paymentCardRepository, null,
-                customerRepository, null);
-        reviewService = new ReviewService(
-                reviewRepository, movieRepository,
-                customerRepository, reviewValidator, reviewVoteService);
-        ticketService = new TicketService(
-                ticketRepository, null, customerRepository,
+        seatBookingValidator = new SeatBookingValidator();
+        reviewVoteService = new ReviewVoteService(reviewVoteRepository, reviewRepository, customerRepository);
+        paymentCardService = new PaymentCardService(paymentCardRepository, null, customerRepository, null);
+        reviewService = new ReviewService(reviewRepository, movieRepository, customerRepository, reviewValidator,
+                reviewVoteService);
+        ticketService = new TicketService(ticketRepository, null, seatBookingValidator, customerRepository,
                 paymentCardRepository, screeningSeatRepository);
-        screeningSeatService = new ScreeningSeatService(
-                screeningSeatRepository, ticketService);
-        screeningService = new ScreeningService(
-                screeningRepository, movieRepository, ticketRepository,
+        screeningSeatService = new ScreeningSeatService(screeningSeatRepository, ticketService);
+        screeningService = new ScreeningService(screeningRepository, movieRepository, ticketRepository,
                 showroomRepository, screeningSeatService, null);
-        customerService = new CustomerService(
-                customerRepository, screeningSeatRepository,
-                null, reviewService, ticketService,
-                paymentCardService, reviewVoteService, securityContext);
-        movieService = new MovieService(
-                movieRepository, reviewService,
-                screeningService, movieValidator);
-        userService = new UserService(
-                userRepository, customerService,
-                null, null, null,
-                null, null);
+        customerService = new CustomerService(customerRepository, screeningSeatRepository, null, reviewService,
+                ticketService, paymentCardService, reviewVoteService, securityContext);
+        movieService = new MovieService(movieRepository, reviewService, screeningService, movieValidator);
+        userService = new UserService(userRepository, customerService, null, null, null, null, null);
     }
 
     @Test

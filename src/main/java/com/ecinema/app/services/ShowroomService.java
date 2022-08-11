@@ -3,7 +3,7 @@ package com.ecinema.app.services;
 import com.ecinema.app.domain.dtos.ShowroomDto;
 import com.ecinema.app.domain.entities.*;
 import com.ecinema.app.domain.forms.ShowroomForm;
-import com.ecinema.app.domain.validators.ShowroomValidator;
+import com.ecinema.app.validators.ShowroomValidator;
 import com.ecinema.app.exceptions.ClashException;
 import com.ecinema.app.exceptions.InvalidArgumentException;
 import com.ecinema.app.domain.enums.Letter;

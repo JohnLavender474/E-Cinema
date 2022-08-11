@@ -1,14 +1,13 @@
 package com.ecinema.app.services;
 
-import com.ecinema.app.domain.dtos.UserAuthorityDto;
 import com.ecinema.app.domain.entities.*;
 import com.ecinema.app.domain.contracts.IPassword;
 import com.ecinema.app.domain.contracts.IRegistration;
 import com.ecinema.app.domain.dtos.UserDto;
 import com.ecinema.app.domain.enums.UserAuthority;
 import com.ecinema.app.domain.forms.UserProfileForm;
-import com.ecinema.app.domain.validators.RegistrationValidator;
-import com.ecinema.app.domain.validators.UserProfileValidator;
+import com.ecinema.app.validators.RegistrationValidator;
+import com.ecinema.app.validators.UserProfileValidator;
 import com.ecinema.app.exceptions.ClashException;
 import com.ecinema.app.exceptions.InvalidArgumentException;
 import com.ecinema.app.exceptions.NoEntityFoundException;

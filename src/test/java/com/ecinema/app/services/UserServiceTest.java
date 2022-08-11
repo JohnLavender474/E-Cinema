@@ -3,10 +3,10 @@ package com.ecinema.app.services;
 import com.ecinema.app.beans.SecurityContext;
 import com.ecinema.app.domain.entities.*;
 import com.ecinema.app.domain.enums.UserAuthority;
-import com.ecinema.app.domain.validators.*;
 import com.ecinema.app.repositories.*;
 import com.ecinema.app.domain.dtos.UserDto;
 import com.ecinema.app.exceptions.ClashException;
+import com.ecinema.app.validators.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -34,6 +34,7 @@ class UserServiceTest {
     private UsernameValidator usernameValidator;
     private PasswordValidator PasswordValidator;
     private PaymentCardService paymentCardService;
+    private SeatBookingValidator seatBookingValidator;
     private UserProfileValidator userProfileValidator;
     private RegistrationValidator registrationValidator;
     @Mock
@@ -57,38 +58,25 @@ class UserServiceTest {
 
     @BeforeEach
     void setUp() {
+        seatBookingValidator = new SeatBookingValidator();
         securityContext = new SecurityContext();
         emailValidator = new EmailValidator();
         usernameValidator = new UsernameValidator();
         PasswordValidator = new PasswordValidator();
         userProfileValidator = new UserProfileValidator();
-        registrationValidator = new RegistrationValidator(
-                emailValidator, userProfileValidator,
-                usernameValidator, PasswordValidator);
-        reviewVoteService = new ReviewVoteService(
-                reviewVoteRepository, reviewRepository, customerRepository);
-        reviewService = new ReviewService(
-                reviewRepository, null,
-                null, null, reviewVoteService);
-        ticketService = new TicketService(
-                ticketRepository, null, customerRepository,
+        registrationValidator = new RegistrationValidator(emailValidator, userProfileValidator, usernameValidator,
+                PasswordValidator);
+        reviewVoteService = new ReviewVoteService(reviewVoteRepository, reviewRepository, customerRepository);
+        reviewService = new ReviewService(reviewRepository, null, null, null, reviewVoteService);
+        ticketService = new TicketService(ticketRepository, null, seatBookingValidator, customerRepository,
                 paymentCardRepository, screeningSeatRepository);
-        paymentCardService = new PaymentCardService(
-                paymentCardRepository, null,
-                null, null);
-        adminService = new AdminService(adminRepository, userRepository,
-                                        null, null);
-        customerService = new CustomerService(
-                customerRepository, screeningSeatRepository,
-                null, reviewService, ticketService,
-                paymentCardService, reviewVoteService, securityContext);
-        moderatorService = new ModeratorService(
-                moderatorRepository, customerRepository);
-        userService = new UserService(
-                userRepository, customerService,
-                moderatorService, adminService,
-                null,  userProfileValidator,
-                registrationValidator);
+        paymentCardService = new PaymentCardService(paymentCardRepository, null, null, null);
+        adminService = new AdminService(adminRepository, userRepository, null, null);
+        customerService = new CustomerService(customerRepository, screeningSeatRepository, null, reviewService,
+                ticketService, paymentCardService, reviewVoteService, securityContext);
+        moderatorService = new ModeratorService(moderatorRepository, customerRepository);
+        userService = new UserService(userRepository, customerService, moderatorService, adminService, null,
+                userProfileValidator, registrationValidator);
     }
 
     @Test

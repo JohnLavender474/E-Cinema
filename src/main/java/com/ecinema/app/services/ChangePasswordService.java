@@ -4,7 +4,7 @@ import com.ecinema.app.domain.dtos.ChangePasswordDto;
 import com.ecinema.app.domain.entities.ChangePassword;
 import com.ecinema.app.domain.entities.User;
 import com.ecinema.app.domain.forms.ChangePasswordForm;
-import com.ecinema.app.domain.validators.PasswordValidator;
+import com.ecinema.app.validators.PasswordValidator;
 import com.ecinema.app.exceptions.*;
 import com.ecinema.app.repositories.ChangePasswordRepository;
 import com.ecinema.app.repositories.UserRepository;

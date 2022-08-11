@@ -5,7 +5,7 @@ import com.ecinema.app.configs.InitializationConfig;
 import com.ecinema.app.domain.contracts.IProfile;
 import com.ecinema.app.domain.dtos.UserDto;
 import com.ecinema.app.domain.forms.UserProfileForm;
-import com.ecinema.app.domain.validators.UserProfileValidator;
+import com.ecinema.app.validators.UserProfileValidator;
 import com.ecinema.app.services.UserService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -22,7 +22,6 @@ import org.springframework.web.context.WebApplicationContext;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.Month;
-import java.util.Optional;
 
 import static org.hamcrest.Matchers.hasProperty;
 import static org.hamcrest.Matchers.is;

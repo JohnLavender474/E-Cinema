@@ -88,6 +88,12 @@ public class ScreeningSeatService extends AbstractEntityService<
         return mapOfScreeningSeats;
     }
 
+    public Long getScreeningIdOfScreeningSeatWithId(Long screeningSeatId) {
+        ScreeningSeat screeningSeat = repository.findById(screeningSeatId).orElseThrow(
+                () -> new NoEntityFoundException("No screening seat found with id " + screeningSeatId));
+        return screeningSeat.getScreening() != null ? screeningSeat.getScreening().getId() : null;
+    }
+
     public SeatBookingForm fetchSeatBookingForm(Long screeningSeatId)
             throws NoEntityFoundException {
         ScreeningSeat screeningSeat = repository.findById(screeningSeatId).orElseThrow(
@@ -96,7 +102,6 @@ public class ScreeningSeatService extends AbstractEntityService<
                 .orElseThrow(() -> new NoEntityFoundException(
                         "screening id", "screening seat id", screeningSeat));
         SeatBookingForm seatBookingForm = new SeatBookingForm();
-        seatBookingForm.setScreeningId(screeningId);
         seatBookingForm.setScreeningSeatId(screeningSeatId);
         seatBookingForm.setTicketType(TicketType.ADULT);
         seatBookingForm.setTokensToApply(0);

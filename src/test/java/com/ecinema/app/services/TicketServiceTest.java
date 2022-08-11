@@ -7,6 +7,7 @@ import com.ecinema.app.domain.forms.SeatBookingForm;
 import com.ecinema.app.exceptions.InvalidActionException;
 import com.ecinema.app.exceptions.NoEntityFoundException;
 import com.ecinema.app.repositories.*;
+import com.ecinema.app.validators.SeatBookingValidator;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -35,6 +36,7 @@ class TicketServiceTest {
     private ReviewService reviewService;
     private PaymentCardService paymentCardService;
     private SecurityContext securityContext;
+    private SeatBookingValidator seatBookingValidator;
     @Mock
     private EmailService emailService;
     @Mock
@@ -59,29 +61,19 @@ class TicketServiceTest {
     @BeforeEach
     void setUp() {
         securityContext = new SecurityContext();
-        ticketService = new TicketService(
-                ticketRepository, emailService, customerRepository,
+        seatBookingValidator = new SeatBookingValidator();
+        ticketService = new TicketService(ticketRepository, emailService, seatBookingValidator, customerRepository,
                 paymentCardRepository, screeningSeatRepository);
-        screeningSeatService = new ScreeningSeatService(
-                screeningSeatRepository, ticketService);
-        showroomSeatService = new ShowroomSeatService(
-                showroomSeatRepository, screeningSeatService);
-        screeningService = new ScreeningService(
-                screeningRepository, movieRepository, null,
-                showroomRepository,  screeningSeatService, null);
-        reviewService = new ReviewService(
-                reviewRepository, movieRepository,
-                null, null, null);
-        paymentCardService = new PaymentCardService(
-                paymentCardRepository, null,
-                null, null);
-        customerService = new CustomerService(
-                customerRepository, screeningSeatRepository,
-                null, reviewService, ticketService,
-                paymentCardService, null, securityContext);
-        showroomService = new ShowroomService(
-                showroomRepository, showroomSeatService,
-                screeningService, null, ticketRepository);
+        screeningSeatService = new ScreeningSeatService(screeningSeatRepository, ticketService);
+        showroomSeatService = new ShowroomSeatService(showroomSeatRepository, screeningSeatService);
+        screeningService = new ScreeningService(screeningRepository, movieRepository, null, showroomRepository,
+                screeningSeatService, null);
+        reviewService = new ReviewService(reviewRepository, movieRepository, null, null, null);
+        paymentCardService = new PaymentCardService(paymentCardRepository, null, null, null);
+        customerService = new CustomerService(customerRepository, screeningSeatRepository, null, reviewService,
+                ticketService, paymentCardService, null, securityContext);
+        showroomService = new ShowroomService(showroomRepository, showroomSeatService, screeningService, null,
+                ticketRepository);
     }
 
     @Test

@@ -7,8 +7,9 @@ import com.ecinema.app.domain.enums.*;
 import com.ecinema.app.domain.forms.ReviewForm;
 import com.ecinema.app.domain.objects.Duration;
 import com.ecinema.app.repositories.*;
-import com.ecinema.app.domain.validators.MovieValidator;
-import com.ecinema.app.domain.validators.ReviewValidator;
+import com.ecinema.app.validators.MovieValidator;
+import com.ecinema.app.validators.ReviewValidator;
+import com.ecinema.app.validators.SeatBookingValidator;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -42,6 +43,7 @@ class MovieServiceTest {
     private PaymentCardService paymentCardService;
     private ShowroomSeatService showroomSeatService;
     private ScreeningSeatService screeningSeatService;
+    private SeatBookingValidator seatBookingValidator;
     @Mock
     private MovieRepository movieRepository;
     @Mock
@@ -70,38 +72,23 @@ class MovieServiceTest {
         securityContext = new SecurityContext();
         reviewValidator = new ReviewValidator();
         movieValidator = new MovieValidator();
-        reviewVoteService = new ReviewVoteService(
-                reviewVoteRepository, reviewRepository, customerRepository);
-        reviewService = new ReviewService(
-                reviewRepository, movieRepository,
-                customerRepository, reviewValidator, reviewVoteService);
-        ticketService = new TicketService(
-                ticketRepository, null, customerRepository,
+        seatBookingValidator = new SeatBookingValidator();
+        reviewVoteService = new ReviewVoteService(reviewVoteRepository, reviewRepository, customerRepository);
+        reviewService = new ReviewService(reviewRepository, movieRepository, customerRepository, reviewValidator,
+                reviewVoteService);
+        ticketService = new TicketService(ticketRepository, null, seatBookingValidator, customerRepository,
                 paymentCardRepository, screeningSeatRepository);
-        paymentCardService = new PaymentCardService(
-                paymentCardRepository, null,
-                customerRepository, null);
-        screeningSeatService = new ScreeningSeatService(
-                screeningSeatRepository, ticketService);
-        screeningService = new ScreeningService(
-                screeningRepository, movieRepository, ticketRepository,
+        paymentCardService = new PaymentCardService(paymentCardRepository, null, customerRepository, null);
+        screeningSeatService = new ScreeningSeatService(screeningSeatRepository, ticketService);
+        screeningService = new ScreeningService(screeningRepository, movieRepository, ticketRepository,
                 showroomRepository, screeningSeatService, null);
-        customerService = new CustomerService(
-                customerRepository, screeningSeatRepository,
-                null, reviewService, ticketService,
-                paymentCardService, reviewVoteService, securityContext);
-        movieService = new MovieService(
-                movieRepository, reviewService,
-                screeningService, movieValidator);
-        showroomSeatService = new ShowroomSeatService(
-                showroomSeatRepository, screeningSeatService);
-        showroomService = new ShowroomService(
-                showroomRepository, showroomSeatService,
-                screeningService, null, ticketRepository);
-        userService = new UserService(
-                userRepository, customerService,
-                null, null, null,
-                null, null);
+        customerService = new CustomerService(customerRepository, screeningSeatRepository, null, reviewService,
+                ticketService, paymentCardService, reviewVoteService, securityContext);
+        movieService = new MovieService(movieRepository, reviewService, screeningService, movieValidator);
+        showroomSeatService = new ShowroomSeatService(showroomSeatRepository, screeningSeatService);
+        showroomService = new ShowroomService(showroomRepository, showroomSeatService, screeningService, null,
+                ticketRepository);
+        userService = new UserService(userRepository, customerService, null, null, null, null, null);
     }
 
     @Test

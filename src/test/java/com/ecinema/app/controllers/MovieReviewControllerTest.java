@@ -11,7 +11,7 @@ import com.ecinema.app.domain.entities.Movie;
 import com.ecinema.app.domain.enums.UserAuthority;
 import com.ecinema.app.domain.enums.Vote;
 import com.ecinema.app.domain.forms.ReviewForm;
-import com.ecinema.app.domain.validators.ReviewValidator;
+import com.ecinema.app.validators.ReviewValidator;
 import com.ecinema.app.exceptions.InvalidArgumentException;
 import com.ecinema.app.repositories.CustomerRepository;
 import com.ecinema.app.repositories.MovieRepository;

@@ -1,7 +1,6 @@
-package com.ecinema.app.domain.validators;
+package com.ecinema.app.validators;
 
 import com.ecinema.app.domain.contracts.IShowroom;
-import com.ecinema.app.domain.forms.ShowroomForm;
 import com.ecinema.app.domain.enums.Letter;
 import org.springframework.stereotype.Component;
 

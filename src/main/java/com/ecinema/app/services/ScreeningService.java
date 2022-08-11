@@ -3,7 +3,7 @@ package com.ecinema.app.services;
 import com.ecinema.app.domain.dtos.ScreeningDto;
 import com.ecinema.app.domain.entities.*;
 import com.ecinema.app.domain.forms.ScreeningForm;
-import com.ecinema.app.domain.validators.ScreeningValidator;
+import com.ecinema.app.validators.ScreeningValidator;
 import com.ecinema.app.exceptions.ClashException;
 import com.ecinema.app.exceptions.InvalidArgumentException;
 import com.ecinema.app.exceptions.NoEntityFoundException;

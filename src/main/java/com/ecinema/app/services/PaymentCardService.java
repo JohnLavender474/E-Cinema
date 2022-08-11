@@ -6,7 +6,7 @@ import com.ecinema.app.domain.entities.Customer;
 import com.ecinema.app.domain.entities.PaymentCard;
 import com.ecinema.app.domain.entities.Ticket;
 import com.ecinema.app.domain.forms.PaymentCardForm;
-import com.ecinema.app.domain.validators.PaymentCardValidator;
+import com.ecinema.app.validators.PaymentCardValidator;
 import com.ecinema.app.exceptions.InvalidArgumentException;
 import com.ecinema.app.exceptions.NoEntityFoundException;
 import com.ecinema.app.repositories.CustomerRepository;

@@ -3,8 +3,9 @@ package com.ecinema.app.services;
 import com.ecinema.app.domain.dtos.ShowroomDto;
 import com.ecinema.app.domain.entities.*;
 import com.ecinema.app.domain.forms.ShowroomForm;
-import com.ecinema.app.domain.validators.ScreeningValidator;
-import com.ecinema.app.domain.validators.ShowroomValidator;
+import com.ecinema.app.validators.ScreeningValidator;
+import com.ecinema.app.validators.SeatBookingValidator;
+import com.ecinema.app.validators.ShowroomValidator;
 import com.ecinema.app.repositories.*;
 import com.ecinema.app.domain.enums.Letter;
 import org.junit.jupiter.api.BeforeEach;
@@ -32,6 +33,7 @@ class ShowroomServiceTest {
     private TicketService ticketService;
     private ShowroomValidator showroomValidator;
     private ScreeningValidator screeningValidator;
+    private SeatBookingValidator seatBookingValidator;
     @Mock
     private ShowroomRepository showroomRepository;
     @Mock
@@ -53,20 +55,15 @@ class ShowroomServiceTest {
     void setUp() {
         showroomValidator = new ShowroomValidator();
         screeningValidator = new ScreeningValidator();
-        ticketService = new TicketService(
-                ticketRepository, null, null,
-                null, screeningSeatRepository);
-        screeningSeatService = new ScreeningSeatService(
-                screeningSeatRepository, ticketService);
-        screeningService = new ScreeningService(
-                screeningRepository, movieRepository, null,
-                showroomRepository,  screeningSeatService,
-                screeningValidator);
-        showroomSeatService = new ShowroomSeatService(
-                showroomSeatRepository, screeningSeatService);
-        showroomService = new ShowroomService(
-                showroomRepository, showroomSeatService,
-                screeningService, showroomValidator, ticketRepository);
+        seatBookingValidator = new SeatBookingValidator();
+        ticketService = new TicketService(ticketRepository, null, seatBookingValidator, null, null,
+                screeningSeatRepository);
+        screeningSeatService = new ScreeningSeatService(screeningSeatRepository, ticketService);
+        screeningService = new ScreeningService(screeningRepository, movieRepository, null, showroomRepository,
+                screeningSeatService, screeningValidator);
+        showroomSeatService = new ShowroomSeatService(showroomSeatRepository, screeningSeatService);
+        showroomService = new ShowroomService(showroomRepository, showroomSeatService, screeningService,
+                showroomValidator, ticketRepository);
     }
 
     @Test

@@ -9,6 +9,7 @@ import com.ecinema.app.repositories.ScreeningSeatRepository;
 import com.ecinema.app.repositories.ShowroomRepository;
 import com.ecinema.app.repositories.ShowroomSeatRepository;
 import com.ecinema.app.repositories.TicketRepository;
+import com.ecinema.app.validators.SeatBookingValidator;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -24,6 +25,7 @@ class ScreeningSeatServiceTest {
     private ShowroomService showroomService;
     private ShowroomSeatService showroomSeatService;
     private ScreeningSeatService screeningSeatService;
+    private SeatBookingValidator seatBookingValidator;
     @Mock
     private TicketRepository ticketRepository;
     @Mock
@@ -35,16 +37,12 @@ class ScreeningSeatServiceTest {
 
     @BeforeEach
     void setUp() {
-        ticketService = new TicketService(
-                ticketRepository, null, null,
-                null, screeningSeatRepository);
-        screeningSeatService = new ScreeningSeatService(
-                screeningSeatRepository, ticketService);
-        showroomSeatService = new ShowroomSeatService(
-                showroomSeatRepository, screeningSeatService);
-        showroomService = new ShowroomService(
-                showroomRepository, showroomSeatService,
-                null, null, ticketRepository);
+        seatBookingValidator = new SeatBookingValidator();
+        ticketService = new TicketService(ticketRepository, null, seatBookingValidator, null, null,
+                screeningSeatRepository);
+        screeningSeatService = new ScreeningSeatService(screeningSeatRepository, ticketService);
+        showroomSeatService = new ShowroomSeatService(showroomSeatRepository, screeningSeatService);
+        showroomService = new ShowroomService(showroomRepository, showroomSeatService, null, null, ticketRepository);
     }
 
     @Test

@@ -1,9 +1,8 @@
-package com.ecinema.app.domain.validators;
+package com.ecinema.app.validators;
 
 import com.ecinema.app.domain.contracts.IAddress;
 import org.springframework.stereotype.Component;
 
-import java.util.Collection;
 import java.util.Collection;
 
 @Component
