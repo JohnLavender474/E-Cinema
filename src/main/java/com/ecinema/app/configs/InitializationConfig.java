@@ -68,7 +68,7 @@ public class InitializationConfig {
         rootUserForm.setLastName("Montgomery");
         rootUserForm.setBirthDate(LocalDate.of(1998, Month.JULY, 9));
         rootUserForm.setSecurityQuestion1(SecurityQuestions.SQ1);
-        rootUserForm.setSecurityAnswer1("Bowser");
+        rootUserForm.setSecurityAnswer1("shaggy");
         rootUserForm.setSecurityQuestion2(SecurityQuestions.SQ5);
         rootUserForm.setSecurityAnswer2("root beer");
         rootUserForm.setAuthorities(EnumSet.of(UserAuthority.ADMIN, UserAuthority.MODERATOR));
@@ -94,17 +94,17 @@ public class InitializationConfig {
 
     private void defineCustomer2() {
         RegistrationForm registrationForm = new RegistrationForm();
-        registrationForm.setUsername("LeviLavendersky48");
+        registrationForm.setUsername("BigFloofy48");
         registrationForm.setEmail("customer2@gmail.com");
         registrationForm.setPassword("cheeseburger474?!");
-        registrationForm.setConfirmPassword("cheeseburger474?!");
-        registrationForm.setFirstName("Levi");
-        registrationForm.setLastName("Lavendersky");
+        registrationForm.setConfirmPassword("cheeseburger123?!");
+        registrationForm.setFirstName("Big");
+        registrationForm.setLastName("Floofy");
         registrationForm.setBirthDate(LocalDate.of(1948, Month.DECEMBER, 6));
         registrationForm.setSecurityQuestion1(SecurityQuestions.SQ3);
-        registrationForm.setSecurityAnswer1("Shorty Lee");
+        registrationForm.setSecurityAnswer1("Kitty");
         registrationForm.setSecurityQuestion2(SecurityQuestions.SQ4);
-        registrationForm.setSecurityAnswer2("Love Song for Bobby Lee");
+        registrationForm.setSecurityAnswer2("Cats");
         registrationForm.setAuthorities(EnumSet.of(UserAuthority.CUSTOMER, UserAuthority.MODERATOR));
         userService.register(registrationForm, false, false, false);
     }

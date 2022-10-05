@@ -21,7 +21,7 @@ following commands. Do not include quotation marks for env vars.
 
         $ docker network create ecinema-network
 
-        $ docker container run —name mysqldb —network ecinema-network -e MYSQL_DATABASE=ecinemadb -e MYSQL_ROOT_PASSWORD=root -d mysql:8
+        $ docker container run --name mysqldb --network ecinema-network -e MYSQL_DATABASE=ecinemadb -e MYSQL_ROOT_PASSWORD=root -d mysql:8
 
         $ docker image build -t ecinema .
 
@@ -35,3 +35,10 @@ following commands. Do not include quotation marks for env vars.
         $ docker container logs -f "id"
 
 Now you may visit @ "localhost:8080/" to begin using the app!
+
+If you would like to log into the root admin account, use "RootUser123" or "admin@gmail.com" for the username and "password123?!"
+for the password. Because the email is fake, some functionality of this admin will not work by default. If you would like 
+to use a real email address, then go to the file src/main/java/com/ecinema/app/configs/InitializationConfig.java and change
+the email in line 64 that reads "rootUserForm.setEmail("admin@gmail.com");". Also, along with that, anything default such as
+movies, showrooms, and so on can be changed by editing the InitializationConfig.java (or any other file for that matter) 
+if you just want to goof around with the project. :)
