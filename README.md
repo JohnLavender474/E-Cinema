@@ -42,3 +42,11 @@ to use a real email address, then go to the file src/main/java/com/ecinema/app/c
 the email in line 64 that reads "rootUserForm.setEmail("admin@gmail.com");". Also, along with that, anything default such as
 movies, showrooms, and so on can be changed by editing the InitializationConfig.java (or any other file for that matter) 
 if you just want to goof around with the project. :)
+
+![1](img/1.png?raw=true "1")
+![2](img/2.png?raw=true "2")
+![3](img/3.png?raw=true "3")
+![4](img/4.png?raw=true "4")
+![5](img/5.png?raw=true "5")
+![6](img/6.png?raw=true "6")
+![7](img/7.png?raw=true "7")
