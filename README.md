@@ -7,7 +7,19 @@
 
 - John Lavender:
 
-    - Worked with the Java code, creating the classes for entities, services, and controllers. Collaborated on drawing UML diagrams. 
+    - Worked on the Java code, creating the classes for entities, services, and controllers. Wrote unit and integration tests. Collaborated on UML diagrams. 
+    
+- Abishek Murugappan:
+
+    - Worked on JavaScript. Assisted with Java code. Collaborated on UML diagrams.
+    
+- Andrew Swann:
+
+    - Worked on documentation and UML diagrams. Acted as team leader, setting meeting times and deadlines.
+    
+- Dahun Im:
+
+    - Worked on HTML and CSS. Designed web page flow and connecting frontend to backend.
 
 ---
 
