@@ -11,11 +11,11 @@
     
 - Abishek Murugappan:
 
-    - Worked on JavaScript. Assisted with Java code. Collaborated on UML diagrams.
+    - Worked on JavaScript. Assisted with Java code, aided in testing app on different operating systems. Helped with Dockerizing app. Collaborated on UML diagrams.
     
 - Andrew Swann:
 
-    - Worked on documentation and UML diagrams. Acted as team leader, setting meeting times and deadlines.
+    - Main creator of documentation and UML diagrams. Acted as SCRUM leader, setting meeting times, expectations, and deadlines.
     
 - Dahun Im:
 
