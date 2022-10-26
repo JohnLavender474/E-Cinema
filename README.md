@@ -1,7 +1,15 @@
 # ECinema
-## Spring Boot Project by John Lavender
+## TEAM Spring Boot Project for CSCI 4050
 
------------------------------------------
+---
+
+## MEMBERS:
+
+- John Lavender
+
+Worked with the Java code, creating the classes for entities, services, and controllers. Collaborated on drawing UML diagrams. 
+
+---
 
 This is a mock website application with the main purpose of allowing customers to purchase tickets to see movie showings.
 There are two types of user authorities: customers and admins. A user account can be either a customer, moderator, or admin 
