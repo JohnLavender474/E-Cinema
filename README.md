@@ -7,7 +7,7 @@
 
 - John Lavender
 
-Worked with the Java code, creating the classes for entities, services, and controllers. Collaborated on drawing UML diagrams. 
+    - Worked with the Java code, creating the classes for entities, services, and controllers. Collaborated on drawing UML diagrams. 
 
 ---
 
