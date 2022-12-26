@@ -1,29 +1,7 @@
 # ECinema
-## TEAM Spring Boot Project for CSCI 4050
+## Spring Boot Project for CSCI 4050
 
----
-
-## MEMBERS:
-
-- John Lavender:
-
-    - Worked on the Java code, creating the classes for entities, services, and controllers. Wrote unit and integration tests. Collaborated on UML diagrams. 
-    
-- Abishek Murugappan:
-
-    - Worked on JavaScript. Assisted with Java code, aided in testing app on different operating systems. Helped with Dockerizing app. Collaborated on UML diagrams.
-    
-- Andrew Swann:
-
-    - Main creator of documentation and UML diagrams. Acted as SCRUM leader, setting meeting times, expectations, and deadlines.
-    
-- Dahun Im:
-
-    - Worked on HTML and CSS. Designed web page flow and connecting frontend to backend.
-
----
-
-This is a mock website application with the main purpose of allowing customers to purchase tickets to see movie showings. There are two types of user authorities: customers and admins. A user account can be either a customer, moderator, or admin account or any combination of the three. Customers are able to save payment card information to their account and purchase tickets. Admins are able to add, edit, and delete entities such as movies, showtimes, showrooms, and so on. Admins can also lock users' accounts and reset a user's password. Moderators have the single ability to delete reviews if necessary.
+This is a mock web app. The purpose of building this app was to learn how to build apps in Spring Boot. This app allows customers to purchase tickets to see movie showings. There are two types of user authorities: customers and admins. A user account can be either a customer, moderator, or admin account or any combination of the three. Customers are able to save payment card information to their account and purchase tickets. Admins are able to add, edit, and delete entities such as movies, showtimes, showrooms, and so on. Admins can also lock users' accounts and reset a user's password. Moderators have the single ability to delete reviews if necessary.
 
 The app has many cool features like the ability to write reviews for movies, book multiple seats each with a different ticket type, like and dislike tickets, and so much more!
 
