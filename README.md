@@ -1,4 +1,4 @@
-# ECinema
+# E-Cinema
 
 This is a mock web app. The purpose of building this app was to learn how to build apps in Spring Boot. I used many different free tutorials online for learning: Youtube, W3Schools, etc. This app allows customers to purchase tickets to see movie showings. There are two types of user authorities: customers and admins. A user account can be either a customer, moderator, or admin account or any combination of the three. Customers are able to save payment card information to their account and purchase tickets. Admins are able to add, edit, and delete entities such as movies, showtimes, showrooms, and so on. Admins can also lock users' accounts and reset a user's password. Moderators have the single ability to delete reviews if necessary.
 
